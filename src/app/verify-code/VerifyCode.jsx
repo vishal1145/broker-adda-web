@@ -1,0 +1,306 @@
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+
+const VerifyCode = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [resendTimer, setResendTimer] = useState(0);
+  const inputRefs = useRef([]);
+
+ 
+  // const joinUrl = (base, path) => {
+  //   const trimmedBase = base?.replace(/\/$/, "") || "";
+  //   const trimmedPath = (path || "").replace(/^\//, "");
+  //   return `${trimmedBase}/${trimmedPath}`;
+  // };
+
+  // Get phone number from URL params
+  const phoneNumber = searchParams.get('phone') ;
+
+  useEffect(() => {
+    // Focus first input on mount
+    if (inputRefs.current[0]) {
+      inputRefs.current[0].focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    let timer;
+    if (resendTimer > 0) {
+      timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendTimer]);
+
+  const handleChange = (index, value) => {
+    // Only allow single digit
+    if (value.length > 1) return;
+    
+    const newCode = [...code];
+    newCode[index] = value;
+    setCode(newCode);
+
+    // Clear error when user starts typing
+    if (errors.general) {
+      setErrors({});
+    }
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index, e) => {
+    // Handle backspace
+    if (e.key === 'Backspace' && !code[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const newCode = [...code];
+    
+    for (let i = 0; i < pastedData.length && i < 6; i++) {
+      newCode[i] = pastedData[i];
+    }
+    
+    setCode(newCode);
+    
+    // Focus the next empty input or last input
+    const nextEmptyIndex = newCode.findIndex((digit, index) => !digit && index < 6);
+    const focusIndex = nextEmptyIndex !== -1 ? nextEmptyIndex : 5;
+    inputRefs.current[focusIndex]?.focus();
+  };
+
+  const validateCode = () => {
+    const codeString = code.join('');
+    if (codeString.length !== 6) {
+      setErrors({ general: "Please enter the complete 6-digit code" });
+      return false;
+    }
+    if (!/^\d{6}$/.test(codeString)) {
+      setErrors({ general: "Code must contain only numbers" });
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateCode()) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const codeString = code.join('');
+      const requestUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`;
+      const response = await fetch(requestUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: searchParams.get('phone'),
+          otp: codeString,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && (data.success === undefined || data.success === true)) {
+        const role = data?.role || data?.user?.role || data?.data?.role || '';
+        const token = data?.token || data?.data?.token;
+        const phoneFromApi = data?.phone || data?.data?.phone || searchParams.get('phone');
+
+        try {
+          if (token) localStorage.setItem('token', String(token));
+          if (phoneFromApi) localStorage.setItem('phone', String(phoneFromApi));
+          if (role) localStorage.setItem('role', String(role));
+        } catch (_) {}
+
+        if (role === 'broker') {
+          router.push('/myaccount');
+        } else if (role === 'customer') {
+          router.push('/myaccount-customer');
+        } else {
+          // Fallback: if role not provided, default to customer dashboard
+          router.push('/myaccount-customer');
+        }
+      } else {
+        console.error('Verify OTP failed:', { url: requestUrl, status: response.status, data });
+        setErrors({ general: data.message || `Verification failed (${response.status})` });
+      }
+    } catch (error) {
+      console.error('Verify OTP network error:', error);
+      setErrors({ general: "Verification failed. Please try again." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = () => {
+    setResendTimer(60); // 60 seconds cooldown
+    // In real app, you would trigger resend API call here
+    console.log("Resending verification code...");
+  };
+
+  return (
+    <div className="min-h-screen py-12 flex">
+      {/* Left Column - Verify Code Form */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          {/* <div className="flex items-center mb-8">
+            <div className="w-10 h-10 bg-green-900 rounded-full flex items-center justify-center mr-3">
+              <span className="text-white font-bold text-lg">F</span>
+            </div>
+            <span className="text-2xl font-bold text-gray-900">Furniture.</span>
+            <div className="w-2 h-2 bg-orange-400 rounded-full ml-2"></div>
+          </div> */}
+
+          {/* Title */}
+    <div className="mb-8 ">
+  <div className="text-left mb-4 ">
+    <Link 
+      href="/login" 
+      className="flex items-center gap-2 text-gray-600 hover:text-green-900 font-medium"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M15 18L9 12l6-6" />
+      </svg>
+      Back to Login
+    </Link>
+  </div>
+
+  <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Code</h1>
+  <p className="text-gray-600">
+    Please enter the code we just sent to your phone number
+  </p>
+  <p className="text-green-900 font-medium mt-2">{phoneNumber}</p>
+</div>
+
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {errors.general && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+                {errors.general}
+              </div>
+            )}
+
+            {/* Code Input Fields */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-4">
+                Code *
+              </label>
+              <div className="flex  space-x-3">
+                {code.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => (inputRefs.current[index] = el)}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength="1"
+                    value={digit}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    onPaste={handlePaste}
+                    className="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300  focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Verify Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-green-900 text-white py-3 px-4 rounded-full font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Verifying..." : "Verify"}
+            </button>
+
+            {/* Resend Code */}
+            <div className="text-center">
+              <p className="text-gray-600">
+                Didn't receive code?{" "}
+                {resendTimer > 0 ? (
+                  <span className="text-gray-400">
+                    Resend in {resendTimer}s
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResendCode}
+                    className="text-green-900 hover:text-green-800 font-medium underline"
+                  >
+                    Resend Code
+                  </button>
+                )}
+              </p>
+            </div>
+
+            {/* Back to Login */}
+      
+          </form>
+        </div>
+      </div>
+
+      {/* Right Column - Background Image */}
+      <div className="hidden lg:flex lg:flex-1 relative">
+        <div className="w-[650px] h-[800px] rounded-2xl overflow-hidden relative">
+          <img
+            src="/images/realestate.png"
+            alt="Modern Interior"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextElementSibling.style.display = 'block';
+            }}
+          />
+          
+          {/* Testimonial Card - Frosted Glass Effect */}
+          <div className="absolute bottom-20 left-6 right-4">
+            <div className=" bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 rounded-2xl p-6 w-[600px] shadow-2xl">
+                <p className="text-white text-base leading-relaxed mb-4">
+                "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore."
+              </p>
+              <div className="space-y-1">
+                <h4 className="text-white font-semibold text-base">Annette Black</h4>
+                <p className="text-white text-sm">Architecture</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Progress Indicator - 4 Segments */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full"></div>
+            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full"></div>
+            <div className="w-32 h-2 bg-orange-400 rounded-full"></div>
+            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default VerifyCode;

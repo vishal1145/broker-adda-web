@@ -1,0 +1,56 @@
+{
+  "title": "About Us",
+  "section": "Our Story",
+  "description": "We are passionate about creating beautiful, functional furniture that transforms your living spaces. With over 20 years of experience in the furniture industry, we've built a reputation for quality craftsmanship, innovative design, and exceptional customer service. Our team of skilled artisans and designers work together to bring you furniture that not only looks stunning but also stands the test of time.",
+  "author": {
+    "name": "Sarah Johnson",
+    "role": "Founder & CEO"
+  },
+  "breadcrumb": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "About Us",
+      "href": "/about"
+    }
+  ],
+  "images": [
+    "/images/girl2.png",
+    "/images/girl1.png",
+    "/images/girl3.png"
+  ],
+  "stats": [
+    {
+      "number": "20+",
+      "label": "Years Experience"
+    },
+    {
+      "number": "10K+",
+      "label": "Happy Customers"
+    },
+    {
+      "number": "500+",
+      "label": "Furniture Pieces"
+    },
+    {
+      "number": "50+",
+      "label": "Team Members"
+    }
+  ],
+  "values": [
+    {
+      "title": "Quality Craftsmanship",
+      "description": "Every piece is carefully crafted using premium materials and traditional techniques combined with modern innovation."
+    },
+    {
+      "title": "Sustainable Design",
+      "description": "We're committed to eco-friendly practices, using responsibly sourced materials and reducing our environmental impact."
+    },
+    {
+      "title": "Customer Satisfaction",
+      "description": "Your satisfaction is our priority. We provide exceptional service and support throughout your furniture journey."
+    }
+  ]
+}

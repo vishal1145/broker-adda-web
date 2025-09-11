@@ -1,0 +1,298 @@
+{
+  "title": "Shop",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "Shop", "href": "/shop" }
+    
+  ],
+  "results": {
+    "showing": 12,
+    "total": 24
+  },
+  "filters": {
+    "categories": [
+      "Bedroom", "Living Room", "Office", "Lighting", "Kitchen", "Outdoor", "Decor"
+    ],
+    "price": { "min": 25, "max": 125 },
+    "colors": ["Brown", "Grey","Black", "White", "Blue", "Green"],
+    "materials": ["Wood", "Metal", "Glass","Plastic","Upholstery"],
+    "availablity":[
+      { "label": "In Stock", "value": true },
+      { "label": "Out of Stock", "value": false }
+    ]
+  },
+  "activeFilters": [
+    { "type": "price", "label": "Price : $25.00 - $125.00" },
+    { "type": "color", "label": "Brown" },
+    { "type": "stock", "label": "In Stock" }
+  ],
+  "sortOptions": [
+    "Default Sorting", "Price: Low to High", "Price: High to Low", "Rating"
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Wooden Sofa Chair",
+      "type": "Chair",
+      "image": "/images/chair2.png",
+      "price": 80,
+      "oldPrice": 160,
+      "discount": "50% off",
+      "rating": 4.9,
+      "inStock": true
+    },
+    {
+      "id": 2,
+      "name": "Circular Sofa Chair",
+      "type": "Chair",
+      "image": "/images/sofaa2.png",
+      "price": 108,
+      "oldPrice": 120,
+      "discount": "10% off",
+      "rating": 5.0,
+      "inStock": true
+    },
+    {
+      "id": 3,
+      "name": "Wooden Nightstand",
+      "type": "Nightstand",
+      "image":  "/images/door2.png",
+      "price": 54,
+      "oldPrice": 60,
+      "discount": "10% off",
+      "rating": 4.8,
+      "inStock": true
+    },
+    {
+      "id": 4,
+      "name": "Modern Armchair",
+      "type": "Chair",
+      "image": "/images/bean bag.png",
+      "price": 120,
+      "oldPrice": 150,
+      "discount": "20% off",
+      "rating": 4.7,
+      "inStock": true
+    },
+    {
+      "id": 5,
+      "name": "Classic Rocking Chair",
+      "type": "Chair",
+      "image": "/images/Rocking Chair.png",
+      "price": 95,
+      "oldPrice": 130,
+      "discount": "25% off",
+      "rating": 4.6,
+      "inStock": true
+    },
+    {
+      "id": 6,
+      "name": "Minimalist Desk",
+      "type": "Desk",
+      "image": "/images/Rocking Chair2.png",
+      "price": 140,
+      "oldPrice": 180,
+      "discount": "22% off",
+      "rating": 4.9,
+      "inStock": true
+    },
+    {
+      "id": 7,
+      "name": "Bookshelf",
+      "type": "Shelf",
+      "image": "/images/Rocking Chair3.png",
+      "price": 110,
+      "oldPrice": 140,
+      "discount": "21% off",
+      "rating": 4.8,
+      "inStock": true
+    },
+    {
+      "id": 8,
+      "name": "Dining Table",
+      "type": "Table",
+      "image": "/images/lamp3.png",
+      "price": 200,
+      "oldPrice": 250,
+      "discount": "20% off",
+      "rating": 5.0,
+      "inStock": true
+    },
+    {
+      "id": 9,
+      "name": "Bedside Table",
+      "type": "Nightstand",
+      "image": "/images/Tble.png",
+      "price": 60,
+      "oldPrice": 80,
+      "discount": "25% off",
+      "rating": 4.7,
+      "inStock": true
+    },
+    {
+      "id": 10,
+      "name": "Office Chair",
+      "type": "Chair",
+      "image": "/images/roking chair.png",
+      "price": 90,
+      "oldPrice": 120,
+      "discount": "15% off",
+      "rating": 4.5,
+      "inStock": true
+    },
+    {
+      "id": 11,
+      "name": "Glass Coffee Table",
+      "type": "Table",
+      "image": "/images/chair9.png",
+      "price": 130,
+      "oldPrice": 170,
+      "discount": "23% off",
+      "rating": 4.6,
+      "inStock": true
+    },
+    {
+      "id": 12,
+      "name": "Plastic Stool",
+      "type": "Stool",
+      "image": "/images/bean.png",
+      "price": 30,
+      "oldPrice": 45,
+      "discount": "33% off",
+      "rating": 4.2,
+      "inStock": true
+    },
+    {
+      "id": 13,
+      "name": "Bookshelf",
+      "type": "Shelf",
+      "image": "/images/Rocking Chair3.png",
+      "price": 110,
+      "oldPrice": 140,
+      "discount": "21% off",
+      "rating": 4.8,
+      "inStock": true
+    },
+    {
+      "id": 14,
+      "name": "Dining Table",
+      "type": "Table",
+      "image": "/images/lamp3.png",
+      "price": 200,
+      "oldPrice": 250,
+      "discount": "20% off",
+      "rating": 5.0,
+      "inStock": true
+    },
+    {
+      "id": 15,
+      "name": "Bedside Table",
+      "type": "Nightstand",
+      "image": "/images/Tble.png",
+      "price": 60,
+      "oldPrice": 80,
+      "discount": "25% off",
+      "rating": 4.7,
+      "inStock": true
+    },
+    {
+      "id": 16,
+      "name": "Office Chair",
+      "type": "Chair",
+      "image": "/images/roking chair.png",
+      "price": 90,
+      "oldPrice": 120,
+      "discount": "15% off",
+      "rating": 4.5,
+      "inStock": true
+    },
+    {
+      "id": 17,
+      "name": "Glass Coffee Table",
+      "type": "Table",
+      "image": "/images/chair9.png",
+      "price": 130,
+      "oldPrice": 170,
+      "discount": "23% off",
+      "rating": 4.6,
+      "inStock": true
+    },
+    {
+      "id": 18,
+      "name": "Plastic Stool",
+      "type": "Stool",
+      "image": "/images/bean.png",
+      "price": 30,
+      "oldPrice": 45,
+      "discount": "33% off",
+      "rating": 4.2,
+      "inStock": true
+    },
+    {
+      "id": 19,
+      "name": "Wooden Sofa Chair",
+      "type": "Chair",
+      "image": "/images/chair2.png",
+      "price": 80,
+      "oldPrice": 160,
+      "discount": "50% off",
+      "rating": 4.9,
+      "inStock": true
+    },
+    {
+      "id": 20,
+      "name": "Circular Sofa Chair",
+      "type": "Chair",
+      "image": "/images/sofaa2.png",
+      "price": 108,
+      "oldPrice": 120,
+      "discount": "10% off",
+      "rating": 5.0,
+      "inStock": true
+    },
+    {
+      "id": 21,
+      "name": "Wooden Nightstand",
+      "type": "Nightstand",
+      "image":  "/images/door2.png",
+      "price": 54,
+      "oldPrice": 60,
+      "discount": "10% off",
+      "rating": 4.8,
+      "inStock": true
+    },
+    {
+      "id": 22,
+      "name": "Modern Armchair",
+      "type": "Chair",
+      "image": "/images/bean bag.png",
+      "price": 120,
+      "oldPrice": 150,
+      "discount": "20% off",
+      "rating": 4.7,
+      "inStock": true
+    },
+    {
+      "id": 23,
+      "name": "Classic Rocking Chair",
+      "type": "Chair",
+      "image": "/images/Rocking Chair.png",
+      "price": 95,
+      "oldPrice": 130,
+      "discount": "25% off",
+      "rating": 4.6,
+      "inStock": true
+    },
+    {
+      "id": 24,
+      "name": "Minimalist Desk",
+      "type": "Desk",
+      "image": "/images/Rocking Chair2.png",
+      "price": 140,
+      "oldPrice": 180,
+      "discount": "22% off",
+      "rating": 4.9,
+      "inStock": true
+    }
+  ]
+}

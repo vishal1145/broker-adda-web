@@ -1,0 +1,25 @@
+[
+  {
+    "name": "Jenny Alexander",
+    "role": "CEO, Furniture",
+    "image": "/images/ChatGPT_Image_Jul_18__2025__05_58_02_PM-removebg-preview.png",
+    "socials": {
+      "facebook": "#",
+      "twitter": "#",
+      "pinterest": "#",
+      "instagram": "#"
+    }
+  },
+  {
+    "name": "Robert Fox",
+    "role": "Carpenter",
+    "image": "/images/ChatGPT_Image_Jul_18__2025__06_01_58_PM-removebg-preview.png",
+    "socials": {}
+  },
+  {
+    "name": "Theresa Webb",
+    "role": "Carpenter",
+    "image": "/images/ChatGPT Image Jul 18, 2025, 06_03_04 PM.png",
+    "socials": {}
+  }
+]

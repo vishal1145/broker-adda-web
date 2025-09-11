@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Swivel Chair",
+    "type": "Chair",
+    "image": "/images/Swivel Chair.png",
+    "discount": "40% off",
+    "rating": 4.8,
+    "price": 60.00,
+    "oldPrice": 100.00
+  },
+  {
+    "id": 2,
+    "name": "Cushion Chair",
+    "type": "Chair",
+    "image": "/images/sofaa2.png",
+    "discount": "10% off",
+    "rating": 5.0,
+    "price": 60.00,
+    "oldPrice": 100.00
+  },
+  {
+    "id": 3,
+    "name": "Modern Chair",
+    "type": "Chair",
+    "image": "/images/chair3.png",
+    "discount": "10% off",
+    "rating": 5.0,
+    "price": 60.00,
+    "oldPrice": 100.00
+  },
+  {
+    "id": 4,
+    "name": "Classic Chair",
+    "type": "Chair",
+    "image": "/images/Classic Chair.png",
+    "discount": "20% off",
+    "rating": 5.0,
+    "price": 60.00,
+    "oldPrice": 100.00
+  }
+]

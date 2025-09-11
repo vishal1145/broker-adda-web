@@ -1,0 +1,68 @@
+{
+  "title": "Privacy Policy",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "Privacy Policy", "href": "/privacy" }
+  ],
+  "sections": [
+    {
+      "title": "Introduction",
+      "content": "At  AlgoFurnish for Every Room, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your personal information when you visit our website, make a purchase, or interact with our services."
+    },
+    {
+      "title": "Information We Collect",
+      "content": [
+        "Personal Details: Name, email, phone number, shipping and billing addresses.",
+        "Payment Information: Collected securely via third-party payment gateways; we do not store card details.",
+        "Usage Data: IP address, browser type, pages visited, and interaction data to improve website performance and user experience.",
+        "Communication Data: Messages sent through contact forms, email inquiries, or customer service interactions."
+      ]
+    },
+    {
+      "title": "How We Use Your Information",
+      "content": [
+        "Process and deliver orders",
+        "Communicate order updates or respond to queries",
+        "Improve our website and shopping experience",
+        "Send promotional offers (only with your consent)",
+        "Comply with legal obligations"
+      ]
+    },
+    {
+      "title": "Cookies",
+      "content": "We use cookies to enhance your browsing experience, remember your preferences, and analyze traffic. You can manage cookie settings in your browser."
+    },
+    {
+      "title": "Sharing Your Information",
+      "content": "We do not sell or rent your personal information. We may share your data with trusted service providers (e.g., delivery partners, payment processors) who assist in fulfilling your orders."
+    },
+    {
+      "title": "Data Security",
+      "content": "We implement industry-standard security measures to protect your personal data from unauthorized access, misuse, or disclosure."
+    },
+    {
+      "title": "Your Rights",
+      "content": [
+        "Access or correct your personal information",
+        "Request deletion of your data (subject to legal retention)",
+        "Opt out of marketing communications at any time"
+      ]
+    },
+    {
+      "title": "Third-Party Links",
+      "content": "Our website may contain links to third-party sites. We are not responsible for their privacy practices and encourage you to review their policies separately."
+    },
+    {
+      "title": "Changes to This Policy",
+      "content": "We may update this Privacy Policy from time to time. Changes will be posted on this page with the updated effective date."
+    },
+    {
+      "title": "Contact Us",
+      "content": [
+        "If you have any questions about this Privacy Policy or how we handle your data, please contact us at:",
+        "📧 support@yourstore.com",
+        "📞 Customer support phone number"
+      ]
+    }
+  ]
+}

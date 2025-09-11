@@ -1,0 +1,40 @@
+{
+   "title": "Order Completed",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "Order Complted", "href": "/ordercomplted" }
+  ],
+  
+  "products": [
+    {
+      "name": "Wooden Sofa Chair",
+      "color": "Grey",
+      "price": 320,
+      "image": "/images/chair2.png"
+    },
+    {
+      "name": "Red Gaming Chair",
+      "color": "Black",
+      "price": 180,
+      "image": "/images/chair5.png"
+    },
+    {
+      "name": "Swivel Chair",
+      "color": "Light Brown",
+      "price": 60,
+      "image": "/images/Rocking Chair3.png"
+    },
+    {
+      "name": "Circular Sofa Chair",
+      "color": "Brown",
+      "price": 180,
+      "image": "/images/sofaa2.png"
+    }
+  ],
+  "shipping": 0,
+  "taxes": 0,
+  "discount": 100,
+  "total": 640
+
+
+}

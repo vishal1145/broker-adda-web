@@ -1,0 +1,45 @@
+{
+    "title": "Wishlist",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "Wishlist", "href": "/wishlist" }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Wingback Chair",
+      "price": 160,
+      "color": "Light Brown",
+      "dateAdded": "18 April 2024",
+      "stockStatus": "In stock",
+      "image": "images/Rocking Chair.png"
+    },
+    {
+      "id": 2,
+      "name": "Wooden Sofa Chair",
+      "price": 80,
+      "color": "Grey",
+      "dateAdded": "17 April 2024",
+      "stockStatus": "In stock",
+      "image": "images/chair2.png"
+    },
+    {
+      "id": 3,
+      "name": "Bar Stool",
+      "price": 48,
+      "color": "Brown",
+      "dateAdded": "11 April 2024",
+      "stockStatus": "In stock",
+      "image": "images/chair.png"
+    },
+    {
+      "id": 4,
+      "name": "Wooden Nightstand",
+      "price": 54,
+      "color": "Light Brown",
+      "dateAdded": "05 April 2024",
+      "stockStatus": "In stock",
+      "image": "images/door2.png"
+    }
+  ]
+}

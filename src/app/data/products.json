@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "title": "Wooden Sofa Chair",
+    "image": "https://i.imgur.com/HXh2aKB.png",
+    "price": "80.00",
+    "oldPrice": "160.00",
+    "discount": "50%",
+    "category": "Chair",
+    "rating": "4.9"
+  },
+  {
+    "id": 2,
+    "title": "Living Room Chair",
+    "image": "https://i.imgur.com/U2bq5kU.jpg",
+    "price": "90.00",
+    "oldPrice": "130.00",
+    "discount": "30%",
+    "category": "Chair",
+    "rating": "4.7"
+  }
+]

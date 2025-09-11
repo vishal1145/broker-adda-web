@@ -1,0 +1,95 @@
+{
+  "header": {
+    "title": "Track Your Order",
+    "subtitle": "Enter your order details to see the latest status",
+    "breadcrumb": [
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "Track Your Order",
+        "href": "/track-results"
+      }
+    ]
+  },
+  "description": "To track your order please enter your Order ID in the box below and press the \"Track Order\" button. This was given to you on your receipt and in the confirmation email you should have received.",
+  "fields": {
+    "orderId": {
+      "label": "Order ID",
+      "placeholder": "Enter Your Order ID"
+    },
+    "email": {
+      "label": "Billing Email",
+      "placeholder": "Enter Email Address"
+    }
+  },
+  "buttonText": "Track Order",
+  "orderStatus": {
+    "orderId": "#SDGT1254FD",
+    "steps": [
+      {
+        "label": "Order Placed",
+        "icon": "document-checkmark",
+        "status": "completed",
+        "date": "20 Apr 2024",
+        "time": "11:00 AM"
+      },
+      {
+        "label": "Accepted",
+        "icon": "document-checkmark",
+        "status": "completed",
+        "date": "20 Apr 2024",
+        "time": "11:15 AM"
+      },
+      {
+        "label": "In Progress",
+        "icon": "box",
+        "status": "pending",
+        "expectedDate": "21 Apr 2024"
+      },
+      {
+        "label": "On the Way",
+        "icon": "delivery-truck",
+        "status": "pending",
+        "expectedDate": "22,23 Apr 2024"
+      },
+      {
+        "label": "Delivered",
+        "icon": "delivered-package",
+        "status": "pending",
+        "expectedDate": "24 Apr 2024"
+      }
+    ]
+  },
+  "products": [
+    {
+      "id": "prod1",
+      "name": "Wooden Sofa Chair",
+      "image": "/images/chair2.png",
+      "color": "Grey",
+      "quantity": 4
+    },
+    {
+      "id": "prod2",
+      "name": "Red Gaming Chair",
+      "image": "/images/chair7.png",
+      "color": "Black",
+      "quantity": 2
+    },
+    {
+      "id": "prod3",
+      "name": "Swivel Chair",
+      "image": "/images/Classic Chair.png",
+      "color": "Light Brown",
+      "quantity": 1
+    },
+    {
+      "id": "prod4",
+      "name": "Circular Sofa Chair",
+      "image": "/images/sofaa2.png",
+      "color": "Brown",
+      "quantity": 2
+    }
+  ]
+}

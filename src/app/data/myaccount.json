@@ -1,0 +1,73 @@
+{
+    "title": "My Account",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "My Account", "href": "/myaccount" }
+  ],
+  "firstName": "Leslie",
+  "lastName": "Cooper",
+  "email": "example@gmail.com",
+  "phone": "+0123-456-789",
+  "gender": "Female",
+  "avatar": "/images/profile.jpg",
+  "addresses": [
+    {
+      "name": "Bessie Cooper",
+      "address": "2464 Royal Ln. Mesa, New Jersey 45463"
+    },
+    {
+      "name": "Bessie Cooper", 
+      "address": "6391 Elgin St. Celina, Delaware 10299"
+    }
+  ],
+  "orders": [
+    {
+      "orderId": "#SDGT1254FD",
+      "totalPayment": "$640.00",
+      "paymentMethod": "Paypal",
+      "estimatedDelivery": "24 April 2024",
+      "status": "Accepted",
+      "items": [
+        {
+          "name": "Wooden Sofa Chair",
+          "image": "/images/chair2.png",
+          "color": "Grey",
+          "quantity": 4
+        },
+        {
+          "name": "Red Gaming Chair",
+          "image": "/images/chair5.png",
+          "color": "Black",
+          "quantity": 2
+        },
+        {
+          "name": "Swivel Chair",
+          "image": "/images/Rocking Chair3.png",
+          "color": "Light Brown",
+          "quantity": 1
+        },
+        {
+          "name": "Circular Sofa Chair",
+          "image": "/images/sofaa2.png",
+          "color": "Brown",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "orderId": "#SDGT7412DF",
+      "totalPayment": "$48.00",
+      "paymentMethod": "Cash",
+      "estimatedDelivery": "12 February 2024",
+      "status": "Delivered",
+      "items": [
+        {
+          "name": "Bar Stool",
+          "image": "/images/roking chair.png",
+          "color": "Brown",
+          "quantity": 1
+        }
+      ]
+    }
+  ]
+}

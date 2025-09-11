@@ -1,0 +1,17 @@
+{
+  "title": "Payment",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "Shopping cart", "href": "/cart" },
+    { "label": "Checkout", "href": "/checkout" },
+    { "label": "Payment", "href": "/payment" }
+  ],
+  "summary": {
+    "items": 9,
+    "subtotal": 740.00,
+    "shipping": 0.00,
+    "tax": 0.00,
+    "coupon": 100.00,
+    "total": 640.00
+  }
+} 

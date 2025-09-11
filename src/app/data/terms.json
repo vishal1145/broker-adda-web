@@ -1,0 +1,31 @@
+{
+  "title": "Terms & Conditions",
+  "breadcrumb": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Terms & Conditions",
+      "href": "/terms"
+    }
+  ],
+  "terms": [
+    {
+      "title": "Product Information and Availability",
+      "description": "We strive to provide accurate details, descriptions, and images for all furniture items listed on our website. However, colors and finishes may vary slightly due to lighting, screen settings, or natural material differences. Product availability is subject to change without notice, and we reserve the right to limit quantities or discontinue items at any time."
+    },
+    {
+      "title": "Pricing and Payments",
+      "description": "All prices are listed in INR and are inclusive of applicable taxes unless otherwise stated. We reserve the right to change pricing at any time without prior notice. Payments must be completed through our secure payment gateway using accepted methods such as credit/debit cards, net banking, UPI, or digital wallets."
+    },
+    {
+      "title": "Shipping and Delivery",
+      "description": "We offer delivery services across select locations, with estimated delivery times mentioned at checkout. While we aim to meet these timelines, delays may occur due to unforeseen circumstances. Shipping charges, if applicable, will be clearly mentioned. It is the customer's responsibility to ensure accurate delivery information is provided."
+    },
+    {
+      "title": "Returns and Cancellations",
+      "description": "Our return policy allows customers to return eligible furniture items within 7 days of delivery, provided the item is unused, in original condition, and with packaging intact. Customized or clearance items may not be eligible for return. Cancellations are only accepted before the product is dispatched. Refunds are processed after quality checks are completed."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+    "header": {
+    "title": "Returns Policy",
+    "breadcrumb": [
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "Returns Policy",
+        "href": "/refund"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "title": "Returns",
+      "content": [
+        "We understand that sometimes a product may not meet your expectations, and that’s why we offer a straightforward return policy to ensure your satisfaction. If you're not completely happy with your purchase, you can return the item within the designated return window. To qualify, products must be unused, in their original packaging, and accompanied by proof of purchase. Our goal is to make the return process simple and stress-free. Once we receive and inspect the returned item, we will process your refund or exchange promptly. Your comfort and confidence in shopping with us are our top priorities."
+      ]
+    },
+    {
+      "title": "Refunds",
+      "content": [
+        "Refunds are processed quickly for eligible returned products in condition.",
+        "Refunds are processed swiftly upon receiving returned items in original condition, ensuring a reliable and hassle-free experience for our customers.",
+        "Customer satisfaction is our priority, and we aim to make the refund process as smooth and transparent as possible. If you're not completely satisfied with your purchase, you may request a refund within the eligible return period. To qualify, the item must be in its original condition with all tags and packaging intact.",
+        "Once we receive and inspect the returned product, the refund will be processed promptly to your original payment method. Please note that processing times may vary depending on your bank or payment provider. We're here to assist you at every step to ensure a hassle-free experience."
+      ]
+    },
+    {
+      "title": "Late or Missing Refunds",
+      "content": [
+        "If you haven’t received your refund yet, please first double-check your bank account or original method of payment, as processing times can vary depending on your financial institution. Next, contact your credit card company or bank, as it may take a few business days before your refund is officially posted. If you’ve done all of this and still haven’t received your refund, we recommend contacting us directly.",
+        "Provide your order details and proof of return so we can assist you promptly. Sometimes, delays may occur due to processing issues or incomplete return documentation. We are committed to resolving any issues as quickly as possible and appreciate your patience during this process.",
+        "Our support team is always available to provide updates and ensure your refund reaches you without unnecessary delays. Your satisfaction is important to us, and we’re here to help every step of the way."
+      ]
+    }
+  ]
+}

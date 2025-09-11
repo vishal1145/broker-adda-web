@@ -1,0 +1,140 @@
+"use client";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', links: { Company: [], 'Customer Services': [], 'Our Information': [], 'Contact Info': [] }, copyright: '' } }) => {
+    const router = useRouter();
+
+  return (
+    <footer className="bg-green-900 text-white">
+      <div className="px-6 sm:px-12 lg:px-32 py-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-4 ">
+          {/* Logo and Description */}
+          <div className="text-center md:text-left md:col-span-1">
+            <div className="flex items-center mb-4 justify-center md:justify-start">
+              <div className="flex items-center cursor-pointer" onClick={() => router.push('/')}>
+                <div className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full flex items-center justify-center overflow-hidden">
+                  <img
+                    src="/real-estate-logo-house-logo-home-logo-sign-symbol-free-vector-removebg-preview.png"
+                    alt="Logo"
+                    className="w-20 h-20 md:w-28 md:h-28 lg:w-30 lg:h-30 object-contain"
+                  />
+                </div>
+                <h1 className="text-xl md:text-2xl lg:text-3xl text-white font-medium ml-2 md:ml-3">
+                  {data.logo.text}<span className="text-yellow-500">{data.logo.accent}</span>
+                </h1>
+              </div>
+            </div>
+            <p className="text-sm text-gray-300 mb-8">{data.description}</p>
+            <div className="flex justify-center md:justify-start space-x-2 mt-2">
+              {[
+                { name: 'Facebook', icon: 'fab fa-facebook-f', url: 'https://facebook.com/yourpage' },
+                { name: 'Twitter', icon: 'fab fa-twitter', url: 'https://twitter.com/yourhandle' },
+                { name: 'Pinterest', icon: 'fab fa-pinterest-p', url: 'https://pinterest.com/yourpage' },
+                { name: 'Instagram', icon: 'fab fa-instagram', url: 'https://instagram.com/yourprofile' },
+                { name: 'YouTube', icon: 'fab fa-youtube', url: 'https://youtube.com/yourchannel' }
+              ].map((item, index) => (
+                <a key={index} href={item.url} target="_blank" rel="noopener noreferrer">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white/10 backdrop-blur-sm">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#1e4d2b] flex items-center justify-center shadow-md">
+                      <div className="bg-white w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center">
+                        <i className={`${item.icon} text-[#1e4d2b] text-xs md:text-sm`}></i>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Company */}
+          <div className="text-left">
+            <h3 className="text-lg mb-4 mt-4">Company</h3>
+            <ul className="space-y-2 text-sm text-gray-300">
+              {data.links.Company.map((link, index) => (
+                <li key={index}>
+                  {link.href.startsWith('http') || link.href.startsWith('mailto:') || link.href.startsWith('tel:') ? (
+                    <a href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}>{link.name}</a>
+                  ) : (
+                    <Link href={link.href} className="hover:text-white transition-colors">{link.name}</Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Customer Services */}
+          <div className="text-left">
+            <h3 className="text-lg mb-4 mt-4">Customer Services</h3>
+            <ul className="space-y-2 text-sm text-gray-300">
+              {data.links['Customer Services'].map((link, index) => (
+                <li key={index}>
+                  {link.href.startsWith('http') || link.href.startsWith('mailto:') || link.href.startsWith('tel:') ? (
+                    <a href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}>{link.name}</a>
+                  ) : (
+                    <Link href={link.href} className="hover:text-white transition-colors">{link.name}</Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Our Information */}
+          <div className="text-left">
+            <h3 className="text-lg mb-4 mt-4">Our Information</h3>
+            <ul className="space-y-2 text-sm text-gray-300">
+              {data.links['Our Information'].map((link, index) => (
+                <li key={index}>
+                  {link.href.startsWith('http') || link.href.startsWith('mailto:') || link.href.startsWith('tel:') ? (
+                    <a href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}>{link.name}</a>
+                  ) : (
+                    <Link href={link.href} className="hover:text-white transition-colors">{link.name}</Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div className="text-left">
+            <h3 className="text-lg mb-4 mt-4">Contact Info</h3>
+            <ul className="space-y-2 text-sm text-gray-300">
+              {data.links['Contact Info'].map((link, index) => (
+                <li key={index}>
+                  {link.href.startsWith('tel:') || link.href.startsWith('mailto:') ? (
+                    <a href={link.href}>{link.name}</a>
+                  ) : (
+                    <span>{link.name}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      {/* Bottom Bar */}
+      <div className="bg-yellow-400 text-sm text-gray-900 mt-12 py-4 px-6 sm:px-12 lg:px-32">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center">
+          <p className="mb-2 sm:mb-0">{data.copyright}</p>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center cursor-pointer">
+              English
+              <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"/>
+              </svg>
+            </div>
+            <div className="flex items-center cursor-pointer">
+              USD
+              <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;

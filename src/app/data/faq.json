@@ -1,0 +1,52 @@
+{
+  "title": "Frequently Asked Questions",
+  "subtitle": "Find answers to common questions",
+  "breadcrumb": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "FAQ",
+      "href": "/faq"
+    }
+  ],
+  "faqItems": [
+    {
+      "question": "What payment methods do you accept?",
+      "answer": "We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and bank transfers. All payments are processed securely through our encrypted payment gateway."
+    },
+    {
+      "question": "How long does shipping take?",
+      "answer": "Standard shipping takes 3-5 business days within the continental US. Express shipping (1-2 business days) is available for an additional fee. International shipping times vary by location."
+    },
+    {
+      "question": "Do you offer free shipping?",
+      "answer": "Yes! We offer free standard shipping on all orders over $50. Orders under $50 have a flat rate shipping fee of $9.99."
+    },
+    {
+      "question": "What is your return policy?",
+      "answer": "We offer a 30-day return policy for all unused items in their original packaging. Return shipping is free for defective items. Please contact our customer service team to initiate a return."
+    },
+    {
+      "question": "Do you ship internationally?",
+      "answer": "Yes, we ship to most countries worldwide. International shipping rates and delivery times vary by location. You can check shipping costs during checkout."
+    },
+    {
+      "question": "Can I track my order?",
+      "answer": "Yes! Once your order ships, you'll receive a tracking number via email. You can also track your order status by logging into your account on our website."
+    },
+    {
+      "question": "Do you offer assembly services?",
+      "answer": "We offer professional assembly services for an additional fee. Our trained technicians can assemble your furniture at your home or office. Contact us for pricing and availability."
+    },
+    {
+      "question": "What warranty do you provide?",
+      "answer": "All our furniture comes with a minimum 1-year warranty covering manufacturing defects. Premium items may have extended warranties. Please check individual product pages for specific warranty details."
+    },
+    {
+      "question": "What warranty do you provide?",
+      "answer": "All our furniture comes with a minimum 1-year warranty covering manufacturing defects. Premium items may have extended warranties. Please check individual product pages for specific warranty details."
+    }
+  ]
+}

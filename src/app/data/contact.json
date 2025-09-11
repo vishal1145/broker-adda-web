@@ -1,0 +1,43 @@
+{
+     "title": "Contact",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "ContactUs", "href": "/contact" }   
+  ],
+  "address": "8502 Preston Rd. Inglewood, Maine 98380",
+  "contact": {
+    "phone": "+0123-456-789",
+    "email": "example@gmail.com"
+  },
+  "opening_hours": {
+    "weekdays": "10:00 - 20:00",
+    "weekends": "11:00 - 18:00"
+  },
+  "social_icons": [
+    {
+      "platform": "facebook",
+      "url": "https://facebook.com",
+      "icon": "fab fa-facebook-f"
+    },
+    {
+      "platform": "twitter",
+      "url": "https://twitter.com",
+      "icon": "fab fa-twitter"
+    },
+    {
+      "platform": "pinterest",
+      "url": "https://pinterest.com",
+      "icon": "fab fa-pinterest"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://instagram.com",
+      "icon": "fab fa-instagram"
+    },
+    {
+      "platform": "youtube",
+      "url": "https://youtube.com",
+      "icon": "fab fa-youtube"
+    }
+  ]
+}
