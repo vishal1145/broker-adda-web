@@ -14,7 +14,8 @@ const MyAccount = () => {
     regions: [],
     aadharFile: null,
     panFile: null,
-    gstFile: null
+    gstFile: null,
+    brokerImage: null
   });
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [submitting, setSubmitting] = useState(false);
@@ -23,11 +24,83 @@ const MyAccount = () => {
   const [regionsList, setRegionsList] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [regionsError, setRegionsError] = useState("");
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  // Load phone number from token and profile data on component mount
+  React.useEffect(() => {
+    const loadPhoneFromToken = () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        console.log('Token from localStorage:', token);
+        if (token) {
+          // Decode JWT token to get phone number
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          console.log('Decoded token payload:', payload);
+          if (payload.phone) {
+            console.log('Setting phone from token:', payload.phone);
+            setFormData(prev => ({ ...prev, phone: payload.phone }));
+          } else {
+            console.log('No phone found in token payload');
+          }
+        } else {
+          console.log('No token found in localStorage');
+        }
+      } catch (error) {
+        console.error('Error loading phone from token:', error);
+      }
+    };
+    
+    const loadProfileData = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (token) {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          });
+          
+          if (res.ok) {
+            const profileData = await res.json();
+            if (profileData.data) {
+              setFormData(prev => ({
+                ...prev,
+                name: profileData.data.name || prev.name,
+                email: profileData.data.email || prev.email,
+                firmName: profileData.data.brokerDetails?.firmName || prev.firmName,
+                regions: profileData.data.brokerDetails?.region || prev.regions
+              }));
+            }
+          } else {
+            // If profile API fails, just log the error but don't break the page
+            console.warn('Profile API failed, continuing with token data only:', res.status);
+          }
+        }
+      } catch (error) {
+        // Don't show error to user, just log it
+        console.warn('Profile data loading failed, using token data only:', error.message);
+      }
+    };
+    
+    loadPhoneFromToken();
+    loadProfileData().finally(() => {
+      setProfileLoading(false);
+    });
+    
+    // Debug: Log formData changes
+    console.log('Current formData:', formData);
+  }, []);
+
+  // Debug: Monitor formData changes
+  React.useEffect(() => {
+    console.log('FormData updated:', formData);
+  }, [formData]);
 
   React.useEffect(() => {
     const fetchRegions = async () => {
@@ -113,6 +186,15 @@ const MyAccount = () => {
           <div className="w-full lg:w-3/4 bg-white rounded-lg ">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile</h2>
             
+            {profileLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading profile data...</p>
+                </div>
+              </div>
+            ) : (
+            
             <form className="space-y-6" onSubmit={async (e) => {
               e.preventDefault();
               setSubmitting(true);
@@ -125,35 +207,49 @@ const MyAccount = () => {
               }
               try {
                 const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-                const payload = {
-                  phone: formData.phone,
-                  name: formData.name,
-                  email: formData.email,
-                  brokerDetails: {
-                    firmName: formData.firmName || "",
-                    region: formData.regions || [],
-                    kycDocs: {
-                      aadhar: "",
-                      pan: "",
-                      gst: ""
-                    }
-                  }
-                };
+                
+                // Create FormData for multipart/form-data submission
+                const formDataToSend = new FormData();
+                formDataToSend.append('phone', formData.phone);
+                formDataToSend.append('name', formData.name);
+                formDataToSend.append('email', formData.email);
+                formDataToSend.append('brokerDetails[firmName]', formData.firmName || "");
+                
+                // Add regions
+                formData.regions.forEach((regionId, index) => {
+                  formDataToSend.append(`brokerDetails[region][${index}]`, regionId);
+                });
+                
+                // Add file uploads
+                if (formData.aadharFile) {
+                  formDataToSend.append('aadhar', formData.aadharFile);
+                }
+                if (formData.panFile) {
+                  formDataToSend.append('pan', formData.panFile);
+                }
+                if (formData.gstFile) {
+                  formDataToSend.append('gst', formData.gstFile);
+                }
+                if (formData.brokerImage) {
+                  formDataToSend.append('brokerImage', formData.brokerImage);
+                }
 
-              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/complete-profile`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/complete-profile`, {
                   method: 'POST',
                   headers: {
-                    'Content-Type': 'application/json',
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                   },
-                  body: JSON.stringify(payload)
+                  body: formDataToSend
                 });
+                
                 if (!res.ok) {
                   const errText = await res.text();
                   throw new Error(errText || `Request failed with ${res.status}`);
                 }
-                await res.json().catch(() => null);
+                
+                const result = await res.json();
                 setApiMessage('Profile updated successfully.');
+                console.log('Profile updated:', result);
               } catch (err) {
                 setApiError(err?.message || 'Failed to update profile');
               } finally {
@@ -220,7 +316,7 @@ const MyAccount = () => {
                 </div>
               </div>
 
-              {/* Region Multi-Select (dropdown) */}
+              {/* Region Checkbox Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Region <span className="text-green-500">*</span>
@@ -230,26 +326,44 @@ const MyAccount = () => {
                 ) : regionsError ? (
                   <p className="text-sm text-red-600">{regionsError}</p>
                 ) : (
-                  <select
-                    multiple
-                    value={formData.regions}
-                    onChange={handleRegionsSelectChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 min-h-[120px]"
-                  >
-                    {regionsList.map((region) => (
-                      <option key={region._id} value={region._id}>{region.name}</option>
-                    ))}
-                  </select>
+                  <div className="border border-gray-300 rounded-lg p-4 bg-white">
+                    <div className="space-y-3">
+                      {regionsList.map((region) => (
+                        <label key={region._id} className="flex items-center space-x-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            value={region._id}
+                            checked={formData.regions.includes(region._id)}
+                            onChange={handleRegionChange}
+                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                          />
+                          <span className="text-sm text-gray-700">{region.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 )}
                 {formData.regions.length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-600">Selected regions:</p>
-                    <div className="flex flex-wrap gap-2 mt-1">
+                  <div className="mt-3">
+                    <p className="text-sm text-gray-600 mb-2">Selected regions ({formData.regions.length}):</p>
+                    <div className="flex flex-wrap gap-2">
                       {formData.regions.map((id) => {
                         const r = regionsList.find(rr => rr._id === id);
                         return (
-                          <span key={id} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                          <span key={id} className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center">
                             {r ? r.name : id}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  regions: prev.regions.filter(region => region !== id)
+                                }));
+                              }}
+                              className="ml-2 text-green-600 hover:text-green-800"
+                            >
+                              ×
+                            </button>
                           </span>
                         );
                       })}
@@ -259,7 +373,7 @@ const MyAccount = () => {
               </div>
 
               {/* File Uploads - All in one row */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* Aadhar File Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -343,6 +457,34 @@ const MyAccount = () => {
                     </label>
                   </div>
                 </div>
+
+                {/* Broker Image Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Broker Image
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors">
+                    <input
+                      type="file"
+                      name="brokerImage"
+                      onChange={handleFileChange}
+                      accept=".jpg,.jpeg,.png"
+                      className="hidden"
+                      id="broker-image-upload"
+                    />
+                    <label htmlFor="broker-image-upload" className="cursor-pointer">
+                      <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-600">
+                          {formData.brokerImage ? formData.brokerImage.name : "Click to upload Broker Image"}
+                        </p>
+                        <p className="text-xs text-gray-500">JPG, PNG up to 10MB</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
               </div>
 
               {/* Submit Button */}
@@ -362,6 +504,7 @@ const MyAccount = () => {
                 )}
               </div>
             </form>
+            )}
           </div>
         );
 

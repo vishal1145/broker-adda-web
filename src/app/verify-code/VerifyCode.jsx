@@ -252,7 +252,7 @@ const VerifyCode = () => {
                     onClick={handleResendCode}
                     className="text-green-900 hover:text-green-800 font-medium underline"
                   >
-                    Resend Code
+                   Resend OTP
                   </button>
                 )}
               </p>
