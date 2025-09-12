@@ -244,21 +244,30 @@ const SignUp = () => {
       </div>
 
       {/* Right Column - Kitchen Image */}
-      <div className="hidden lg:flex lg:flex-1">
-        <div className="w-[650px] h-[800px] rounded-2xl overflow-hidden relative">
+      <div className="hidden lg:flex lg:flex-1 justify-center items-center">
+        <div className="w-[650px] h-[800px] rounded-2xl overflow-hidden relative flex-shrink-0">
           <img
             src="/images/ChatGPT Image Sep 12, 2025, 10_28_18 AM.png"
             alt="Modern Kitchen"
-            className="w-full h-full object-cover"
+            className="w-[650px] h-[800px] object-cover"
             onError={(e) => {
               // Fallback to a placeholder if image doesn't exist
               e.target.style.display = 'none';
               e.target.nextElementSibling.style.display = 'block';
             }}
           />
+          {/* Fallback placeholder */}
+          <div className="w-[650px] h-[800px] bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center" style={{display: 'none'}}>
+            <div className="text-center text-white">
+              <svg className="w-24 h-24 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+              </svg>
+              <p className="text-xl font-semibold">Image Loading...</p>
+            </div>
+          </div>
           {/* Testimonial Card - keep anchored over image */}
           <div className="absolute left-1/2 -translate-x-1/2 bottom-12 flex items-center justify-center">
-            <div className=" bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 rounded-2xl p-6 w-[600px] max-w-[90%] shadow-2xl">
+            <div className=" bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 rounded-2xl p-6 w-[600px] shadow-2xl">
               <p className="text-white text-base leading-relaxed mb-4">
                 "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore."
               </p>
@@ -271,10 +280,10 @@ const SignUp = () => {
 
           {/* Progress Indicator - keep anchored over image */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full"></div>
-            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full"></div>
-            <div className="w-32 h-2 bg-orange-400 rounded-full"></div>
-            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full"></div>
+            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full flex-shrink-0"></div>
+            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full flex-shrink-0"></div>
+            <div className="w-32 h-2 bg-orange-400 rounded-full flex-shrink-0"></div>
+            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full flex-shrink-0"></div>
           </div>
         </div>
       </div>

@@ -26,6 +26,7 @@ const MyAccount = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [brokerData, setBrokerData] = useState(null);
   const [brokerLoading, setBrokerLoading] = useState(false);
+  const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -126,6 +127,20 @@ const MyAccount = () => {
     fetchRegions();
   }, []);
 
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isRegionDropdownOpen && !event.target.closest('.region-dropdown')) {
+        setIsRegionDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isRegionDropdownOpen]);
+
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     setFormData((prev) => ({ ...prev, [name]: files[0] }));
@@ -179,7 +194,7 @@ const MyAccount = () => {
     switch (activeTab) {
       case "Dashboard":
         return (
-          <div className="w-full lg:w-3/4 bg-white p-6 rounded-lg ">
+          <div className="w-full lg:w-3/4 bg-white rounded-lg ">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
             
             {/* Broker Data Fetch Section */}
@@ -338,8 +353,8 @@ const MyAccount = () => {
                 </div>
               </div>
 
-              {/* Region Checkbox Selection */}
-              <div>
+              {/* Region Custom Dropdown */}
+              <div className="relative region-dropdown">
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Region <span className="text-green-500">*</span>
                 </label>
@@ -348,23 +363,54 @@ const MyAccount = () => {
                 ) : regionsError ? (
                   <p className="text-sm text-red-600">{regionsError}</p>
                 ) : (
-                  <div className="border border-gray-300 rounded-lg p-4 bg-white">
-                    <div className="space-y-3">
-                      {regionsList.map((region) => (
-                        <label key={region._id} className="flex items-center space-x-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            value={region._id}
-                            checked={formData.regions.includes(region._id)}
-                            onChange={handleRegionChange}
-                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                          />
-                          <span className="text-sm text-gray-700">{region.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
+                  <>
+                    {/* Dropdown Button */}
+                    <button
+                      type="button"
+                      onClick={() => setIsRegionDropdownOpen(!isRegionDropdownOpen)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white text-left flex items-center justify-between"
+                    >
+                      <span className="text-gray-700">
+                        {formData.regions.length === 0 
+                          ? "Select regions..." 
+                          : `${formData.regions.length} region(s) selected`
+                        }
+                      </span>
+                      <svg 
+                        className={`w-5 h-5 text-gray-400 transition-transform ${isRegionDropdownOpen ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    {/* Dropdown Card */}
+                    {isRegionDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        <div className="p-4">
+                          <div className="space-y-3">
+                            {regionsList.map((region) => (
+                              <label key={region._id} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                                <input
+                                  type="checkbox"
+                                  value={region._id}
+                                  checked={formData.regions.includes(region._id)}
+                                  onChange={handleRegionChange}
+                                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                                />
+                                <span className="text-sm text-gray-700">{region.name}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
+                
+                {/* Selected Regions Display */}
                 {formData.regions.length > 0 && (
                   <div className="mt-3">
                     <p className="text-sm text-gray-600 mb-2">Selected regions ({formData.regions.length}):</p>
@@ -395,13 +441,13 @@ const MyAccount = () => {
               </div>
 
               {/* File Uploads - All in one row */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
                 {/* Aadhar File Upload */}
-                <div>
+                <div className="flex flex-col h-full">
                   <label className="block text-sm font-medium text-gray-900 mb-2">
                     Aadhar Card <span className="text-green-500">*</span>
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
                     <input
                       type="file"
                       name="aadharFile"
@@ -425,11 +471,11 @@ const MyAccount = () => {
                 </div>
 
                 {/* PAN File Upload */}
-                <div>
+                <div className="flex flex-col h-full">
                   <label className="block text-sm font-medium text-gray-900 mb-2">
                     PAN Card <span className="text-green-500">*</span>
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
                     <input
                       type="file"
                       name="panFile"
@@ -453,11 +499,11 @@ const MyAccount = () => {
                 </div>
 
                 {/* GST File Upload */}
-                <div>
+                <div className="flex flex-col h-full">
                   <label className="block text-sm font-medium text-gray-900 mb-2">
                     GST Certificate <span className="text-green-500">*</span>
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
                     <input
                       type="file"
                       name="gstFile"
@@ -481,11 +527,11 @@ const MyAccount = () => {
                 </div>
 
                 {/* Broker Image Upload */}
-                <div>
+                <div className="flex flex-col h-full">
                   <label className="block text-sm font-medium text-gray-900 mb-2">
                     Broker Image
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
                     <input
                       type="file"
                       name="brokerImage"
@@ -526,7 +572,7 @@ const MyAccount = () => {
 
       case "Leads / Visitors":
         return (
-          <div className="w-full lg:w-3/4 bg-white p-6 rounded-lg shadow-sm">
+          <div className="w-full lg:w-3/4 bg-white rounded-lg shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Leads / Visitors</h2>
             <div className="space-y-4">
               <div className="border rounded-lg p-4">
@@ -565,7 +611,7 @@ const MyAccount = () => {
 
       case "Properties / Sites":
         return (
-          <div className="w-full lg:w-3/4 bg-white p-6 rounded-lg shadow-sm">
+          <div className="w-full lg:w-3/4 bg-white rounded-lg shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Properties / Sites</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="border rounded-lg overflow-hidden">
@@ -598,7 +644,7 @@ const MyAccount = () => {
 
       case "Logout":
         return (
-          <div className="w-full lg:w-3/4 bg-white p-6 rounded-lg shadow-sm">
+          <div className="w-full lg:w-3/4 bg-white p-6 rounded-lg ">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Logout</h2>
             <div className="text-center">
               <p className="text-gray-600 mb-6">Are you sure you want to logout?</p>
