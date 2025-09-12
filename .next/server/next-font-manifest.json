@@ -1,0 +1,31 @@
+{
+  "app": {
+    "[project]/src/app/_not-found/page": [],
+    "[project]/src/app/aboutus/page": [],
+    "[project]/src/app/blog/[slug]/page": [],
+    "[project]/src/app/blog/page": [],
+    "[project]/src/app/cart/page": [],
+    "[project]/src/app/checkout/page": [],
+    "[project]/src/app/contact/page": [],
+    "[project]/src/app/faq/page": [],
+    "[project]/src/app/login/page": [],
+    "[project]/src/app/myaccount-customer/page": [],
+    "[project]/src/app/myaccount/page": [],
+    "[project]/src/app/ordercompleted/page": [],
+    "[project]/src/app/page": [],
+    "[project]/src/app/payment/page": [],
+    "[project]/src/app/privacy/page": [],
+    "[project]/src/app/refund/page": [],
+    "[project]/src/app/shop/[category]/product-details/[id]/page": [],
+    "[project]/src/app/shop/page": [],
+    "[project]/src/app/signup/page": [],
+    "[project]/src/app/terms/page": [],
+    "[project]/src/app/track-results/page": [],
+    "[project]/src/app/trackorder/page": [],
+    "[project]/src/app/verify-code/page": [],
+    "[project]/src/app/wishlist/page": []
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}
