@@ -2,13 +2,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
 
 const VerifyCode = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
   const [resendTimer, setResendTimer] = useState(0);
   const inputRefs = useRef([]);
 
@@ -45,11 +45,6 @@ const VerifyCode = () => {
     newCode[index] = value;
     setCode(newCode);
 
-    // Clear error when user starts typing
-    if (errors.general) {
-      setErrors({});
-    }
-
     // Auto-focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
@@ -83,11 +78,11 @@ const VerifyCode = () => {
   const validateCode = () => {
     const codeString = code.join('');
     if (codeString.length !== 6) {
-      setErrors({ general: "Please enter the complete 6-digit code" });
+      toast.error("Please enter the complete 6-digit code");
       return false;
     }
     if (!/^\d{6}$/.test(codeString)) {
-      setErrors({ general: "Code must contain only numbers" });
+      toast.error("Code must contain only numbers");
       return false;
     }
     return true;
@@ -127,6 +122,8 @@ const VerifyCode = () => {
           if (role) localStorage.setItem('role', String(role));
         } catch (_) {}
 
+        toast.success('Verification successful! Redirecting...');
+        
         if (role === 'broker') {
           router.push('/myaccount');
         } else if (role === 'customer') {
@@ -137,23 +134,71 @@ const VerifyCode = () => {
         }
       } else {
         console.error('Verify OTP failed:', { url: requestUrl, status: response.status, data });
-        setErrors({ general: data.message || `Verification failed (${response.status})` });
+        toast.error(data.message || `Verification failed (${response.status})`);
       }
     } catch (error) {
       console.error('Verify OTP network error:', error);
-      setErrors({ general: "Verification failed. Please try again." });
+      toast.error("Verification failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleResendCode = () => {
+  const handleResendCode = async () => {
     setResendTimer(60); // 60 seconds cooldown
-    // In real app, you would trigger resend API call here
-    console.log("Resending verification code...");
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resend-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: searchParams.get('phone')
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success("Verification code sent successfully!");
+        console.log('Resend OTP successful:', data);
+      } else {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        toast.error(errorData.message || `Failed to resend code (${response.status})`);
+        console.error('Resend OTP failed:', errorData);
+      }
+    } catch (error) {
+      console.error('Resend OTP network error:', error);
+      toast.error("Network error. Please try again.");
+    }
   };
 
   return (
+    <>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     <div className="min-h-screen py-12 flex">
       {/* Left Column - Verify Code Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
@@ -200,11 +245,6 @@ const VerifyCode = () => {
 
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {errors.general && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                {errors.general}
-              </div>
-            )}
 
             {/* Code Input Fields */}
             <div>
@@ -300,6 +340,7 @@ const VerifyCode = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
 
 const Login = () => {
   const router = useRouter();
@@ -9,7 +10,6 @@ const Login = () => {
     phoneNumber: "",
     rememberMe: false,
   });
-  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   
  
@@ -20,26 +20,18 @@ const Login = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ""
-      }));
-    }
   };
 
   const validateForm = () => {
-    const newErrors = {};
-    
     if (!formData.phoneNumber) {
-      newErrors.phoneNumber = "Phone number is required";
+      toast.error("Phone number is required");
+      return false;
     } else if (!/^\d{10}$/.test(formData.phoneNumber.replace(/\D/g, ''))) {
-      newErrors.phoneNumber = "Please enter a valid 10-digit phone number";
+      toast.error("Please enter a valid 10-digit phone number");
+      return false;
     }
     
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return true;
   };
 
   const handleSubmit = async (e) => {
@@ -66,21 +58,47 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok && (data.success === undefined || data.success === true)) {
+        toast.success('Login successful! Redirecting...');
         // Redirect to verify code page with phone number
         router.push(`/verify-code?phone=${encodeURIComponent(formData.phoneNumber)}`);
       } else {
         console.error('Login failed:', { url: requestUrl, status: response.status, data });
-        setErrors({ general: data.message || `Login failed (${response.status})` });
+        toast.error(data.message || `Login failed (${response.status})`);
       }
     } catch (error) {
       console.error('Login network error:', error);
-      setErrors({ general: 'Network error. Please try again.' });
+      toast.error('Network error. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
+    <>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     <div className="min-h-screen py-12 flex">
       {/* Left Column - Sign In Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
@@ -92,11 +110,6 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
-            {errors.general && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                {errors.general}
-              </div>
-            )}
 
             {/* Phone Number */}
             <div>
@@ -113,14 +126,9 @@ const Login = () => {
                 autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
-                className={`w-full px-4 py-3 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors ${
-                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 placeholder="Enter Phone Number"
               />
-              {errors.phoneNumber && (
-                <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
-              )}
             </div>
 
             {/* Remember Me and Forgot Password */}
@@ -222,6 +230,7 @@ const Login = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

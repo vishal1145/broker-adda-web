@@ -4,6 +4,7 @@ import data from "../data/myaccount.json";
 import furnitureData from "../data/furnitureData.json";
 import HeaderFile from '../components/Header';
 import Features from "../components/Features";
+import toast, { Toaster } from "react-hot-toast";
 
 const MyAccountCustomer = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +27,6 @@ const MyAccountCustomer = () => {
   const [regionOptions, setRegionOptions] = useState([]);
   const [loadingRegions, setLoadingRegions] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
   const [regionIdMap, setRegionIdMap] = useState({}); // Map region names to IDs
   const propertyTypeOptions = ["apartment", "commercial", "plot", "villa", "house"];
 
@@ -78,17 +78,7 @@ const MyAccountCustomer = () => {
           return;
         }
 
-        // Phone will be loaded from API response below
-
-        // Fetch customer profile data
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
-        const response = await fetch(`${apiUrl}/auth/profile`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+    
 
         if (response.ok) {
           const profileData = await response.json();
@@ -305,14 +295,13 @@ const MyAccountCustomer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitMessage("");
 
     try {
       // Get authentication token from localStorage
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       
       if (!token) {
-        setSubmitMessage("Error: No authentication token found. Please login again.");
+        toast.error("No authentication token found. Please login again.");
         setIsSubmitting(false);
         return;
       }
@@ -323,12 +312,12 @@ const MyAccountCustomer = () => {
         const currentTime = Math.floor(Date.now() / 1000);
         
         if (tokenPayload.exp < currentTime) {
-          setSubmitMessage("Error: Your session has expired. Please login again.");
+          toast.error("Your session has expired. Please login again.");
           setIsSubmitting(false);
           return;
         }
       } catch (error) {
-        setSubmitMessage("Error: Invalid authentication token. Please login again.");
+        toast.error("Invalid authentication token. Please login again.");
         setIsSubmitting(false);
         return;
       }
@@ -374,7 +363,7 @@ const MyAccountCustomer = () => {
       console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
       
       // Use fallback URL if environment variable is not set
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'i';
       const fullUrl = `${apiUrl}/auth/complete-profile`;
       console.log('Full URL:', fullUrl);
 
@@ -389,11 +378,11 @@ const MyAccountCustomer = () => {
 
       if (response.ok) {
         const result = await response.json();
-        setSubmitMessage("Profile updated successfully!");
+        toast.success("Profile updated successfully!");
         console.log('Profile updated:', result);
       } else {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-        setSubmitMessage(`Error: ${errorData.message || 'Failed to update profile'}`);
+        toast.error(errorData.message || 'Failed to update profile');
         console.error('Profile update failed:', errorData);
         console.error('Response status:', response.status);
         console.error('Response headers:', response.headers);
@@ -401,9 +390,9 @@ const MyAccountCustomer = () => {
     } catch (error) {
       console.error('Network error details:', error);
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setSubmitMessage("Error: Network connection failed. Please check your internet connection and try again.");
+        toast.error("Network connection failed. Please check your internet connection and try again.");
       } else {
-        setSubmitMessage(`Error: ${error.message}`);
+        toast.error(error.message);
       }
     } finally {
       setIsSubmitting(false);
@@ -642,16 +631,6 @@ const MyAccountCustomer = () => {
                 />
               </div>
 
-              {/* Submit Message */}
-              {submitMessage && (
-                <div className={`p-4 rounded-lg ${
-                  submitMessage.includes('successfully') 
-                    ? 'bg-green-100 text-green-800 border border-green-200' 
-                    : 'bg-red-100 text-red-800 border border-red-200'
-                }`}>
-                  {submitMessage}
-                </div>
-              )}
 
               {/* Submit Button */}
               <div className="pt-4">
@@ -977,16 +956,6 @@ const MyAccountCustomer = () => {
                 />
               </div>
 
-              {/* Submit Message */}
-              {submitMessage && (
-                <div className={`p-4 rounded-lg ${
-                  submitMessage.includes('successfully') 
-                    ? 'bg-green-100 text-green-800 border border-green-200' 
-                    : 'bg-red-100 text-red-800 border border-red-200'
-                }`}>
-                  {submitMessage}
-                </div>
-              )}
 
               {/* Submit Button */}
               <div className="pt-4">
@@ -1017,6 +986,30 @@ const MyAccountCustomer = () => {
 
   return (
     <>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <HeaderFile data={data} />
       <div className="px-6 sm:px-12 lg:px-32 py-12">
         <div className="max-w-7xl mx-auto">
@@ -1047,7 +1040,7 @@ const MyAccountCustomer = () => {
           </div>
         </div>
       </div>
-      <Features data={furnitureData.features}/>
+      
     </>
   );
 };

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
 
 
 const SignUp = () => {
@@ -11,7 +12,6 @@ const SignUp = () => {
     phone: "",
     role: "" // customer | broker
   });
-  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -20,32 +20,23 @@ const SignUp = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ""
-      }));
-    }
   };
 
   const validateForm = () => {
-    const newErrors = {};
-    
-    // Full name validation removed because fullName is not part of formData
-    
     if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
+      toast.error("Phone number is required");
+      return false;
     } else if (!/^[0-9+\-\s()]+$/.test(formData.phone)) {
-      newErrors.phone = "Please enter a valid phone number";
+      toast.error("Please enter a valid phone number");
+      return false;
     }
     
     if (!formData.role) {
-      newErrors.role = "Please select account type";
+      toast.error("Please select account type");
+      return false;
     }
     
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return true;
   };
 
   const handleSubmit = async (e) => {
@@ -70,14 +61,15 @@ const SignUp = () => {
 
         if (data.success) {
           console.log('Registration successful:', data);
+          toast.success('Registration successful! Redirecting...');
           // Redirect to verify code page with phone number
           router.push(`/verify-code?phone=${encodeURIComponent(formData.phone)}`);
         } else {
-          setErrors({ general: data.message || 'Registration failed' });
+          toast.error(data.message || 'Registration failed');
         }
       } catch (error) {
         console.error('Registration error:', error);
-        setErrors({ general: 'Network error. Please try again.' });
+        toast.error('Network error. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -86,6 +78,30 @@ const SignUp = () => {
 
   return (
     <>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     
     <div className="min-h-screen py-16 flex">
       {/* Left Column - Image */}
@@ -107,11 +123,6 @@ const SignUp = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
-            {errors.general && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                {errors.general}
-              </div>
-            )}
 
             {/* Full Name Field */}
             {/* <div>
@@ -145,9 +156,7 @@ const SignUp = () => {
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className={`w-full appearance-none pr-12 pl-4 py-3 border rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors ${
-                    errors.role ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className="w-full appearance-none pr-12 pl-4 py-3 border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 >
                   <option value="">Select type</option>
                   <option value="customer">Customer</option>
@@ -168,9 +177,6 @@ const SignUp = () => {
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </div>
-              {errors.role && (
-                <p className="mt-1 text-sm text-red-600">{errors.role}</p>
-              )}
             </div>
 
             {/* Phone Field */}
@@ -184,14 +190,9 @@ const SignUp = () => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 placeholder="Enter Phone Number"
               />
-              {errors.phone && (
-                <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-              )}
             </div>
 
 

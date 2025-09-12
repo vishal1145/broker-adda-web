@@ -258,7 +258,7 @@ const Navbar = ({ data }) => {
             </Link>
 
             {/* Cart */}
-            <Link href="/cart" className="hover:text-green-700 relative mt-2">
+            {/* <Link href="/cart" className="hover:text-green-700 relative mt-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="9" cy="21" r="1"></circle>
                 <circle cx="20" cy="21" r="1"></circle>
@@ -269,7 +269,7 @@ const Navbar = ({ data }) => {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </Link> */}
 
             {/* Authentication */}
             {isMounted && (

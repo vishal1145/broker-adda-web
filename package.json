@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -p 9090",
     "build": "next build --turbopack",
-    "start": "next start",
+    "start": "next start -p 9090",
     "lint": "eslint",
     "api": "node api-server.js"
   },
@@ -19,6 +19,7 @@
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {

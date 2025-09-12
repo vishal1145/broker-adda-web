@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import data from "../data/myaccount.json";
-import furnitureData from "../data/furnitureData.json";
+
 import HeaderFile from '../components/Header';
-import Features from "../components/Features";
+
+import toast, { Toaster } from "react-hot-toast";
 
 const MyAccount = () => {
   const [formData, setFormData] = useState({
@@ -19,12 +20,12 @@ const MyAccount = () => {
   });
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [submitting, setSubmitting] = useState(false);
-  const [apiMessage, setApiMessage] = useState("");
-  const [apiError, setApiError] = useState("");
   const [regionsList, setRegionsList] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [regionsError, setRegionsError] = useState("");
   const [profileLoading, setProfileLoading] = useState(true);
+  const [brokerData, setBrokerData] = useState(null);
+  const [brokerLoading, setBrokerLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,12 +60,7 @@ const MyAccount = () => {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (token) {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json'
-            }
-          });
+         
           
           if (res.ok) {
             const profileData = await res.json();
@@ -97,10 +93,7 @@ const MyAccount = () => {
     console.log('Current formData:', formData);
   }, []);
 
-  // Debug: Monitor formData changes
-  React.useEffect(() => {
-    console.log('FormData updated:', formData);
-  }, [formData]);
+
 
   React.useEffect(() => {
     const fetchRegions = async () => {
@@ -154,6 +147,33 @@ const MyAccount = () => {
     setFormData((prev) => ({ ...prev, regions: selected }));
   };
 
+  // Function to fetch broker data by ID
+  const fetchBrokerById = async (brokerId) => {
+    if (!brokerId) return;
+    
+    setBrokerLoading(true);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+   
+
+      if (response.ok) {
+        const data = await response.json();
+        setBrokerData(data);
+        console.log('Broker data fetched:', data);
+        toast.success('Broker data loaded successfully!');
+      } else {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        toast.error(errorData.message || `Failed to fetch broker data (${response.status})`);
+        console.error('Failed to fetch broker data:', errorData);
+      }
+    } catch (error) {
+      console.error('Error fetching broker data:', error);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setBrokerLoading(false);
+    }
+  };
+
 
   const renderContent = () => {
     switch (activeTab) {
@@ -161,6 +181,10 @@ const MyAccount = () => {
         return (
           <div className="w-full lg:w-3/4 bg-white p-6 rounded-lg ">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
+            
+            {/* Broker Data Fetch Section */}
+        
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="bg-green-50 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Leads</h3>
@@ -198,10 +222,8 @@ const MyAccount = () => {
             <form className="space-y-6" onSubmit={async (e) => {
               e.preventDefault();
               setSubmitting(true);
-              setApiMessage("");
-              setApiError("");
               if (!Array.isArray(formData.regions) || formData.regions.length === 0) {
-                setApiError('Please select at least one region.');
+                toast.error('Please select at least one region.');
                 setSubmitting(false);
                 return;
               }
@@ -248,10 +270,10 @@ const MyAccount = () => {
                 }
                 
                 const result = await res.json();
-                setApiMessage('Profile updated successfully.');
+                toast.success('Profile updated successfully!');
                 console.log('Profile updated:', result);
               } catch (err) {
-                setApiError(err?.message || 'Failed to update profile');
+                toast.error(err?.message || 'Failed to update profile');
               } finally {
                 setSubmitting(false);
               }
@@ -496,12 +518,6 @@ const MyAccount = () => {
                 >
                   {submitting ? 'Saving...' : 'Save Profile'}
                 </button>
-                {apiMessage && (
-                  <p className="mt-3 text-sm text-green-700">{apiMessage}</p>
-                )}
-                {apiError && (
-                  <p className="mt-3 text-sm text-red-600">{apiError}</p>
-                )}
               </div>
             </form>
             )}
@@ -727,6 +743,30 @@ const MyAccount = () => {
 
   return (
     <>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <HeaderFile data={data} />
 <div className="px-6 sm:px-12 lg:px-32 py-12">
     <div className="max-w-7xl mx-auto  ">
@@ -759,7 +799,7 @@ const MyAccount = () => {
       </div>
     </div>
     </div>
-          <Features data={furnitureData.features}/>
+          {/* <Features data={furnitureData.features}/> */}
     </>
     
 
