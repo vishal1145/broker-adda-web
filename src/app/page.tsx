@@ -19,7 +19,7 @@ import FAQ from './components/Home/FAQ';
 import Newsletter from './components/Home/Newsletter';
 import furnitureData from './data/furnitureData.json';
 
-// Use a narrow, file-local lint override to allow bridging JSON to component props
+// Type assertion to help TypeScript understand the data structure
 const data = furnitureData as any;
 
 export default function HomePage() {

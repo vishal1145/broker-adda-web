@@ -34,18 +34,23 @@ const MyAccount = () => {
       setRegionsLoading(true);
       setRegionsError("");
       try {
-        const base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
-        const url = `${base}/regions`;
-        const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/regions`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        const contentType = res.headers.get('content-type') || '';
         const raw = await res.text();
         if (!res.ok) {
           throw new Error(raw || `Failed to load regions (${res.status})`);
         }
-        let data;
-        try { data = JSON.parse(raw); } catch {
-          throw new Error('Regions API returned non-JSON. Check NEXT_PUBLIC_API_URL.');
+        let parsed;
+        if (contentType.includes('application/json')) {
+          try { parsed = JSON.parse(raw); } catch { /* fallthrough */ }
         }
-        setRegionsList(Array.isArray(data) ? data : []);
+        if (!parsed) {
+          throw new Error('Regions API returned non-JSON. Check NEXT_PUBLIC_API_URL value.');
+        }
+        const list = Array.isArray(parsed?.data?.regions) ? parsed.data.regions : (Array.isArray(parsed) ? parsed : []);
+        setRegionsList(list);
       } catch (err) {
         setRegionsError(err?.message || 'Failed to load regions');
       } finally {
@@ -69,6 +74,11 @@ const MyAccount = () => {
         return { ...prev, regions: prev.regions.filter(region => region !== value) };
       }
     });
+  };
+
+  const handleRegionsSelectChange = (e) => {
+    const selected = Array.from(e.target.selectedOptions).map((opt) => opt.value);
+    setFormData((prev) => ({ ...prev, regions: selected }));
   };
 
 
@@ -108,6 +118,11 @@ const MyAccount = () => {
               setSubmitting(true);
               setApiMessage("");
               setApiError("");
+              if (!Array.isArray(formData.regions) || formData.regions.length === 0) {
+                setApiError('Please select at least one region.');
+                setSubmitting(false);
+                return;
+              }
               try {
                 const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
                 const payload = {
@@ -125,8 +140,7 @@ const MyAccount = () => {
                   }
                 };
 
-                const base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
-                const res = await fetch(`${base}/auth/complete-profile`, {
+              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/complete-profile`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -146,34 +160,34 @@ const MyAccount = () => {
                 setSubmitting(false);
               }
             }}>
-              {/* Name Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Name <span className="text-green-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Enter your full name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
-
-              {/* Email Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Email <span className="text-green-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Enter your email address"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
+              {/* Name & Email - two fields per row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Name <span className="text-green-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Enter your full name"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Email <span className="text-green-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter your email address"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
+                </div>
               </div>
 
               {/* Phone & Firm Name */}
@@ -206,36 +220,27 @@ const MyAccount = () => {
                 </div>
               </div>
 
-              {/* Region Multi-Select (fetched from API) */}
+              {/* Region Multi-Select (dropdown) */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Region <span className="text-green-500">*</span>
                 </label>
-                <div className="border border-gray-300 rounded-lg p-3 min-h-[120px] max-h-48 overflow-y-auto">
-                  {regionsLoading ? (
-                    <p className="text-sm text-gray-500">Loading regions...</p>
-                  ) : regionsError ? (
-                    <p className="text-sm text-red-600">{regionsError}</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {regionsList.map((region) => (
-                        <label key={region._id} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            value={region._id}
-                            checked={formData.regions.includes(region._id)}
-                            onChange={handleRegionChange}
-                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                          />
-                          <span className="ml-2 text-sm text-gray-700">{region.name}</span>
-                        </label>
-                      ))}
-                      {regionsList.length === 0 && (
-                        <p className="text-sm text-gray-500">No regions available.</p>
-                      )}
-                    </div>
-                  )}
-                </div>
+                {regionsLoading ? (
+                  <p className="text-sm text-gray-500">Loading regions...</p>
+                ) : regionsError ? (
+                  <p className="text-sm text-red-600">{regionsError}</p>
+                ) : (
+                  <select
+                    multiple
+                    value={formData.regions}
+                    onChange={handleRegionsSelectChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 min-h-[120px]"
+                  >
+                    {regionsList.map((region) => (
+                      <option key={region._id} value={region._id}>{region.name}</option>
+                    ))}
+                  </select>
+                )}
                 {formData.regions.length > 0 && (
                   <div className="mt-2">
                     <p className="text-sm text-gray-600">Selected regions:</p>

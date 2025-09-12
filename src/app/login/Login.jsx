@@ -146,7 +146,7 @@ const Login = () => {
               disabled={isLoading}
               className="w-full bg-green-900 text-white py-3 px-4 rounded-full font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Signing In..." : "Login"}
+              {isLoading ? "Logging In..." : "Login"}
             </button>
 
             {/* Divider */}
