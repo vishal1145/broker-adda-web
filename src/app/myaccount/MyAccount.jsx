@@ -82,9 +82,19 @@ const MyAccount = () => {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (token) {
-         
+          // Decode JWT token to get broker ID
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const brokerId = payload.brokerId || payload.id;
           
-          if (res.ok) {
+          if (brokerId) {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/brokers/${brokerId}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+              }
+            });
+            
+            if (res.ok) {
             const profileData = await res.json();
             if (profileData.data) {
               setFormData(prev => ({
@@ -96,8 +106,72 @@ const MyAccount = () => {
               }));
             }
           } else {
-            // If profile API fails, just log the error but don't break the page
-            console.warn('Profile API failed, continuing with token data only:', res.status);
+              const errorData = await res.json().catch(() => ({}));
+              console.warn('Broker profile API failed:', res.status, errorData);
+              
+              // Try alternative approach - get profile by user ID
+              // if (res.status === 404) {
+              //   console.log('Trying alternative profile API...');
+              //   try {
+              //     const altRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
+              //       headers: {
+              //         'Authorization': `Bearer ${token}`,
+              //         'Accept': 'application/json'
+              //       }
+              //     });
+                  
+              //     if (altRes.ok) {
+              //       const altData = await altRes.json();
+              //       console.log('Alternative profile data:', altData);
+                    
+              //       if (altData.success && altData.data) {
+              //         const userData = altData.data;
+              //         setFormData(prev => ({
+              //           ...prev,
+              //           name: userData.name || prev.name,
+              //           email: userData.email || prev.email,
+              //           phone: userData.phone || prev.phone,
+              //           firmName: userData.brokerDetails?.firmName || prev.firmName,
+              //           regions: userData.brokerDetails?.region || prev.regions
+              //         }));
+              //       }
+              //     }
+              //   } catch (altError) {
+              //     console.warn('Alternative profile API also failed:', altError);
+              //   }
+              // }
+            }
+          } else {
+            console.warn('No broker ID found in token payload');
+            
+            // Try to get profile using general profile API
+            // try {
+            //   const altRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
+            //     headers: {
+            //       'Authorization': `Bearer ${token}`,
+            //       'Accept': 'application/json'
+            //     }
+            //   });
+              
+            //   if (altRes.ok) {
+            //     const altData = await altRes.json();
+            //     console.log('General profile data:', altData);
+                
+            //     if (altData.success && altData.data) {
+            //       const userData = altData.data;
+            //       setFormData(prev => ({
+            //         ...prev,
+            //         name: userData.name || prev.name,
+            //         email: userData.email || prev.email,
+            //         phone: userData.phone || prev.phone,
+            //         firmName: userData.brokerDetails?.firmName || prev.firmName,
+            //         regions: userData.brokerDetails?.region || prev.regions
+            //       }));
+            //     }
+            //   }
+            // } catch (altError) {
+            //   console.warn('General profile API also failed:', altError);
+            // }
           }
         }
       } catch (error) {
@@ -161,31 +235,36 @@ const MyAccount = () => {
 
 
   // Function to fetch broker data by ID
-  const fetchBrokerById = async (brokerId) => {
-    if (!brokerId) return;
+  // const fetchBrokerById = async (brokerId) => {
+  //   if (!brokerId) return;
     
-    setBrokerLoading(true);
-    try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-   
+  //   setBrokerLoading(true);
+  //   try {
+  //     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  //     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/brokers/${brokerId}`, {
+  //       headers: {
+  //         'Authorization': `Bearer ${token}`,
+  //         'Accept': 'application/json'
+  //       }
+  //     });
 
-      if (response.ok) {
-        const data = await response.json();
-        setBrokerData(data);
-        console.log('Broker data fetched:', data);
-        toast.success('Broker data loaded successfully!');
-      } else {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-        toast.error(errorData.message || `Failed to fetch broker data (${response.status})`);
-        console.error('Failed to fetch broker data:', errorData);
-      }
-    } catch (error) {
-      console.error('Error fetching broker data:', error);
-      toast.error("Network error. Please try again.");
-    } finally {
-      setBrokerLoading(false);
-    }
-  };
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setBrokerData(data);
+  //       console.log('Broker data fetched:', data);
+  //       toast.success('Broker data loaded successfully!');
+  //     } else {
+  //       const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+  //       toast.error(errorData.message || `Failed to fetch broker data (${response.status})`);
+  //       console.error('Failed to fetch broker data:', errorData);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching broker data:', error);
+  //     toast.error("Network error. Please try again.");
+  //   } finally {
+  //     setBrokerLoading(false);
+  //   }
+  // };
 
 
   const renderContent = () => {
@@ -242,6 +321,14 @@ const MyAccount = () => {
                       </svg>
                     )}
                   </div>
+                  <input
+                    type="file"
+                    name="brokerImage"
+                    onChange={handleFileChange}
+                    accept=".jpg,.jpeg,.png"
+                    className="hidden"
+                    id="broker-image-upload"
+                  />
                   <button
                     type="button"
                     className="absolute -bottom-1 -right-1 bg-green-600 w-7 h-7 rounded-full flex items-center justify-center hover:bg-green-700 transition-colors"
@@ -643,11 +730,19 @@ const MyAccount = () => {
           <div className="w-full lg:w-3/4 bg-white p-6 rounded-lg shadow-sm">
             <div className="flex flex-col items-left gap-4 mb-6">
               <div className="relative w-24 h-24">
-                <img
-                  src={formData.avatar}
-                  alt="Profile"
-                  className="w-24 h-24 object-cover rounded-full border"
-                />
+                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                  {formData.brokerImage ? (
+                    <img
+                      src={URL.createObjectURL(formData.brokerImage)}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  )}
+                </div>
                 <button className="absolute bottom-0 right-0 bg-green-800 w-7 h-7 rounded-full flex items-center justify-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

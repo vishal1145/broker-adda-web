@@ -1,8 +1,8 @@
 {
-  "title": "Shop",
+  "title": "Properties",
   "breadcrumb": [
     { "label": "Home", "href": "/" },
-    { "label": "Shop", "href": "/shop" },
+    { "label": "Properties", "href": "/properties" },
     { "label": "Chair", "href": "/product-details"},
     { "label": "productdetails", "href": "/product-details"}
   ],

@@ -105,9 +105,9 @@ const Hero = ({ data = {
   const handlePrev = () => canPrev && setStartIdx(startIdx - 1);
   const handleNext = () => canNext && setStartIdx(startIdx + 1);
 
-  // Go to shop page
-  const handleOpenShopPage = () => {
-    router.push('/shop');
+  // Go to properties page
+  const handleOpenPropertiesPage = () => {
+    router.push('/properties');
   };
 
   const openProductDetails = (card: HeroCard) => {
@@ -141,7 +141,7 @@ const Hero = ({ data = {
     // Use the correct Next.js App Router dynamic route
     const category = (card.type || 'furniture').toLowerCase();
     const productDataParam = encodeURIComponent(JSON.stringify(productData));
-    router.push(`/shop/${category}/product-details/${productData.id}?productData=${productDataParam}`);
+    router.push(`/properties/${category}/product-details/${productData.id}?productData=${productDataParam}`);
   };
 
   return (
@@ -174,10 +174,10 @@ const Hero = ({ data = {
 
             <div className="flex gap-6 flex-wrap items-center">
               <button
-                onClick={handleOpenShopPage}
+                onClick={handleOpenPropertiesPage}
                 className="bg-green-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-green-800 flex items-center gap-2"
               >
-                Shop now
+                Properties
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fillRule="evenodd"
@@ -189,7 +189,7 @@ const Hero = ({ data = {
 
               {/* Use Next Link instead of <a href> for client navigation */}
               <Link
-                href="/shop"
+                href="/properties"
                 className="text-black text-sm mt-2 font-semibold underline decoration-black hover:opacity-80"
               >
                 {buttons?.secondary ?? 'Explore'}

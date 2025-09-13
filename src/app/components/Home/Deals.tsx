@@ -130,7 +130,7 @@ const Deals = ({ data = { subtitle: '', title: '', description: '', items: [] } 
     // Use the correct Next.js App Router path
     const category = (item.type || item.category || 'chair').toLowerCase();
     const productDataParam = encodeURIComponent(JSON.stringify(transformedProduct));
-    router.push(`/shop/${category}/product-details/${item.id}?productData=${productDataParam}`);
+    router.push(`/properties/${category}/product-details/${item.id}?productData=${productDataParam}`);
   };
 
   return (

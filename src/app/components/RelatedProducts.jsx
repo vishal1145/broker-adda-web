@@ -109,7 +109,7 @@ export default function RelatedProduct() {
     
     try {
       const productDataParam = encodeURIComponent(JSON.stringify(transformedProduct));
-      router.push(`/shop/${product.type?.toLowerCase()}/product-details/${product.id}?productData=${productDataParam}`);
+      router.push(`/properties/${product.type?.toLowerCase()}/product-details/${product.id}?productData=${productDataParam}`);
       console.log('Navigation successful');
     } catch (error) {
       console.error('Navigation failed:', error);
@@ -157,7 +157,7 @@ export default function RelatedProduct() {
             return (
             <Link
               key={product.id}
-              href={`/shop/${product.type?.toLowerCase()}/product-details/${product.id}?productData=${productDataParam}`}
+              href={`/properties/${product.type?.toLowerCase()}/product-details/${product.id}?productData=${productDataParam}`}
               className="bg-white rounded-2xl shadow group relative hover:shadow-md transition duration-300 cursor-pointer block"
             >
               {/* Discount Badge */}
@@ -206,14 +206,14 @@ export default function RelatedProduct() {
               </div>
 
               {/* Image */}
-              <div className="flex justify-center items-center py-6 bg-gray-50 rounded-xl">
+              <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
                 <img 
                   src={product.image} 
                   alt={product.name} 
-                  className="w-40 h-40 object-contain"
+                  className="w-full h-full object-cover"
                   onError={(e) => {
                     console.error('Image failed to load:', product.image);
-                    e.target.src = '/images/chair2.png'; // Fallback image
+                    e.target.src = '/images/realestate2.jpg'; // Fallback image
                   }}
                 />
               </div>

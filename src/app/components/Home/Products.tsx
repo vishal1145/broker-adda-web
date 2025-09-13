@@ -147,7 +147,7 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
     // Use the correct Next.js App Router path
     const category = (product.type || 'furniture').toLowerCase();
     const productDataParam = encodeURIComponent(JSON.stringify(transformedProduct));
-    router.push(`/shop/${category}/product-details/${product.id}?productData=${productDataParam}`);
+    router.push(`/properties/${category}/product-details/${product.id}?productData=${productDataParam}`);
   };
 
   const filteredItems = (data.items || []).filter((product: ProductItem) => {
@@ -322,7 +322,7 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
                 </div>
 
                 <Link
-                  href={`/shop/${product.type?.toLowerCase() || 'furniture'}/product-details/${product.id}?productData=${encodeURIComponent(JSON.stringify({
+                  href={`/properties/${product.type?.toLowerCase() || 'furniture'}/product-details/${product.id}?productData=${encodeURIComponent(JSON.stringify({
                     id: product.id,
                     name: product.name,
                     title: product.name,

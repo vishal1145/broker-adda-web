@@ -13,15 +13,15 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
           <div className=" md:text-left md:col-span-1 ">
             <div className="flex items-center justify-center -mt-6">
               <div className="flex items-center cursor-pointer" onClick={() => router.push('/')}>
-                <div className="w-28 h-28 rounded-full flex  overflow-hidden">
+                <div className="w-20 h-20 rounded-full flex  overflow-hidden mt-6">
                   <img
-                    src="/real-estate-logo-house-logo-home-logo-sign-symbol-free-vector-removebg-preview.png"
+                    src="/House and Handshake Logo (1).png"
                     alt="Logo"
-                    className="w-30 h-30 object-contain cursor-pointer"
+                    className="w-15 h-15 object-contain cursor-pointer"
                   />
                 </div>
                 <h1 className="text-3xl text-white font-medium mr-6 whitespace-nowrap -ml-4">
-                  {data.logo.text}<span className="text-yellow-500">{data.logo.accent}</span>
+                  {data.logo.text}
                 </h1>
               </div>
             </div>

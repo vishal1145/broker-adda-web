@@ -110,14 +110,7 @@ const MyAccountCustomer = () => {
         }
 
         // Use fallback URL if environment variable is not set
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
-        const response = await fetch(`${apiUrl}/auth/profile`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+ 
 
         if (response.ok) {
           const profileData = await response.json();
@@ -162,13 +155,7 @@ const MyAccountCustomer = () => {
                                  profileData.data.additionalDetails?.profileImage;
 
             console.log('Found customerImageUrl:', customerImageUrl);
-            console.log('Checking specific locations:');
-            console.log('user.profileImage:', profileData.data.user?.profileImage);
-            console.log('customerDetails.profileImage:', profileData.data.customerDetails?.profileImage);
-            console.log('data.profileImage:', profileData.data.profileImage);
-            console.log('images.customerImage:', profileData.data.images?.customerImage);
-            console.log('additionalDetails.profileImage:', profileData.data.additionalDetails?.profileImage);
-
+            
             // Convert local server path to public URL if needed
             if (customerImageUrl && customerImageUrl.startsWith('/opt/lampp/htdocs/')) {
               // Extract the filename from the local path
@@ -368,7 +355,7 @@ const MyAccountCustomer = () => {
     setCustomerLoading(true);
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       const response = await fetch(`${apiUrl}/customers/${customerId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,

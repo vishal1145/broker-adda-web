@@ -1,42 +1,43 @@
+
 [
   {
     "id": 1,
-    "name": "Swivel Chair",
-    "type": "Chair",
-    "image": "/images/Swivel Chair.png",
-    "discount": "40% off",
-    "rating": 4.8,
-    "price": 60.00,
-    "oldPrice": 100.00
+    "name": "Luxury Villa",
+    "type": "Villa",
+    "image": "/images/pexels-binyaminmellish-106399.jpg",
+    "discount": "15% off",
+    "rating": 4.9,
+    "price": 25000000,
+    "oldPrice": 30000000
   },
   {
     "id": 2,
-    "name": "Cushion Chair",
-    "type": "Chair",
-    "image": "/images/sofaa2.png",
+    "name": "Modern Apartment",
+    "type": "Apartment",
+    "image": "/images/istockphoto-1165384568-612x612.jpg",
     "discount": "10% off",
-    "rating": 5.0,
-    "price": 60.00,
-    "oldPrice": 100.00
+    "rating": 4.8,
+    "price": 8500000,
+    "oldPrice": 9500000
   },
   {
     "id": 3,
-    "name": "Modern Chair",
-    "type": "Chair",
-    "image": "/images/chair3.png",
-    "discount": "10% off",
-    "rating": 5.0,
-    "price": 60.00,
-    "oldPrice": 100.00
+    "name": "Commercial Space",
+    "type": "Commercial",
+    "image": "/images/realestate2.jpg",
+    "discount": "20% off",
+    "rating": 4.7,
+    "price": 12000000,
+    "oldPrice": 15000000
   },
   {
     "id": 4,
-    "name": "Classic Chair",
-    "type": "Chair",
-    "image": "/images/Classic Chair.png",
-    "discount": "20% off",
-    "rating": 5.0,
-    "price": 60.00,
-    "oldPrice": 100.00
+    "name": "Premium Villa",
+    "type": "Villa",
+    "image": "/images/istockphoto-1465618017-612x612.jpg",
+    "discount": "12% off",
+    "rating": 4.9,
+    "price": 35000000,
+    "oldPrice": 40000000
   }
 ]

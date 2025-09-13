@@ -115,7 +115,7 @@ const Wishlist = () => {
             <h3 className="text-xl font-semibold text-gray-700 mb-2">Your wishlist is empty</h3>
             <p className="text-gray-500 mb-6">Start adding items to your wishlist from the shop!</p>
             <a 
-              href="/shop" 
+              href="/properties" 
               className="bg-green-900 text-white px-6 py-3 rounded-full hover:bg-green-800 transition-colors"
             >
               Browse Products

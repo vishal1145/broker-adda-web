@@ -277,7 +277,7 @@ const BlogDetails = () => {
               <p className="text-lg font-bold mt-1"><span className="text-yellow-400">20% Off</span> on Latest</p>
               <p className="text-lg font-bold">Furniture</p>
               <a
-                href="/shop"
+                href="/properties"
                 className="mt-3 inline-block bg-yellow-500 text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-yellow-600 transition-colors"
               >
                 Shop Now

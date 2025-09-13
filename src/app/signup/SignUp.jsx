@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
@@ -13,6 +13,47 @@ const SignUp = () => {
     role: "" // customer | broker
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Array of real estate images with corresponding testimonials
+  const images = [
+    "/images/livingroom.jpg",
+    "/images/livingroom2.png", 
+    "/images/re.png",
+    "/images/room.png"
+  ];
+
+  const testimonials = [
+    {
+      text: "As a real estate broker, this platform has transformed how I connect with clients and showcase properties. The streamlined process and professional tools have significantly boosted my business success.",
+      author: "Michael Chen",
+      role: "Real Estate Broker"
+    },
+    {
+      text: "Finding the perfect property has never been easier. This platform connects us with verified brokers and premium properties, making our dream home search seamless and successful.",
+      author: "Sarah Johnson",
+      role: "Property Owner"
+    },
+    {
+      text: "The property search experience is exceptional. From luxury villas to commercial spaces, we found exactly what we were looking for with the help of verified brokers on this platform.",
+      author: "Priya Sharma",
+      role: "Business Owner"
+    },
+    {
+      text: "This platform made our investment journey smooth and transparent. The verified brokers and detailed property information helped us make informed decisions for our real estate portfolio.",
+      author: "David Wilson",
+      role: "Real Estate Investor"
+    }
+  ];
+
+  // Auto-rotate images every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -247,9 +288,9 @@ const SignUp = () => {
       <div className="hidden lg:flex lg:flex-1 justify-center items-center">
         <div className="w-[650px] h-[800px] rounded-2xl overflow-hidden relative flex-shrink-0">
           <img
-            src="/images/re.png"
-            alt="Modern Kitchen"
-            className="w-[650px] h-[800px] object-cover"
+            src={images[currentImageIndex]}
+            alt="Real Estate Property"
+            className="w-[650px] h-[800px] object-cover transition-all duration-500 ease-in-out"
             onError={(e) => {
               // Fallback to a placeholder if image doesn't exist
               e.target.style.display = 'none';
@@ -262,21 +303,26 @@ const SignUp = () => {
           <div className="absolute left-1/2 -translate-x-1/2 bottom-12 flex items-center justify-center">
             <div className=" bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 rounded-2xl p-6 w-[600px] shadow-2xl">
               <p className="text-white text-base leading-relaxed mb-4">
-                "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore."
+                "{testimonials[currentImageIndex].text}"
               </p>
               <div className="space-y-1">
-                <h4 className="text-white font-semibold text-base">Annette Black</h4>
-                <p className="text-white text-sm">Architecture</p>
+                <h4 className="text-white font-semibold text-base">{testimonials[currentImageIndex].author}</h4>
+                <p className="text-white text-sm">{testimonials[currentImageIndex].role}</p>
               </div>
             </div>
           </div>
 
           {/* Progress Indicator - keep anchored over image */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full flex-shrink-0"></div>
-            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full flex-shrink-0"></div>
-            <div className="w-32 h-2 bg-orange-400 rounded-full flex-shrink-0"></div>
-            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full flex-shrink-0"></div>
+            {images.map((_, index) => (
+              <div 
+                key={index}
+                className={`w-32 h-2 rounded-full flex-shrink-0 cursor-pointer transition-all duration-300 ${
+                  currentImageIndex === index ? 'bg-orange-400' : 'bg-white bg-opacity-20 backdrop-blur-md'
+                }`}
+                onClick={() => setCurrentImageIndex(index)}
+              ></div>
+            ))}
           </div>
         </div>
       </div>

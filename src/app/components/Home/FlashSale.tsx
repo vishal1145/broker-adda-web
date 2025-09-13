@@ -60,8 +60,8 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
   );
   const router = useRouter();
 
-  const openShopPage = () => {
-    router.push("/shop");
+  const openPropertiesPage = () => {
+    router.push("/properties");
   };
   useEffect(() => {
     const interval = setInterval(() => {
@@ -157,11 +157,11 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
 
           {/* Button */}
           <button
-            onClick={openShopPage}
+            onClick={openPropertiesPage}
             className="bg-green-900 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-green-800"
           >
             {/* {data.button} */}
-            Shop now
+            Properties
           </button>
         </div>
 

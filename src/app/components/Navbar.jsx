@@ -51,16 +51,16 @@ const Navbar = ({ data }) => {
     }
   }, [searchQuery, allProducts]);
 
-  const goShopWithQuery = (q) => {
+  const goPropertiesWithQuery = (q) => {
     const params = new URLSearchParams({ search: q, openSearch: '1' });
-    router.push(`/shop?${params.toString()}`);
+    router.push(`/properties?${params.toString()}`);
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
     const q = searchQuery.trim();
     if (q) {
-      goShopWithQuery(q);
+      goPropertiesWithQuery(q);
       setSearchQuery('');
       setShowSuggestions(false);
     }
@@ -70,7 +70,7 @@ const Navbar = ({ data }) => {
     const q = s?.name || '';
     if (q) {
       setSearchQuery(q);
-      goShopWithQuery(q);
+      goPropertiesWithQuery(q);
       setShowSuggestions(false);
     }
   };
@@ -203,7 +203,7 @@ const Navbar = ({ data }) => {
   }, []);
 
   return (
-    <nav className="bg-white shadow-sm px-6 sm:px-12 lg:px-32 py-4">
+    <nav className="bg-white shadow-sm px-6 sm:px-12 lg:px-32 ">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between w-full">
           {/* Logo */}
@@ -211,17 +211,17 @@ const Navbar = ({ data }) => {
             className="flex items-center cursor-pointer"
             onClick={() => router.push('/')}
           >
-            <div className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden">
               {/* Keep plain <img> to allow arbitrary file names in /public */}
               <img
-                src="/real-estate-logo-house-logo-home-logo-sign-symbol-free-vector-removebg-preview.png"
+                src="/images/House and Handshake Logo (1).png"
                 alt="Logo"
-                className="w-36 h-36 object-contain"
+                className="w-10 h-10 object-contain"
               />
             </div>
             <h1 className="text-3xl font-semibold text-gray-700">
               {data?.logo?.text}
-              <span className="text-yellow-500">{data?.logo?.accent}</span>
+             
             </h1>
           </div>
 

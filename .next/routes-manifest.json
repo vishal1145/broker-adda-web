@@ -28,13 +28,13 @@
       "namedRegex": "^/blog/(?<nxtPslug>[^/]+?)(?:/)?$"
     },
     {
-      "page": "/shop/[category]/product-details/[id]",
-      "regex": "^/shop/([^/]+?)/product\\-details/([^/]+?)(?:/)?$",
+      "page": "/properties/[category]/product-details/[id]",
+      "regex": "^/properties/([^/]+?)/product\\-details/([^/]+?)(?:/)?$",
       "routeKeys": {
         "nxtPcategory": "nxtPcategory",
         "nxtPid": "nxtPid"
       },
-      "namedRegex": "^/shop/(?<nxtPcategory>[^/]+?)/product\\-details/(?<nxtPid>[^/]+?)(?:/)?$"
+      "namedRegex": "^/properties/(?<nxtPcategory>[^/]+?)/product\\-details/(?<nxtPid>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [
@@ -129,16 +129,16 @@
       "namedRegex": "^/privacy(?:/)?$"
     },
     {
+      "page": "/properties",
+      "regex": "^/properties(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/properties(?:/)?$"
+    },
+    {
       "page": "/refund",
       "regex": "^/refund(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/refund(?:/)?$"
-    },
-    {
-      "page": "/shop",
-      "regex": "^/shop(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/shop(?:/)?$"
     },
     {
       "page": "/signup",

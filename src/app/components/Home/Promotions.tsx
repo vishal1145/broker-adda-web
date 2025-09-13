@@ -16,7 +16,7 @@ const Promotions = ({ data = [] }: { data: PromotionItem[] }) => {
 
   const openProductDetails = (item: PromotionItem) => {
     const type = (item?.type || "furniture").toLowerCase();
-    router.push(`/shop/${type}`);
+    router.push(`/properties/${type}`);
   };
   return (
     <section className="px-6 sm:px-12 lg:px-32 bg-white py-16">

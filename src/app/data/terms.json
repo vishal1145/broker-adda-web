@@ -12,20 +12,36 @@
   ],
   "terms": [
     {
-      "title": "Product Information and Availability",
-      "description": "We strive to provide accurate details, descriptions, and images for all furniture items listed on our website. However, colors and finishes may vary slightly due to lighting, screen settings, or natural material differences. Product availability is subject to change without notice, and we reserve the right to limit quantities or discontinue items at any time."
+      "title": "Property Information and Accuracy",
+      "description": "We strive to provide accurate details, descriptions, and images for all properties listed on our platform. However, property conditions, amenities, and specifications may vary from descriptions due to updates, renovations, or natural changes. Property availability is subject to change without notice, and we reserve the right to remove listings or update information at any time. All property information is provided by brokers and property owners."
     },
     {
-      "title": "Pricing and Payments",
-      "description": "All prices are listed in INR and are inclusive of applicable taxes unless otherwise stated. We reserve the right to change pricing at any time without prior notice. Payments must be completed through our secure payment gateway using accepted methods such as credit/debit cards, net banking, UPI, or digital wallets."
+      "title": "Pricing and Financial Terms",
+      "description": "All property prices are listed in INR and are subject to market fluctuations. Prices may not include additional costs such as registration fees, stamp duty, maintenance charges, or other legal expenses. We reserve the right to update pricing information at any time. Financial transactions between buyers and sellers are conducted independently, and we do not handle direct payments for property transactions."
     },
     {
-      "title": "Shipping and Delivery",
-      "description": "We offer delivery services across select locations, with estimated delivery times mentioned at checkout. While we aim to meet these timelines, delays may occur due to unforeseen circumstances. Shipping charges, if applicable, will be clearly mentioned. It is the customer's responsibility to ensure accurate delivery information is provided."
+      "title": "Broker Verification and Credentials",
+      "description": "All brokers on our platform are required to provide valid RERA registration, license details, and professional credentials. We verify broker information but cannot guarantee the accuracy of all details. Users are responsible for conducting their own due diligence before engaging with any broker. We reserve the right to suspend or remove brokers who violate our terms or provide false information."
     },
     {
-      "title": "Returns and Cancellations",
-      "description": "Our return policy allows customers to return eligible furniture items within 7 days of delivery, provided the item is unused, in original condition, and with packaging intact. Customized or clearance items may not be eligible for return. Cancellations are only accepted before the product is dispatched. Refunds are processed after quality checks are completed."
+      "title": "Platform Usage and Responsibilities",
+      "description": "Users must provide accurate information and use the platform in compliance with applicable laws and regulations. Prohibited activities include posting false information, spamming, harassment, or any illegal activities. We reserve the right to suspend or terminate accounts that violate these terms. Users are responsible for maintaining the confidentiality of their account information."
+    },
+    {
+      "title": "Property Viewing and Transactions",
+      "description": "Property viewings and transactions are arranged directly between buyers and brokers. We facilitate connections but are not responsible for the outcome of negotiations, property conditions, or transaction completion. All legal documentation, due diligence, and financial transactions are the responsibility of the parties involved. We recommend consulting with legal and financial advisors before making property decisions."
+    },
+    {
+      "title": "Liability and Disclaimers",
+      "description": "We act as an intermediary platform connecting buyers with brokers and do not guarantee the accuracy of property information, broker credentials, or transaction outcomes. We are not liable for any losses, damages, or disputes arising from property transactions, broker interactions, or platform usage. Users engage with brokers and properties at their own risk and discretion."
+    },
+    {
+      "title": "Data Privacy and Communication",
+      "description": "We collect and process personal information in accordance with our Privacy Policy. Communication between users and brokers may be monitored for quality assurance and safety purposes. Users consent to receiving property recommendations, market updates, and platform notifications. Users can opt out of marketing communications at any time through their account settings."
+    },
+    {
+      "title": "Modifications and Updates",
+      "description": "We reserve the right to modify these terms and conditions at any time. Changes will be posted on our platform with the updated effective date. Continued use of the platform after modifications constitutes acceptance of the new terms. Users are responsible for reviewing these terms periodically to stay informed of any changes."
     }
   ]
 }

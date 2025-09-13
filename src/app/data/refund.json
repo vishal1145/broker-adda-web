@@ -1,39 +1,49 @@
 {
     "header": {
-    "title": "Returns Policy",
+    "title": "Refund & Cancellation Policy",
     "breadcrumb": [
       {
         "label": "Home",
         "href": "/"
       },
       {
-        "label": "Returns Policy",
+        "label": "Refund & Cancellation Policy",
         "href": "/refund"
       }
     ]
   },
   "sections": [
     {
-      "title": "Returns",
+      "title": "Platform Service Fees",
       "content": [
-        "We understand that sometimes a product may not meet your expectations, and that’s why we offer a straightforward return policy to ensure your satisfaction. If you're not completely happy with your purchase, you can return the item within the designated return window. To qualify, products must be unused, in their original packaging, and accompanied by proof of purchase. Our goal is to make the return process simple and stress-free. Once we receive and inspect the returned item, we will process your refund or exchange promptly. Your comfort and confidence in shopping with us are our top priorities."
+        "Broker Adda operates as a platform connecting property buyers with verified real estate brokers. We may charge service fees for premium features, broker verification services, or platform usage. These fees are clearly displayed before any transaction and are non-refundable once services have been provided. Our goal is to maintain transparency in all financial transactions and ensure you understand the costs associated with using our platform services."
       ]
     },
     {
-      "title": "Refunds",
+      "title": "Property Transaction Refunds",
       "content": [
-        "Refunds are processed quickly for eligible returned products in condition.",
-        "Refunds are processed swiftly upon receiving returned items in original condition, ensuring a reliable and hassle-free experience for our customers.",
-        "Customer satisfaction is our priority, and we aim to make the refund process as smooth and transparent as possible. If you're not completely satisfied with your purchase, you may request a refund within the eligible return period. To qualify, the item must be in its original condition with all tags and packaging intact.",
-        "Once we receive and inspect the returned product, the refund will be processed promptly to your original payment method. Please note that processing times may vary depending on your bank or payment provider. We're here to assist you at every step to ensure a hassle-free experience."
+        "Please note that Broker Adda does not handle direct property transactions or payments between buyers and sellers. All financial transactions for property purchases are conducted directly between the parties involved (buyers, sellers, and brokers).",
+        "If you have made payments directly to a broker or property owner and wish to request a refund, you must contact them directly. We can assist by providing broker contact information and facilitating communication, but we cannot process refunds for transactions we did not handle.",
+        "For any disputes related to property transactions, we recommend consulting with legal advisors and following the appropriate legal channels. We maintain records of broker communications and can provide assistance in resolving disputes when possible.",
+        "If you have paid platform service fees and believe you are entitled to a refund due to service issues, please contact our support team with detailed information about the problem. We will review each case individually and process refunds for legitimate service failures."
       ]
     },
     {
-      "title": "Late or Missing Refunds",
+      "title": "Broker Service Issues",
       "content": [
-        "If you haven’t received your refund yet, please first double-check your bank account or original method of payment, as processing times can vary depending on your financial institution. Next, contact your credit card company or bank, as it may take a few business days before your refund is officially posted. If you’ve done all of this and still haven’t received your refund, we recommend contacting us directly.",
-        "Provide your order details and proof of return so we can assist you promptly. Sometimes, delays may occur due to processing issues or incomplete return documentation. We are committed to resolving any issues as quickly as possible and appreciate your patience during this process.",
-        "Our support team is always available to provide updates and ensure your refund reaches you without unnecessary delays. Your satisfaction is important to us, and we’re here to help every step of the way."
+        "If you experience issues with a broker's services or behavior, please report the matter to us immediately with detailed information and evidence. We take broker misconduct seriously and will investigate all complaints thoroughly.",
+        "While we cannot refund money paid directly to brokers, we can take action against brokers who violate our terms of service, including suspension or removal from our platform. We maintain strict standards for broker verification and conduct.",
+        "For serious issues such as fraud or misrepresentation, we will cooperate with legal authorities and provide all necessary documentation to support your case. Your safety and satisfaction are our top priorities.",
+        "If a broker is found to have provided false information or engaged in fraudulent activities, we will work with you to resolve the matter and may provide compensation through our platform insurance, where applicable."
+      ]
+    },
+    {
+      "title": "Platform Service Refunds",
+      "content": [
+        "If you have paid for premium platform services (such as featured listings, advanced search features, or broker verification) and the service was not provided as promised, you may be eligible for a refund.",
+        "Refund requests must be submitted within 30 days of the service issue and must include detailed information about the problem. We will review each case and process refunds for legitimate service failures within 5-7 business days.",
+        "Processing times may vary depending on your payment method and financial institution. Refunds will be credited to your original payment method. Please note that we cannot refund money paid directly to third parties (brokers, property owners, etc.).",
+        "Our support team is available to assist with refund requests and provide updates on the status of your case. We are committed to resolving all legitimate issues promptly and ensuring your satisfaction with our platform services."
       ]
     }
   ]

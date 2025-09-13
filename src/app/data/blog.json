@@ -1,290 +1,290 @@
 {
-  "title": "Our Blog",
+  "title": "Real Estate Blog",
   "breadcrumb": [
     { "label": "Home", "href": "/" },
-    { "label": "Our Blog", "href": "/blog" }
+    { "label": "Real Estate Blog", "href": "/blog" }
   ],
   "blogs": [
     {
       "id": 1,
-      "slug": "furniture-trends-2024",
-      "title": "Furniture Trends 2024: What's Hot and What's Not",
+      "slug": "real-estate-trends-2024",
+      "title": "Real Estate Trends 2024: What's Hot in Property Market",
       "date": "15 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_35_08 PM.png",
-      "description": "A concise look at 2024 furniture trends: fresh styles, bold colors, essential insights."
+      "image": "/images/pexels-binyaminmellish-106399.jpg",
+      "description": "Discover the latest real estate trends shaping the property market in 2024."
     },
     {
       "id": 2,
-      "slug": "ultimate-guide-choosing-perfect-sofa",
-      "title": "The Ultimate Guide to Choosing the Perfect Sofa",
+      "slug": "ultimate-guide-buying-first-home",
+      "title": "The Ultimate Guide to Buying Your First Home",
       "date": "14 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_40_26 PM.png",
-      "description": "A helpful guide for selecting a stylish, comfortable, and lasting perfect sofa."
+      "image": "/images/istockphoto-1165384568-612x612.jpg",
+      "description": "Complete guide for first-time homebuyers with essential tips and strategies."
     },
     {
       "id": 3,
-      "slug": "choosing-right-dining-table",
-      "title": "Choosing the Right Dining Table for Your Lifestyle",
+      "slug": "choosing-right-location-property",
+      "title": "Choosing the Right Location for Your Property Investment",
       "date": "12 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_45_10 PM.png",
-      "description": "Choose a dining table that fits your space, style, and daily lifestyle needs."
+      "image": "/images/istockphoto-1465618017-612x612.jpg",
+      "description": "Learn how to select the perfect location for your real estate investment."
     },
     {
       "id": 4,
-      "slug": "maximizing-small-spaces",
-      "title": "Maximizing Small Spaces with Smart Furniture",
+      "slug": "maximizing-small-space-properties",
+      "title": "Maximizing Small Space Properties for Maximum Value",
       "date": "10 April 2024",
-      "image": "/images/geastromm.png",
-      "description": "Maximize every inch with smart furniture that adds function, style, and storage."
+      "image": "/images/room.png",
+      "description": "Transform small properties into functional, valuable living spaces."
     },
     {
       "id": 5,
-      "slug": "style-modern-minimalist-living-room",
-      "title": "How to Style a Modern Minimalist Living Room",
+      "slug": "modern-minimalist-home-design",
+      "title": "How to Design a Modern Minimalist Home",
       "date": "08 April 2024",
       "image": "/images/livingroom.jpg",
-      "description": "Create a serene space with clean lines, neutral tones, and functional décor pieces."
+      "description": "Create a serene living space with clean lines and functional design elements."
     },
     {
       "id": 6,
-      "slug": "eco-friendly-furniture-brands",
-      "title": "Top 10 Eco-Friendly Furniture Brands in 2024",
+      "slug": "sustainable-real-estate-practices",
+      "title": "Top 10 Sustainable Real Estate Practices in 2024",
       "date": "06 April 2024",
       "image": "/images/livingroom2.png",
-      "description": "Discover sustainable style with 2025’s top eco-friendly furniture brands and innovations."
+      "description": "Discover eco-friendly practices for sustainable real estate development."
     },
     {
       "id": 7,
-      "slug": "cozy-reading-nook",
-      "title": "Creating a Cozy Reading Nook at Home",
+      "slug": "cozy-home-office-setup",
+      "title": "Creating a Cozy Home Office Space",
       "date": "04 April 2024",
-      "image": "/images/sofa1.png",
-      "description": "Design a peaceful reading nook with soft lighting, comfy seating, and warm textures."
+      "image": "/images/bed room.jpg",
+      "description": "Design a productive and comfortable home office for remote work."
     },
     {
       "id": 8,
-      "slug": "smart-furniture-interior-design",
-      "title": "The Future of Smart Furniture in Interior Design",
+      "slug": "smart-home-technology-real-estate",
+      "title": "The Future of Smart Home Technology in Real Estate",
       "date": "02 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_35_08 PM.png",
-      "description": "Smart furniture is revolutionizing interiors with tech integration, adaptability, and space-saving solutions."
+      "image": "/images/ChatGPT Image Jul 19, 2025, 11_21_00 AM.png",
+      "description": "Explore how smart home technology is revolutionizing real estate."
     },
     {
       "id": 9,
-      "slug": "scandinavian-interiors",
-      "title": "Styling Tips for Scandinavian Interiors",
+      "slug": "scandinavian-home-design",
+      "title": "Styling Tips for Scandinavian Home Design",
       "date": "01 April 2024",
       "image": "/images/bed room.jpg",
-      "description": "Embrace simplicity with neutral colors, natural textures, and functional, clean-lined Scandinavian design elements."
+      "description": "Embrace simplicity with neutral tones and functional Scandinavian design elements."
     },
     {
       "id": 10,
-      "slug": "furniture-trends-2024",
-      "title": "Furniture Trends 2024: What's Hot and What's Not",
-      "date": "15 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_35_08 PM.png",
-      "description": "A concise look at 2024 furniture trends: fresh styles, bold colors, essential insights."
+      "slug": "luxury-villa-features",
+      "title": "Essential Features of Modern Luxury Villas",
+      "date": "30 March 2024",
+      "image": "/images/pexels-binyaminmellish-106399.jpg",
+      "description": "Discover the must-have features that define luxury villa living."
     },
     {
       "id": 11,
-      "slug": "ultimate-guide-choosing-perfect-sofa",
-      "title": "The Ultimate Guide to Choosing the Perfect Sofa",
-      "date": "14 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_40_26 PM.png",
-      "description": "A helpful guide for selecting a stylish, comfortable, and lasting perfect sofa."
+      "slug": "commercial-property-investment",
+      "title": "Complete Guide to Commercial Property Investment",
+      "date": "28 March 2024",
+      "image": "/images/realestate2.jpg",
+      "description": "Learn the fundamentals of investing in commercial real estate properties."
     },
     {
       "id": 12,
-      "slug": "choosing-right-dining-table",
-      "title": "Choosing the Right Dining Table for Your Lifestyle",
-      "date": "12 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_45_10 PM.png",
-      "description": "Choose a dining table that fits your space, style, and daily lifestyle needs."
+      "slug": "apartment-living-benefits",
+      "title": "Benefits of Modern Apartment Living",
+      "date": "26 March 2024",
+      "image": "/images/istockphoto-1165384568-612x612.jpg",
+      "description": "Explore the advantages of contemporary apartment lifestyle and amenities."
     },
     {
       "id": 13,
-      "slug": "cozy-reading-nook",
-      "title": "Creating a Cozy Reading Nook at Home",
-      "date": "04 April 2024",
-      "image": "/images/sofa1.png",
-      "description": "Design a peaceful reading nook with soft lighting, comfy seating, and warm textures."
+      "slug": "home-staging-tips",
+      "title": "Professional Home Staging Tips for Quick Sales",
+      "date": "24 March 2024",
+      "image": "/images/livingroom.jpg",
+      "description": "Master the art of home staging to sell your property faster and at better prices."
     },
     {
       "id": 14,
-      "slug": "smart-furniture-interior-design",
-      "title": "The Future of Smart Furniture in Interior Design",
-      "date": "02 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_35_08 PM.png",
-      "description": "Smart furniture is revolutionizing interiors with tech integration, adaptability, and space-saving solutions."
+      "slug": "real-estate-financing-options",
+      "title": "Understanding Real Estate Financing Options",
+      "date": "22 March 2024",
+      "image": "/images/istockphoto-1465618017-612x612.jpg",
+      "description": "Navigate through various financing options available for real estate purchases."
     },
     {
       "id": 15,
-      "slug": "scandinavian-interiors",
-      "title": "Styling Tips for Scandinavian Interiors",
-      "date": "01 April 2024",
-      "image": "/images/bed room.jpg",
-      "description": "Embrace simplicity with neutral colors, natural textures, and functional, clean-lined Scandinavian design elements."
+      "slug": "property-valuation-methods",
+      "title": "Essential Property Valuation Methods for Investors",
+      "date": "20 March 2024",
+      "image": "/images/pexels-binyaminmellish-106399.jpg",
+      "description": "Learn different methods to accurately value real estate properties."
     },
     {
       "id": 16,
-      "slug": "maximizing-small-spaces",
-      "title": "Maximizing Small Spaces with Smart Furniture",
-      "date": "10 April 2024",
-      "image": "/images/geastromm.png",
-      "description": "Maximize every inch with smart furniture that adds function, style, and storage."
+      "slug": "real-estate-market-analysis",
+      "title": "How to Analyze Real Estate Market Trends",
+      "date": "18 March 2024",
+      "image": "/images/realestate2.jpg",
+      "description": "Master the skills needed to analyze and predict real estate market movements."
     },
     {
       "id": 17,
-      "slug": "style-modern-minimalist-living-room",
-      "title": "How to Style a Modern Minimalist Living Room",
-      "date": "08 April 2024",
-      "image": "/images/livingroom.jpg",
-      "description": "Create a serene space with clean lines, neutral tones, and functional décor pieces."
+      "slug": "rental-property-management",
+      "title": "Effective Rental Property Management Strategies",
+      "date": "16 March 2024",
+      "image": "/images/room.png",
+      "description": "Discover proven strategies for successful rental property management."
     },
     {
       "id": 18,
-      "slug": "eco-friendly-furniture-brands",
-      "title": "Top 10 Eco-Friendly Furniture Brands in 2024",
-      "date": "06 April 2024",
+      "slug": "real-estate-legal-aspects",
+      "title": "Important Legal Aspects of Real Estate Transactions",
+      "date": "14 March 2024",
       "image": "/images/livingroom2.png",
-      "description": "Discover sustainable style with 2025’s top eco-friendly furniture brands and innovations."
+      "description": "Understand the legal considerations in real estate deals and transactions."
     },
     {
       "id": 19,
-      "slug": "maximizing-small-spaces",
-      "title": "Maximizing Small Spaces with Smart Furniture",
-      "date": "10 April 2024",
-      "image": "/images/geastromm.png",
-      "description": "Maximize every inch with smart furniture that adds function, style, and storage."
+      "slug": "property-inspection-guide",
+      "title": "Complete Property Inspection Checklist for Buyers",
+      "date": "12 March 2024",
+      "image": "/images/bed room.jpg",
+      "description": "Essential checklist for thorough property inspection before purchase."
     },
     {
       "id": 20,
-      "slug": "style-modern-minimalist-living-room",
-      "title": "How to Style a Modern Minimalist Living Room",
-      "date": "08 April 2024",
-      "image": "/images/livingroom.jpg",
-      "description": "Create a serene space with clean lines, neutral tones, and functional décor pieces."
+      "slug": "real-estate-tax-benefits",
+      "title": "Maximizing Tax Benefits in Real Estate Investment",
+      "date": "10 March 2024",
+      "image": "/images/istockphoto-1165384568-612x612.jpg",
+      "description": "Learn how to optimize tax benefits and deductions in real estate investments."
     },
     {
       "id": 21,
-      "slug": "eco-friendly-furniture-brands",
-      "title": "Top 10 Eco-Friendly Furniture Brands in 2024",
-      "date": "06 April 2024",
-      "image": "/images/livingroom2.png",
-      "description": "Discover sustainable style with 2025’s top eco-friendly furniture brands and innovations."
+      "slug": "home-renovation-roi",
+      "title": "Home Renovation Projects with Best ROI",
+      "date": "08 March 2024",
+      "image": "/images/livingroom.jpg",
+      "description": "Discover renovation projects that provide the best return on investment."
     },
     {
       "id": 22,
-      "slug": "cozy-reading-nook",
-      "title": "Creating a Cozy Reading Nook at Home",
-      "date": "04 April 2024",
-      "image": "/images/sofa1.png",
-      "description": "Design a peaceful reading nook with soft lighting, comfy seating, and warm textures."
+      "slug": "real-estate-agent-tips",
+      "title": "How to Choose the Right Real Estate Agent",
+      "date": "06 March 2024",
+      "image": "/images/pexels-binyaminmellish-106399.jpg",
+      "description": "Essential tips for selecting the perfect real estate agent for your needs."
     },
     {
       "id": 23,
-      "slug": "smart-furniture-interior-design",
-      "title": "The Future of Smart Furniture in Interior Design",
-      "date": "02 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_35_08 PM.png",
-      "description": "Smart furniture is revolutionizing interiors with tech integration, adaptability, and space-saving solutions."
+      "slug": "property-insurance-guide",
+      "title": "Complete Guide to Property Insurance Coverage",
+      "date": "04 March 2024",
+      "image": "/images/realestate2.jpg",
+      "description": "Understand different types of property insurance and coverage options."
     },
     {
       "id": 24,
-      "slug": "scandinavian-interiors",
-      "title": "Styling Tips for Scandinavian Interiors",
-      "date": "01 April 2024",
-      "image": "/images/bed room.jpg",
-      "description": "Embrace simplicity with neutral colors, natural textures, and functional, clean-lined Scandinavian design elements."
+      "slug": "real-estate-negotiation-tips",
+      "title": "Mastering Real Estate Negotiation Techniques",
+      "date": "02 March 2024",
+      "image": "/images/istockphoto-1465618017-612x612.jpg",
+      "description": "Learn effective negotiation strategies for real estate transactions."
     },
     {
       "id": 25,
-      "slug": "furniture-trends-2024",
-      "title": "Furniture Trends 2024: What's Hot and What's Not",
-      "date": "15 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_35_08 PM.png",
-      "description": "A concise look at 2024 furniture trends: fresh styles, bold colors, essential insights."
+      "slug": "luxury-apartment-amenities",
+      "title": "Must-Have Amenities in Luxury Apartments",
+      "date": "28 February 2024",
+      "image": "/images/istockphoto-1165384568-612x612.jpg",
+      "description": "Explore premium amenities that define luxury apartment living."
     },
     {
       "id": 26,
-      "slug": "ultimate-guide-choosing-perfect-sofa",
-      "title": "The Ultimate Guide to Choosing the Perfect Sofa",
-      "date": "14 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_40_26 PM.png",
-      "description": "A helpful guide for selecting a stylish, comfortable, and lasting perfect sofa."
+      "slug": "real-estate-market-forecasting",
+      "title": "Real Estate Market Forecasting for 2024",
+      "date": "26 February 2024",
+      "image": "/images/pexels-binyaminmellish-106399.jpg",
+      "description": "Expert predictions and forecasts for the real estate market in 2024."
     },
     {
       "id": 27,
-      "slug": "choosing-right-dining-table",
-      "title": "Choosing the Right Dining Table for Your Lifestyle",
-      "date": "12 April 2024",
-      "image": "/images/ChatGPT Image Jul 7, 2025, 01_45_10 PM.png",
-      "description": "Choose a dining table that fits your space, style, and daily lifestyle needs."
+      "slug": "commercial-real-estate-trends",
+      "title": "Latest Trends in Commercial Real Estate",
+      "date": "24 February 2024",
+      "image": "/images/realestate2.jpg",
+      "description": "Stay updated with the latest trends shaping commercial real estate sector."
     }
   ],
   "blogDetails": [
     {
-      "slug": "furniture-trends-2024",
-      "title": "Furniture Trends 2024: What's Hot and What's Not",
-      "heroImage": "/images/ChatGPT Image Jul 7, 2025, 01_35_08 PM.png",
+      "slug": "real-estate-trends-2024",
+      "title": "Real Estate Trends 2024: What's Hot in Property Market",
+      "heroImage": "/images/pexels-binyaminmellish-106399.jpg",
       "date": "15 April 2024",
       "readTime": "8 min Read",
       "author": "Sarah Johnson",
       "authorImage": "/images/Leslie .jpg",
-      "image": "/images/blog-detail-hero.jpg",
-      "tags": ["Furniture", "Trends", "2024"],
+      "image": "/images/pexels-binyaminmellish-106399.jpg",
+      "tags": ["Real Estate", "Trends", "2024"],
       "categories": [
-        "Sofa",
-        "Furniture",
-        "Bed",
-        "Offices",
-        "Chair",
-        "Lighting",
-        "Nightstand",
-        "Office Table",
-        "Decor",
-        "Dining Table",
-        "Mirrors"
+        "Villa",
+        "Apartment",
+        "Commercial",
+        "Investment",
+        "Luxury",
+        "Modern",
+        "Sustainable",
+        "Smart Homes",
+        "Location",
+        "Market Analysis",
+        "Property Management"
       ],
       "introduction": {
-        "dropCap": "L",
-        "firstParagraph": "Furniture Trends 2024 embrace sustainability, curved silhouettes, and bold colors, while minimalism and fast furniture are phasing out.",
-        "secondParagraph": "Furniture Trends 2024 embrace sustainability, organic curves, and bold, expressive colors. Modular and multifunctional designs are in, while overly minimal aesthetics and disposable fast furniture are gradually falling out of favor."
+        "dropCap": "R",
+        "firstParagraph": "Real Estate Trends 2024 embrace sustainable living, smart home technology, and flexible spaces, while traditional office spaces are being reimagined.",
+        "secondParagraph": "Real Estate Trends 2024 focus on sustainability, smart home integration, and flexible living spaces. Eco-friendly materials, energy-efficient designs, and multi-functional areas are in high demand, while traditional single-purpose spaces are evolving to meet modern lifestyle needs."
       },
       "content": {
-        "intro": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "intro": "The real estate market in 2024 is experiencing significant transformation driven by technological advancement, environmental consciousness, and changing lifestyle preferences. This comprehensive guide explores the key trends shaping property investment and home buying decisions.",
         "body": [
           {
-            "heading": "Identifying Your Priorities: Comfort, Style, Durability",
-            "text": "When choosing furniture, prioritize comfort for everyday use, style to reflect your personality, and durability to ensure long-lasting quality. These three factors create a balanced and satisfying living space."
+            "heading": "Sustainable and Eco-Friendly Properties",
+            "text": "Green building practices and sustainable materials are becoming standard in new developments. Properties with solar panels, energy-efficient appliances, and eco-friendly construction materials command premium prices and attract environmentally conscious buyers."
           },
           {
-            "heading": "Exploring Sofa Styles",
-            "text": "Exploring sofa styles helps you find the perfect match for your space. From modern minimalism to classic elegance, each design offers unique comfort, aesthetics, and functionality to suit your lifestyle.",
-            "images": ["/images/blog2.png", "/images//blog1.png"]
+            "heading": "Smart Home Technology Integration",
+            "text": "Modern properties are increasingly incorporating smart home features like automated lighting, security systems, and climate control. These technological enhancements not only improve convenience but also increase property value and appeal to tech-savvy buyers.",
+            "images": ["/images/blog2.png", "/images/blog1.png"]
           },
           {
-            "heading": "Matching Your Sofa to Your Décor",
-            "text": "Matching your sofa to your décor enhances harmony in your living space. Choose colors, textures, and styles that complement your interior theme for a cohesive and visually appealing environment."
+            "heading": "Flexible Living Spaces",
+            "text": "The demand for adaptable spaces has grown significantly, with home offices, convertible rooms, and multi-purpose areas becoming essential features. Properties that offer flexibility in layout and usage are more attractive to buyers seeking long-term value."
           }
         ],
         "cleaningTips": {
-          "heading": "Cleaning and Maintenance Tips",
+          "heading": "Property Maintenance Tips",
           "tips": [
-            "Regular vacuuming and spot cleaning keep your sofa fresh and looking new.",
-            "Follow routine cleaning, vacuum regularly, and treat spills promptly to maintain sofa quality.",
-            "Clean weekly, vacuum cushions, treat stains quickly, and follow manufacturer care instructions.",
-            "Vacuum regularly, wipe spills immediately, and use fabric-safe cleaners for lasting freshness."
+            "Regular property inspections help identify maintenance issues early and prevent costly repairs.",
+            "Keep detailed records of all maintenance activities and property improvements for better valuation.",
+            "Schedule seasonal maintenance checks for HVAC, plumbing, and electrical systems to ensure optimal performance.",
+            "Maintain curb appeal with regular landscaping and exterior cleaning to preserve property value."
           ]
         },
         "protectingInvestment": {
-          "heading": "Protecting Your Investment",
-          "text": "Protecting your sofa investment ensures it stays beautiful and functional for years. Use quality covers, clean regularly, and follow care instructions to maintain its appearance, durability, and long-term value."
+          "heading": "Protecting Your Real Estate Investment",
+          "text": "Protecting your real estate investment requires proactive maintenance, proper insurance coverage, and staying informed about market trends. Regular property assessments, tenant screening for rental properties, and strategic improvements can significantly enhance long-term returns and property value."
         },
         "testimonial": {
-          "name": "Jerome Bell",
+          "name": "Michael Chen",
           "image": "/images/Leslie .jpg",
-          "text": "Jerome Bell is a renowned figure known for his innovative contributions to contemporary theater. His minimalist approach and thought-provoking performances have reshaped traditional stage narratives and audience engagement worldwide."
+          "text": "Michael Chen is a seasoned real estate investor with over 15 years of experience in property development and investment. His expertise in market analysis and sustainable property development has helped hundreds of clients make informed real estate decisions."
         }
       }
     },

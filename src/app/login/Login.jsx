@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
@@ -11,6 +11,47 @@ const Login = () => {
     rememberMe: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Array of real estate images with corresponding testimonials
+  const images = [
+    "/images/pexels-binyaminmellish-106399.jpg",
+    "/images/istockphoto-1165384568-612x612.jpg", 
+    "/images/istockphoto-1465618017-612x612.jpg",
+    "/images/realestate2.jpg"
+  ];
+
+  const testimonials = [
+    {
+      text: "Finding the perfect property has never been easier. This platform connects us with verified brokers and premium properties, making our dream home search seamless and successful.",
+      author: "Sarah Johnson",
+      role: "Property Owner"
+    },
+    {
+      text: "As a real estate broker, this platform has transformed how I connect with clients and showcase properties. The streamlined process and professional tools have significantly boosted my business success.",
+      author: "Michael Chen",
+      role: "Real Estate Broker"
+    },
+    {
+      text: "The property search experience is exceptional. From luxury villas to commercial spaces, we found exactly what we were looking for with the help of verified brokers on this platform.",
+      author: "Priya Sharma",
+      role: "Business Owner"
+    },
+    {
+      text: "This platform made our investment journey smooth and transparent. The verified brokers and detailed property information helped us make informed decisions for our real estate portfolio.",
+      author: "David Wilson",
+      role: "Real Estate Investor"
+    }
+  ];
+
+  // Auto-rotate images every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
   
  
 
@@ -198,9 +239,9 @@ const Login = () => {
       <div className="hidden lg:flex lg:flex-1 justify-center items-center">
         <div className="w-[650px] h-[800px] rounded-2xl overflow-hidden relative bg-gradient-to-br from-green-400 to-green-600 flex-shrink-0">
           <img
-            src="/images/realestate.png"
-            alt="Modern Kitchen"
-            className="w-[650px] h-[800px] object-cover"
+            src={images[currentImageIndex]}
+            alt="Real Estate Property"
+            className="w-[650px] h-[800px] object-cover transition-all duration-500 ease-in-out"
             onError={(e) => {
               // Hide the image if it fails to load
               e.target.style.display = 'none';
@@ -208,34 +249,32 @@ const Login = () => {
             }}
           />
           {/* Fallback placeholder */}
-          <div className="w-[650px] h-[800px] bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center" style={{display: 'none'}}>
-            <div className="text-center text-white">
-              <svg className="w-24 h-24 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-              </svg>
-              <p className="text-xl font-semibold">Image Loading...</p>
-            </div>
-          </div>
+         
           
           {/* Testimonial Card - Frosted Glass Effect */}
           <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
             <div className=" bg-opacity-30 backdrop-blur-lg border border-white border-opacity-50 rounded-2xl p-6 w-[600px] shadow-2xl">
               <p className="text-white text-base leading-relaxed mb-4 font-medium">
-                "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore."
+                "{testimonials[currentImageIndex].text}"
               </p>
               <div className="space-y-1">
-                <h4 className="text-white font-semibold text-base">Annette Black</h4>
-                <p className="text-white text-sm opacity-90">Architecture</p>
+                <h4 className="text-white font-semibold text-base">{testimonials[currentImageIndex].author}</h4>
+                <p className="text-white text-sm opacity-90">{testimonials[currentImageIndex].role}</p>
               </div>
             </div>
           </div>
           
           {/* Progress Indicator - 4 Segments */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full flex-shrink-0"></div>
-            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full flex-shrink-0"></div>
-            <div className="w-32 h-2 bg-orange-400 rounded-full flex-shrink-0"></div>
-            <div className="w-32 h-2 bg-white bg-opacity-20 backdrop-blur-md rounded-full flex-shrink-0"></div>
+            {images.map((_, index) => (
+              <div 
+                key={index}
+                className={`w-32 h-2 rounded-full flex-shrink-0 cursor-pointer transition-all duration-300 ${
+                  currentImageIndex === index ? 'bg-orange-400' : 'bg-white bg-opacity-20 backdrop-blur-md'
+                }`}
+                onClick={() => setCurrentImageIndex(index)}
+              ></div>
+            ))}
           </div>
         </div>
       </div>

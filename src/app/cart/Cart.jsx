@@ -65,7 +65,7 @@ const Cart = () => {
             <h3 className="text-xl font-semibold text-gray-700 mb-2">Your cart is empty</h3>
             <p className="text-gray-500 mb-6">Start shopping to add items to your cart!</p>
             <a 
-              href="/shop" 
+              href="/properties" 
               className="bg-green-900 text-white px-6 py-3 rounded-full hover:bg-green-800 transition-colors"
             >
               Continue Shopping
