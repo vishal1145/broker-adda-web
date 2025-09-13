@@ -519,8 +519,8 @@
       "accent": ".",
       "icon": "F"
     },
-     "description": "Furniture. brings comfort and style to every corner of your home. From timeless designs to modern essentials, we offer high-quality furniture pieces built to last — crafted with care and delivered with trust.",
-    "links": {
+     "description": "Broker Adda.Discover exclusive real estate opportunities that combine luxury, comfort, and convenience. From modern high-rises to elegant family homes, we bring you properties built with trust and excellence.",
+    "links": { 
       "Company": [
         { "name": "About Us", "href": "/aboutus" },
         { "name": "Blog", "href": "/blog" },
@@ -539,11 +539,11 @@
         { "name": "Return Policy", "href": "/refund" }
       ],
       "Contact Info": [
-        { "name": "+61 2 6618 7077", "href": "tel:+61 2 6618 7077" },
-        { "name": "support@byronbaylounges.shop", "href": "mailto:support@byronbaylounges.shop" },
-        { "name": "Byron Bay NSW 2481, Australia", "href": "#" }
+        { "name": "+91 98765 43210", "href": "tel:+919876543210" },
+        { "name": "support@brokeradda.com", "href": "support@brokeradda.com" },
+        { "name": "Broker Adda NSW 2481, Australia", "href": "#" }
       ]
     },
-    "copyright": "© 2025 Furniture. All Rights Reserved."
+    "copyright": "© 2025 Broker Adda. All Rights Reserved."
   }
 }

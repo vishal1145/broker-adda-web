@@ -122,6 +122,11 @@ const VerifyCode = () => {
           if (role) localStorage.setItem('role', String(role));
         } catch (_) {}
 
+        // Dispatch custom event to notify navbar of login
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('userLoggedIn'));
+        }
+
         toast.success('Verification successful! Redirecting...');
         
         if (role === 'broker') {

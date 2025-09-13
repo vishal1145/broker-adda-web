@@ -10,22 +10,22 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
       <div className="px-6 sm:px-12 lg:px-32 py-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-4 ">
           {/* Logo and Description */}
-          <div className="text-center md:text-left md:col-span-1">
-            <div className="flex items-center mb-4 justify-center md:justify-start">
+          <div className=" md:text-left md:col-span-1 ">
+            <div className="flex items-center justify-center -mt-6">
               <div className="flex items-center cursor-pointer" onClick={() => router.push('/')}>
-                <div className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full flex items-center justify-center overflow-hidden">
+                <div className="w-28 h-28 rounded-full flex  overflow-hidden">
                   <img
                     src="/real-estate-logo-house-logo-home-logo-sign-symbol-free-vector-removebg-preview.png"
                     alt="Logo"
                     className="w-20 h-20 md:w-28 md:h-28 lg:w-30 lg:h-30 object-contain"
                   />
                 </div>
-                <h1 className="text-xl md:text-2xl lg:text-3xl text-white font-medium ml-2 md:ml-3">
+                <h1 className="text-xl md:text-2xl lg:text-3xl text-white font-medium mr-8  whitespace-nowrap">
                   {data.logo.text}<span className="text-yellow-500">{data.logo.accent}</span>
                 </h1>
               </div>
             </div>
-            <p className="text-sm text-gray-300 mb-8">{data.description}</p>
+            <p className="text-sm text-gray-300 -mt-2">{data.description}</p>
             <div className="flex justify-center md:justify-start space-x-2 mt-2">
               {[
                 { name: 'Facebook', icon: 'fab fa-facebook-f', url: 'https://facebook.com/yourpage' },

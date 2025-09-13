@@ -28,6 +28,16 @@ const MyAccount = () => {
   const [brokerLoading, setBrokerLoading] = useState(false);
   const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
 
+  // Logout function
+  const handleLogout = () => {
+    // Clear token from localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+    }
+    // Redirect to homepage
+    window.location.href = '/';
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -224,6 +234,60 @@ const MyAccount = () => {
         return (
           <div className="w-full lg:w-3/4 bg-white rounded-lg ">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile</h2>
+            
+            {/* Broker Profile Image Upload */}
+            <div className="mb-8">
+             
+              <div className="flex items-center gap-6">
+                {/* Current Profile Image Display */}
+                <div className="relative">
+                  <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                    {formData.brokerImage ? (
+                      <img
+                        src={URL.createObjectURL(formData.brokerImage)}
+                        alt="Broker Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="absolute -bottom-1 -right-1 bg-green-600 w-7 h-7 rounded-full flex items-center justify-center hover:bg-green-700 transition-colors"
+                    onClick={() => document.getElementById('broker-image-upload').click()}
+                  >
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                </div>
+                
+                {/* Upload Button and Info */}
+                {/* <div className="flex-1">
+                  <input
+                    type="file"
+                    name="brokerImage"
+                    onChange={handleFileChange}
+                    accept=".jpg,.jpeg,.png"
+                    className="hidden"
+                    id="broker-image-upload"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('broker-image-upload').click()}
+                    className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  >
+                    {formData.brokerImage ? 'Change Profile Image' : 'Upload Profile Image'}
+                  </button>
+                  <p className="text-sm text-gray-500 mt-2">
+                    {formData.brokerImage ? formData.brokerImage.name : 'JPG, PNG up to 10MB'}
+                  </p>
+                </div> */}
+              </div>
+            </div>
             
             {profileLoading ? (
               <div className="flex items-center justify-center py-12">
@@ -441,7 +505,7 @@ const MyAccount = () => {
               </div>
 
               {/* File Uploads - All in one row */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                 {/* Aadhar File Upload */}
                 <div className="flex flex-col h-full">
                   <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -526,33 +590,6 @@ const MyAccount = () => {
                   </div>
                 </div>
 
-                {/* Broker Image Upload */}
-                <div className="flex flex-col h-full">
-                  <label className="block text-sm font-medium text-gray-900 mb-2">
-                    Broker Image
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
-                    <input
-                      type="file"
-                      name="brokerImage"
-                      onChange={handleFileChange}
-                      accept=".jpg,.jpeg,.png"
-                      className="hidden"
-                      id="broker-image-upload"
-                    />
-                    <label htmlFor="broker-image-upload" className="cursor-pointer">
-                      <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-600">
-                          {formData.brokerImage ? formData.brokerImage.name : "Click to upload Broker Image"}
-                        </p>
-                        <p className="text-xs text-gray-500">JPG, PNG up to 10MB</p>
-                      </div>
-                    </label>
-                  </div>
-                </div>
               </div>
 
               {/* Submit Button */}
@@ -572,10 +609,10 @@ const MyAccount = () => {
 
       case "Leads / Visitors":
         return (
-          <div className="w-full lg:w-3/4 bg-white rounded-lg shadow-sm">
+          <div className="w-full lg:w-3/4 bg-white rounded-lg ">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Leads / Visitors</h2>
             <div className="space-y-4">
-              <div className="border rounded-lg p-4">
+              <div className="rounded-lg p-4 bg-gray-50 hover:bg-green-50 border border-transparent hover:border-green-400 transition-all cursor-pointer">
                 <div className="flex justify-between items-start">
                   <div>
                     <h4 className="font-medium text-gray-900">John Smith</h4>
@@ -585,7 +622,7 @@ const MyAccount = () => {
                   <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">New Lead</span>
                 </div>
               </div>
-              <div className="border rounded-lg p-4">
+              <div className="rounded-lg p-4 bg-gray-50 hover:bg-green-50 border border-transparent hover:border-green-400 transition-all cursor-pointer">
                 <div className="flex justify-between items-start">
                   <div>
                     <h4 className="font-medium text-gray-900">Sarah Johnson</h4>
@@ -595,7 +632,7 @@ const MyAccount = () => {
                   <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Contacted</span>
                 </div>
               </div>
-              <div className="border rounded-lg p-4">
+              <div className="rounded-lg p-4 bg-gray-50 hover:bg-green-50 border border-transparent hover:border-green-400 transition-all cursor-pointer">
                 <div className="flex justify-between items-start">
                   <div>
                     <h4 className="font-medium text-gray-900">Mike Wilson</h4>
@@ -611,10 +648,10 @@ const MyAccount = () => {
 
       case "Properties / Sites":
         return (
-          <div className="w-full lg:w-3/4 bg-white rounded-lg shadow-sm">
+          <div className="w-full lg:w-3/4 bg-white rounded-lg ">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Properties / Sites</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="border rounded-lg overflow-hidden">
+              <div className="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <img src="/images/pexels-binyaminmellish-106399.jpg" alt="Property" className="w-full h-48 object-cover" />
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900">Luxury Villa</h3>
@@ -622,7 +659,7 @@ const MyAccount = () => {
                   <p className="text-green-600 font-semibold">₹2.5 Cr</p>
                 </div>
               </div>
-              <div className="border rounded-lg overflow-hidden">
+              <div className="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <img src="/images/istockphoto-1165384568-612x612.jpg" alt="Property" className="w-full h-48 object-cover" />
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900">Modern Apartment</h3>
@@ -630,7 +667,7 @@ const MyAccount = () => {
                   <p className="text-green-600 font-semibold">₹85 L</p>
                 </div>
               </div>
-              <div className="border rounded-lg overflow-hidden">
+              <div className="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <img src="/images/realestate2.jpg" alt="Property" className="w-full h-48 object-cover" />
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900">Commercial Space</h3>
@@ -642,18 +679,6 @@ const MyAccount = () => {
           </div>
         );
 
-      case "Logout":
-        return (
-          <div className="w-full lg:w-3/4 bg-white p-6 rounded-lg ">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Logout</h2>
-            <div className="text-center">
-              <p className="text-gray-600 mb-6">Are you sure you want to logout?</p>
-              <button className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors">
-                Confirm Logout
-              </button>
-            </div>
-          </div>
-        );
 
       default:
         return (
@@ -823,8 +848,7 @@ const MyAccount = () => {
             "Dashboard",
             "Profile",
             "Leads / Visitors",
-            "Properties / Sites",
-            "Logout"
+            "Properties / Sites"
           ].map((item, idx) => (
             <button
               key={item}
@@ -838,6 +862,12 @@ const MyAccount = () => {
               {item}
             </button>
           ))}
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-5 py-3 rounded-lg border bg-white "
+          >
+            Logout
+          </button>
         </div>
 
         {/* Content Area */}

@@ -83,8 +83,16 @@ const Navbar = ({ data }) => {
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('phone');
+      localStorage.removeItem('role');
       localStorage.removeItem('user');
       setUser(null);
+      
+      // Dispatch custom event to notify other components of logout
+      window.dispatchEvent(new CustomEvent('userLoggedOut'));
+      
       router.push('/');
     }
   };
@@ -101,16 +109,58 @@ const Navbar = ({ data }) => {
   // Initialize mounted state and user data
   useEffect(() => {
     setIsMounted(true);
-    if (typeof window !== 'undefined') {
-      const savedUser = localStorage.getItem('user');
-      if (savedUser) {
-        try {
-          setUser(JSON.parse(savedUser));
-        } catch {
+    const updateUser = () => {
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        const phone = localStorage.getItem('phone');
+        const role = localStorage.getItem('role');
+        
+        console.log('Navbar: Checking user state, token:', !!token, 'phone:', phone, 'role:', role);
+        
+        if (token && phone) {
+          try {
+            // Create user object from available data
+            const userData = {
+              phone: phone,
+              role: role || 'customer',
+              token: token
+            };
+            console.log('Navbar: Setting user data:', userData);
+            setUser(userData);
+          } catch {
+            console.log('Navbar: Error creating user data, setting to null');
+            setUser(null);
+          }
+        } else {
+          console.log('Navbar: No token or phone found, setting to null');
           setUser(null);
         }
       }
-    }
+    };
+    
+    updateUser();
+    
+    // Listen for storage changes (login/logout from other tabs)
+    const handleStorageChange = (e) => {
+      if (e.key === 'token' || e.key === 'authToken' || e.key === 'phone' || e.key === 'role') {
+        updateUser();
+      }
+    };
+    
+    // Listen for custom login events (same tab)
+    const handleLoginEvent = () => {
+      updateUser();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('userLoggedIn', handleLoginEvent);
+    window.addEventListener('userLoggedOut', handleLoginEvent);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userLoggedIn', handleLoginEvent);
+      window.removeEventListener('userLoggedOut', handleLoginEvent);
+    };
   }, []);
 
   // Counts from localStorage
@@ -274,13 +324,20 @@ const Navbar = ({ data }) => {
             {/* Authentication */}
             {isMounted && (
               <>
+                {console.log('Navbar render: isMounted:', isMounted, 'user:', user)}
                 {user ? (
                   <div className="flex items-center gap-3">
                     <Link href="/myaccount" className="hover:text-green-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                      </svg>
+                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-green-600 hover:border-green-700 transition-colors">
+                        <img
+                          src="/images/user-1.webp"
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = '/images/user-1.webp';
+                          }}
+                        />
+                      </div>
                     </Link>
                     <button
                       onClick={handleLogout}
@@ -337,10 +394,17 @@ const Navbar = ({ data }) => {
               {user ? (
                 <>
                   <li>
-                    {/* Greeting removed from mobile navbar */}
-                  </li>
-                  <li>
-                    <Link href="/myaccount" className="hover:text-green-700 block">
+                    <Link href="/myaccount" className="hover:text-green-700 block flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-green-600">
+                        <img
+                          src="/images/user-1.webp"
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = '/images/user-1.webp';
+                          }}
+                        />
+                      </div>
                       My Account
                     </Link>
                   </li>

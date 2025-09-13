@@ -31,7 +31,21 @@ const MyAccountCustomer = () => {
   const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
   const [customerData, setCustomerData] = useState(null);
   const [customerLoading, setCustomerLoading] = useState(false);
+  const [customerImage, setCustomerImage] = useState(null);
+  const [favoriteProperties, setFavoriteProperties] = useState(new Set());
+  const [isLoadingProfileData, setIsLoadingProfileData] = useState(false);
   const propertyTypeOptions = ["apartment", "commercial", "plot", "villa", "house"];
+
+  // Logout function
+  const handleLogout = () => {
+    // Clear token from localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('authToken');
+    }
+    // Redirect to homepage
+    window.location.href = '/';
+  };
 
   // Debug: Monitor formData changes
   useEffect(() => {
@@ -62,10 +76,12 @@ const MyAccountCustomer = () => {
   useEffect(() => {
     const loadCustomerData = async () => {
       try {
+        setIsLoadingProfileData(true);
         const token = localStorage.getItem('token') || localStorage.getItem('authToken');
         console.log('Customer - Token from localStorage:', token);
         if (!token) {
           console.log('Customer - No token found in localStorage');
+          setIsLoadingProfileData(false);
           return;
         }
 
@@ -78,6 +94,7 @@ const MyAccountCustomer = () => {
           console.log('Customer - Token expired, clearing localStorage');
           localStorage.removeItem('token');
           localStorage.removeItem('authToken');
+          setIsLoadingProfileData(false);
           return;
         }
 
@@ -122,6 +139,41 @@ const MyAccountCustomer = () => {
                                 profileData.data.inquiryCount || 
                                 profileData.inquiryCount || 
                                 0;
+
+            // Load customer profile image if available
+            console.log('Full API response for debugging:', JSON.stringify(profileData, null, 2));
+            
+            // Check all possible locations for the image
+            let customerImageUrl = profileData.data.images?.customerImage ||
+                                 profileData.data.user?.profileImage || 
+                                 profileData.data.customerDetails?.profileImage ||
+                                 profileData.data.profileImage ||
+                                 profileData.data.additionalDetails?.profileImage;
+
+            console.log('Found customerImageUrl:', customerImageUrl);
+            console.log('Checking specific locations:');
+            console.log('user.profileImage:', profileData.data.user?.profileImage);
+            console.log('customerDetails.profileImage:', profileData.data.customerDetails?.profileImage);
+            console.log('data.profileImage:', profileData.data.profileImage);
+            console.log('images.customerImage:', profileData.data.images?.customerImage);
+            console.log('additionalDetails.profileImage:', profileData.data.additionalDetails?.profileImage);
+
+            // Convert local server path to public URL if needed
+            if (customerImageUrl && customerImageUrl.startsWith('/opt/lampp/htdocs/')) {
+              // Extract the filename from the local path
+              const filename = customerImageUrl.split('/').pop();
+              // Convert to public URL
+              customerImageUrl = `https://broker-adda-be.algofolks.com/uploads/${filename}`;
+              console.log('Converted from local path to:', customerImageUrl);
+            } else if (customerImageUrl && customerImageUrl.startsWith('/uploads/')) {
+              // If it's already a relative path, make it absolute
+              customerImageUrl = `https://broker-adda-be.algofolks.com${customerImageUrl}`;
+              console.log('Converted from relative path to:', customerImageUrl);
+            } else if (customerImageUrl) {
+              console.log('Using original URL:', customerImageUrl);
+            } else {
+              console.log('No customer image found in API response');
+            }
             console.log('Setting inquiry count to:', inquiryCount);
             console.log('Tried locations:', {
               'additionalDetails.inquiryCount': profileData.data.additionalDetails?.inquiryCount,
@@ -153,10 +205,26 @@ const MyAccountCustomer = () => {
                 regions: regionNames
               };
             });
+
+            // Set customer image if available
+            if (customerImageUrl) {
+              console.log('Original image path:', profileData.data.images?.customerImage);
+              console.log('Converted customer image URL:', customerImageUrl);
+              setCustomerImage(customerImageUrl);
+            } else {
+              console.log('No customer image found in any location');
+              // Let's also check if there's any image field we missed
+              console.log('All available fields in data:', Object.keys(profileData.data || {}));
+              if (profileData.data.images) {
+                console.log('All fields in images:', Object.keys(profileData.data.images));
+              }
+            }
           }
         }
       } catch (error) {
         console.error('Error loading customer data:', error);
+      } finally {
+        setIsLoadingProfileData(false);
       }
     };
 
@@ -235,6 +303,13 @@ const MyAccountCustomer = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    if (name === 'customerImage') {
+      setCustomerImage(files[0]);
+    }
+  };
+
   const handleRegionToggle = (region) => {
     setFormData(prev => {
       const isSelected = prev.regions.includes(region);
@@ -292,6 +367,19 @@ const MyAccountCustomer = () => {
       ...prev,
       savedSearches: prev.savedSearches.filter((_, i) => i !== index)
     }));
+  };
+
+  // Toggle favorite property
+  const toggleFavorite = (propertyId) => {
+    setFavoriteProperties(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(propertyId)) {
+        newFavorites.delete(propertyId);
+      } else {
+        newFavorites.add(propertyId);
+      }
+      return newFavorites;
+    });
   };
 
   // Function to fetch customer data by ID
@@ -397,21 +485,37 @@ const MyAccountCustomer = () => {
       );
 
       // Prepare the data according to API structure
-      const submitData = {
-        phone: formData.phone,
-        name: formData.name,
-        email: formData.email,
-        customerDetails: {
-          preferences: {
-            budgetMin: formData.budgetMin ? Number(formData.budgetMin) : undefined,
-            budgetMax: formData.budgetMax ? Number(formData.budgetMax) : undefined,
-            propertyType: validPropertyTypes,
-            region: regionIds
-          },
-          savedSearches: formData.savedSearches,
-          inquiryCount: formData.inquiryCount || 0
-        }
-      };
+      const submitData = new FormData();
+      submitData.append('phone', formData.phone);
+      submitData.append('name', formData.name);
+      submitData.append('email', formData.email);
+      
+      // Add customer details
+      submitData.append('customerDetails[preferences][budgetMin]', formData.budgetMin ? Number(formData.budgetMin) : '');
+      submitData.append('customerDetails[preferences][budgetMax]', formData.budgetMax ? Number(formData.budgetMax) : '');
+      
+      // Add property types
+      validPropertyTypes.forEach((type, index) => {
+        submitData.append(`customerDetails[preferences][propertyType][${index}]`, type);
+      });
+      
+      // Add regions
+      regionIds.forEach((regionId, index) => {
+        submitData.append(`customerDetails[preferences][region][${index}]`, regionId);
+      });
+      
+      // Add saved searches
+      formData.savedSearches.forEach((search, index) => {
+        submitData.append(`customerDetails[savedSearches][${index}][type]`, search.type);
+        submitData.append(`customerDetails[savedSearches][${index}][budgetMax]`, search.budgetMax);
+      });
+      
+      submitData.append('customerDetails[inquiryCount]', formData.inquiryCount || 0);
+      
+      // Add customer image if selected
+      if (customerImage && typeof customerImage !== 'string') {
+        submitData.append('customerImage', customerImage);
+      }
 
       console.log('Form data saved searches:', formData.savedSearches);
       console.log('Complete submit data:', submitData);
@@ -425,10 +529,9 @@ const MyAccountCustomer = () => {
       const response = await fetch(fullUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(submitData)
+        body: submitData
       });
 
       if (response.ok) {
@@ -458,47 +561,22 @@ const MyAccountCustomer = () => {
     switch (activeTab) {
       case "Dashboard":
         return (
-          <div className="w-full lg:w-3/4 bg-white p-6 rounded-lg">
+          <div className="w-full lg:w-3/4 bg-white  rounded-lg">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
             
-            {/* Customer Data Fetch Section */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Fetch Customer Data</h3>
-              <div className="flex gap-4">
-                <input
-                  type="text"
-                  placeholder="Enter Customer ID (e.g., 68c3eb8e9d5b38d2effea8d9)"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      fetchCustomerById(e.target.value);
-                    }
-                  }}
-                />
-                <button
-                  onClick={() => {
-                    const input = document.querySelector('input[placeholder*="Customer ID"]');
-                    fetchCustomerById(input.value);
-                  }}
-                  disabled={customerLoading}
-                  className="px-6 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                >
-                  {customerLoading ? 'Loading...' : 'Fetch Customer'}
-                </button>
-              </div>
-              
-              {/* Display fetched customer data */}
-              {customerData && (
-                <div className="mt-4 p-4 bg-white border rounded-lg">
-                  <h4 className="font-semibold text-gray-900 mb-2">Customer Data:</h4>
-                  <pre className="text-xs text-gray-600 overflow-auto max-h-40">
-                    {JSON.stringify(customerData, null, 2)}
-                  </pre>
+            {/* Loading State */}
+            {isLoadingProfileData && (
+              <div className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                  <p className="text-gray-600">Loading dashboard data...</p>
                 </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              </div>
+            )}
+            
+            {/* Dashboard Content - Only show when not loading */}
+            {!isLoadingProfileData && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="bg-green-50 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Inquiries</h3>
                 <p className="text-3xl font-bold text-green-600">{formData.inquiryCount || 0}</p>
@@ -515,6 +593,7 @@ const MyAccountCustomer = () => {
                 <p className="text-sm text-gray-600">Search criteria saved</p>
               </div>
             </div>
+            )}
           </div>
         );
 
@@ -522,6 +601,61 @@ const MyAccountCustomer = () => {
         return (
           <div className="w-full lg:w-3/4 bg-white rounded-lg">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile</h2>
+            
+            {/* Loading State */}
+            {isLoadingProfileData && (
+              <div className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                  <p className="text-gray-600">Loading profile data...</p>
+                </div>
+              </div>
+            )}
+            
+            {/* Profile Content - Only show when not loading */}
+            {!isLoadingProfileData && (
+              <>
+                {/* Customer Profile Image Upload */}
+                <div className="mb-8">
+                 
+                  <div className="flex items-center gap-6">
+                {/* Current Profile Image Display */}
+                <div className="relative">
+                  <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                    {customerImage ? (
+                      <img
+                        src={typeof customerImage === 'string' ? customerImage : URL.createObjectURL(customerImage)}
+                        alt="Customer Profile"
+                        className="w-full h-full object-cover"
+                        onLoad={() => console.log('Image loaded successfully:', customerImage)}
+                        onError={(e) => console.log('Image failed to load:', customerImage, e)}
+                      />
+                    ) : (
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="absolute -bottom-1 -right-1 bg-green-600 w-7 h-7 rounded-full flex items-center justify-center hover:bg-green-700 transition-colors"
+                    onClick={() => document.getElementById('customer-image-upload').click()}
+                  >
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <input
+                    type="file"
+                    name="customerImage"
+                    onChange={handleFileChange}
+                    accept=".jpg,.jpeg,.png"
+                    className="hidden"
+                    id="customer-image-upload"
+                  />
+                </div>
+              </div>
+            </div>
             
             <form className="space-y-6 " onSubmit={handleSubmit}>
               {/* Name & Email (two columns) */}
@@ -714,7 +848,7 @@ const MyAccountCustomer = () => {
 
 
               {/* Saved Searches */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Saved Searche  <span className="text-green-500">*</span>
                 </label>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -746,10 +880,10 @@ const MyAccountCustomer = () => {
                     ))}
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* Inquiry Count (read-only) */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Inquiry Count <span className="text-green-500">*</span></label>
                 <input
                   type="number"
@@ -758,7 +892,7 @@ const MyAccountCustomer = () => {
                   readOnly
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
                 />
-              </div>
+              </div> */}
 
 
               {/* Submit Button */}
@@ -783,6 +917,8 @@ const MyAccountCustomer = () => {
                 </button>
               </div>
             </form>
+              </>
+            )}
           </div>
         );
 
@@ -791,55 +927,64 @@ const MyAccountCustomer = () => {
           <div className="w-full lg:w-3/4 bg-white  rounded-lg">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Saved Properties</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="border rounded-lg overflow-hidden">
-                <img src="/images/pexels-binyaminmellish-106399.jpg" alt="Property" className="w-full h-48 object-cover" />
+              <div className="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div className="relative">
+                  <img src="/images/pexels-binyaminmellish-106399.jpg" alt="Property" className="w-full h-48 object-cover" />
+                  <button 
+                    onClick={() => toggleFavorite('property-1')}
+                    className="absolute top-3 right-3 bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-colors"
+                  >
+                    <svg className={`w-5 h-5 transition-colors ${favoriteProperties.has('property-1') ? 'text-red-500' : 'text-gray-700'}`} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900">Luxury Villa</h3>
                   <p className="text-gray-600 text-sm">3BHK, 2000 sq ft</p>
                   <p className="text-green-600 font-semibold">₹2.5 Cr</p>
-                  <button className="mt-2 w-full bg-red-100 text-red-600 py-2 rounded-lg hover:bg-red-200 transition-colors">
-                    Remove from Saved
-                  </button>
                 </div>
               </div>
-              <div className="border rounded-lg overflow-hidden">
-                <img src="/images/istockphoto-1165384568-612x612.jpg" alt="Property" className="w-full h-48 object-cover" />
+              <div className="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div className="relative">
+                  <img src="/images/istockphoto-1165384568-612x612.jpg" alt="Property" className="w-full h-48 object-cover" />
+                  <button 
+                    onClick={() => toggleFavorite('property-2')}
+                    className="absolute top-3 right-3 bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-colors"
+                  >
+                    <svg className={`w-5 h-5 transition-colors ${favoriteProperties.has('property-2') ? 'text-red-500' : 'text-gray-700'}`} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900">Modern Apartment</h3>
                   <p className="text-gray-600 text-sm">2BHK, 1200 sq ft</p>
                   <p className="text-green-600 font-semibold">₹85 L</p>
-                  <button className="mt-2 w-full bg-red-100 text-red-600 py-2 rounded-lg hover:bg-red-200 transition-colors">
-                    Remove from Saved
-                  </button>
                 </div>
               </div>
-              <div className="border rounded-lg overflow-hidden">
-                <img src="/images/realestate2.jpg" alt="Property" className="w-full h-48 object-cover" />
+              <div className="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div className="relative">
+                  <img src="/images/realestate2.jpg" alt="Property" className="w-full h-48 object-cover" />
+                  <button 
+                    onClick={() => toggleFavorite('property-3')}
+                    className="absolute top-3 right-3 bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-colors"
+                  >
+                    <svg className={`w-5 h-5 transition-colors ${favoriteProperties.has('property-3') ? 'text-red-500' : 'text-gray-700'}`} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900">Commercial Space</h3>
                   <p className="text-gray-600 text-sm">Office, 5000 sq ft</p>
                   <p className="text-green-600 font-semibold">₹1.2 Cr</p>
-                  <button className="mt-2 w-full bg-red-100 text-red-600 py-2 rounded-lg hover:bg-red-200 transition-colors">
-                    Remove from Saved
-                  </button>
                 </div>
               </div>
             </div>
           </div>
         );
 
-      case "Logout":
-        return (
-          <div className="w-full lg:w-3/4 bg-white  rounded-lg">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Logout</h2>
-            <div className="text-center">
-              <p className="text-gray-600 mb-6">Are you sure you want to logout?</p>
-              <button className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors">
-                Confirm Logout
-              </button>
-            </div>
-          </div>
-        );
 
       default:
         return (
@@ -1148,8 +1293,7 @@ const MyAccountCustomer = () => {
               {[
                 "Dashboard",
                 "Profile",
-                "Saved Properties",
-                "Logout"
+                "Saved Properties"
               ].map((item, idx) => (
                 <button
                   key={item}
@@ -1163,6 +1307,12 @@ const MyAccountCustomer = () => {
                   {item}
                 </button>
               ))}
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-5 py-3 rounded-lg border bg-white"
+              >
+                Logout
+              </button>
             </div>
 
             {/* Content Area */}

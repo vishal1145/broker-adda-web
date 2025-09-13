@@ -247,7 +247,7 @@ const SignUp = () => {
       <div className="hidden lg:flex lg:flex-1 justify-center items-center">
         <div className="w-[650px] h-[800px] rounded-2xl overflow-hidden relative flex-shrink-0">
           <img
-            src="/images/ChatGPT Image Sep 12, 2025, 10_28_18 AM.png"
+            src="/images/re.png"
             alt="Modern Kitchen"
             className="w-[650px] h-[800px] object-cover"
             onError={(e) => {
