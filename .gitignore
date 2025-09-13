@@ -1,10 +1,7 @@
-# Ignore local env files
-.env
-.env.*
-!.env.example
+
 
 # Next.js
-.next
+
 out
 
 # Logs
