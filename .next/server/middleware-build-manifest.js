@@ -18,12 +18,12 @@ globalThis.__BUILD_MANIFEST = {
   ],
   "lowPriorityFiles": [],
   "rootMainFiles": [
-    "static/chunks/be0181a504c3dd6f.js",
+    "static/chunks/94bfed6bcc83c30d.js",
     "static/chunks/91adb7bdb9870c6a.js",
-    "static/chunks/c19da6693934fea1.js",
     "static/chunks/8082ab48faca5ea1.js",
-    "static/chunks/8de370c3cbabf345.js",
-    "static/chunks/turbopack-e3875e7819782bf3.js"
+    "static/chunks/c19da6693934fea1.js",
+    "static/chunks/2008ffcf9e5b170c.js",
+    "static/chunks/turbopack-e7150bd6a6069435.js"
   ],
   "ampFirstPages": []
 };

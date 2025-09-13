@@ -4,6 +4,7 @@ import data from "../data/myaccount.json";
 import furnitureData from "../data/furnitureData.json";
 import HeaderFile from '../components/Header';
 import Features from "../components/Features";
+import Select from 'react-select';
 import toast, { Toaster } from "react-hot-toast";
 
 const MyAccountCustomer = () => {
@@ -39,7 +40,6 @@ const MyAccountCustomer = () => {
   const [loadingRegions, setLoadingRegions] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [regionIdMap, setRegionIdMap] = useState({}); // Map region names to IDs
-  const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
   const [customerData, setCustomerData] = useState(null);
   const [customerLoading, setCustomerLoading] = useState(false);
   const [customerImage, setCustomerImage] = useState(null);
@@ -295,19 +295,6 @@ const MyAccountCustomer = () => {
     fetchRegions();
   }, []);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isRegionDropdownOpen && !event.target.closest('.region-dropdown')) {
-        setIsRegionDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isRegionDropdownOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -321,38 +308,19 @@ const MyAccountCustomer = () => {
     }
   };
 
-  const handleRegionToggle = (region) => {
-    setFormData(prev => {
-      const isSelected = prev.regions.includes(region);
-      return {
-        ...prev,
-        regions: isSelected
-          ? prev.regions.filter(r => r !== region)
-          : [...prev.regions, region]
-      };
-    });
+  const handleRegionChange = (selectedOptions) => {
+    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    setFormData((prev) => ({ ...prev, regions: selectedValues }));
   };
 
-  const handlePreferenceChange = (e) => {
-    const { value, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      preferences: checked
-        ? [...prev.preferences, value]
-        : prev.preferences.filter(v => v !== value)
-    }));
+  const handlePreferenceChange = (selectedOptions) => {
+    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    setFormData((prev) => ({ ...prev, preferences: selectedValues }));
   };
 
-  const handlePropertyTypeToggle = (type) => {
-    setFormData(prev => {
-      const exists = prev.propertyType.includes(type);
-      return {
-        ...prev,
-        propertyType: exists
-          ? prev.propertyType.filter(t => t !== type)
-          : [...prev.propertyType, type]
-      };
-    });
+  const handlePropertyTypeChange = (selectedOptions) => {
+    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    setFormData((prev) => ({ ...prev, propertyType: selectedValues }));
   };
 
   const handleSavedSearchField = (e) => {
@@ -681,7 +649,7 @@ const MyAccountCustomer = () => {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Enter your full name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
                 <div>
@@ -694,7 +662,7 @@ const MyAccountCustomer = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Enter your email address"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
               </div>
@@ -710,94 +678,62 @@ const MyAccountCustomer = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="Enter your phone number"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
                 />
               </div>
 
-              {/* Region Custom Dropdown */}
-              <div className="relative region-dropdown">
+              {/* Region React-Select Dropdown */}
+              <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Region <span className="text-green-500">*</span>
                 </label>
                 {loadingRegions ? (
                   <p className="text-sm text-gray-500">Loading regions...</p>
                 ) : (
-                  <>
-                    {/* Dropdown Button */}
-                    <button
-                      type="button"
-                      onClick={() => setIsRegionDropdownOpen(!isRegionDropdownOpen)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white text-left flex items-center justify-between"
-                    >
-                      <span className="text-gray-700">
-                        {formData.regions.length === 0 
-                          ? "Select regions..." 
-                          : `${formData.regions.length} region(s) selected`
+                  <Select
+                    isMulti
+                    name="regions"
+                    options={regionOptions.map(region => ({
+                      value: region,
+                      label: region
+                    }))}
+                    value={formData.regions.map(region => ({
+                      value: region,
+                      label: region
+                    }))}
+                    onChange={handleRegionChange}
+                    placeholder="Select regions..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={{
+                      control: (provided, state) => ({
+                        ...provided,
+                        minHeight: '48px',
+                        border: state.isFocused ? '2px solid #10b981' : '1px solid #d1d5db',
+                        boxShadow: state.isFocused ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : 'none',
+                        '&:hover': {
+                          border: '1px solid #10b981'
                         }
-                      </span>
-                      <svg 
-                        className={`w-5 h-5 text-gray-400 transition-transform ${isRegionDropdownOpen ? 'rotate-180' : ''}`} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-
-                    {/* Dropdown Card */}
-                    {isRegionDropdownOpen && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        <div className="p-4">
-                          <div className="space-y-3">
-                            {regionOptions.length > 0 ? (
-                              regionOptions.map((region) => (
-                                <label key={region} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                                  <input
-                                    type="checkbox"
-                                    checked={formData.regions.includes(region)}
-                                    onChange={() => handleRegionToggle(region)}
-                                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                                  />
-                                  <span className="text-sm text-gray-700">{region}</span>
-                                </label>
-                              ))
-                            ) : (
-                              <div className="text-center py-4 text-gray-500">
-                                No regions available
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-                
-                {/* Selected Regions Display */}
-                {formData.regions.length > 0 && (
-                  <div className="mt-3">
-                    <p className="text-sm text-gray-600 mb-2">Selected regions ({formData.regions.length}):</p>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.regions.map((region) => (
-                        <span key={region} className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center">
-                          {region}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({
-                                ...prev,
-                                regions: prev.regions.filter(r => r !== region)
-                              }));
-                            }}
-                            className="ml-2 text-green-600 hover:text-green-800"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                      }),
+                      multiValue: (provided) => ({
+                        ...provided,
+                        backgroundColor: '#dcfce7',
+                        color: '#166534'
+                      }),
+                      multiValueLabel: (provided) => ({
+                        ...provided,
+                        color: '#166534'
+                      }),
+                      multiValueRemove: (provided) => ({
+                        ...provided,
+                        color: '#166534',
+                        '&:hover': {
+                          backgroundColor: '#bbf7d0',
+                          color: '#14532d'
+                        }
+                      })
+                    }}
+                  />
                 )}
               </div>
 
@@ -812,7 +748,7 @@ const MyAccountCustomer = () => {
                     value={formData.budgetMin}
                     onChange={handleChange}
                     placeholder="e.g. 25"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:outline-none  focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
                 <div>
@@ -824,37 +760,58 @@ const MyAccountCustomer = () => {
                     value={formData.budgetMax}
                     onChange={handleChange}
                     placeholder="e.g. 60"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
               </div>
 
-              {/* Property Type (multi-select) */}
+              {/* Property Type React-Select Dropdown */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Property Type <span className="text-green-500">*</span>
-                </label>
-                <div className="w-full border border-gray-300 rounded-lg max-h-48 overflow-y-auto p-3">
-                  <div className="space-y-2">
-                    {propertyTypeOptions.map((type) => (
-                      <label key={type} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                          checked={formData.propertyType.includes(type)}
-                          onChange={() => handlePropertyTypeToggle(type)}
-                        />
-                        <span className="ml-2 text-sm text-gray-700 capitalize">{type}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                {formData.propertyType.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {formData.propertyType.map(t => (
-                      <span key={t} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full capitalize">{t}</span>
-                    ))}
-                  </div>
-                )}
+                <label className="block text-sm font-medium text-gray-900 mb-2">Property Type <span className="text-green-500">*</span></label>
+                <Select
+                  isMulti
+                  name="propertyType"
+                  options={propertyTypeOptions.map(type => ({
+                    value: type,
+                    label: type.charAt(0).toUpperCase() + type.slice(1)
+                  }))}
+                  value={formData.propertyType.map(type => ({
+                    value: type,
+                    label: type.charAt(0).toUpperCase() + type.slice(1)
+                  }))}
+                  onChange={handlePropertyTypeChange}
+                  placeholder="Select property types..."
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (provided, state) => ({
+                      ...provided,
+                      minHeight: '48px',
+                      border: state.isFocused ? '2px solid #10b981' : '1px solid #d1d5db',
+                      boxShadow: state.isFocused ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : 'none',
+                      '&:hover': {
+                        border: '1px solid #10b981'
+                      }
+                    }),
+                    multiValue: (provided) => ({
+                      ...provided,
+                      backgroundColor: '#dcfce7',
+                      color: '#166534'
+                    }),
+                    multiValueLabel: (provided) => ({
+                      ...provided,
+                      color: '#166534'
+                    }),
+                    multiValueRemove: (provided) => ({
+                      ...provided,
+                      color: '#166534',
+                      '&:hover': {
+                        backgroundColor: '#bbf7d0',
+                        color: '#14532d'
+                      }
+                    })
+                  }}
+                />
               </div>
 
 
@@ -1130,69 +1087,107 @@ const MyAccountCustomer = () => {
                 </div>
               </div>
 
-              {/* Property Type (multi-select) */}
+              {/* Property Type React-Select Dropdown */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Property Type</label>
-                <div className="w-full border border-gray-300 rounded-lg max-h-48 overflow-y-auto p-3">
-                  <div className="space-y-2">
-                    {propertyTypeOptions.map((type) => (
-                      <label key={type} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                          checked={formData.propertyType.includes(type)}
-                          onChange={() => handlePropertyTypeToggle(type)}
-                        />
-                        <span className="ml-2 text-sm text-gray-700 capitalize">{type}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                {formData.propertyType.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {formData.propertyType.map(t => (
-                      <span key={t} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full capitalize">{t}</span>
-                    ))}
-                  </div>
-                )}
+                <Select
+                  isMulti
+                  name="propertyType"
+                  options={propertyTypeOptions.map(type => ({
+                    value: type,
+                    label: type.charAt(0).toUpperCase() + type.slice(1)
+                  }))}
+                  value={formData.propertyType.map(type => ({
+                    value: type,
+                    label: type.charAt(0).toUpperCase() + type.slice(1)
+                  }))}
+                  onChange={handlePropertyTypeChange}
+                  placeholder="Select property types..."
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (provided, state) => ({
+                      ...provided,
+                      minHeight: '48px',
+                      border: state.isFocused ? '2px solid #10b981' : '1px solid #d1d5db',
+                      boxShadow: state.isFocused ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : 'none',
+                      '&:hover': {
+                        border: '1px solid #10b981'
+                      }
+                    }),
+                    multiValue: (provided) => ({
+                      ...provided,
+                      backgroundColor: '#dcfce7',
+                      color: '#166534'
+                    }),
+                    multiValueLabel: (provided) => ({
+                      ...provided,
+                      color: '#166534'
+                    }),
+                    multiValueRemove: (provided) => ({
+                      ...provided,
+                      color: '#166534',
+                      '&:hover': {
+                        backgroundColor: '#bbf7d0',
+                        color: '#14532d'
+                      }
+                    })
+                  }}
+                />
               </div>
 
-              {/* Property Preferences */}
+              {/* Property Preferences React-Select Dropdown */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Property Preferences
                 </label>
-                <div className="border border-gray-300 rounded-lg p-3 min-h-[120px] max-h-48 overflow-y-auto">
-                  <div className="space-y-2">
-                    {[
-                      "2BHK", "3BHK", "4BHK", "Villa", "Apartment", "Independent House",
-                      "Penthouse", "Studio", "Duplex", "Farmhouse", "Plot", "Commercial"
-                    ].map((pref) => (
-                      <label key={pref} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          value={pref}
-                          checked={formData.preferences.includes(pref)}
-                          onChange={handlePreferenceChange}
-                          className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{pref}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                {formData.preferences.length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-600">Selected preferences:</p>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {formData.preferences.map((pref) => (
-                        <span key={pref} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                          {pref}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <Select
+                  isMulti
+                  name="preferences"
+                  options={[
+                    "2BHK", "3BHK", "4BHK", "Villa", "Apartment", "Independent House",
+                    "Penthouse", "Studio", "Duplex", "Farmhouse", "Plot", "Commercial"
+                  ].map(pref => ({
+                    value: pref,
+                    label: pref
+                  }))}
+                  value={formData.preferences.map(pref => ({
+                    value: pref,
+                    label: pref
+                  }))}
+                  onChange={handlePreferenceChange}
+                  placeholder="Select property preferences..."
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (provided, state) => ({
+                      ...provided,
+                      minHeight: '48px',
+                      border: state.isFocused ? '2px solid #10b981' : '1px solid #d1d5db',
+                      boxShadow: state.isFocused ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : 'none',
+                      '&:hover': {
+                        border: '1px solid #10b981'
+                      }
+                    }),
+                    multiValue: (provided) => ({
+                      ...provided,
+                      backgroundColor: '#dcfce7',
+                      color: '#166534'
+                    }),
+                    multiValueLabel: (provided) => ({
+                      ...provided,
+                      color: '#166534'
+                    }),
+                    multiValueRemove: (provided) => ({
+                      ...provided,
+                      color: '#166534',
+                      '&:hover': {
+                        backgroundColor: '#bbf7d0',
+                        color: '#14532d'
+                      }
+                    })
+                  }}
+                />
               </div>
 
               {/* Saved Searches */}

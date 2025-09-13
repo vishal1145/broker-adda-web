@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import data from "../data/myaccount.json";
+import Select from 'react-select';
 
 import HeaderFile from '../components/Header';
 
@@ -37,7 +38,6 @@ const MyAccount = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [brokerData, setBrokerData] = useState(null);
   const [brokerLoading, setBrokerLoading] = useState(false);
-  const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
 
   // Logout function
   const handleLogout = () => {
@@ -148,40 +148,17 @@ const MyAccount = () => {
     fetchRegions();
   }, []);
 
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isRegionDropdownOpen && !event.target.closest('.region-dropdown')) {
-        setIsRegionDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isRegionDropdownOpen]);
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     setFormData((prev) => ({ ...prev, [name]: files[0] }));
   };
 
-  const handleRegionChange = (e) => {
-    const { value, checked } = e.target;
-    setFormData((prev) => {
-      if (checked) {
-        return { ...prev, regions: [...prev.regions, value] };
-      } else {
-        return { ...prev, regions: prev.regions.filter(region => region !== value) };
-      }
-    });
+  const handleRegionChange = (selectedOptions) => {
+    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    setFormData((prev) => ({ ...prev, regions: selectedValues }));
   };
 
-  const handleRegionsSelectChange = (e) => {
-    const selected = Array.from(e.target.selectedOptions).map((opt) => opt.value);
-    setFormData((prev) => ({ ...prev, regions: selected }));
-  };
 
   // Function to fetch broker data by ID
   const fetchBrokerById = async (brokerId) => {
@@ -380,7 +357,7 @@ const MyAccount = () => {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Enter your full name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
                 <div>
@@ -393,7 +370,7 @@ const MyAccount = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Enter your email address"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
               </div>
@@ -410,7 +387,7 @@ const MyAccount = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="Enter your phone number"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
                 <div>
@@ -423,13 +400,13 @@ const MyAccount = () => {
                     value={formData.firmName}
                     onChange={handleChange}
                     placeholder="Enter your firm name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
               </div>
 
-              {/* Region Custom Dropdown */}
-              <div className="relative region-dropdown">
+              {/* Region React-Select Dropdown */}
+              <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Region <span className="text-green-500">*</span>
                 </label>
@@ -438,80 +415,50 @@ const MyAccount = () => {
                 ) : regionsError ? (
                   <p className="text-sm text-red-600">{regionsError}</p>
                 ) : (
-                  <>
-                    {/* Dropdown Button */}
-                    <button
-                      type="button"
-                      onClick={() => setIsRegionDropdownOpen(!isRegionDropdownOpen)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white text-left flex items-center justify-between"
-                    >
-                      <span className="text-gray-700">
-                        {formData.regions.length === 0 
-                          ? "Select regions..." 
-                          : `${formData.regions.length} region(s) selected`
+                  <Select
+                    isMulti
+                    name="regions"
+                    options={regionsList.map(region => ({
+                      value: region._id,
+                      label: region.name
+                    }))}
+                    value={formData.regions.map(regionId => {
+                      const region = regionsList.find(r => r._id === regionId);
+                      return region ? { value: region._id, label: region.name } : null;
+                    }).filter(Boolean)}
+                    onChange={handleRegionChange}
+                    placeholder="Select regions..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={{
+                      control: (provided, state) => ({
+                        ...provided,
+                        minHeight: '48px',
+                        border: state.isFocused ? '2px solid #10b981' : '1px solid #d1d5db',
+                        boxShadow: state.isFocused ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : 'none',
+                        '&:hover': {
+                          border: '1px solid #10b981'
                         }
-                      </span>
-                      <svg 
-                        className={`w-5 h-5 text-gray-400 transition-transform ${isRegionDropdownOpen ? 'rotate-180' : ''}`} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-
-                    {/* Dropdown Card */}
-                    {isRegionDropdownOpen && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        <div className="p-4">
-                          <div className="space-y-3">
-                            {regionsList.map((region) => (
-                              <label key={region._id} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                                <input
-                                  type="checkbox"
-                                  value={region._id}
-                                  checked={formData.regions.includes(region._id)}
-                                  onChange={handleRegionChange}
-                                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                                />
-                                <span className="text-sm text-gray-700">{region.name}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-                
-                {/* Selected Regions Display */}
-                {formData.regions.length > 0 && (
-                  <div className="mt-3">
-                    <p className="text-sm text-gray-600 mb-2">Selected regions ({formData.regions.length}):</p>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.regions.map((id) => {
-                        const r = regionsList.find(rr => rr._id === id);
-                        return (
-                          <span key={id} className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center">
-                            {r ? r.name : id}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setFormData(prev => ({
-                                  ...prev,
-                                  regions: prev.regions.filter(region => region !== id)
-                                }));
-                              }}
-                              className="ml-2 text-green-600 hover:text-green-800"
-                            >
-                              ×
-                            </button>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
+                      }),
+                      multiValue: (provided) => ({
+                        ...provided,
+                        backgroundColor: '#dcfce7',
+                        color: '#166534'
+                      }),
+                      multiValueLabel: (provided) => ({
+                        ...provided,
+                        color: '#166534'
+                      }),
+                      multiValueRemove: (provided) => ({
+                        ...provided,
+                        color: '#166534',
+                        '&:hover': {
+                          backgroundColor: '#bbf7d0',
+                          color: '#14532d'
+                        }
+                      })
+                    }}
+                  />
                 )}
               </div>
 
