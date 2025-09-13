@@ -327,7 +327,10 @@ const Navbar = ({ data }) => {
                 {console.log('Navbar render: isMounted:', isMounted, 'user:', user)}
                 {user ? (
                   <div className="flex items-center gap-3">
-                    <Link href="/myaccount" className="hover:text-green-600">
+                    <Link 
+                      href={user.role === 'broker' ? '/myaccount?tab=Profile' : '/myaccount-customer?tab=Profile'} 
+                      className="hover:text-green-600"
+                    >
                       <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-green-600 hover:border-green-700 transition-colors">
                         <img
                           src="/images/user-1.webp"
@@ -339,13 +342,13 @@ const Navbar = ({ data }) => {
                         />
                       </div>
                     </Link>
-                    <button
+                    {/* <button
                       onClick={handleLogout}
                       className="text-sm text-gray-600 hover:text-red-600 transition-colors"
                       title="Logout"
                     >
                       Logout
-                    </button>
+                    </button> */}
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
@@ -394,7 +397,10 @@ const Navbar = ({ data }) => {
               {user ? (
                 <>
                   <li>
-                    <Link href="/myaccount" className="hover:text-green-700 block flex items-center gap-3">
+                    <Link 
+                      href={user.role === 'broker' ? '/myaccount?tab=Profile' : '/myaccount-customer?tab=Profile'} 
+                      className="hover:text-green-700 block flex items-center gap-3"
+                    >
                       <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-green-600">
                         <img
                           src="/images/user-1.webp"

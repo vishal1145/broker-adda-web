@@ -17,10 +17,10 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
                   <img
                     src="/real-estate-logo-house-logo-home-logo-sign-symbol-free-vector-removebg-preview.png"
                     alt="Logo"
-                    className="w-20 h-20 md:w-28 md:h-28 lg:w-30 lg:h-30 object-contain"
+                    className="w-30 h-30 object-contain cursor-pointer"
                   />
                 </div>
-                <h1 className="text-xl md:text-2xl lg:text-3xl text-white font-medium mr-8  whitespace-nowrap">
+                <h1 className="text-3xl text-white font-medium mr-6 whitespace-nowrap -ml-4">
                   {data.logo.text}<span className="text-yellow-500">{data.logo.accent}</span>
                 </h1>
               </div>

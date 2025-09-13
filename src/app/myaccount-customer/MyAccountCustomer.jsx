@@ -23,6 +23,17 @@ const MyAccountCustomer = () => {
     inquiryCount: 0
   });
   const [activeTab, setActiveTab] = useState("Profile");
+
+  // Check for tab parameter in URL
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      if (tab) {
+        setActiveTab(tab);
+      }
+    }
+  }, []);
   const [newSavedSearch, setNewSavedSearch] = useState({ type: "", budgetMax: "" });
   const [regionOptions, setRegionOptions] = useState([]);
   const [loadingRegions, setLoadingRegions] = useState(true);
@@ -896,11 +907,11 @@ const MyAccountCustomer = () => {
 
 
               {/* Submit Button */}
-              <div className="pt-4">
+              <div className="pt-4 flex justify-end">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full py-3 px-4 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors ${
+                  className={`py-2 px-6 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors cursor-pointer ${
                     isSubmitting
                       ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                       : 'bg-green-800 text-white hover:bg-green-700'
@@ -908,8 +919,8 @@ const MyAccountCustomer = () => {
                 >
                   {isSubmitting ? (
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Updating Profile...
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Updating...
                     </div>
                   ) : (
                     'Save Profile'
@@ -1232,11 +1243,11 @@ const MyAccountCustomer = () => {
 
 
               {/* Submit Button */}
-              <div className="pt-4">
+              <div className="pt-4 flex justify-end">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full py-3 px-4 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors ${
+                  className={`py-2 px-6 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors cursor-pointer ${
                     isSubmitting
                       ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                       : 'bg-green-800 text-white hover:bg-green-700'
@@ -1244,8 +1255,8 @@ const MyAccountCustomer = () => {
                 >
                   {isSubmitting ? (
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Updating Profile...
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Updating...
                     </div>
                   ) : (
                     'Save Profile'
@@ -1298,7 +1309,7 @@ const MyAccountCustomer = () => {
                 <button
                   key={item}
                   onClick={() => setActiveTab(item)}
-                  className={`w-full text-left px-5 py-3 rounded-lg border ${
+                  className={`w-full text-left px-5 py-3 rounded-lg border cursor-pointer ${
                     activeTab === item
                       ? "bg-yellow-400 text-black font-medium"
                       : "bg-white hover:bg-gray-50 text-black"
@@ -1309,7 +1320,7 @@ const MyAccountCustomer = () => {
               ))}
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-5 py-3 rounded-lg border bg-white"
+                className="w-full text-left px-5 py-3 rounded-lg border bg-white cursor-pointer"
               >
                 Logout
               </button>

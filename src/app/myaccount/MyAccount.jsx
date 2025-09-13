@@ -19,6 +19,17 @@ const MyAccount = () => {
     brokerImage: null
   });
   const [activeTab, setActiveTab] = useState("Dashboard");
+
+  // Check for tab parameter in URL
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      if (tab) {
+        setActiveTab(tab);
+      }
+    }
+  }, []);
   const [submitting, setSubmitting] = useState(false);
   const [regionsList, setRegionsList] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
@@ -205,7 +216,7 @@ const MyAccount = () => {
       case "Dashboard":
         return (
           <div className="w-full lg:w-3/4 bg-white rounded-lg ">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 cursor-pointer">Dashboard</h2>
             
             {/* Broker Data Fetch Section */}
         
@@ -593,11 +604,11 @@ const MyAccount = () => {
               </div>
 
               {/* Submit Button */}
-              <div className="pt-4">
+              <div className="pt-4 flex justify-end">
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-green-800 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+                  className="py-2 px-6 bg-green-800 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors cursor-pointer"
                 >
                   {submitting ? 'Saving...' : 'Save Profile'}
                 </button>
@@ -804,9 +815,11 @@ const MyAccount = () => {
               </div>
             </div>
 
-            <button className="mt-6 px-6 py-2 bg-green-800 text-white rounded-full hover:bg-green-700 transition-colors">
-              Save Broker
-            </button>
+            <div className="mt-6 flex justify-end">
+              <button className="px-6 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer">
+                Save Broker
+              </button>
+            </div>
           </div>
         );
     }
@@ -853,7 +866,7 @@ const MyAccount = () => {
             <button
               key={item}
               onClick={() => setActiveTab(item)}
-              className={`w-full text-left px-5 py-3 rounded-lg border ${
+              className={`w-full text-left px-5 py-3 rounded-lg border cursor-pointer ${
                 activeTab === item
                   ? "bg-yellow-400 text-black font-medium"
                   : "bg-white hover:bg-gray-50 text-black"
@@ -864,7 +877,7 @@ const MyAccount = () => {
           ))}
           <button
             onClick={handleLogout}
-            className="w-full text-left px-5 py-3 rounded-lg border bg-white "
+            className="w-full text-left px-5 py-3 rounded-lg border bg-white cursor-pointer"
           >
             Logout
           </button>
