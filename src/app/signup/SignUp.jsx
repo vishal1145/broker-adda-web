@@ -257,14 +257,7 @@ const SignUp = () => {
             }}
           />
           {/* Fallback placeholder */}
-          <div className="w-[650px] h-[800px] bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center" style={{display: 'none'}}>
-            <div className="text-center text-white">
-              <svg className="w-24 h-24 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-              </svg>
-              <p className="text-xl font-semibold">Image Loading...</p>
-            </div>
-          </div>
+  
           {/* Testimonial Card - keep anchored over image */}
           <div className="absolute left-1/2 -translate-x-1/2 bottom-12 flex items-center justify-center">
             <div className=" bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 rounded-2xl p-6 w-[600px] shadow-2xl">
