@@ -256,9 +256,9 @@ const BlogDetails = () => {
             </div>
           </div>
 
-          {/* Table of Content */}
+          {/* Property Guide Outline */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Table of Content</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">Property Guide Outline</h3>
             <div className="space-y-3">
               {blog.content.body.map((section, index) => (
                 <div key={index} className="text-sm text-gray-600 hover:text-green-700 cursor-pointer transition-colors">

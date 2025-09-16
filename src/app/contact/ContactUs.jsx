@@ -44,7 +44,7 @@ const ContactUs = () => {
                     type="text"
                     name="name"
                     placeholder="Ex. John Doe"
-                    className="w-full border rounded-full px-4 py-2"
+                    className="w-full border border-gray-300 rounded-full px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
                     value={form.name}
                     onChange={handleChange}
                   />
@@ -55,7 +55,7 @@ const ContactUs = () => {
                     type="email"
                     name="email"
                     placeholder="example@gmail.com"
-                    className="w-full border rounded-full px-4 py-2"
+                    className="w-full border border-gray-300 rounded-full px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
                     value={form.email}
                     onChange={handleChange}
                   />
@@ -68,7 +68,7 @@ const ContactUs = () => {
                   type="text"
                   name="subject"
                   placeholder="Enter Subject"
-                  className="w-full border rounded-full px-4 py-2"
+                  className="w-full border border-gray-300 rounded-full px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
                   value={form.subject}
                   onChange={handleChange}
                 />
@@ -80,7 +80,7 @@ const ContactUs = () => {
                   name="message"
                   placeholder="Enter here.."
                   rows="5"
-                  className="w-full border rounded-2xl px-4 py-2"
+                  className="w-full border border-gray-300 rounded-2xl px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
                   value={form.message}
                   onChange={handleChange}
                 />
@@ -88,7 +88,7 @@ const ContactUs = () => {
 
               <button
                 type="submit"
-                className="bg-green-900 text-white px-6 py-2 rounded-full font-semibold"
+                className="bg-green-900 text-white px-6 py-2 rounded-full font-medium"
               >
                 Send Message
               </button>
@@ -99,31 +99,31 @@ const ContactUs = () => {
           <div className="bg-green-900 text-white p-8 rounded-[2rem] flex flex-col gap-8 min-h-[420px]">
             {/* Address */}
             <div>
-              <h3 className="text-2xl font-semibold mb-2">Address</h3>
-              <p className="text-base">{contactData.address}</p>
+              <h3 className="text-2xl font-medium mb-2">Address</h3>
+              <p className="text-sm">{contactData.address}</p>
             </div>
 
             {/* Contact */}
             <div>
-              <h3 className="text-2xl font-semibold mb-2">Contact</h3>
-              <p className="text-base">Phone : {contactData.contact.phone}</p>
-              <p className="text-base">Email : {contactData.contact.email}</p>
+              <h3 className="text-2xl font-medium mb-2">Contact</h3>
+              <p className="text-sm">Phone : {contactData.contact.phone}</p>
+              <p className="text-sm">Email : {contactData.contact.email}</p>
             </div>
 
             {/* Open Time */}
             <div>
-              <h3 className="text-2xl font-semibold mb-2">Open Time</h3>
-              <p className="text-base">
+              <h3 className="text-2xl font-medium mb-2">Open Time</h3>
+              <p className="text-sm">
                 Monday - Friday &nbsp; : &nbsp; {contactData.opening_hours.weekdays}
               </p>
-              <p className="text-base">
+              <p className="text-sm">
                 Saturday - Sunday : &nbsp; {contactData.opening_hours.weekends}
               </p>
             </div>
 
             {/* Social Icons */}
             <div>
-              <h3 className="text-2xl font-semibold mb-4">Stay Connected</h3>
+              <h3 className="text-2xl font-medium mb-4">Stay Connected</h3>
               <div className="flex gap-6">
                 {contactData.social_icons.map((icon, index) => (
                   <a
@@ -131,7 +131,7 @@ const ContactUs = () => {
                     href={icon.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-yellow-400 rounded-full flex items-center justify-center w-14 h-14"
+                    className="bg-yellow-400 rounded-full flex items-center justify-center w-12 h-12"
                   >
                     <span className="flex items-center justify-center w-9 h-9 rounded-full text-black text-2xl">
                       <i className={icon.icon}></i>
