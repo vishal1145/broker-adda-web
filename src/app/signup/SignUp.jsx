@@ -10,7 +10,7 @@ const SignUp = () => {
   const [formData, setFormData] = useState({
     // fullName: "",
     phone: "",
-    role: "broker" // default to broker, customer if checkbox is checked
+    role: "customer" // default to customer, broker if checkbox is checked
   });
   const [isCustomer, setIsCustomer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,9 +67,13 @@ const SignUp = () => {
   const handleCheckboxChange = (e) => {
     const checked = e.target.checked;
     setIsCustomer(checked);
+    const newRole = checked ? "broker" : "customer";
+    
+    console.log('Signup: Checkbox changed:', { checked, newRole });
+    
     setFormData(prev => ({
       ...prev,
-      role: checked ? "customer" : "broker"
+      role: newRole
     }));
   };
 
@@ -87,6 +91,8 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log('Signup: Form submission data:', formData);
     
     if (validateForm()) {
       setIsLoading(true);
@@ -208,7 +214,7 @@ const SignUp = () => {
               />
             </div>
 
-            {/* Customer Checkbox */}
+            {/* Broker Checkbox */}
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -219,7 +225,7 @@ const SignUp = () => {
                 className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
               />
               <label htmlFor="isCustomer" className="ml-2 block text-sm text-gray-900">
-                I am a customer
+                I am a broker
               </label>
             </div>
 
