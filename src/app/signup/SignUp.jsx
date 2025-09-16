@@ -144,7 +144,7 @@ const SignUp = () => {
         }}
       />
     
-    <div className="min-h-screen py-16 flex">
+    <div className="min-h-screen overflow-hidden  flex ">
       {/* Left Column - Image */}
 
       {/* Middle Column - User Account Section */}
@@ -286,11 +286,11 @@ const SignUp = () => {
 
       {/* Right Column - Kitchen Image */}
       <div className="hidden lg:flex lg:flex-1 justify-center items-center">
-        <div className="w-[650px] h-[800px] rounded-2xl overflow-hidden relative flex-shrink-0">
+        <div className="w-[650px] h-[100vh] overflow-hidden relative flex-shrink-0">
           <img
             src={images[currentImageIndex]}
             alt="Real Estate Property"
-            className="w-[650px] h-[800px] object-cover transition-all duration-500 ease-in-out"
+            className="w-[650px] h-[100vh] object-cover transition-all duration-500 ease-in-out"
             onError={(e) => {
               // Fallback to a placeholder if image doesn't exist
               e.target.style.display = 'none';
