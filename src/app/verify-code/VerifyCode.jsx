@@ -3,10 +3,12 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
+import { useAuth } from '../contexts/AuthContext';
 
 const VerifyCode = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
@@ -116,16 +118,14 @@ const VerifyCode = () => {
         const token = data?.token || data?.data?.token;
         const phoneFromApi = data?.phone || data?.data?.phone || searchParams.get('phone');
 
-        try {
-          if (token) localStorage.setItem('token', String(token));
-          if (phoneFromApi) localStorage.setItem('phone', String(phoneFromApi));
-          if (role) localStorage.setItem('role', String(role));
-        } catch (_) {}
 
-        // Dispatch custom event to notify navbar of login
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('userLoggedIn'));
-        }
+        // Use auth context to handle login
+        login({
+          token: token,
+          phone: phoneFromApi,
+          role: role,
+          userId: data?.userId || data?.data?.userId
+        });
 
         toast.success('Verification successful! Redirecting...');
         

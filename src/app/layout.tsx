@@ -4,6 +4,7 @@ import './globals.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import furnitureData from './data/furnitureData.json';
 import ConditionalLayout from './components/ConditionalLayout';
+import { AuthProvider } from './contexts/AuthContext';
 
 export const metadata = {
   title: "Broker Adda Real Estate | Coastal Homes & Luxury Apartments",
@@ -21,12 +22,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/House and Handshake Logo (1).png" />
       </head>
       <body>
-        <ConditionalLayout 
-          navbarData={furnitureData.navigation}
-          footerData={furnitureData.footer}
-        >
-          {children}
-        </ConditionalLayout>
+        <AuthProvider>
+          <ConditionalLayout 
+            navbarData={furnitureData.navigation}
+            footerData={furnitureData.footer}
+          >
+            {children}
+          </ConditionalLayout>
+        </AuthProvider>
       </body>
     </html>
   );

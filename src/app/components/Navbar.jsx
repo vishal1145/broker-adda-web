@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import { useAuth } from '../contexts/AuthContext';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 
 import shopData from '../data/shop.json';
@@ -16,8 +17,13 @@ const Navbar = ({ data }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
+  
+  // Debug user object
+  useEffect(() => {
+    console.log('Navbar: User object updated:', user);
+  }, [user]);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -82,19 +88,8 @@ const Navbar = ({ data }) => {
   };
 
   const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('phone');
-      localStorage.removeItem('role');
-      localStorage.removeItem('user');
-      setUser(null);
-      
-      // Dispatch custom event to notify other components of logout
-      window.dispatchEvent(new CustomEvent('userLoggedOut'));
-      
-      router.push('/');
-    }
+    logout();
+    router.push('/');
   };
 
   // Close suggestions on outside click
@@ -106,61 +101,9 @@ const Navbar = ({ data }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Initialize mounted state and user data
+  // Initialize mounted state
   useEffect(() => {
     setIsMounted(true);
-    const updateUser = () => {
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-        const phone = localStorage.getItem('phone');
-        const role = localStorage.getItem('role');
-        
-        console.log('Navbar: Checking user state, token:', !!token, 'phone:', phone, 'role:', role);
-        
-        if (token && phone) {
-          try {
-            // Create user object from available data
-            const userData = {
-              phone: phone,
-              role: role || 'customer',
-              token: token
-            };
-            console.log('Navbar: Setting user data:', userData);
-            setUser(userData);
-          } catch {
-            console.log('Navbar: Error creating user data, setting to null');
-            setUser(null);
-          }
-        } else {
-          console.log('Navbar: No token or phone found, setting to null');
-          setUser(null);
-        }
-      }
-    };
-    
-    updateUser();
-    
-    // Listen for storage changes (login/logout from other tabs)
-    const handleStorageChange = (e) => {
-      if (e.key === 'token' || e.key === 'authToken' || e.key === 'phone' || e.key === 'role') {
-        updateUser();
-      }
-    };
-    
-    // Listen for custom login events (same tab)
-    const handleLoginEvent = () => {
-      updateUser();
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('userLoggedIn', handleLoginEvent);
-    window.addEventListener('userLoggedOut', handleLoginEvent);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('userLoggedIn', handleLoginEvent);
-      window.removeEventListener('userLoggedOut', handleLoginEvent);
-    };
   }, []);
 
   // Counts from localStorage
@@ -327,28 +270,67 @@ const Navbar = ({ data }) => {
                 {console.log('Navbar render: isMounted:', isMounted, 'user:', user)}
                 {user ? (
                   <div className="flex items-center gap-3">
-                    <Link 
-                      href={user.role === 'broker' ? '/myaccount?tab=Profile' : '/myaccount-customer?tab=Profile'} 
-                      className="hover:text-green-600"
-                    >
-                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-green-600 hover:border-green-700 transition-colors">
-                        <img
-                          src="/images/user-1.webp"
-                          alt="Profile"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/images/user-1.webp';
-                          }}
-                        />
+                    {/* My Account Dropdown */}
+                    <div className="relative group">
+                      <button className="flex items-center gap-2 text-gray-700 hover:text-green-600 transition-colors">
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-green-600 hover:border-green-700 transition-colors">
+                          <img
+                            src="/images/user-1.webp"
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/images/user-1.webp';
+                            }}
+                          />
+                        </div>
+                        {/* <span className="hidden md:block text-sm font-medium">My Account</span> */}
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      
+                      {/* Dropdown Menu */}
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div className="py-2">
+                          {console.log('Navbar: User role check:', user?.role, 'Is broker?', user?.role === 'broker')}
+                          {user.role === 'broker' ? (
+                            <>
+                              <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Dashboard
+                              </Link>
+                              <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Profile
+                              </Link>
+                              <Link href="/leads" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Leads / Visitors
+                              </Link>
+                              <Link href="/properties-management" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Properties / Sites
+                              </Link>
+                            </>
+                          ) : (
+                            <>
+                              <Link href="/myaccount-customer" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Dashboard
+                              </Link>
+                              <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Profile
+                              </Link>
+                              <Link href="/saved-properties" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Saved Properties
+                              </Link>
+                            </>
+                          )}
+                          <div className="border-t border-gray-200 my-1"></div>
+                          <button
+                            onClick={handleLogout}
+                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                          >
+                            Logout
+                          </button>
+                        </div>
                       </div>
-                    </Link>
-                    {/* <button
-                      onClick={handleLogout}
-                      className="text-sm text-gray-600 hover:text-red-600 transition-colors"
-                      title="Logout"
-                    >
-                      Logout
-                    </button> */}
+                    </div>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">

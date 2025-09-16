@@ -10,8 +10,9 @@ const SignUp = () => {
   const [formData, setFormData] = useState({
     // fullName: "",
     phone: "",
-    role: "" // customer | broker
+    role: "broker" // default to broker, customer if checkbox is checked
   });
+  const [isCustomer, setIsCustomer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
@@ -63,17 +64,21 @@ const SignUp = () => {
     }));
   };
 
+  const handleCheckboxChange = (e) => {
+    const checked = e.target.checked;
+    setIsCustomer(checked);
+    setFormData(prev => ({
+      ...prev,
+      role: checked ? "customer" : "broker"
+    }));
+  };
+
   const validateForm = () => {
     if (!formData.phone.trim()) {
       toast.error("Phone number is required");
       return false;
     } else if (!/^[0-9+\-\s()]+$/.test(formData.phone)) {
       toast.error("Please enter a valid phone number");
-      return false;
-    }
-    
-    if (!formData.role) {
-      toast.error("Please select account type");
       return false;
     }
     
@@ -186,39 +191,6 @@ const SignUp = () => {
               )}
             </div> */}
 
-            {/* Account Type */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-900 mb-2">
-                Account Type *
-              </label>
-              <div className="relative">
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full appearance-none pr-12 pl-4 py-3 border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                >
-                  <option value="">Select type</option>
-                  <option value="customer">Customer</option>
-                  <option value="broker">Broker</option>
-                </select>
-                {/* Dropdown chevron icon */}
-                <svg
-                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </div>
-            </div>
 
             {/* Phone Field */}
             <div>
@@ -234,6 +206,21 @@ const SignUp = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 placeholder="Enter Phone Number"
               />
+            </div>
+
+            {/* Customer Checkbox */}
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="isCustomer"
+                name="isCustomer"
+                checked={isCustomer}
+                onChange={handleCheckboxChange}
+                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              />
+              <label htmlFor="isCustomer" className="ml-2 block text-sm text-gray-900">
+                I am a customer
+              </label>
             </div>
 
 
