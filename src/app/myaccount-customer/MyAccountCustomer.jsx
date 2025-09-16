@@ -110,7 +110,29 @@ const MyAccountCustomer = () => {
         }
 
         // Use fallback URL if environment variable is not set
- 
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        
+        // Try to get customer ID from token payload
+        const customerId = tokenPayload.customerId || tokenPayload.id;
+        
+        let response;
+        if (customerId) {
+          // Try to fetch by customer ID first
+          response = await fetch(`${apiUrl}/customers/${customerId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          });
+        } else {
+          // Fallback to general profile endpoint
+          response = await fetch(`${apiUrl}/auth/profile`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          });
+        }
 
         if (response.ok) {
           const profileData = await response.json();
@@ -218,6 +240,12 @@ const MyAccountCustomer = () => {
               }
             }
           }
+        } else {
+          // Handle API error response
+          const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+          console.error('Failed to load customer data:', errorData);
+          console.error('Response status:', response.status);
+          console.error('Response statusText:', response.statusText);
         }
       } catch (error) {
         console.error('Error loading customer data:', error);
