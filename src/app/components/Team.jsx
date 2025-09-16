@@ -24,7 +24,7 @@ const Team = () => {
 
         {/* Team Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-          {/* Team Member 1 - Jenny Alexander */}
+          {/* Team Member 1 - Founder & CEO */}
           <div 
             className="bg-gray-50 rounded-2xl p-6 text-center shadow-sm transition-all duration-300 hover:shadow-lg"
             onMouseEnter={() => setHoveredCard(0)}
@@ -32,8 +32,8 @@ const Team = () => {
           >
             <div className="relative mb-4">
               <img
-                src={teamData[0]?.image || "/images/team/jenny-alexander.jpg"}
-                alt="Jenny Alexander"
+                src={teamData[0]?.image || "/images/team/founder-ceo.jpg"}
+                alt="Founder & CEO - Real Estate Brokerage"
                 className="w-full h-64 rounded-xl"
               />
               {/* Social Media Icons Overlay */}
@@ -62,11 +62,11 @@ const Team = () => {
                 </div>
               )}
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-1">Jenny Alexander</h3>
-            <p className="text-gray-600 text-sm">[CEO, Furniture]</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Komal Thakur</h3>
+            <p className="text-gray-600 text-sm">Founder & CEO</p>
           </div>
 
-          {/* Team Member 2 - Robert Fox */}
+          {/* Team Member 2 - Head of Sales */}
           <div 
             className="bg-gray-50 rounded-2xl p-6 text-center shadow-sm transition-all duration-300 hover:shadow-lg"
             onMouseEnter={() => setHoveredCard(1)}
@@ -74,8 +74,8 @@ const Team = () => {
           >
             <div className="relative mb-4">
               <img
-                src={teamData[1]?.image || "/images/team/robert-fox.jpg"}
-                alt="Robert Fox"
+                src={teamData[1]?.image || "/images/team/head-sales.jpg"}
+                alt="Head of Sales - Residential & Commercial"
                 className="w-full h-64 rounded-xl"
               />
               {/* Social Media Icons Overlay */}
@@ -104,11 +104,11 @@ const Team = () => {
                 </div>
               )}
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-1">Robert Fox</h3>
-            <p className="text-gray-600 text-sm">[Carpenter]</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Rohit Sharma</h3>
+            <p className="text-gray-600 text-sm">Head of Sales</p>
           </div>
 
-          {/* Team Member 3 - Theresa Webb */}
+          {/* Team Member 3 - Senior Broker */}
           <div 
             className="bg-gray-50 rounded-2xl p-6 text-center shadow-sm transition-all duration-300 hover:shadow-lg"
             onMouseEnter={() => setHoveredCard(2)}
@@ -116,8 +116,8 @@ const Team = () => {
           >
             <div className="relative mb-4">
               <img
-                src={teamData[2]?.image || "/images/team/theresa-webb.jpg"}
-                alt="Theresa Webb"
+                src={teamData[2]?.image || "/images/team/senior-broker.jpg"}
+                alt="Senior Property Broker"
                 className="w-full h-64 rounded-xl"
               />
               {/* Social Media Icons Overlay */}
@@ -146,8 +146,8 @@ const Team = () => {
                 </div>
               )}
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-1">Theresa Webb</h3>
-            <p className="text-gray-600 text-sm">[Carpenter]</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Ayesha Khan</h3>
+            <p className="text-gray-600 text-sm">Senior Broker</p>
           </div>
         </div>
       </div>

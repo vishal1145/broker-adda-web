@@ -4,10 +4,10 @@
     { "label": "Home", "href": "/" },
     { "label": "ContactUs", "href": "/contact" }   
   ],
-  "address": "8502 Preston Rd. Inglewood, Maine 98380",
+  "address": "Broker Adda NSW 2481",
   "contact": {
-    "phone": "+0123-456-789",
-    "email": "example@gmail.com"
+    "phone": "+91 98765 43210",
+    "email": "support@brokeradda.com"
   },
   "opening_hours": {
     "weekdays": "10:00 - 20:00",

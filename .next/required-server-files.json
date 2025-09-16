@@ -98,7 +98,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/home/algofolks/broker-adda-web",
+    "outputFileTracingRoot": "/home/vishal/Broker-Adda-Proposal",
     "experimental": {
       "useSkewCookie": false,
       "cacheLife": {
@@ -157,7 +157,7 @@
       "middlewarePrefetch": "flexible",
       "optimisticClientCache": true,
       "manualClientBasePath": false,
-      "cpus": 3,
+      "cpus": 7,
       "memoryBasedWorkersCount": false,
       "imgOptConcurrency": null,
       "imgOptTimeoutInSeconds": 7,
@@ -287,10 +287,10 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
     "turbopack": {
-      "root": "/home/algofolks/broker-adda-web"
+      "root": "/home/vishal/Broker-Adda-Proposal"
     }
   },
-  "appDir": "/home/algofolks/broker-adda-web",
+  "appDir": "/home/vishal/Broker-Adda-Proposal",
   "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",

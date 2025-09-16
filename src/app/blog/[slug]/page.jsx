@@ -20,6 +20,11 @@ const BlogDetails = () => {
   const shareUrl = window.location.href;
   const title = blog.title || "Check out this amazing blog post!";
 
+  // Compute drop cap dynamically from the first paragraph's first letter
+  const introFirstParagraph = (blog?.introduction?.firstParagraph || "").trim();
+  const computedDropCap = (introFirstParagraph[0] || blog?.introduction?.dropCap || "").toString().toUpperCase();
+  const introFirstParagraphRest = introFirstParagraph.length > 1 ? introFirstParagraph.slice(1) : "";
+
   return (
     <>
       <HeaderFile data={blogData} />
@@ -55,7 +60,7 @@ const BlogDetails = () => {
 
               {/* Twitter */}
               <a 
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}&hashtags=furniture,blog,home`}
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}&hashtags=realestate,property,homes`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-green-800 rounded-full flex items-center justify-center text-white hover:bg-green-700 transition-colors"
@@ -119,9 +124,9 @@ const BlogDetails = () => {
           <div className="mb-8">
             <p className="text-gray-700 leading-relaxed">
               <span className="float-left w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center text-5xl font-bold text-black mr-4 leading-none">
-                {blog.introduction.dropCap}
+                {computedDropCap}
               </span>
-              {blog.introduction.firstParagraph}
+              {introFirstParagraphRest}
             </p>
             <p className="text-gray-600 leading-relaxed mt-4">
               {blog.introduction.secondParagraph}
@@ -238,10 +243,9 @@ const BlogDetails = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-gray-900">Filter by Categories</h3>
             <div className="grid grid-cols-3 gap-2">
-              {[
-                "Sofa", "Furniture", "Bed", "Offices", "Chair", "Lighting", 
-                "Nightstand", "Office Table", "Decor", "Stool", "Dining Table", "Mirrors"
-              ].map((cat, idx) => (
+              {(blog.categories && blog.categories.length ? blog.categories : [
+                "Apartments", "Villas", "Commercial", "Investment", "Decor", "Market"
+              ]).map((cat, idx) => (
                 <span
                   key={idx}
                   className="bg-gray-100 text-sm text-gray-700 px-3 py-2 rounded-full hover:bg-gray-200 transition-colors cursor-pointer text-center"
@@ -271,16 +275,16 @@ const BlogDetails = () => {
               className="w-full h-[500px] object-cover rounded-2xl"
               alt="Offer"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-2xl"></div>
-            <div className="absolute bottom-4 left-28 text-white text-center">
-              <p className="text-sm font-medium"> — Latest Offers</p>
-              <p className="text-lg font-bold mt-1"><span className="text-yellow-400">20% Off</span> on Latest</p>
-              <p className="text-lg font-bold">Furniture</p>
+            <div className="absolute inset-0 bg-opacity-50 rounded-2xl "></div>
+            <div className="absolute bottom-4 left-20 text-black text-center">
+              <p className="text-sm font-medium  "> — Latest Offers</p>
+              <p className="text-lg font-bold mt-1"><span className="text-yellow-400">Hot</span> new property listings</p>
+              <p className="text-lg font-bold">in your city</p>
               <a
                 href="/properties"
                 className="mt-3 inline-block bg-yellow-500 text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-yellow-600 transition-colors"
               >
-                Shop Now
+                Explore Now
               </a>
             </div>
           </div>
