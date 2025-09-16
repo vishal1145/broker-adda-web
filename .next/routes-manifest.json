@@ -81,6 +81,18 @@
       "namedRegex": "^/contact(?:/)?$"
     },
     {
+      "page": "/dashboard",
+      "regex": "^/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/debug",
+      "regex": "^/debug(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/debug(?:/)?$"
+    },
+    {
       "page": "/faq",
       "regex": "^/faq(?:/)?$",
       "routeKeys": {},
@@ -91,6 +103,12 @@
       "regex": "^/favicon\\.ico(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/leads",
+      "regex": "^/leads(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/leads(?:/)?$"
     },
     {
       "page": "/login",
@@ -129,16 +147,34 @@
       "namedRegex": "^/privacy(?:/)?$"
     },
     {
+      "page": "/profile",
+      "regex": "^/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile(?:/)?$"
+    },
+    {
       "page": "/properties",
       "regex": "^/properties(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/properties(?:/)?$"
     },
     {
+      "page": "/properties-management",
+      "regex": "^/properties\\-management(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/properties\\-management(?:/)?$"
+    },
+    {
       "page": "/refund",
       "regex": "^/refund(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/refund(?:/)?$"
+    },
+    {
+      "page": "/saved-properties",
+      "regex": "^/saved\\-properties(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/saved\\-properties(?:/)?$"
     },
     {
       "page": "/signup",

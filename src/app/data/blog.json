@@ -34,7 +34,7 @@
       "slug": "maximizing-small-space-properties",
       "title": "Maximizing Small Space Properties for Maximum Value",
       "date": "10 April 2024",
-      "image": "/images/room.png",
+      "image": "/images/r4.png",
       "description": "Transform small properties into functional, valuable living spaces."
     },
     {
@@ -42,7 +42,7 @@
       "slug": "modern-minimalist-home-design",
       "title": "How to Design a Modern Minimalist Home",
       "date": "08 April 2024",
-      "image": "/images/livingroom.jpg",
+      "image": "/images/pexels-davidmcbee-1546168.jpg",
       "description": "Create a serene living space with clean lines and functional design elements."
     },
     {
@@ -50,7 +50,7 @@
       "slug": "sustainable-real-estate-practices",
       "title": "Top 10 Sustainable Real Estate Practices in 2024",
       "date": "06 April 2024",
-      "image": "/images/livingroom2.png",
+      "image": "/images/green-buildings-7591.jpg",
       "description": "Discover eco-friendly practices for sustainable real estate development."
     },
     {
@@ -58,7 +58,7 @@
       "slug": "cozy-home-office-setup",
       "title": "Creating a Cozy Home Office Space",
       "date": "04 April 2024",
-      "image": "/images/bed room.jpg",
+      "image": "/images/images (19).jpeg",
       "description": "Design a productive and comfortable home office for remote work."
     },
     {
@@ -74,7 +74,7 @@
       "slug": "scandinavian-home-design",
       "title": "Styling Tips for Scandinavian Home Design",
       "date": "01 April 2024",
-      "image": "/images/bed room.jpg",
+      "image": "/images/cocolapinescandinavianlivingroom-c602a303414341fb932f2d31e8769699.jpeg",
       "description": "Embrace simplicity with neutral tones and functional Scandinavian design elements."
     },
     {
@@ -106,7 +106,7 @@
       "slug": "home-staging-tips",
       "title": "Professional Home Staging Tips for Quick Sales",
       "date": "24 March 2024",
-      "image": "/images/livingroom.jpg",
+      "image": "/images/best-home-staging-ideas-to-sell-your-house.jpg",
       "description": "Master the art of home staging to sell your property faster and at better prices."
     },
     {
@@ -138,7 +138,7 @@
       "slug": "rental-property-management",
       "title": "Effective Rental Property Management Strategies",
       "date": "16 March 2024",
-      "image": "/images/room.png",
+      "image": "/images/Effective-Marketing-Strategies-for-Rental-Properties-in-India.webp",
       "description": "Discover proven strategies for successful rental property management."
     },
     {
@@ -146,7 +146,7 @@
       "slug": "real-estate-legal-aspects",
       "title": "Important Legal Aspects of Real Estate Transactions",
       "date": "14 March 2024",
-      "image": "/images/livingroom2.png",
+      "image": "/images/2410-real-estate-transactions-1000-1920w.webp",
       "description": "Understand the legal considerations in real estate deals and transactions."
     },
     {
@@ -411,8 +411,8 @@
     },
     {
       "slug": "maximizing-small-space-properties",
-      "title": "Maximizing Small Space Properties for Maximum Value",
-      "heroImage": "/images/room.png",
+      "title": "",
+      "heroImage": "/images/r4.png",
       "date": "10 April 2024",
       "readTime": "15 min Read",
       "author": "Broker Adda",
@@ -471,7 +471,7 @@
     {
       "slug": "modern-minimalist-home-design",
       "title": "How to Style a Modern Minimalist Living Room",
-      "heroImage": "/images/livingroom.jpg",
+      "heroImage": "/images/pexels-davidmcbee-1546168.jpg",
       "date": "08 April 2024",
       "readTime": "12 min Read",
       "author": "Broker Adda",
@@ -530,7 +530,7 @@
     {
       "slug": "sustainable-real-estate-practices",
       "title": "Top 10 Sustainable Real Estate Practices in 2024",
-      "heroImage": "/images/livingroom2.png",
+      "heroImage": "/images/green-buildings-7591.jpg",
       "date": "06 April 2024",
       "readTime": "18 min Read",
       "author": "Broker Adda",
@@ -597,7 +597,7 @@
     {
       "slug": "cozy-home-office-setup",
       "title": "Creating a Productive and Cozy Home Office",
-      "heroImage": "/images/sofa1.png",
+      "heroImage": "/images/images (19).jpeg",
       "date": "04 April 2024",
       "readTime": "10 min Read",
       "author": "Broker Adda",
@@ -655,7 +655,7 @@
     {
       "slug": "scandinavian-home-design",
       "title": "Essential Features of Modern Luxury Villas",
-      "heroImage": "/images/r2.png",
+      "heroImage": "/images/cocolapinescandinavianlivingroom-c602a303414341fb932f2d31e8769699.jpeg",
       "date": "30 March 2024",
       "readTime": "15 min Read",
       "author": "Broker Adda",
@@ -848,7 +848,7 @@
     {
       "slug": "home-staging-tips",
       "title": "Professional Home Staging Tips for Quick Sales",
-      "heroImage": "/images/livingroom.jpg",
+      "heroImage": "/images/best-home-staging-ideas-to-sell-your-house.jpg",
       "date": "24 March 2024",
       "readTime": "10 min Read",
       "author": "Broker Adda",
@@ -948,7 +948,7 @@
     {
       "slug": "rental-property-management",
       "title": "Effective Rental Property Management Strategies",
-      "heroImage": "/images/room.png",
+      "heroImage": "/images/Effective-Marketing-Strategies-for-Rental-Properties-in-India.webp",
       "date": "16 March 2024",
       "readTime": "10 min Read",
       "author": "Broker Adda",
@@ -976,7 +976,7 @@
     {
       "slug": "real-estate-legal-aspects",
       "title": "Important Legal Aspects of Real Estate Transactions",
-      "heroImage": "/images/livingroom2.png",
+      "heroImage": "/images/2410-real-estate-transactions-1000-1920w.webp",
       "date": "14 March 2024",
       "readTime": "12 min Read",
       "author": "Broker Adda",

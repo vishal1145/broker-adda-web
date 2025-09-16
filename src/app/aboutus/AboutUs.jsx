@@ -195,18 +195,18 @@ const AboutUs = () => {
                 </svg>
               </div>
               <p className="text-xl text-gray-900 mt-10 text-left px-8">
-                <span className="text-yellow-500">—</span> Our Service Excellence
+                <span className="text-yellow-500">—</span> Our Product Quality
               </p>
               <h3 className="text-3xl font-medium px-8 mt-4 ">
                 Setting the{" "}
                 <span className="text-green-800 mb-20">
-                  Standard for Real Estate Excellence
+                  Standard for Quality Furniture
                 </span>
               </h3>
               <p className="text-gray-600 mb-8 px-8 mt-4 ">
-                Every property we represent is carefully vetted for quality, location, and investment potential. 
-                Our expert brokers provide personalized service, from initial consultation to final closing, 
-                ensuring you find not just a property, but your perfect home or investment opportunity.
+                Every AlgoFurnish piece is crafted from responsibly sourced wood and premium fabrics, 
+                ensuring long-lasting beauty and comfort. Our artisans pay attention to every detail, 
+                from joinery to finishing, so you receive furniture that’s not only stylish but also built to last.
               </p>
 
               {/* Features */}
@@ -215,14 +215,14 @@ const AboutUs = () => {
                 <div className="flex flex-col items-left gap-2 ">
                   <img
                     src="/images/logo.png"
-                    alt="Prime Locations"
+                    alt="Best Quality Wood"
                     className="w-20 h-20"
                   />
                   <div className="font-semibold text-gray-900">
-                    Prime Locations
+                    Best Quality Wood
                   </div>
                   <div className="text-gray-500 text-sm max-w-xs">
-                    We specialize in properties in the most sought-after neighborhoods with excellent connectivity and amenities.
+                    We use only FSC-certified hardwoods and eco-friendly finishes for a sustainable, healthy home.
                   </div>
                 </div>
 
@@ -230,14 +230,14 @@ const AboutUs = () => {
                 <div className="flex flex-col items-left gap-2">
                   <img
                     src="/images/logo1.png"
-                    alt="Expert Guidance"
+                    alt="Comfort-Driven Design"
                     className="w-20 h-20"
                   />
                   <div className="font-semibold text-gray-900">
-                    Expert Guidance
+                    Comfort-Driven Design
                   </div>
                   <div className="text-gray-500 text-sm max-w-xs">
-                    Our experienced brokers provide personalized advice to help you make informed investment decisions.
+                    Our ergonomic designs are tested for real-life comfort, so you can relax and enjoy every moment.
                   </div>
                 </div>
               </div>

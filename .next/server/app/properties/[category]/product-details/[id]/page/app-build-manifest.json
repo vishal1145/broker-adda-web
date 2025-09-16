@@ -3,17 +3,17 @@
     "/properties/[category]/product-details/[id]/page": [
       "static/chunks/ff1a16fafef87110.js",
       "static/chunks/7dd66bdf8a7e5707.js",
-      "static/chunks/a2e6e97cae8a1133.css",
+      "static/chunks/43692b916b582626.css",
       "static/chunks/4efe2975aceb4b98.css",
-      "static/chunks/1b8769e56e846c73.js",
+      "static/chunks/8df0b4bece86647f.js",
       "static/chunks/14a3c21918373f45.js",
-      "static/chunks/3131e66e4b90c62d.js",
-      "static/chunks/94bfed6bcc83c30d.js",
+      "static/chunks/b4e9bb3dee16a2a1.js",
+      "static/chunks/fd5b4141d59f6246.js",
       "static/chunks/91adb7bdb9870c6a.js",
       "static/chunks/8082ab48faca5ea1.js",
       "static/chunks/c19da6693934fea1.js",
       "static/chunks/2008ffcf9e5b170c.js",
-      "static/chunks/turbopack-e7150bd6a6069435.js"
+      "static/chunks/turbopack-ac16afe62802bfd2.js"
     ]
   }
 }
