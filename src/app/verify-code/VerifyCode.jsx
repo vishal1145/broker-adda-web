@@ -101,32 +101,71 @@ const VerifyCode = () => {
     
     try {
       const codeString = code.join('');
+      const phoneNumber = searchParams.get('phone');
+      console.log('Starting OTP verification for phone:', phoneNumber);
+      
       const requestUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`;
       const response = await fetch(requestUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone: searchParams.get('phone'),
+          phone: phoneNumber,
           otp: codeString,
         }),
       });
 
       const data = await response.json().catch(() => ({}));
+      console.log('OTP verification response:', data);
 
       if (response.ok && (data.success === undefined || data.success === true)) {
         const role = data?.role || data?.user?.role || data?.data?.role || '';
         const token = data?.token || data?.data?.token;
-        const phoneFromApi = data?.phone || data?.data?.phone || searchParams.get('phone');
+        const phoneFromApi = data?.phone || data?.data?.phone || phoneNumber;
+        const userId = data?.userId || data?.data?.userId;
 
+        // Validate token before saving
+        if (!token) {
+          throw new Error('No authentication token received from server');
+        }
+
+        // Validate token format (basic JWT validation)
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length !== 3) {
+            throw new Error('Invalid token format');
+          }
+          
+          // Decode token payload to validate structure
+          const tokenPayload = JSON.parse(atob(tokenParts[1]));
+          console.log('Token payload:', tokenPayload);
+          
+          // Check if token is expired
+          const currentTime = Math.floor(Date.now() / 1000);
+          if (tokenPayload.exp && tokenPayload.exp < currentTime) {
+            throw new Error('Token has expired');
+          }
+          
+        } catch (tokenError) {
+          console.error('Token validation failed:', tokenError);
+          throw new Error('Invalid authentication token received');
+        }
 
         // Use auth context to handle login
+        console.log('Saving user data to localStorage:', { token: !!token, phone: phoneFromApi, role, userId });
         login({
           token: token,
           phone: phoneFromApi,
           role: role,
-          userId: data?.userId || data?.data?.userId
+          userId: userId
         });
 
+        // Verify token was saved successfully
+        const savedToken = localStorage.getItem('token');
+        if (!savedToken) {
+          throw new Error('Failed to save authentication token');
+        }
+
+        console.log('Token saved successfully, redirecting based on role');
         toast.success('Verification successful! Redirecting...');
         
         if (role === 'broker') {
@@ -142,8 +181,8 @@ const VerifyCode = () => {
         toast.error(data.message || `Verification failed (${response.status})`);
       }
     } catch (error) {
-      console.error('Verify OTP network error:', error);
-      toast.error("Verification failed. Please try again.");
+      console.error('Verify OTP error:', error);
+      toast.error(error.message || "Verification failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

@@ -1,13 +1,14 @@
-"use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import paymentData from "../data/payment.json";
 import furnitureData from "../data/furnitureData.json";
 import HeaderFile from "../components/Header";
+import Navbar from "../components/Navbar";
 import Features from "../components/Features";
+import Footer from "../components/Footer";
 
 const Payment = () => {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [method, setMethod] = useState("paypal");
   const [cardDetails, setCardDetails] = useState({
     holder: "",
@@ -31,6 +32,7 @@ const Payment = () => {
 
   return (
     <>
+      <Navbar data={furnitureData.navigation} />
       <HeaderFile data={paymentData}/>
       <div className="px-6 sm:px-12 lg:px-32 py-12">
         <div className="max-w-7xl mx-auto px-4 py-10">
@@ -229,7 +231,7 @@ const Payment = () => {
                 <span>${total.toFixed(2)}</span>
               </div>
               <button
-                onClick={() => router.push("/ordercompleted")}
+                onClick={() => navigate("/ordercomplted")}
                 className="w-full bg-green-900 text-white py-3 rounded-full text-sm hover:bg-green-800 transition"
               >
                 Confirm Payment
@@ -239,10 +241,9 @@ const Payment = () => {
         </div>
       </div>
       <Features data={furnitureData.features}/>
+      <Footer data={furnitureData.footer} />
     </>
   );
 };
 
 export default Payment;
-
-

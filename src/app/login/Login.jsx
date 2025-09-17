@@ -1,57 +1,22 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import OTPModal from '../components/OTPModal';
+import { useAuth } from '../contexts/AuthContext';
 import toast, { Toaster } from "react-hot-toast";
 
 const Login = () => {
   const router = useRouter();
+  const auth = useAuth();
   const [formData, setFormData] = useState({
     phoneNumber: "",
     rememberMe: false,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
-  // Array of real estate images with corresponding testimonials
-  const images = [
-    "/images/pexels-binyaminmellish-106399.jpg",
-    "/images/istockphoto-1165384568-612x612.jpg", 
-    "/images/istockphoto-1465618017-612x612.jpg",
-    "/images/realestate2.jpg"
-  ];
-
-  const testimonials = [
-    {
-      text: "Finding the perfect property has never been easier. This platform connects us with verified brokers and premium properties, making our dream home search seamless and successful.",
-      author: "Sarah Johnson",
-      role: "Property Owner"
-    },
-    {
-      text: "As a real estate broker, this platform has transformed how I connect with clients and showcase properties. The streamlined process and professional tools have significantly boosted my business success.",
-      author: "Michael Chen",
-      role: "Real Estate Broker"
-    },
-    {
-      text: "The property search experience is exceptional. From luxury villas to commercial spaces, we found exactly what we were looking for with the help of verified brokers on this platform.",
-      author: "Priya Sharma",
-      role: "Business Owner"
-    },
-    {
-      text: "This platform made our investment journey smooth and transparent. The verified brokers and detailed property information helped us make informed decisions for our real estate portfolio.",
-      author: "David Wilson",
-      role: "Real Estate Investor"
-    }
-  ];
-
-  // Auto-rotate images every 3 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [images.length]);
+  const [showNumberForm, setShowNumberForm] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -96,18 +61,131 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok && (data.success === undefined || data.success === true)) {
-        toast.success('Login successful! Redirecting...');
-        // Redirect to verify code page with phone number
-        router.push(`/verify-code?phone=${encodeURIComponent(formData.phoneNumber)}`);
+        toast.success('OTP sent successfully! Please verify your phone number.');
+        setPhoneNumber(formData.phoneNumber);
+        setShowOTPModal(true);
       } else {
-        console.error('Login failed:', { url: requestUrl, status: response.status, data });
         toast.error(data.message || `Login failed (${response.status})`);
       }
     } catch (error) {
-      console.error('Login network error:', error);
       toast.error('Network error. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = (provider) => {
+    if (provider === 'Number') {
+      setShowNumberForm(true);
+    } else {
+      toast.info(`${provider} login coming soon!`);
+    }
+  };
+
+  const handleBackToSocial = () => {
+    setShowNumberForm(false);
+  };
+
+  const handleOTPVerify = async (otpCode) => {
+    try {
+      console.log('Starting OTP verification for phone:', phoneNumber);
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: phoneNumber,
+          otp: otpCode
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('OTP verification response:', data);
+        
+        if (data.success) {
+          // Extract user data from response
+          const role = data?.role || data?.user?.role || data?.data?.role || '';
+          const token = data?.token || data?.data?.token;
+          const phoneFromApi = data?.phone || data?.data?.phone || phoneNumber;
+          const userId = data?.userId || data?.data?.userId;
+
+          // Validate token before saving
+          if (!token) {
+            throw new Error('No authentication token received from server');
+          }
+
+          // Validate token format (basic JWT validation)
+          try {
+            const tokenParts = token.split('.');
+            if (tokenParts.length !== 3) {
+              throw new Error('Invalid token format');
+            }
+            
+            // Decode token payload to validate structure
+            const tokenPayload = JSON.parse(atob(tokenParts[1]));
+            console.log('Token payload:', tokenPayload);
+            
+            // Check if token is expired
+            const currentTime = Math.floor(Date.now() / 1000);
+            if (tokenPayload.exp && tokenPayload.exp < currentTime) {
+              throw new Error('Token has expired');
+            }
+            
+          } catch (tokenError) {
+            console.error('Token validation failed:', tokenError);
+            throw new Error('Invalid authentication token received');
+          }
+
+          // Save to localStorage and login user
+          console.log('Saving user data to localStorage:', { token: !!token, phone: phoneFromApi, role, userId });
+          auth.login({ token, phone: phoneFromApi, role, userId });
+          
+          // Verify token was saved successfully
+          const savedToken = localStorage.getItem('token');
+          if (!savedToken) {
+            throw new Error('Failed to save authentication token');
+          }
+          
+          console.log('Token saved successfully, redirecting to profile');
+          toast.success(data.message || 'Phone number verified successfully!');
+          setShowOTPModal(false);
+          router.push('/profile');
+        } else {
+          throw new Error(data.message || 'Invalid OTP');
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('OTP verification failed:', errorData);
+        throw new Error(errorData.message || 'Invalid OTP');
+      }
+    } catch (error) {
+      console.error('OTP verification error:', error);
+      throw error;
+    }
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resend-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: phoneNumber
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('OTP resent successfully!');
+      } else {
+        toast.error('Failed to resend OTP');
+      }
+    } catch (error) {
+      toast.error('Network error. Please try again.');
     }
   };
 
@@ -137,23 +215,135 @@ const Login = () => {
           },
         }}
       />
-      {/* Added overflow-hidden to disable page scroll */}
-      <div className="min-h-screen overflow-hidden flex">
-        {/* Left Column - Sign In Form */}
-        <div className="flex-1 flex items-center justify-center px-6 bg-white">
-          <div className="w-full max-w-md">
-            {/* Title */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Login</h1>
-              <p className="text-gray-600">Please fill your detail to access your account.</p>
+    
+      <div className="min-h-screen flex">
+        {/* Left Section - Image Background */}
+        <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center p-8">
+          <div className="relative w-full max-w-2xl">
+            <img
+              src="/images/signup.png"
+              alt="Login Illustration"
+              className="w-full h-auto object-contain"
+              onError={(e) => {
+                // Fallback to a placeholder if image doesn't exist
+                e.target.style.display = 'none';
+                e.target.nextElementSibling.style.display = 'block';
+              }}
+            />
+            {/* Fallback placeholder */}
+            <div className="hidden w-full h-96 bg-gradient-to-br from-green-50 to-green-100 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-32 h-32 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                </div>
+                <p className="text-gray-500" style={{ fontFamily: 'Open Sans, sans-serif' }}>Login Illustration</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section - Login Form */}
+        <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
+          <div className="w-full max-w-xl">
+            {/* Card Container */}
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-12">
+              {!showNumberForm ? (
+                <>
+                  {/* Header */}
+                  <div className="text-left mb-14">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-3 flex items-left justify-left gap-3" style={{ fontFamily: 'Inria Serif, serif' }}>
+                      Welcome back
+                      <span className="text-3xl">👋</span>
+                    </h1>
+                    <p className="text-lg text-gray-600" style={{ fontFamily: 'Inria Serif, serif' }}>Log in your account</p>
+                  </div>
+
+                  {/* Social Login Buttons */}
+                  <div className="space-y-4 mb-6">
+                    {/* Number Login Button */}
+                    <button
+                      onClick={() => handleSocialLogin('Number')}
+                      className="w-full flex items-center justify-center px-4 py-3 bg-green-900 text-white rounded-lg font-medium text-base hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-md"
+                      style={{ fontFamily: 'Open Sans, sans-serif' }}
+                    >
+                      <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                      </svg>
+                      Log in with Number
+                    </button>
+
+                    {/* Google Login Button */}
+                    <button
+                      onClick={() => handleSocialLogin('Google')}
+                      className="w-full flex items-center justify-center px-4 py-3 border rounded-lg font-medium text-base hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200"
+                      style={{ 
+                        fontFamily: 'Open Sans, sans-serif',
+                        borderColor: '#ea4335',
+                        color: '#ea4335'
+                      }}
+                    >
+                      <div className="w-5 h-5 mr-3 flex items-center justify-center text-xl font-bold" style={{ color: '#ea4335' }}>G</div>
+                      Log in with Google
+                    </button>
+
+                    {/* Facebook Login Button */}
+                    <button
+                      onClick={() => handleSocialLogin('Facebook')}
+                      className="w-full flex items-center justify-center px-4 py-3 border rounded-lg font-medium text-base hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200"
+                      style={{ 
+                        fontFamily: 'Open Sans, sans-serif',
+                        borderColor: '#1877f2',
+                        color: '#1877f2'
+                      }}
+                    >
+                      <div className="w-5 h-5 mr-3 flex items-center justify-center text-xl font-bold" style={{ color: '#1877f2' }}>f</div>
+                      Log in with Facebook
+                    </button>
+
+                  </div>
+
+                  {/* Sign Up Link */}
+                  <div className="mt-12 text-center">
+                    <p className="text-base text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      Don't have an account?{" "}
+                      <Link href="/signup" className="text-green-700 hover:text-green-900 font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                        Sign up
+                      </Link>
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Number Form Header */}
+                  <div className="text-left mb-14">
+                    <button
+                      onClick={handleBackToSocial}
+                      className="mb-2 text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      ← Back
+                    </button>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-left justify-left gap-2" style={{ fontFamily: 'Inria Serif, serif' }}>
+                      Welcome back
+                      <span className="text-2xl">👋</span>
+                    </h1>
+                    <p className="text-gray-600" style={{ fontFamily: 'Inria Serif, serif' }}>Log in your account</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
-              {/* Phone Number */}
+                  {/* Number Form */}
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Phone Field */}
               <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-900 mb-2">
-                  Phone Number *
+                      <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                        What is your phone number?
                 </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                          </svg>
+                        </div>
                 <input
                   type="tel"
                   id="phoneNumber"
@@ -164,118 +354,49 @@ const Login = () => {
                   autoCorrect="off"
                   autoCapitalize="none"
                   spellCheck={false}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                  placeholder="Enter Phone Number"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-gray-50"
+                          placeholder="Enter your phone number"
                 />
+                      </div>
               </div>
 
-              {/* Remember Me and Forgot Password */}
-              {/* <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="rememberMe"
-                    checked={formData.rememberMe}
-                    onChange={handleChange}
-                    className="h-4 w-4 text-green-900 focus:ring-green-500 border-gray-300 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">Remember me</span>
-                </label>
-                <Link href="/forgot-password" className="text-sm text-green-900 hover:text-green-500">
-                  Forgot Password?
-                </Link>
-              </div> */}
+
 
               {/* Sign In Button */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-green-900 text-white py-3 px-4 rounded-full font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-green-900 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? "Logging In..." : "Login"}
+                      {isLoading ? "Signing in..." : "Sign In"}
               </button>
-
-              {/* Divider */}
-              {/* <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">or Sign In with</span>
-                </div>
-              </div> */}
-
-              {/* Google Sign In Button */}
-              {/* <button
-                type="button"
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-full text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
-              >
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Sign In with Google
-              </button> */}
+                  </form>
 
               {/* Sign Up Link */}
-              <div className="text-center">
+                  <div className="mt-6 text-center">
                 <p className="text-gray-600">
                   Don't have an account?{" "}
-                  <Link href="/signup" className="text-green-900 hover:text-green-900 font-medium">
-                    Sign Up
+                      <Link href="/signup" className="text-green-900 hover:text-green-800 font-medium">
+                        Sign up
                   </Link>
                 </p>
               </div>
-            </form>
-          </div>
-        </div>
-
-        {/* Right Column - Kitchen Image */}
-        <div className="hidden lg:flex lg:flex-1 justify-center items-center">
-          <div className="w-[650px] h-[100vh] overflow-hidden relative bg-gradient-to-br from-green-400 to-green-600 flex-shrink-0">
-            <img
-              src={images[currentImageIndex]}
-              alt="Real Estate Property"
-              className="w-[650px] h-[100vh] object-cover transition-all duration-500 ease-in-out"
-              onError={(e) => {
-                // Hide the image if it fails to load
-                e.target.style.display = 'none';
-                e.target.nextElementSibling.style.display = 'flex';
-              }}
-            />
-            {/* Fallback placeholder */}
-           
-            
-            {/* Testimonial Card - Frosted Glass Effect */}
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
-              <div className=" bg-opacity-30 backdrop-blur-lg border border-white border-opacity-50 rounded-2xl p-6 w-[600px] shadow-2xl">
-                <p className="text-white text-base leading-relaxed mb-4 font-medium">
-                  "{testimonials[currentImageIndex].text}"
-                </p>
-                <div className="space-y-1">
-                  <h4 className="text-white font-semibold text-base">{testimonials[currentImageIndex].author}</h4>
-                  <p className="text-white text-sm opacity-90">{testimonials[currentImageIndex].role}</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Progress Indicator - 4 Segments */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-              {images.map((_, index) => (
-                <div 
-                  key={index}
-                  className={`w-32 h-2 rounded-full flex-shrink-0 cursor-pointer transition-all duration-300 ${
-                    currentImageIndex === index ? 'bg-orange-400' : 'bg-white bg-opacity-20 backdrop-blur-md'
-                  }`}
-                  onClick={() => setCurrentImageIndex(index)}
-                ></div>
-              ))}
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* OTP Modal */}
+      <OTPModal
+        isOpen={showOTPModal}
+        onClose={() => setShowOTPModal(false)}
+        onVerify={handleOTPVerify}
+        onResend={handleResendOTP}
+        phoneNumber={phoneNumber}
+        isLoading={isLoading}
+      />
     </>
   );
 };
