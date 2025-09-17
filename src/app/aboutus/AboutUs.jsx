@@ -27,7 +27,7 @@ const AboutUs = () => {
           </h2>
 
           {/* Descriptive Paragraph */}
-          <p className="text-gray-600 max-w-2xl mx-auto text-xs mb-10 leading-relaxed">
+          <p className="text-gray-600 max-w-2xl mx-auto text-sm mb-10 leading-relaxed">
             At Broker Adda, we believe finding your perfect home should be effortless and exciting. 
             Since our founding, we've been dedicated to connecting you with the finest properties, 
             from luxury apartments to commercial spaces. Our expert brokers and comprehensive platform 
@@ -45,10 +45,10 @@ const AboutUs = () => {
                 letterSpacing: "0.5px",
               }}
             >
-              Rajesh Kumar
+              Jenny Alexander
             </p>
             <div className="flex items-center justify-center gap-2">
-              <span className="text-sm text-gray-700">Rajesh Kumar</span>
+              <span className="text-sm text-gray-700">Jenny Alexander</span>
               <span className="w-1 h-1 bg-orange-500 rounded-full"></span>
               <span className="text-sm text-gray-700">CEO & Founder</span>
             </div>
@@ -59,11 +59,11 @@ const AboutUs = () => {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               {/* Left: Large image */}
               <div className="col-span-1 md:col-span-2">
-                <img
-                  src={aboutData.images[0]}
-                  alt="Luxury apartment building with modern architecture"
-                  className="rounded-2xl w-full h-[500px] object-cover shadow-lg"
-                />
+                  <img
+                    src={aboutData.images[0]}
+                    alt="Luxury apartment building with modern architecture"
+                    className="rounded-2xl w-full h-[500px] object-cover shadow-lg"
+                  />
               </div>
               {/* Right: Two stacked images */}
               <div className="col-span-1 md:col-span-3 flex flex-col gap-6">
@@ -84,24 +84,24 @@ const AboutUs = () => {
           <div className="bg-yellow-500 rounded-lg p-8 mt-8">
             <div className="grid grid-cols-5 gap-2 text-center">
               <div className="text-white">
-                <div className="text-3xl font-bold">15+</div>
+                <div className="text-3xl font-bold">10+</div>
                 <div className="text-sm opacity-90">Years</div>
               </div>
               <div className="text-white">
-                <div className="text-3xl font-bold">500+</div>
-                <div className="text-sm opacity-90">Properties</div>
+                <div className="text-3xl font-bold">50+</div>
+                <div className="text-sm opacity-90">Stores</div>
               </div>
               <div className="text-white">
-                <div className="text-3xl font-bold">10k+</div>
-                <div className="text-sm opacity-90">Happy Clients</div>
+                <div className="text-3xl font-bold">20k+</div>
+                <div className="text-sm opacity-90">Customers</div>
               </div>
               <div className="text-white">
-                <div className="text-3xl font-bold">25</div>
-                <div className="text-sm opacity-90">Expert Brokers</div>
+                <div className="text-3xl font-bold">12</div>
+                <div className="text-sm opacity-90">Awards</div>
               </div>
               <div className="text-white">
-                <div className="text-3xl font-bold">98%</div>
-                <div className="text-sm opacity-90">Success Rate</div>
+                <div className="text-3xl font-bold">99%</div>
+                <div className="text-sm opacity-90">Satisfied</div>
               </div>
             </div>
           </div>
@@ -194,19 +194,20 @@ const AboutUs = () => {
                   <circle cx="100" cy="55" r="5" fill="#D1D5DB" />
                 </svg>
               </div>
-              <p className="text-xl text-gray-900 mt-10 text-left px-8">
+              <p className="text-xl text-gray-900 mt-4 text-left px-8">
                 <span className="text-yellow-500">—</span> Our Product Quality
               </p>
-              <h3 className="text-3xl font-medium px-8 mt-4 ">
+              <h3 className="text-3xl font-medium px-8 mt-1 ">
                 Setting the{" "}
-                <span className="text-green-800 mb-20">
-                  Standard for Quality Furniture
+                <span className="text-green-800">
+                  Standard for Premium Real Estate
                 </span>
               </h3>
-              <p className="text-gray-600 mb-8 px-8 mt-4 ">
-                Every AlgoFurnish piece is crafted from responsibly sourced wood and premium fabrics, 
-                ensuring long-lasting beauty and comfort. Our artisans pay attention to every detail, 
-                from joinery to finishing, so you receive furniture that’s not only stylish but also built to last.
+              <p className="text-gray-600 mb-8 px-8 mt-1 text-sm">
+                Every Broker Adda property is carefully selected from prime locations with modern amenities and 
+                superior construction quality. Our expert team conducts thorough due diligence on every property, 
+                from legal verification to quality inspection, so you invest in real estate that's not only 
+                valuable but also built to appreciate over time.
               </p>
 
               {/* Features */}
@@ -215,14 +216,14 @@ const AboutUs = () => {
                 <div className="flex flex-col items-left gap-2 ">
                   <img
                     src="/images/logo.png"
-                    alt="Best Quality Wood"
+                    alt="Prime Location Properties"
                     className="w-20 h-20"
                   />
                   <div className="font-semibold text-gray-900">
-                    Best Quality Wood
+                    Prime Location Properties
                   </div>
                   <div className="text-gray-500 text-sm max-w-xs">
-                    We use only FSC-certified hardwoods and eco-friendly finishes for a sustainable, healthy home.
+                    We offer only strategically located properties with excellent connectivity, modern infrastructure, and high appreciation potential.
                   </div>
                 </div>
 
@@ -230,23 +231,20 @@ const AboutUs = () => {
                 <div className="flex flex-col items-left gap-2">
                   <img
                     src="/images/logo1.png"
-                    alt="Comfort-Driven Design"
+                    alt="Expert Guidance"
                     className="w-20 h-20"
                   />
                   <div className="font-semibold text-gray-900">
-                    Comfort-Driven Design
+                    Expert Guidance
                   </div>
                   <div className="text-gray-500 text-sm max-w-xs">
-                    Our ergonomic designs are tested for real-life comfort, so you can relax and enjoy every moment.
+                    Our experienced brokers provide personalized assistance throughout your property journey, ensuring you make informed investment decisions.
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          {/* --- End Our Product Quality Section --- */}
-
-          {/* --- Meet Our Team Section --- */}
-          {/* ... (Team section remains as is) ... */}
+  
         </div>
       </section>
       <Team data={teamData} />

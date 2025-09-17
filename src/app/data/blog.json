@@ -4,6 +4,7 @@
     { "label": "Home", "href": "/" },
     { "label": "Real Estate Blog", "href": "/blog" }
   ],
+  "alsoRead": "How to Choose the Right Real Estate Agent",
   "blogs": [
     {
       "id": 1,
@@ -242,9 +243,8 @@
         "Modern",
         "Sustainable",
         "Smart Homes",
-        "Location",
-        "Market Analysis",
-        "Property Management"
+        "Location"
+    
       ],
       "introduction": {
         "dropCap": "R",

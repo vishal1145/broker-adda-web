@@ -20,11 +20,6 @@ const BlogDetails = () => {
   const shareUrl = window.location.href;
   const title = blog.title || "Check out this amazing blog post!";
 
-  // Compute drop cap dynamically from the first paragraph's first letter
-  const introFirstParagraph = (blog?.introduction?.firstParagraph || "").trim();
-  const computedDropCap = (introFirstParagraph[0] || blog?.introduction?.dropCap || "").toString().toUpperCase();
-  const introFirstParagraphRest = introFirstParagraph.length > 1 ? introFirstParagraph.slice(1) : "";
-
   return (
     <>
       <HeaderFile data={blogData} />
@@ -60,7 +55,7 @@ const BlogDetails = () => {
 
               {/* Twitter */}
               <a 
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}&hashtags=realestate,property,homes`}
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}&hashtags=furniture,blog,home`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-green-800 rounded-full flex items-center justify-center text-white hover:bg-green-700 transition-colors"
@@ -124,9 +119,9 @@ const BlogDetails = () => {
           <div className="mb-8">
             <p className="text-gray-700 leading-relaxed">
               <span className="float-left w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center text-5xl font-bold text-black mr-4 leading-none">
-                {computedDropCap}
+                {blog.introduction.dropCap}
               </span>
-              {introFirstParagraphRest}
+              {blog.introduction.firstParagraph}
             </p>
             <p className="text-gray-600 leading-relaxed mt-4">
               {blog.introduction.secondParagraph}
@@ -171,7 +166,7 @@ const BlogDetails = () => {
               <div className="flex items-center">
                 <div className="w-1 h-6 bg-yellow-400 mr-3"></div>
                 <span className="text-green-100 text-lg font-medium">
-                  "Revamping Your Entryway with Functional Furniture"
+                  {`"${blogData.alsoRead}"`}
                 </span>
               </div>
             </div>
@@ -243,9 +238,10 @@ const BlogDetails = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-gray-900">Filter by Categories</h3>
             <div className="grid grid-cols-3 gap-2">
-              {(blog.categories && blog.categories.length ? blog.categories : [
-                "Apartments", "Villas", "Commercial", "Investment", "Decor", "Market"
-              ]).map((cat, idx) => (
+              {[
+                "Sofa", "Furniture", "Bed", "Offices", "Chair", "Lighting", 
+                "Nightstand", "Office Table", "Decor", "Stool", "Dining Table", "Mirrors"
+              ].map((cat, idx) => (
                 <span
                   key={idx}
                   className="bg-gray-100 text-sm text-gray-700 px-3 py-2 rounded-full hover:bg-gray-200 transition-colors cursor-pointer text-center"
@@ -256,9 +252,9 @@ const BlogDetails = () => {
             </div>
           </div>
 
-          {/* Property Guide Outline */}
+          {/* Table of Content */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Property Guide Outline</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">Table of Content</h3>
             <div className="space-y-3">
               {blog.content.body.map((section, index) => (
                 <div key={index} className="text-sm text-gray-600 hover:text-green-700 cursor-pointer transition-colors">
@@ -275,16 +271,16 @@ const BlogDetails = () => {
               className="w-full h-[500px] object-cover rounded-2xl"
               alt="Offer"
             />
-            <div className="absolute inset-0 bg-opacity-50 rounded-2xl "></div>
-            <div className="absolute bottom-4 left-20 text-black text-center">
-              <p className="text-sm font-medium  "> — Latest Offers</p>
-              <p className="text-lg font-bold mt-1"><span className="text-yellow-400">Hot</span> new property listings</p>
-              <p className="text-lg font-bold">in your city</p>
+            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-2xl"></div>
+            <div className="absolute bottom-4 left-28 text-white text-center">
+              <p className="text-sm font-medium"> — Latest Offers</p>
+              <p className="text-lg font-bold mt-1"><span className="text-yellow-400">20% Off</span> on Latest</p>
+              <p className="text-lg font-bold">Furniture</p>
               <a
                 href="/properties"
                 className="mt-3 inline-block bg-yellow-500 text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-yellow-600 transition-colors"
               >
-                Explore Now
+                Shop Now
               </a>
             </div>
           </div>

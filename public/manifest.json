@@ -1,25 +1,25 @@
 {
-  "short_name": "AlgoFurnish",
-  "name": "AlgoFurnish - Modern Furniture Store",
+  "short_name": "Broker Adda",
+  "name": "Broker Adda Real Estate",
   "icons": [
     {
-      "src": "images/logo.png",
+      "src": "House and Handshake Logo (1).png",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/png"
     },
     {
-      "src": "images/logo.png",
+      "src": "House and Handshake Logo (1).png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "images/logo.png",
+      "src": "House and Handshake Logo (1).png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
-  "start_url": "3001",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#10b981",
   "background_color": "#ffffff"
 }

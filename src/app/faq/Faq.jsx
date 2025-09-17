@@ -11,9 +11,9 @@ const Faq = () => {
 
   const categories = [
     "General Information",
-    "Ordering & Shipping", 
-    "Returns & Exchanges",
-    "Payments & Discounts",
+    "Property Search & Viewing", 
+    "Investment & Financing",
+    "Legal & Documentation",
     "Account & Profile"
   ];
 
