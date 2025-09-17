@@ -55,7 +55,7 @@ const BlogDetails = () => {
 
               {/* Twitter */}
               <a 
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}&hashtags=furniture,blog,home`}
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}&hashtags=realestate,property,homes`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-green-800 rounded-full flex items-center justify-center text-white hover:bg-green-700 transition-colors"
@@ -235,7 +235,7 @@ const BlogDetails = () => {
         {/* Right Sidebar */}
         <aside className="lg:col-span-4 space-y-8">
           {/* Filter by Categories */}
-          <div>
+          {/* <div>
             <h3 className="text-lg font-semibold mb-4 text-gray-900">Filter by Categories</h3>
             <div className="grid grid-cols-3 gap-2">
               {[
@@ -250,10 +250,10 @@ const BlogDetails = () => {
                 </span>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Table of Content */}
-          <div>
+          {/* <div>
             <h3 className="text-lg font-semibold mb-4 text-gray-900">Table of Content</h3>
             <div className="space-y-3">
               {blog.content.body.map((section, index) => (
@@ -262,25 +262,25 @@ const BlogDetails = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Sidebar Promo */}
           <div className="relative">
             <img
-              src="/images/blog3.png"
+              src="/images/r5.png"
               className="w-full h-[500px] object-cover rounded-2xl"
               alt="Offer"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-2xl"></div>
+            <div className="absolute inset-0  bg-opacity-50 rounded-2xl"></div>
             <div className="absolute bottom-4 left-28 text-white text-center">
-              <p className="text-sm font-medium"> — Latest Offers</p>
-              <p className="text-lg font-bold mt-1"><span className="text-yellow-400">20% Off</span> on Latest</p>
-              <p className="text-lg font-bold">Furniture</p>
+              <p className="text-sm font-medium"> — Latest Listings</p>
+              <p className="text-lg font-bold mt-1">Hot <span className="text-yellow-400">Property Deals</span></p>
+              <p className="text-lg font-bold">in Your City</p>
               <a
                 href="/properties"
                 className="mt-3 inline-block bg-yellow-500 text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-yellow-600 transition-colors"
               >
-                Shop Now
+                Explore Now
               </a>
             </div>
           </div>
