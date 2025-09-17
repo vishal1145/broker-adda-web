@@ -2,6 +2,25 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+// Local currency formatter (inlined to avoid external dependency)
+const formatCurrency = (
+  amount: number | string,
+  options: { currency?: string; locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number } = {}
+) => {
+  const { currency = 'USD', locale = 'en-US', minimumFractionDigits = 2, maximumFractionDigits = 2 } = options;
+  const num = typeof amount === 'number' ? amount : Number(amount);
+  if (Number.isNaN(num)) return '';
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits,
+      maximumFractionDigits,
+    }).format(num);
+  } catch {
+    return `$${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+  }
+};
 
 interface ProductItem {
   id: number;
@@ -356,10 +375,10 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
                     </h3>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-gray-800">
-                        ${product.price.toFixed(2)}
+                        {formatCurrency(product.price)}
                       </span>
                       <span className="text-sm text-gray-400 line-through">
-                        ${product.originalPrice.toFixed(2)}
+                        {formatCurrency(product.originalPrice)}
                       </span>
                     </div>
                   </div>

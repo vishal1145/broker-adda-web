@@ -30,9 +30,9 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
               {[
                 { name: 'Facebook', icon: 'fab fa-facebook-f', url: 'https://facebook.com/yourpage' },
                 { name: 'Twitter', icon: 'fab fa-twitter', url: 'https://twitter.com/yourhandle' },
-                { name: 'Pinterest', icon: 'fab fa-pinterest-p', url: 'https://pinterest.com/yourpage' },
+                // { name: 'Pinterest', icon: 'fab fa-pinterest-p', url: 'https://pinterest.com/yourpage' },
                 { name: 'Instagram', icon: 'fab fa-instagram', url: 'https://instagram.com/yourprofile' },
-                { name: 'YouTube', icon: 'fab fa-youtube', url: 'https://youtube.com/yourchannel' }
+                // { name: 'YouTube', icon: 'fab fa-youtube', url: 'https://youtube.com/yourchannel' }
               ].map((item, index) => (
                 <a key={index} href={item.url} target="_blank" rel="noopener noreferrer">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white/10 backdrop-blur-sm">
@@ -117,20 +117,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
       <div className="bg-yellow-400 text-sm text-gray-900 mt-12 py-4 px-6 sm:px-12 lg:px-32">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center">
           <p className="mb-2 sm:mb-0">{data.copyright}</p>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center cursor-pointer">
-              English
-              <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"/>
-              </svg>
-            </div>
-            <div className="flex items-center cursor-pointer">
-              USD
-              <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"/>
-              </svg>
-            </div>
-          </div>
+          
         </div>
       </div>
     </footer>

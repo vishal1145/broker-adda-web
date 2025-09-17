@@ -3,6 +3,21 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Pagination, Stack } from "@mui/material";
+// Local currency formatter (inlined to avoid external dependency)
+const formatCurrency = (amount, { currency = 'USD', locale = 'en-US', minimumFractionDigits = 2, maximumFractionDigits = 2 } = {}) => {
+  const num = typeof amount === 'number' ? amount : Number(amount);
+  if (Number.isNaN(num)) return '';
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits,
+      maximumFractionDigits,
+    }).format(num);
+  } catch (_e) {
+    return `$${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+  }
+};
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -334,7 +349,7 @@ const ShopHero = ({ data = { filters: { price: { min: 0, max: 1000 } }, products
     if (priceRange < data.filters.price.max) {
       newActiveFilters.push({ 
         type: 'price', 
-        label: `Price: $0 - $${priceRange}`,
+        label: `Price: ${formatCurrency(0)} - ${formatCurrency(priceRange)}`,
         value: priceRange 
       });
     }
@@ -453,7 +468,7 @@ const ShopHero = ({ data = { filters: { price: { min: 0, max: 1000 } }, products
           <div className="border-b pb-6 mb-6">
             <h3 className="font-medium mb-2">Price</h3>
             <div className="mb-2 text-sm text-gray-700">
-              ${data.filters?.price?.min || 0}.00 - ${priceRange}.00
+              {formatCurrency(data.filters?.price?.min || 0)} - {formatCurrency(priceRange)}
             </div>
             <input
               type="range"
@@ -659,12 +674,8 @@ const ShopHero = ({ data = { filters: { price: { min: 0, max: 1000 } }, products
                     {product.name}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-0B1B2B text-sm font-medium px-2 mb-2 ">
-                      ${product.price}.00
-                    </span>
-                    <span className="text-gray-400 line-through text-sm">
-                      ${product.oldPrice}.00
-                    </span>
+                    <span className="text-0B1B2B text-sm font-medium px-2 mb-2 ">{formatCurrency(product.price)}</span>
+                    <span className="text-gray-400 line-through text-sm">{formatCurrency(product.oldPrice)}</span>
                   </div>
                 </Link>
               );

@@ -24,20 +24,12 @@
       "url": "https://twitter.com",
       "icon": "fab fa-twitter"
     },
-    {
-      "platform": "pinterest",
-      "url": "https://pinterest.com",
-      "icon": "fab fa-pinterest"
-    },
+   
     {
       "platform": "instagram",
       "url": "https://instagram.com",
       "icon": "fab fa-instagram"
-    },
-    {
-      "platform": "youtube",
-      "url": "https://youtube.com",
-      "icon": "fab fa-youtube"
     }
+   
   ]
 }

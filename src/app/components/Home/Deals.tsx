@@ -2,6 +2,25 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+// Local currency formatter (inlined to avoid external dependency)
+const formatCurrency = (
+  amount: number | string,
+  options: { currency?: string; locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number } = {}
+) => {
+  const { currency = 'USD', locale = 'en-US', minimumFractionDigits = 2, maximumFractionDigits = 2 } = options;
+  const num = typeof amount === 'number' ? amount : Number(amount);
+  if (Number.isNaN(num)) return '';
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits,
+      maximumFractionDigits,
+    }).format(num);
+  } catch {
+    return `$${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+  }
+};
 
 interface DealItem {
   type: string;
@@ -130,7 +149,7 @@ const Deals = ({ data = { subtitle: '', title: '', description: '', items: [] } 
     // Use the correct Next.js App Router path
     const category = (item.type || item.category || 'chair').toLowerCase();
     const productDataParam = encodeURIComponent(JSON.stringify(transformedProduct));
-    router.push(`/properties/${category}/product-details/${item.id}?productData=${productDataParam}`);
+    router.push(`/shop/${category}/product-details/${item.id}?productData=${productDataParam}`);
   };
 
   return (
@@ -210,8 +229,8 @@ const Deals = ({ data = { subtitle: '', title: '', description: '', items: [] } 
                   <h3 className="text-base font-semibold text-gray-900 truncate max-w-full">{deal.name}</h3>
 
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-gray-900 font-semibold text-base">${deal.price.toFixed(2)}</span>
-                    <span className="line-through text-gray-400 text-base">${deal.originalPrice.toFixed(2)}</span>
+                    <span className="text-gray-900 font-semibold text-base">{formatCurrency(deal.price)}</span>
+                    <span className="line-through text-gray-400 text-base">{formatCurrency(deal.originalPrice)}</span>
                   </div>
 
                   <div className="flex items-center gap-2 mt-0.5">

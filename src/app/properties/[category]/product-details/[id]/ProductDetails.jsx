@@ -7,6 +7,21 @@ import furnitureData from '../../../../data/furnitureData.json';
 import HeaderFile from '../../../../components/Header';
 import { FaStar, FaFacebookF, FaTwitter, FaPinterestP,  } from "react-icons/fa";
 import Features from '../../../../components/Features';
+// Local currency formatter (inlined to avoid external dependency)
+const formatCurrency = (amount, { currency = 'USD', locale = 'en-US', minimumFractionDigits = 2, maximumFractionDigits = 2 } = {}) => {
+  const num = typeof amount === 'number' ? amount : Number(amount);
+  if (Number.isNaN(num)) return '';
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits,
+      maximumFractionDigits,
+    }).format(num);
+  } catch (e) {
+    return `$${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+  }
+};
 
 const TABS = [
   { label: "Description" },
@@ -271,8 +286,8 @@ const ProductDetails = () => {
 
             {/* Price */}
             <div className="flex items-center gap-4 mt-2">
-              <span className="text-2xl font-bold text-gray-900">${displayProduct.price.toFixed(2)}</span>
-              <span className="text-gray-400 line-through text-lg">${displayProduct.oldPrice.toFixed(2)}</span>
+              <span className="text-2xl font-bold text-gray-900">{formatCurrency(displayProduct.price)}</span>
+              <span className="text-gray-400 line-through text-lg">{formatCurrency(displayProduct.oldPrice)}</span>
             </div>
 
             {/* Description */}

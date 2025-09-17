@@ -45,10 +45,10 @@ const AboutUs = () => {
                 letterSpacing: "0.5px",
               }}
             >
-              Jenny Alexander
+              Ananya Sharma
             </p>
             <div className="flex items-center justify-center gap-2">
-              <span className="text-sm text-gray-700">Jenny Alexander</span>
+              <span className="text-sm text-gray-700">Ananya Sharma</span>
               <span className="w-1 h-1 bg-orange-500 rounded-full"></span>
               <span className="text-sm text-gray-700">CEO & Founder</span>
             </div>
