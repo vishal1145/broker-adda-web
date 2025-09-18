@@ -319,11 +319,11 @@ const SignUp = () => {
                     <span className="text-gray-500">By continuing you agree to our</span>
                     <br />
                     <span className="text-gray-900 font-bold">
-                      <Link href="/terms" className="hover:text-green-800 " style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      <Link href="/terms"  target="_blank"  className="hover:text-green-800 " style={{ fontFamily: 'Open Sans, sans-serif' }}>
                         Terms & Conditions
                       </Link>{" "}
                       <span className="text-gray-500"> and{" "}</span>
-                      <Link href="/privacy" className="hover:text-green-800 " style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      <Link href="/privacy"  target="_blank"  className="hover:text-green-800 " style={{ fontFamily: 'Open Sans, sans-serif' }}>
                         Privacy Policy
                       </Link>
                     </span>
