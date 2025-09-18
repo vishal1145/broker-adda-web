@@ -4,6 +4,23 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import relatedProducts from "../data/relatedProduct.json";
 
+// Local currency formatter (inlined to avoid external dependency)
+const formatCurrency = (amount, options = {}) => {
+  const { currency = 'USD', locale = 'en-US', minimumFractionDigits = 2, maximumFractionDigits = 2 } = options;
+  const num = typeof amount === 'number' ? amount : Number(amount);
+  if (Number.isNaN(num)) return '';
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits,
+      maximumFractionDigits,
+    }).format(num);
+  } catch {
+    return `$${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+  }
+};
+
 export default function RelatedProduct() {
   const router = useRouter();
   
@@ -231,9 +248,9 @@ export default function RelatedProduct() {
               <div className="px-4 mb-2">
                 <div className="text-gray-900 font-semibold text-left text-base">{product.name}</div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-gray-900 text-base font-bold">${product.price?.toFixed(2) ?? "--"}</span>
+                  <span className="text-gray-900 text-base font-bold">{formatCurrency(product.price)}</span>
                   {product.oldPrice && (
-                    <span className="text-gray-400 line-through text-sm">${product.oldPrice?.toFixed(2)}</span>
+                    <span className="text-gray-400 line-through text-sm">{formatCurrency(product.oldPrice)}</span>
                   )}
                 </div>
               </div>
