@@ -2,11 +2,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import Select from 'react-select';
 import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from 'next/navigation';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 
 const Profile = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const userRole = user?.role || 'broker';
   
   // Step management
@@ -26,7 +28,6 @@ const Profile = () => {
     brokerImage: null,
     // Additional professional fields
     licenseNumber: "",
-    state: "",
     officeAddress: "",
     linkedin: "",
     twitter: "",
@@ -72,10 +73,10 @@ const Profile = () => {
   const [selectedCity, setSelectedCity] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [googleLoaded, setGoogleLoaded] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const autocompleteRef = useRef(null);
-  const debounceTimeoutRef = useRef(null);
+  const [selectedOfficeAddress, setSelectedOfficeAddress] = useState(null);
+  const [officeAddressOptions, setOfficeAddressOptions] = useState([]);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const searchTimeoutRef = useRef(null);
   const [propertyTypeOptions] = useState(["apartment", "commercial", "plot", "villa", "house"]);
   const [specializationOptions] = useState([
     "Residential Sales", "Commercial Leasing", "Luxury Homes", 
@@ -89,7 +90,6 @@ const Profile = () => {
     const loadGooglePlaces = () => {
       // Check if already loaded
       if (window.google && window.google.maps && window.google.maps.places) {
-        console.log('Google Places API already loaded');
         setGoogleLoaded(true);
         return;
       }
@@ -97,20 +97,16 @@ const Profile = () => {
       // Check if script already exists
       const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
       if (existingScript) {
-        console.log('Google Maps script already exists, waiting for load...');
         existingScript.onload = () => setGoogleLoaded(true);
         return;
       }
 
-      console.log('Loading Google Places API...');
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places&callback=initGooglePlaces`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places`;
       script.async = true;
       script.defer = true;
       
-      // Set up global callback
-      window.initGooglePlaces = () => {
-        console.log('Google Places API loaded successfully');
+      script.onload = () => {
         setGoogleLoaded(true);
       };
       
@@ -125,68 +121,67 @@ const Profile = () => {
     loadGooglePlaces();
   }, []);
 
-  // Initialize Google Places Autocomplete
+  // Cleanup timeout on unmount
   useEffect(() => {
-    const initializeAutocomplete = () => {
-      if (!googleLoaded || !autocompleteRef.current || !window.google) {
-        console.log('Autocomplete not ready:', { googleLoaded, hasRef: !!autocompleteRef.current, hasGoogle: !!window.google });
-        return;
-      }
-
-      try {
-        console.log('Initializing Google Places Autocomplete...');
-        
-        // Clear any existing autocomplete
-        if (autocompleteRef.current.autocomplete) {
-          window.google.maps.event.clearInstanceListeners(autocompleteRef.current.autocomplete);
-        }
-
-        const autocomplete = new window.google.maps.places.Autocomplete(autocompleteRef.current, {
-          types: ['geocode', 'establishment'],
-          fields: ['formatted_address', 'name', 'geometry', 'place_id']
-        });
-
-        // Store reference for cleanup
-        autocompleteRef.current.autocomplete = autocomplete;
-
-        // Add listener for place selection
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          console.log('Place selected:', place);
-          
-          if (place.formatted_address) {
-            setBrokerFormData(prev => ({
-              ...prev,
-              officeAddress: place.formatted_address
-            }));
-            toast.success('Address selected successfully');
-          } else {
-            console.warn('No formatted address found for selected place');
-          }
-        });
-
-        console.log('Google Places Autocomplete initialized successfully');
-      } catch (error) {
-        console.error('Error initializing Google Places Autocomplete:', error);
-        toast.error('Failed to initialize address autocomplete');
-      }
-    };
-
-    // Add a small delay to ensure DOM is ready
-    const timer = setTimeout(initializeAutocomplete, 200);
-    
-    // Cleanup function
     return () => {
-      clearTimeout(timer);
-      if (autocompleteRef.current && autocompleteRef.current.autocomplete) {
-        try {
-          window.google.maps.event.clearInstanceListeners(autocompleteRef.current.autocomplete);
-        } catch (error) {
-          console.log('Error cleaning up autocomplete:', error);
-        }
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [googleLoaded]);
+  }, []);
+
+  // Handle input change for office address search with debouncing
+  const handleOfficeAddressInputChange = (inputValue) => {
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (!googleLoaded || !window.google || !inputValue || inputValue.length < 1) {
+      setOfficeAddressOptions([]);
+      return;
+    }
+
+    // Debounce the search by 300ms
+    searchTimeoutRef.current = setTimeout(() => {
+      setIsLoadingAddresses(true);
+      
+      const service = new window.google.maps.places.AutocompleteService();
+      service.getPlacePredictions(
+        {
+          input: inputValue,
+          types: ['establishment', 'geocode'],
+          componentRestrictions: { country: 'in' }
+        },
+        (predictions, status) => {
+          setIsLoadingAddresses(false);
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+            const options = predictions.map((prediction) => ({
+              value: prediction.place_id,
+              label: prediction.description,
+              placeId: prediction.place_id,
+              description: prediction.description
+            }));
+            setOfficeAddressOptions(options);
+          } else {
+            setOfficeAddressOptions([]);
+          }
+        }
+      );
+    }, 300);
+  };
+
+  // Handle office address selection
+  const handleOfficeAddressChange = (selectedOption) => {
+    setSelectedOfficeAddress(selectedOption);
+    if (selectedOption) {
+      setBrokerFormData(prev => ({
+        ...prev,
+        officeAddress: selectedOption.description
+      }));
+      toast.success('Address selected successfully');
+    }
+  };
 
   // Pre-fill phone number from user data
   useEffect(() => {
@@ -481,20 +476,6 @@ const Profile = () => {
 
 
 
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (autocompleteRef.current && !autocompleteRef.current.contains(event.target)) {
-        setShowSuggestions(false);
-        setSuggestions([]);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -503,58 +484,6 @@ const Profile = () => {
     } else {
       setBrokerFormData((prev) => ({ ...prev, [name]: value }));
     }
-
-    // Trigger autocomplete for office address
-    if (name === 'officeAddress' && googleLoaded && window.google) {
-      // Clear previous timeout
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-      
-      // Set new timeout for debounced API call
-      debounceTimeoutRef.current = setTimeout(() => {
-        if (value.length > 0) {
-          showCustomSuggestions(value);
-        } else {
-          setShowSuggestions(false);
-          setSuggestions([]);
-        }
-      }, 300);
-    }
-  };
-
-  const showCustomSuggestions = (inputValue) => {
-    if (!googleLoaded || !window.google || !inputValue) {
-      return;
-    }
-
-    const service = new window.google.maps.places.AutocompleteService();
-    service.getPlacePredictions(
-      {
-        input: inputValue,
-        types: ['establishment', 'geocode'],
-        componentRestrictions: { country: 'in' }
-      },
-      (predictions, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
-          setSuggestions(predictions);
-          setShowSuggestions(true);
-        } else {
-          setShowSuggestions(false);
-          setSuggestions([]);
-        }
-      }
-    );
-  };
-
-  const selectSuggestion = (suggestion) => {
-    setBrokerFormData(prev => ({
-      ...prev,
-      officeAddress: suggestion.description
-    }));
-    setShowSuggestions(false);
-    setSuggestions([]);
-    toast.success('Address selected successfully');
   };
 
   const handleFileChange = (e) => {
@@ -759,9 +688,9 @@ const Profile = () => {
         return Array.isArray(currentFormData.regions) && currentFormData.regions.length > 0;
         }
         return true; // Skip for customers
-      case 4: // Documents (only for brokers)
+      case 4: // Documents (only for brokers) - OPTIONAL
         if (userRole === 'broker') {
-          return currentFormData.aadharFile && currentFormData.panFile && currentFormData.gstFile;
+          return true; // Documents are now optional
         }
         return true;
       default:
@@ -1163,88 +1092,75 @@ const Profile = () => {
               </div>
                             </div>
 
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                State <span className="text-red-500">*</span>
-                              </label>
-                              <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                  </svg>
-                                </div>
-                                <input
-                                  type="text"
-                                  name="state"
-                                  value={brokerFormData.state}
-                                  onChange={handleChange}
-                                  placeholder="Enter your state"
-                                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                              </div>
-                            </div>
 
                             <div className="md:col-span-2">
                               <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Office Address <span className="text-red-500">*</span>
                               </label>
-                              <div className="relative" style={{ zIndex: 1000 }}>
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                                   <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                   </svg>
                                 </div>
-                                <input
-                                  ref={autocompleteRef}
-                                  type="text"
-                                  name="officeAddress"
-                                  value={brokerFormData.officeAddress}
-                                  onChange={handleChange}
-                                  onFocus={() => {
-                                    // Focus handler for autocomplete
+                                <Select
+                                  value={selectedOfficeAddress}
+                                  onChange={handleOfficeAddressChange}
+                                  onInputChange={handleOfficeAddressInputChange}
+                                  options={officeAddressOptions}
+                                  placeholder={googleLoaded ? "Search for your office address..." : "Loading address search..."}
+                                  isClearable
+                                  isSearchable
+                                  isLoading={isLoadingAddresses}
+                                  noOptionsMessage={() => "No addresses found"}
+                                  loadingMessage={() => "Searching addresses..."}
+                                  classNamePrefix="react-select"
+                                  styles={{
+                                    control: (provided, state) => ({
+                                      ...provided,
+                                      minHeight: '48px',
+                                      paddingLeft: '40px',
+                                      border: state.isFocused ? '2px solid #3b82f6' : '1px solid #d1d5db',
+                                      boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
+                                      '&:hover': {
+                                        border: '1px solid #9ca3af'
+                                      }
+                                    }),
+                                    placeholder: (provided) => ({
+                                      ...provided,
+                                      color: '#9ca3af',
+                                      fontSize: '0.875rem'
+                                    }),
+                                    input: (provided) => ({
+                                      ...provided,
+                                      color: '#374151',
+                                      fontSize: '0.875rem'
+                                    }),
+                                    singleValue: (provided) => ({
+                                      ...provided,
+                                      color: '#374151',
+                                      fontSize: '0.875rem'
+                                    }),
+                                    option: (provided, state) => ({
+                                      ...provided,
+                                      backgroundColor: state.isFocused ? '#f3f4f6' : 'white',
+                                      color: state.isSelected ? 'white' : '#374151',
+                                      fontSize: '0.875rem',
+                                      padding: '0.75rem 1rem'
+                                    }),
+                                    menu: (provided) => ({
+                                      ...provided,
+                                      zIndex: 9999,
+                                      border: '1px solid #e5e7eb',
+                                      borderRadius: '0.5rem',
+                                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+                                    })
                                   }}
-                                  placeholder={googleLoaded ? "Start typing your office address..." : "Loading address autocomplete..."}
-                                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                  autoComplete="off"
-                                  style={{ zIndex: 1 }}
                                 />
                                 {!googleLoaded && (
-                                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                                  </div>
-                                )}
-                                
-                                {/* Custom Suggestions Dropdown */}
-                                {showSuggestions && suggestions.length > 0 && (
-                                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                    {suggestions.map((suggestion, index) => (
-                                      <div
-                                        key={suggestion.place_id || index}
-                                        onClick={() => selectSuggestion(suggestion)}
-                                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                                      >
-                                        <div className="flex items-start">
-                                          <div className="flex-shrink-0 mr-3 mt-1">
-                                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-gray-900 truncate">
-                                              {suggestion.structured_formatting?.main_text || suggestion.description}
-                                            </p>
-                                            {suggestion.structured_formatting?.secondary_text && (
-                                              <p className="text-xs text-gray-500 truncate">
-                                                {suggestion.structured_formatting.secondary_text}
-                                              </p>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
                                   </div>
                                 )}
                               </div>
@@ -1652,14 +1568,14 @@ const Profile = () => {
                   </div>
                 )}
 
-                {/* Step 4: Documents (Only for Brokers) */}
+                {/* Step 4: Documents (Only for Brokers) - OPTIONAL */}
                 {currentStep === 4 && userRole === 'broker' && (
                   <div className="space-y-6">
                     <div className="flex items-center mb-6">
                       <svg className="w-6 h-6 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <h3 className="text-lg font-semibold text-gray-900">Documents</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">Documents <span className="text-sm font-normal text-gray-500">(Optional)</span></h3>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1919,8 +1835,13 @@ const Profile = () => {
                           }
                           
                           const result = await res.json();
-                          toast.success('Profile updated successfully!');
+                          toast.success('Profile updated successfully! Redirecting to dashboard...');
                           console.log('Profile updated:', result);
+                          
+                          // Redirect to dashboard after successful profile update
+                          setTimeout(() => {
+                            router.push('/dashboard');
+                          }, 1500);
                         } catch (err) {
                           toast.error(err?.message || 'Failed to update profile');
                         } finally {
