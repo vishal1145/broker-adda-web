@@ -9,6 +9,10 @@ const Profile = () => {
   const { user } = useAuth();
   const userRole = user?.role || 'broker';
   
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = userRole === 'broker' ? 4 : 3; // Brokers have 4 steps, customers have 3
+  
   // Broker form data
   const [brokerFormData, setBrokerFormData] = useState({
     name: "",
@@ -19,7 +23,18 @@ const Profile = () => {
     aadharFile: null,
     panFile: null,
     gstFile: null,
-    brokerImage: null
+    brokerImage: null,
+    // Additional professional fields
+    licenseNumber: "",
+    officeAddress: "",
+    linkedin: "",
+    twitter: "",
+    instagram: "",
+    facebook: "",
+    specializations: [],
+    // Personal details
+    gender: "",
+    dateOfBirth: ""
   });
 
   // Customer form data
@@ -32,7 +47,16 @@ const Profile = () => {
     propertyType: [],
     regions: [],
     inquiryCount: 0,
-    customerImage: null
+    customerImage: null,
+    // Additional contact fields
+    address: "",
+    linkedin: "",
+    twitter: "",
+    instagram: "",
+    facebook: "",
+    // Personal details
+    gender: "",
+    dateOfBirth: ""
   });
   const [submitting, setSubmitting] = useState(false);
   const [regionsList, setRegionsList] = useState([]);
@@ -40,6 +64,11 @@ const Profile = () => {
   const [regionsError, setRegionsError] = useState("");
   const [profileLoading, setProfileLoading] = useState(true);
   const [propertyTypeOptions] = useState(["apartment", "commercial", "plot", "villa", "house"]);
+  const [specializationOptions] = useState([
+    "Residential Sales", "Commercial Leasing", "Luxury Homes", 
+    "Investment Properties", "Rental Properties", "Land Development",
+    "Property Management", "Real Estate Consulting"
+  ]);
   
 
   // Pre-fill phone number from user data
@@ -365,6 +394,69 @@ const Profile = () => {
     setCustomerFormData((prev) => ({ ...prev, propertyType: selectedValues }));
   };
 
+  const handleSpecializationChange = (selectedOptions) => {
+    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    setBrokerFormData((prev) => ({ ...prev, specializations: selectedValues }));
+  };
+
+  // Step navigation functions
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const goToStep = (step) => {
+    setCurrentStep(step);
+  };
+
+  // Step validation
+  const validateStep = (step) => {
+    const currentFormData = userRole === 'customer' ? customerFormData : brokerFormData;
+    
+    switch (step) {
+      case 1: // Personal Details
+        return currentFormData.name && currentFormData.email && currentFormData.phone;
+      case 2: // Professional/Preferences
+        if (userRole === 'broker') {
+          return true; // Professional info is optional
+        } else {
+          return true; // Customer preferences are optional
+        }
+      case 3: // Regions
+        return Array.isArray(currentFormData.regions) && currentFormData.regions.length > 0;
+      case 4: // Documents (only for brokers)
+        if (userRole === 'broker') {
+          return currentFormData.aadharFile && currentFormData.panFile && currentFormData.gstFile;
+        }
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  // Get step title
+  const getStepTitle = (step) => {
+    switch (step) {
+      case 1:
+        return 'Personal Info';
+      case 2:
+        return userRole === 'customer' ? 'Preferences' : 'Professional';
+      case 3:
+        return 'Regions';
+      case 4:
+        return 'Documents';
+      default:
+        return '';
+    }
+  };
+
 
   // Function to manually refresh broker data
   const refreshBrokerData = async () => {
@@ -494,247 +586,456 @@ const Profile = () => {
           },
         }}
       />
-      <div className="px-6 sm:px-12 lg:px-32 py-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="w-full bg-white rounded-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              {userRole === 'customer' ? 'Customer Profile' : 'Broker Profile'}
-            </h2>
-            
-            {/* Profile Image Upload */}
-            <div className="mb-8">
-              <div className="flex items-center gap-6">
-                {/* Current Profile Image Display */}
-                <div className="relative">
-                  <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-                    {(userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage) ? (
-                      <img
-                        src={
-                          typeof (userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage) === 'string' 
-                            ? (userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage)
-                            : URL.createObjectURL(userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage)
-                        }
-                        alt={`${userRole} Profile`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = '/images/user-1.webp';
-                        }}
-                      />
-                    ) : (
-                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    name={userRole === 'customer' ? 'customerImage' : 'brokerImage'}
-                    onChange={handleFileChange}
-                    accept=".jpg,.jpeg,.png"
-                    className="hidden"
-                    id="profile-image-upload"
-                  />
-                  <button
-                    type="button"
-                    className="absolute -bottom-1 -right-1 bg-green-600 w-7 h-7 rounded-full flex items-center justify-center hover:bg-green-700 transition-colors"
-                    onClick={() => document.getElementById('profile-image-upload').click()}
-                  >
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                </div>
+      <div className="min-h-screen bg-white py-16">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Header Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-display text-gray-900 mb-4">
+              {userRole === 'customer' ? 'Create Customer Profile' : 'Create Broker Profile'}
+            </h1>
+            <p className="text-sm font-body text-gray-600 max-w-2xl mx-auto">
+              Complete your profile to get started with {userRole === 'customer' ? 'finding your dream property' : 'connecting with potential clients'}
+            </p>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="flex items-center justify-center">
+              <div className="flex items-center p-1 ">
+                {Array.from({ length: totalSteps }, (_, index) => {
+                  const step = index + 1;
+                  const isActive = step === currentStep;
+                  const isCompleted = step < currentStep;
+                  
+                  return (
+                    <div key={step} className="flex items-center">
+                      {/* Step Circle and Label */}
+                      <div className="flex flex-col items-center px-2">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                            isActive
+                              ? 'bg-blue-600 text-white scale-110'
+                              : isCompleted
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-200 text-gray-500'
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            step
+                          )}
+                        </div>
+                        <span className={`text-xs mt-1 text-center font-label ${
+                          isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                        }`}>
+                          {getStepTitle(step)}
+                        </span>
+                      </div>
+                      
+                      {/* Connecting Line */}
+                      {step < totalSteps && (
+                        <div className={`w-12 h-0.5 mx-1 rounded-full ${
+                          isCompleted ? 'bg-green-500' : isActive ? 'bg-blue-600' : 'bg-gray-300'
+                        }`} />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
+          </div>
+
+          {/* Back Button */}
+          {currentStep > 1 && (
+            <div className="mb-8">
+              <button
+                type="button"
+                onClick={prevStep}
+                className="flex items-center text-blue-600 hover:text-blue-800 transition-colors text-xs font-label bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+            </div>
+          )}
+
+          {/* Form Card */}
+          <div className="bg-white rounded-2xl shadow-2xl border-0 overflow-hidden">
             
+            {/* Step Content */}
             {profileLoading ? (
-              <div className="flex items-center justify-center py-12">
+              <div className="flex items-center justify-center py-20">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading profile data...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-6"></div>
+                  <p className="text-lg text-gray-600 font-medium">Loading profile data...</p>
                 </div>
               </div>
             ) : (
-            
-            <form className="space-y-6" onSubmit={async (e) => {
-              e.preventDefault();
-              setSubmitting(true);
-              
-              const currentFormData = userRole === 'customer' ? customerFormData : brokerFormData;
-              
-              // Debug: Log current form data before submission
-              console.log('🔍 Current form data before submission:', {
-                userRole,
-                formData: currentFormData
-              });
-              
-              if (!Array.isArray(currentFormData.regions) || currentFormData.regions.length === 0) {
-                toast.error('Please select at least one region.');
-                setSubmitting(false);
-                return;
-              }
-              
-              try {
-                if (!user?.token) {
-                  toast.error('No authentication token found. Please login again.');
-                  setSubmitting(false);
-                  return;
-                }
-                
-                // Create FormData for multipart/form-data submission
-                const formDataToSend = new FormData();
-                formDataToSend.append('phone', currentFormData.phone);
-                formDataToSend.append('name', currentFormData.name);
-                formDataToSend.append('email', currentFormData.email);
-                
-                if (userRole === 'customer') {
-                  // Customer-specific fields - matching the API structure
-                  formDataToSend.append('customerDetails[preferences][budgetMin]', currentFormData.budgetMin ? Number(currentFormData.budgetMin) : '');
-                  formDataToSend.append('customerDetails[preferences][budgetMax]', currentFormData.budgetMax ? Number(currentFormData.budgetMax) : '');
-                  
-                  // Add property types
-                  currentFormData.propertyType.forEach((type, index) => {
-                    formDataToSend.append(`customerDetails[preferences][propertyType][${index}]`, type);
-                  });
-                  
-                  // Add regions
-                  currentFormData.regions.forEach((region, index) => {
-                    const regionId = typeof region === 'object' ? region._id : region;
-                    formDataToSend.append(`customerDetails[preferences][region][${index}]`, regionId);
-                  });
-                  
-                  
-                  formDataToSend.append('customerDetails[inquiryCount]', currentFormData.inquiryCount || 0);
-                  
-                  // Add customer image
-                  if (currentFormData.customerImage) {
-                    // Check if it's a File object or a string URL
-                    if (currentFormData.customerImage instanceof File) {
-                    formDataToSend.append('customerImage', currentFormData.customerImage);
-                      console.log('📷 Customer image file being sent:', currentFormData.customerImage.name);
-                    } else if (typeof currentFormData.customerImage === 'string') {
-                      // If it's a URL string, we might need to fetch it as a file
-                      console.log('📷 Customer image URL found:', currentFormData.customerImage);
-                      // For now, we'll skip URL strings as they're already uploaded
-                    }
-                  } else {
-                    console.log('📷 No customer image to send');
-                  }
-                } else {
-                  // Broker-specific fields
-                  formDataToSend.append('brokerDetails[firmName]', currentFormData.firmName || "");
-                  
-                  // Add regions
-                  currentFormData.regions.forEach((region, index) => {
-                    const regionId = typeof region === 'object' ? region._id : region;
-                    formDataToSend.append(`brokerDetails[region][${index}]`, regionId);
-                  });
-                  
-                  // Add file uploads
-                  if (currentFormData.aadharFile) {
-                    formDataToSend.append('aadhar', currentFormData.aadharFile);
-                  }
-                  if (currentFormData.panFile) {
-                    formDataToSend.append('pan', currentFormData.panFile);
-                  }
-                  if (currentFormData.gstFile) {
-                    formDataToSend.append('gst', currentFormData.gstFile);
-                  }
-                  if (currentFormData.brokerImage) {
-                    formDataToSend.append('brokerImage', currentFormData.brokerImage);
-                  }
-                }
+              <div className="p-10">
+                {/* Step 1: Personal Details */}
+                {currentStep === 1 && (
+                  <div className="max-w-3xl mx-auto">
+                    {/* Profile Image Section - Top */}
+                    <div className="flex justify-left mb-8">
+                      <div className="relative inline-block">
+                        <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
+                          {(userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage) ? (
+                            <img
+                              src={
+                                typeof (userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage) === 'string' 
+                                  ? (userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage)
+                                  : URL.createObjectURL(userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage)
+                              }
+                              alt={`${userRole} Profile`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = '/images/user-1.webp';
+                              }}
+                            />
+                          ) : (
+                            <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          )}
+                        </div>
+                        <input
+                          type="file"
+                          name={userRole === 'customer' ? 'customerImage' : 'brokerImage'}
+                          onChange={handleFileChange}
+                          accept=".jpg,.jpeg,.png"
+                          className="hidden"
+                          id="profile-image-upload"
+                        />
+                        <button
+                          type="button"
+                          className="absolute -bottom-1 -right-1 bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                          onClick={() => document.getElementById('profile-image-upload').click()}
+                        >
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+             
 
-                // Debug: Log all FormData entries
-                console.log('📤 FormData entries being sent:');
-                for (let [key, value] of formDataToSend.entries()) {
-                  console.log(`${key}:`, value);
-                }
+                    {/* Form Fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-label text-gray-700 mb-2">
+                            Full Name <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="name"
+                            value={userRole === 'customer' ? customerFormData.name : brokerFormData.name}
+                            onChange={handleChange}
+                            placeholder="Enter your full name"
+                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                          />
+                        </div>
 
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/complete-profile`, {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `Bearer ${user.token}`
-                  },
-                  body: formDataToSend
-                });
-                
-                if (!res.ok) {
-                  const errText = await res.text();
-                  throw new Error(errText || `Request failed with ${res.status}`);
-                }
-                
-                const result = await res.json();
-                toast.success('Profile updated successfully!');
-                console.log('Profile updated:', result);
-              } catch (err) {
-                toast.error(err?.message || 'Failed to update profile');
-              } finally {
-                setSubmitting(false);
-              }
-            }}>
-              {/* Name & Email - two fields per row */}
+                        <div>
+                          <label className="block text-xs font-label text-gray-700 mb-2">
+                            Email Address <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="email"
+                            name="email"
+                            value={userRole === 'customer' ? customerFormData.email : brokerFormData.email}
+                            onChange={handleChange}
+                            placeholder="Enter your email address"
+                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-label text-gray-700 mb-2">
+                            Phone Number <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="tel"
+                            name="phone"
+                            value={userRole === 'customer' ? customerFormData.phone : brokerFormData.phone}
+                            onChange={handleChange}
+                            placeholder="Enter your phone number"
+                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-label text-gray-700 mb-2">
+                            Gender
+                          </label>
+                          <select
+                            name="gender"
+                            value={userRole === 'customer' ? customerFormData.gender : brokerFormData.gender}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body appearance-none"
+                          >
+                            <option value="">Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-label text-gray-700 mb-2">
+                            Date of Birth
+                          </label>
+                          <input
+                            type="date"
+                            name="dateOfBirth"
+                            value={userRole === 'customer' ? customerFormData.dateOfBirth : brokerFormData.dateOfBirth}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                          />
+                        </div>
+
+                        {userRole === 'broker' && (
+                          <div>
+                            <label className="block text-xs font-label text-gray-700 mb-2">
+                              Firm Name
+                            </label>
+                            <input
+                              type="text"
+                              name="firmName"
+                              value={brokerFormData.firmName}
+                              onChange={handleChange}
+                              placeholder="Enter your firm name"
+                              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Professional Information / Preferences */}
+                {currentStep === 2 && (
+                  <div className="space-y-8">
+                    {userRole === 'broker' ? (
+                      <>
+                        {/* Professional Information Card */}
+                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
+                            </svg>
+                            Professional Information
+                          </h3>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                License Number
+                              </label>
+                              <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
+                </div>
+                                <input
+                                  type="text"
+                                  name="licenseNumber"
+                                  value={brokerFormData.licenseNumber}
+                                  onChange={handleChange}
+                                  placeholder="e.g., BRE #01234567"
+                                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+              </div>
+                            </div>
+
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Office Address
+                              </label>
+                              <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  </svg>
+                                </div>
+                                <input
+                                  type="text"
+                                  name="officeAddress"
+                                  value={brokerFormData.officeAddress}
+                                  onChange={handleChange}
+                                  placeholder="Enter your office address"
+                                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+
+                        {/* Specializations Card */}
+                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                            Specializations
+                          </h3>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Select your specializations
+                            </label>
+                            <Select
+                              isMulti
+                              name="specializations"
+                              options={specializationOptions.map(spec => ({
+                                value: spec,
+                                label: spec
+                              }))}
+                              value={Array.isArray(brokerFormData.specializations) ? brokerFormData.specializations.map(spec => ({
+                                value: spec,
+                                label: spec
+                              })) : []}
+                              onChange={handleSpecializationChange}
+                              placeholder="Select specializations..."
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              styles={{
+                                control: (provided, state) => ({
+                                  ...provided,
+                                  minHeight: '48px',
+                                  border: state.isFocused ? '2px solid #3b82f6' : '1px solid #d1d5db',
+                                  boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
+                                  '&:hover': {
+                                    border: '1px solid #3b82f6'
+                                  }
+                                }),
+                                multiValue: (provided) => ({
+                                  ...provided,
+                                  backgroundColor: '#dbeafe',
+                                  color: '#1e40af'
+                                }),
+                                multiValueLabel: (provided) => ({
+                                  ...provided,
+                                  color: '#1e40af'
+                                }),
+                                multiValueRemove: (provided) => ({
+                                  ...provided,
+                                  color: '#1e40af',
+                                  '&:hover': {
+                                    backgroundColor: '#bfdbfe',
+                                    color: '#1e3a8a'
+                                  }
+                                })
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Social Media Card */}
+                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-9 0a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2M9 4h6" />
+                            </svg>
+                            Social Media & Online Presence
+                          </h3>
+                          
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">
-                    Name <span className="text-green-500">*</span>
+                              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                <svg className="w-4 h-4 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                </svg>
+                                LinkedIn
                   </label>
                   <input
-                    type="text"
-                    name="name"
-                    value={userRole === 'customer' ? customerFormData.name : brokerFormData.name}
+                                type="url"
+                                name="linkedin"
+                                value={brokerFormData.linkedin}
                     onChange={handleChange}
-                    placeholder="Enter your full name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
+                                placeholder="https://linkedin.com/in/yourprofile"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">
-                    Email <span className="text-green-500">*</span>
+                              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                <svg className="w-4 h-4 text-blue-400 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                </svg>
+                                Twitter
                   </label>
                   <input
-                    type="email"
-                    name="email"
-                    value={userRole === 'customer' ? customerFormData.email : brokerFormData.email}
+                                type="url"
+                                name="twitter"
+                                value={brokerFormData.twitter}
                     onChange={handleChange}
-                    placeholder="Enter your email address"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
+                                placeholder="https://twitter.com/yourprofile"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                </div>
               </div>
 
-              {/* Phone & Property Type Preferences for customers, Phone & Firm Name for brokers */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">
-                    Phone <span className="text-green-500">*</span>
+                              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                <svg className="w-4 h-4 text-pink-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z"/>
+                                </svg>
+                                Instagram
                   </label>
                   <input
-                    type="tel"
-                    name="phone"
-                    value={userRole === 'customer' ? customerFormData.phone : brokerFormData.phone}
+                                type="url"
+                                name="instagram"
+                                value={brokerFormData.instagram}
                     onChange={handleChange}
-                    placeholder="Enter your phone number"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
+                                placeholder="https://instagram.com/yourprofile"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-                {userRole === 'broker' ? (
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">
-                      Firm Name
+                              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                <svg className="w-4 h-4 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                                Facebook
                     </label>
                     <input
-                      type="text"
-                      name="firmName"
-                      value={brokerFormData.firmName}
+                                type="url"
+                                name="facebook"
+                                value={brokerFormData.facebook}
                       onChange={handleChange}
-                      placeholder="Enter your firm name"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-sm  focus:outline-none  focus:ring-green-500 focus:border-green-500"
+                                placeholder="https://facebook.com/yourprofile"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
-                ) : (
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      /* Customer Preferences */
+                      <>
+                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            Property Preferences
+                          </h3>
+                          
+                          <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
                       Property Type Preferences
                     </label>
                     <Select
@@ -756,42 +1057,36 @@ const Profile = () => {
                         control: (provided, state) => ({
                           ...provided,
                           minHeight: '48px',
-                          border: state.isFocused ? '2px solid #10b981' : '1px solid #d1d5db',
-                          boxShadow: state.isFocused ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : 'none',
+                                    border: state.isFocused ? '2px solid #3b82f6' : '1px solid #d1d5db',
+                                    boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
                           '&:hover': {
-                            border: '1px solid #10b981'
+                                      border: '1px solid #3b82f6'
                           }
                         }),
                         multiValue: (provided) => ({
                           ...provided,
-                          backgroundColor: '#dcfce7',
-                          color: '#166534'
+                                    backgroundColor: '#dbeafe',
+                                    color: '#1e40af'
                         }),
                         multiValueLabel: (provided) => ({
                           ...provided,
-                          color: '#166534'
+                                    color: '#1e40af'
                         }),
                         multiValueRemove: (provided) => ({
                           ...provided,
-                          color: '#166534',
+                                    color: '#1e40af',
                           '&:hover': {
-                            backgroundColor: '#bbf7d0',
-                            color: '#14532d'
+                                      backgroundColor: '#bfdbfe',
+                                      color: '#1e3a8a'
                           }
                         })
                       }}
                     />
-                  </div>
-                )}
               </div>
 
-              {/* Customer-specific fields */}
-              {userRole === 'customer' && (
-                <>
-                  {/* Budget Range */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
                         Budget Min (₹)
                       </label>
                       <input
@@ -800,11 +1095,11 @@ const Profile = () => {
                         value={customerFormData.budgetMin}
                         onChange={handleChange}
                         placeholder="Enter minimum budget"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
                         Budget Max (₹)
                       </label>
                       <input
@@ -813,22 +1108,48 @@ const Profile = () => {
                         value={customerFormData.budgetMax}
                         onChange={handleChange}
                         placeholder="Enter maximum budget"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
+                              </div>
+                            </div>
                     </div>
                   </div>
                 </>
               )}
 
-              {/* Region React-Select Dropdown */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Region <span className="text-green-500">*</span>
-                </label>
+                  </div>
+                )}
+
+                {/* Step 3: Regions */}
+                {currentStep === 3 && (
+                  <div className="space-y-8">
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                        <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Preferred Regions <span className="text-red-500">*</span>
+                      </h3>
+                      
+                      <div className="mb-4">
+                        <p className="text-sm text-gray-600">
+                          {userRole === 'broker' 
+                            ? 'Select the regions where you provide real estate services'
+                            : 'Select the regions where you are looking for properties'
+                          }
+                        </p>
+                      </div>
+                      
                 {regionsLoading ? (
-                  <p className="text-sm text-gray-500">Loading regions...</p>
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                          <span className="ml-3 text-gray-600">Loading regions...</span>
+                        </div>
                 ) : regionsError ? (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <p className="text-sm text-red-600">{regionsError}</p>
+                        </div>
                 ) : (
                   <Select
                     isMulti
@@ -838,7 +1159,6 @@ const Profile = () => {
                       label: region.name
                     })) : []}
                     value={Array.isArray(userRole === 'customer' ? customerFormData.regions : brokerFormData.regions) && Array.isArray(regionsList) ? (userRole === 'customer' ? customerFormData.regions : brokerFormData.regions).map(region => {
-                      // Handle both object and string formats
                       if (typeof region === 'object' && region._id) {
                         return { value: region._id, label: region.name };
                       } else if (typeof region === 'string') {
@@ -855,44 +1175,53 @@ const Profile = () => {
                       control: (provided, state) => ({
                         ...provided,
                         minHeight: '48px',
-                        border: state.isFocused ? '2px solid #10b981' : '1px solid #d1d5db',
-                        boxShadow: state.isFocused ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : 'none',
+                              border: state.isFocused ? '2px solid #3b82f6' : '1px solid #d1d5db',
+                              boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
                         '&:hover': {
-                          border: '1px solid #10b981'
+                                border: '1px solid #3b82f6'
                         }
                       }),
                       multiValue: (provided) => ({
                         ...provided,
-                        backgroundColor: '#dcfce7',
-                        color: '#166534'
+                              backgroundColor: '#dbeafe',
+                              color: '#1e40af'
                       }),
                       multiValueLabel: (provided) => ({
                         ...provided,
-                        color: '#166534'
+                              color: '#1e40af'
                       }),
                       multiValueRemove: (provided) => ({
                         ...provided,
-                        color: '#166534',
+                              color: '#1e40af',
                         '&:hover': {
-                          backgroundColor: '#bbf7d0',
-                          color: '#14532d'
+                                backgroundColor: '#bfdbfe',
+                                color: '#1e3a8a'
                         }
                       })
                     }}
                   />
                 )}
               </div>
+                  </div>
+                )}
 
+                {/* Step 4: Documents (Only for Brokers) */}
+                {currentStep === 4 && userRole === 'broker' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center mb-6">
+                      <svg className="w-6 h-6 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <h3 className="text-lg font-semibold text-gray-900">Documents</h3>
+                    </div>
 
-              {/* File Uploads - Only for Brokers */}
-              {userRole === 'broker' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Aadhar File Upload */}
                   <div className="flex flex-col h-full">
                     <label className="block text-sm font-medium text-gray-900 mb-2">
-                      Aadhar Card <span className="text-green-500">*</span>
+                          Aadhar Card <span className="text-red-500">*</span>
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
                       <input
                         type="file"
                         name="aadharFile"
@@ -932,9 +1261,9 @@ const Profile = () => {
                   {/* PAN File Upload */}
                   <div className="flex flex-col h-full">
                     <label className="block text-sm font-medium text-gray-900 mb-2">
-                      PAN Card <span className="text-green-500">*</span>
+                          PAN Card <span className="text-red-500">*</span>
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
                       <input
                         type="file"
                         name="panFile"
@@ -974,9 +1303,9 @@ const Profile = () => {
                   {/* GST File Upload */}
                   <div className="flex flex-col h-full">
                     <label className="block text-sm font-medium text-gray-900 mb-2">
-                      GST Certificate <span className="text-green-500">*</span>
+                          GST Certificate <span className="text-red-500">*</span>
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
                       <input
                         type="file"
                         name="gstFile"
@@ -1010,27 +1339,172 @@ const Profile = () => {
                           )}
                         </div>
                       </label>
+                        </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Submit Button */}
-              <div className="pt-4 flex justify-end">
+                {/* Navigation Button */}
+                <div className="mt-12 pt-8 border-t border-gray-100">
+                  <div className="max-w-3xl mx-auto">
+                    {currentStep < totalSteps ? (
                 <button
-                  type="submit"
-                  disabled={submitting}
-                  className="py-2 px-6 bg-green-800 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors cursor-pointer"
-                >
-                  {submitting ? 'Saving...' : 'Save Profile'}
+                        type="button"
+                        onClick={nextStep}
+                        disabled={!validateStep(currentStep)}
+                        className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-heading text-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      >
+                        Continue to {getStepTitle(currentStep + 1)}
+                        <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                        </svg>
                 </button>
+                    ) : (
+                      <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        setSubmitting(true);
+                        
+                        const currentFormData = userRole === 'customer' ? customerFormData : brokerFormData;
+                        
+                        // Debug: Log current form data before submission
+                        console.log('🔍 Current form data before submission:', {
+                          userRole,
+                          formData: currentFormData
+                        });
+                        
+                        if (!Array.isArray(currentFormData.regions) || currentFormData.regions.length === 0) {
+                          toast.error('Please select at least one region.');
+                          setSubmitting(false);
+                          return;
+                        }
+                        
+                        try {
+                          if (!user?.token) {
+                            toast.error('No authentication token found. Please login again.');
+                            setSubmitting(false);
+                            return;
+                          }
+                          
+                          // Create FormData for multipart/form-data submission
+                          const formDataToSend = new FormData();
+                          formDataToSend.append('phone', currentFormData.phone);
+                          formDataToSend.append('name', currentFormData.name);
+                          formDataToSend.append('email', currentFormData.email);
+                          
+                          if (userRole === 'customer') {
+                            // Customer-specific fields - matching the API structure
+                            formDataToSend.append('customerDetails[preferences][budgetMin]', currentFormData.budgetMin ? Number(currentFormData.budgetMin) : '');
+                            formDataToSend.append('customerDetails[preferences][budgetMax]', currentFormData.budgetMax ? Number(currentFormData.budgetMax) : '');
+                            
+                            // Add property types
+                            currentFormData.propertyType.forEach((type, index) => {
+                              formDataToSend.append(`customerDetails[preferences][propertyType][${index}]`, type);
+                            });
+                            
+                            // Add regions
+                            currentFormData.regions.forEach((region, index) => {
+                              const regionId = typeof region === 'object' ? region._id : region;
+                              formDataToSend.append(`customerDetails[preferences][region][${index}]`, regionId);
+                            });
+                            
+                            
+                            formDataToSend.append('customerDetails[inquiryCount]', currentFormData.inquiryCount || 0);
+                            
+                            // Add customer image
+                            if (currentFormData.customerImage) {
+                              // Check if it's a File object or a string URL
+                              if (currentFormData.customerImage instanceof File) {
+                              formDataToSend.append('customerImage', currentFormData.customerImage);
+                                console.log('📷 Customer image file being sent:', currentFormData.customerImage.name);
+                              } else if (typeof currentFormData.customerImage === 'string') {
+                                // If it's a URL string, we might need to fetch it as a file
+                                console.log('📷 Customer image URL found:', currentFormData.customerImage);
+                                // For now, we'll skip URL strings as they're already uploaded
+                              }
+                            } else {
+                              console.log('📷 No customer image to send');
+                            }
+                          } else {
+                            // Broker-specific fields
+                            formDataToSend.append('brokerDetails[firmName]', currentFormData.firmName || "");
+                            
+                            // Add regions
+                            currentFormData.regions.forEach((region, index) => {
+                              const regionId = typeof region === 'object' ? region._id : region;
+                              formDataToSend.append(`brokerDetails[region][${index}]`, regionId);
+                            });
+                            
+                            // Add file uploads
+                            if (currentFormData.aadharFile) {
+                              formDataToSend.append('aadhar', currentFormData.aadharFile);
+                            }
+                            if (currentFormData.panFile) {
+                              formDataToSend.append('pan', currentFormData.panFile);
+                            }
+                            if (currentFormData.gstFile) {
+                              formDataToSend.append('gst', currentFormData.gstFile);
+                            }
+                            if (currentFormData.brokerImage) {
+                              formDataToSend.append('brokerImage', currentFormData.brokerImage);
+                            }
+                          }
+
+                          // Debug: Log all FormData entries
+                          console.log('📤 FormData entries being sent:');
+                          for (let [key, value] of formDataToSend.entries()) {
+                            console.log(`${key}:`, value);
+                          }
+
+                          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/complete-profile`, {
+                            method: 'POST',
+                            headers: {
+                              'Authorization': `Bearer ${user.token}`
+                            },
+                            body: formDataToSend
+                          });
+                          
+                          if (!res.ok) {
+                            const errText = await res.text();
+                            throw new Error(errText || `Request failed with ${res.status}`);
+                          }
+                          
+                          const result = await res.json();
+                          toast.success('Profile updated successfully!');
+                          console.log('Profile updated:', result);
+                        } catch (err) {
+                          toast.error(err?.message || 'Failed to update profile');
+                        } finally {
+                          setSubmitting(false);
+                        }
+                      }}
+                      disabled={submitting || !validateStep(currentStep)}
+                      className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-heading text-lg hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    >
+                      {submitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2 inline"></div>
+                          Saving Profile...
+                        </>
+                      ) : (
+                        <>
+                          Complete Profile
+                          <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </>
+                      )}
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </form>
             )}
           </div>
         </div>
       </div>
-
     </ProtectedRoute>
   );
 };
