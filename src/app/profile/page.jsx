@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Select from 'react-select';
 import toast, { Toaster } from "react-hot-toast";
 import ProtectedRoute from '../components/ProtectedRoute';
@@ -11,7 +11,7 @@ const Profile = () => {
   
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = userRole === 'broker' ? 4 : 3; // Brokers have 4 steps, customers have 3
+  const totalSteps = userRole === 'broker' ? 4 : 2; // Brokers have 4 steps, customers have 2
   
   // Broker form data
   const [brokerFormData, setBrokerFormData] = useState({
@@ -26,6 +26,7 @@ const Profile = () => {
     brokerImage: null,
     // Additional professional fields
     licenseNumber: "",
+    state: "",
     officeAddress: "",
     linkedin: "",
     twitter: "",
@@ -62,7 +63,19 @@ const Profile = () => {
   const [regionsList, setRegionsList] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [regionsError, setRegionsError] = useState("");
+  const [statesList, setStatesList] = useState([
+    { value: 'uttar-pradesh', label: 'Uttar Pradesh' },
+    { value: 'uttarakhand', label: 'Uttarakhand' }
+  ]);
+  const [citiesList, setCitiesList] = useState([]);
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [googleLoaded, setGoogleLoaded] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const autocompleteRef = useRef(null);
+  const debounceTimeoutRef = useRef(null);
   const [propertyTypeOptions] = useState(["apartment", "commercial", "plot", "villa", "house"]);
   const [specializationOptions] = useState([
     "Residential Sales", "Commercial Leasing", "Luxury Homes", 
@@ -70,6 +83,110 @@ const Profile = () => {
     "Property Management", "Real Estate Consulting"
   ]);
   
+
+  // Load Google Places API
+  useEffect(() => {
+    const loadGooglePlaces = () => {
+      // Check if already loaded
+      if (window.google && window.google.maps && window.google.maps.places) {
+        console.log('Google Places API already loaded');
+        setGoogleLoaded(true);
+        return;
+      }
+
+      // Check if script already exists
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+      if (existingScript) {
+        console.log('Google Maps script already exists, waiting for load...');
+        existingScript.onload = () => setGoogleLoaded(true);
+        return;
+      }
+
+      console.log('Loading Google Places API...');
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places&callback=initGooglePlaces`;
+      script.async = true;
+      script.defer = true;
+      
+      // Set up global callback
+      window.initGooglePlaces = () => {
+        console.log('Google Places API loaded successfully');
+        setGoogleLoaded(true);
+      };
+      
+      script.onerror = (error) => {
+        console.error('Failed to load Google Places API:', error);
+        toast.error('Failed to load address autocomplete. Please check your API key.');
+      };
+      
+      document.head.appendChild(script);
+    };
+
+    loadGooglePlaces();
+  }, []);
+
+  // Initialize Google Places Autocomplete
+  useEffect(() => {
+    const initializeAutocomplete = () => {
+      if (!googleLoaded || !autocompleteRef.current || !window.google) {
+        console.log('Autocomplete not ready:', { googleLoaded, hasRef: !!autocompleteRef.current, hasGoogle: !!window.google });
+        return;
+      }
+
+      try {
+        console.log('Initializing Google Places Autocomplete...');
+        
+        // Clear any existing autocomplete
+        if (autocompleteRef.current.autocomplete) {
+          window.google.maps.event.clearInstanceListeners(autocompleteRef.current.autocomplete);
+        }
+
+        const autocomplete = new window.google.maps.places.Autocomplete(autocompleteRef.current, {
+          types: ['geocode', 'establishment'],
+          fields: ['formatted_address', 'name', 'geometry', 'place_id']
+        });
+
+        // Store reference for cleanup
+        autocompleteRef.current.autocomplete = autocomplete;
+
+        // Add listener for place selection
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          console.log('Place selected:', place);
+          
+          if (place.formatted_address) {
+            setBrokerFormData(prev => ({
+              ...prev,
+              officeAddress: place.formatted_address
+            }));
+            toast.success('Address selected successfully');
+          } else {
+            console.warn('No formatted address found for selected place');
+          }
+        });
+
+        console.log('Google Places Autocomplete initialized successfully');
+      } catch (error) {
+        console.error('Error initializing Google Places Autocomplete:', error);
+        toast.error('Failed to initialize address autocomplete');
+      }
+    };
+
+    // Add a small delay to ensure DOM is ready
+    const timer = setTimeout(initializeAutocomplete, 200);
+    
+    // Cleanup function
+    return () => {
+      clearTimeout(timer);
+      if (autocompleteRef.current && autocompleteRef.current.autocomplete) {
+        try {
+          window.google.maps.event.clearInstanceListeners(autocompleteRef.current.autocomplete);
+        } catch (error) {
+          console.log('Error cleaning up autocomplete:', error);
+        }
+      }
+    };
+  }, [googleLoaded]);
 
   // Pre-fill phone number from user data
   useEffect(() => {
@@ -362,6 +479,23 @@ const Profile = () => {
     loadRegions();
   }, []);
 
+
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (autocompleteRef.current && !autocompleteRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+        setSuggestions([]);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (userRole === 'customer') {
@@ -369,6 +503,58 @@ const Profile = () => {
     } else {
       setBrokerFormData((prev) => ({ ...prev, [name]: value }));
     }
+
+    // Trigger autocomplete for office address
+    if (name === 'officeAddress' && googleLoaded && window.google) {
+      // Clear previous timeout
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      
+      // Set new timeout for debounced API call
+      debounceTimeoutRef.current = setTimeout(() => {
+        if (value.length > 0) {
+          showCustomSuggestions(value);
+        } else {
+          setShowSuggestions(false);
+          setSuggestions([]);
+        }
+      }, 300);
+    }
+  };
+
+  const showCustomSuggestions = (inputValue) => {
+    if (!googleLoaded || !window.google || !inputValue) {
+      return;
+    }
+
+    const service = new window.google.maps.places.AutocompleteService();
+    service.getPlacePredictions(
+      {
+        input: inputValue,
+        types: ['establishment', 'geocode'],
+        componentRestrictions: { country: 'in' }
+      },
+      (predictions, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+          setSuggestions(predictions);
+          setShowSuggestions(true);
+        } else {
+          setShowSuggestions(false);
+          setSuggestions([]);
+        }
+      }
+    );
+  };
+
+  const selectSuggestion = (suggestion) => {
+    setBrokerFormData(prev => ({
+      ...prev,
+      officeAddress: suggestion.description
+    }));
+    setShowSuggestions(false);
+    setSuggestions([]);
+    toast.success('Address selected successfully');
   };
 
   const handleFileChange = (e) => {
@@ -386,6 +572,145 @@ const Profile = () => {
       setCustomerFormData((prev) => ({ ...prev, regions: selectedValues }));
     } else {
       setBrokerFormData((prev) => ({ ...prev, regions: selectedValues }));
+    }
+  };
+
+  const handleStateChange = (selectedOption) => {
+    setSelectedState(selectedOption);
+    setSelectedCity(null);
+    setBrokerFormData(prev => ({
+      ...prev,
+      state: selectedOption?.value || '',
+      city: '',
+      regions: []
+    }));
+    
+    if (selectedOption) {
+      // Load hardcoded cities based on selected state
+      loadHardcodedCities(selectedOption.value);
+    } else {
+      setCitiesList([]);
+    }
+  };
+
+  const loadHardcodedCities = (stateValue) => {
+    let cities = [];
+    
+    if (stateValue === 'uttar-pradesh') {
+      cities = [
+        { value: 'lucknow', label: 'Lucknow' },
+        { value: 'kanpur', label: 'Kanpur' },
+        { value: 'agra', label: 'Agra' },
+        { value: 'varanasi', label: 'Varanasi' },
+        { value: 'meerut', label: 'Meerut' },
+        { value: 'allahabad', label: 'Allahabad' },
+        { value: 'bareilly', label: 'Bareilly' },
+        { value: 'ghaziabad', label: 'Ghaziabad' },
+        { value: 'noida', label: 'Noida' },
+        { value: 'gorakhpur', label: 'Gorakhpur' },
+        { value: 'moradabad', label: 'Moradabad' },
+        { value: 'aligarh', label: 'Aligarh' },
+        { value: 'saharanpur', label: 'Saharanpur' },
+        { value: 'jhansi', label: 'Jhansi' },
+        { value: 'muzaffarnagar', label: 'Muzaffarnagar' },
+        { value: 'mathura', label: 'Mathura' },
+        { value: 'shahjahanpur', label: 'Shahjahanpur' },
+        { value: 'firozabad', label: 'Firozabad' },
+        { value: 'budaun', label: 'Budaun' },
+        { value: 'raebareli', label: 'Raebareli' },
+        { value: 'etawah', label: 'Etawah' },
+        { value: 'mirzapur', label: 'Mirzapur' },
+        { value: 'bulandshahr', label: 'Bulandshahr' },
+        { value: 'sambhal', label: 'Sambhal' },
+        { value: 'amroha', label: 'Amroha' },
+        { value: 'hardoi', label: 'Hardoi' },
+        { value: 'fatehpur', label: 'Fatehpur' },
+        { value: 'rudauli', label: 'Rudauli' },
+        { value: 'modinagar', label: 'Modinagar' },
+        { value: 'sikandrabad', label: 'Sikandrabad' }
+      ];
+    } else if (stateValue === 'uttarakhand') {
+      cities = [
+        { value: 'dehradun', label: 'Dehradun' },
+        { value: 'haridwar', label: 'Haridwar' },
+        { value: 'rishikesh', label: 'Rishikesh' },
+        { value: 'nainital', label: 'Nainital' },
+        { value: 'mussoorie', label: 'Mussoorie' },
+        { value: 'almora', label: 'Almora' },
+        { value: 'pithoragarh', label: 'Pithoragarh' },
+        { value: 'udham-singh-nagar', label: 'Udham Singh Nagar' },
+        { value: 'chamoli', label: 'Chamoli' },
+        { value: 'pauri-garhwal', label: 'Pauri Garhwal' },
+        { value: 'tehri-garhwal', label: 'Tehri Garhwal' },
+        { value: 'uttarkashi', label: 'Uttarkashi' },
+        { value: 'bageshwar', label: 'Bageshwar' },
+        { value: 'champawat', label: 'Champawat' },
+        { value: 'rudraprayag', label: 'Rudraprayag' },
+        { value: 'kotdwar', label: 'Kotdwar' },
+        { value: 'kashipur', label: 'Kashipur' },
+        { value: 'roorkee', label: 'Roorkee' },
+        { value: 'ramnagar', label: 'Ramnagar' },
+        { value: 'haldwani', label: 'Haldwani' },
+        { value: 'ranikhet', label: 'Ranikhet' },
+        { value: 'lansdowne', label: 'Lansdowne' },
+        { value: 'chakrata', label: 'Chakrata' },
+        { value: 'vikasnagar', label: 'Vikasnagar' },
+        { value: 'doiwala', label: 'Doiwala' }
+      ];
+    }
+    
+    setCitiesList(cities);
+  };
+
+  const handleCityChange = (selectedOption) => {
+    setSelectedCity(selectedOption);
+    setBrokerFormData(prev => ({
+      ...prev,
+      city: selectedOption?.value || '',
+      regions: []
+    }));
+    
+    // Load regions for selected city
+    if (selectedOption) {
+      loadRegions(selectedOption.value);
+    }
+  };
+
+  const loadCities = async (stateId) => {
+    try {
+      setRegionsLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?state=${stateId}`, {
+        headers: {
+          'Authorization': `Bearer ${user?.token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCitiesList(data);
+      }
+    } catch (error) {
+      console.error('Error loading cities:', error);
+    } finally {
+      setRegionsLoading(false);
+    }
+  };
+
+  const loadRegions = async (cityId) => {
+    try {
+      setRegionsLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/regions?city=${cityId}`, {
+        headers: {
+          'Authorization': `Bearer ${user?.token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setRegionsList(data);
+      }
+    } catch (error) {
+      console.error('Error loading regions:', error);
+    } finally {
+      setRegionsLoading(false);
     }
   };
 
@@ -429,8 +754,11 @@ const Profile = () => {
         } else {
           return true; // Customer preferences are optional
         }
-      case 3: // Regions
+      case 3: // Regions (only for brokers)
+        if (userRole === 'broker') {
         return Array.isArray(currentFormData.regions) && currentFormData.regions.length > 0;
+        }
+        return true; // Skip for customers
       case 4: // Documents (only for brokers)
         if (userRole === 'broker') {
           return currentFormData.aadharFile && currentFormData.panFile && currentFormData.gstFile;
@@ -449,7 +777,7 @@ const Profile = () => {
       case 2:
         return userRole === 'customer' ? 'Preferences' : 'Professional';
       case 3:
-        return 'Regions';
+        return userRole === 'broker' ? 'Regions' : 'Documents';
       case 4:
         return 'Documents';
       default:
@@ -562,6 +890,8 @@ const Profile = () => {
 
   return (
     <ProtectedRoute>
+      {/* Load Google Places CSS */}
+      <link rel="stylesheet" href="/google-places.css" />
       <Toaster 
         position="top-right"
         toastOptions={{
@@ -610,7 +940,10 @@ const Profile = () => {
                   return (
                     <div key={step} className="flex items-center">
                       {/* Step Circle and Label */}
-                      <div className="flex flex-col items-center px-2">
+                      <div 
+                        className="flex flex-col items-center px-2 cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => goToStep(step)}
+                      >
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                             isActive
@@ -648,21 +981,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Back Button */}
-          {currentStep > 1 && (
-            <div className="mb-8">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="flex items-center text-blue-600 hover:text-blue-800 transition-colors text-xs font-label bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </button>
-            </div>
-          )}
 
           {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-2xl border-0 overflow-hidden">
@@ -682,47 +1000,47 @@ const Profile = () => {
                   <div className="max-w-3xl mx-auto">
                     {/* Profile Image Section - Top */}
                     <div className="flex justify-left mb-8">
-                      <div className="relative inline-block">
-                        <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
-                          {(userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage) ? (
-                            <img
-                              src={
-                                typeof (userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage) === 'string' 
-                                  ? (userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage)
-                                  : URL.createObjectURL(userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage)
-                              }
-                              alt={`${userRole} Profile`}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = '/images/user-1.webp';
-                              }}
-                            />
-                          ) : (
-                            <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        <div className="relative inline-block">
+                          <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
+                            {(userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage) ? (
+                              <img
+                                src={
+                                  typeof (userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage) === 'string' 
+                                    ? (userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage)
+                                    : URL.createObjectURL(userRole === 'customer' ? customerFormData.customerImage : brokerFormData.brokerImage)
+                                }
+                                alt={`${userRole} Profile`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = '/images/user-1.webp';
+                                }}
+                              />
+                            ) : (
+                              <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                            )}
+                          </div>
+                          <input
+                            type="file"
+                            name={userRole === 'customer' ? 'customerImage' : 'brokerImage'}
+                            onChange={handleFileChange}
+                            accept=".jpg,.jpeg,.png"
+                            className="hidden"
+                            id="profile-image-upload"
+                          />
+                          <button
+                            type="button"
+                            className="absolute -bottom-1 -right-1 bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                            onClick={() => document.getElementById('profile-image-upload').click()}
+                          >
+                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                          )}
+                          </button>
                         </div>
-                        <input
-                          type="file"
-                          name={userRole === 'customer' ? 'customerImage' : 'brokerImage'}
-                          onChange={handleFileChange}
-                          accept=".jpg,.jpeg,.png"
-                          className="hidden"
-                          id="profile-image-upload"
-                        />
-                        <button
-                          type="button"
-                          className="absolute -bottom-1 -right-1 bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-                          onClick={() => document.getElementById('profile-image-upload').click()}
-                        >
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
                       </div>
-                    </div>
-             
+
 
                     {/* Form Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -788,18 +1106,6 @@ const Profile = () => {
                           </select>
                         </div>
 
-                        <div>
-                          <label className="block text-xs font-label text-gray-700 mb-2">
-                            Date of Birth
-                          </label>
-                          <input
-                            type="date"
-                            name="dateOfBirth"
-                            value={userRole === 'customer' ? customerFormData.dateOfBirth : brokerFormData.dateOfBirth}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
-                          />
-                        </div>
 
                         {userRole === 'broker' && (
                           <div>
@@ -857,9 +1163,9 @@ const Profile = () => {
               </div>
                             </div>
 
-                            <div className="md:col-span-2">
+                            <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Office Address
+                                State <span className="text-red-500">*</span>
                               </label>
                               <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -870,12 +1176,77 @@ const Profile = () => {
                                 </div>
                                 <input
                                   type="text"
+                                  name="state"
+                                  value={brokerFormData.state}
+                                  onChange={handleChange}
+                                  placeholder="Enter your state"
+                                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Office Address <span className="text-red-500">*</span>
+                              </label>
+                              <div className="relative" style={{ zIndex: 1000 }}>
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  </svg>
+                                </div>
+                                <input
+                                  ref={autocompleteRef}
+                                  type="text"
                                   name="officeAddress"
                                   value={brokerFormData.officeAddress}
                                   onChange={handleChange}
-                                  placeholder="Enter your office address"
+                                  onFocus={() => {
+                                    // Focus handler for autocomplete
+                                  }}
+                                  placeholder={googleLoaded ? "Start typing your office address..." : "Loading address autocomplete..."}
                                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  autoComplete="off"
+                                  style={{ zIndex: 1 }}
                                 />
+                                {!googleLoaded && (
+                                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                  </div>
+                                )}
+                                
+                                {/* Custom Suggestions Dropdown */}
+                                {showSuggestions && suggestions.length > 0 && (
+                                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    {suggestions.map((suggestion, index) => (
+                                      <div
+                                        key={suggestion.place_id || index}
+                                        onClick={() => selectSuggestion(suggestion)}
+                                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                      >
+                                        <div className="flex items-start">
+                                          <div className="flex-shrink-0 mr-3 mt-1">
+                                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-gray-900 truncate">
+                                              {suggestion.structured_formatting?.main_text || suggestion.description}
+                                            </p>
+                                            {suggestion.structured_formatting?.secondary_text && (
+                                              <p className="text-xs text-gray-500 truncate">
+                                                {suggestion.structured_formatting.secondary_text}
+                                              </p>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             </div>
 
@@ -1120,8 +1491,8 @@ const Profile = () => {
                   </div>
                 )}
 
-                {/* Step 3: Regions */}
-                {currentStep === 3 && (
+                {/* Step 3: Regions (Only for Brokers) */}
+                {currentStep === 3 && userRole === 'broker' && (
                   <div className="space-y-8">
                     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                       <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
@@ -1132,7 +1503,7 @@ const Profile = () => {
                         Preferred Regions <span className="text-red-500">*</span>
                       </h3>
                       
-                      <div className="mb-4">
+                      <div className="mb-6">
                         <p className="text-sm text-gray-600">
                           {userRole === 'broker' 
                             ? 'Select the regions where you provide real estate services'
@@ -1141,10 +1512,68 @@ const Profile = () => {
                         </p>
                       </div>
                       
+                      {/* State and City Selection - Above */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        {/* State Selection */}
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            State <span className="text-red-500">*</span>
+                          </label>
+                          <Select
+                            name="state"
+                            options={statesList}
+                            value={selectedState}
+                            onChange={handleStateChange}
+                            placeholder="Select state..."
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            styles={{
+                              control: (provided) => ({
+                                ...provided,
+                                border: '1px solid #d1d5db',
+                                borderRadius: '0.5rem',
+                                minHeight: '48px',
+                                fontSize: '14px'
+                              })
+                            }}
+                          />
+                        </div>
+
+                        {/* City Selection */}
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            City <span className="text-red-500">*</span>
+                          </label>
+                          <Select
+                            name="city"
+                            options={citiesList}
+                            value={selectedCity}
+                            onChange={handleCityChange}
+                            placeholder="Select city..."
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            styles={{
+                              control: (provided) => ({
+                                ...provided,
+                                border: '1px solid #d1d5db',
+                                borderRadius: '0.5rem',
+                                minHeight: '48px',
+                                fontSize: '14px'
+                              })
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Region Selection - Below */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Regions <span className="text-red-500">*</span>
+                        </label>
                 {regionsLoading ? (
-                        <div className="flex items-center justify-center py-8">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                          <span className="ml-3 text-gray-600">Loading regions...</span>
+                          <div className="flex items-center justify-center py-4">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                            <span className="ml-3 text-gray-600">Loading...</span>
                         </div>
                 ) : regionsError ? (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -1158,7 +1587,7 @@ const Profile = () => {
                       value: region._id,
                       label: region.name
                     })) : []}
-                    value={Array.isArray(userRole === 'customer' ? customerFormData.regions : brokerFormData.regions) && Array.isArray(regionsList) ? (userRole === 'customer' ? customerFormData.regions : brokerFormData.regions).map(region => {
+                            value={Array.isArray(brokerFormData.regions) && Array.isArray(regionsList) ? brokerFormData.regions.map(region => {
                       if (typeof region === 'object' && region._id) {
                         return { value: region._id, label: region.name };
                       } else if (typeof region === 'string') {
@@ -1172,35 +1601,53 @@ const Profile = () => {
                     className="react-select-container"
                     classNamePrefix="react-select"
                     styles={{
-                      control: (provided, state) => ({
+                              control: (provided) => ({
                         ...provided,
+                                border: '1px solid #d1d5db',
+                                borderRadius: '0.5rem',
                         minHeight: '48px',
-                              border: state.isFocused ? '2px solid #3b82f6' : '1px solid #d1d5db',
-                              boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
-                        '&:hover': {
-                                border: '1px solid #3b82f6'
-                        }
+                                fontSize: '14px'
                       }),
                       multiValue: (provided) => ({
                         ...provided,
                               backgroundColor: '#dbeafe',
-                              color: '#1e40af'
+                                borderRadius: '0.375rem'
                       }),
                       multiValueLabel: (provided) => ({
                         ...provided,
-                              color: '#1e40af'
+                                color: '#1e40af',
+                                fontSize: '12px'
                       }),
                       multiValueRemove: (provided) => ({
                         ...provided,
                               color: '#1e40af',
                         '&:hover': {
-                                backgroundColor: '#bfdbfe',
-                                color: '#1e3a8a'
+                                  backgroundColor: '#93c5fd',
+                                  color: '#1e40af'
                         }
                       })
                     }}
                   />
                 )}
+                      </div>
+              </div>
+                  </div>
+                )}
+
+                {/* Step 3: Documents (Only for Customers) */}
+                {currentStep === 3 && userRole === 'customer' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center mb-6">
+                      <svg className="w-6 h-6 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <h3 className="text-lg font-semibold text-gray-900">Documents</h3>
+                    </div>
+
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <p className="text-gray-600 text-center py-8">
+                        No documents required for customer accounts.
+                      </p>
               </div>
                   </div>
                 )}

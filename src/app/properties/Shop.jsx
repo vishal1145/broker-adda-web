@@ -1,19 +1,18 @@
 "use client";
-import React, { Suspense } from 'react';
-import ShopHero from './Hero';
-import shopData from '../data/shop.json';
-import furnitureData from '../data/furnitureData.json';
-import HeaderFile from '../components/Header';
-import Features from '../components/Features';
+import React from 'react';
+import ComingSoon from '../components/ComingSoon';
+import ProtectedRoute from '../components/ProtectedRoute';
 
-const Shop = () => (
-  <div>
-    <HeaderFile data={shopData} />
-    <Suspense fallback={<div className="flex justify-center items-center py-12">Loading...</div>}>
-      <ShopHero data={shopData} />
-    </Suspense>
-    <Features data={furnitureData.features} />
-  </div>
-);
+const Shop = () => {
+  return (
+    <ProtectedRoute>
+      <ComingSoon
+        title="Property Management"
+        description="Property management system is under development. Coming soon!"
+        icon="🏠"
+      />
+    </ProtectedRoute>
+  );
+};
 
 export default Shop;
