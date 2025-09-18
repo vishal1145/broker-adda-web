@@ -17,7 +17,7 @@ const BlogDetails = () => {
   if (!blog) return <div className="text-center py-20">Blog not found.</div>;
 
   // Get the current page URL dynamically
-  const shareUrl = window.location.href;
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
   const title = blog.title || "Check out this amazing blog post!";
 
   return (
@@ -93,7 +93,7 @@ const BlogDetails = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          <h1 className="text-3xl font-medium text-gray-900 mb-6 text-center">
             {blog.title}
           </h1>
 
@@ -234,13 +234,16 @@ const BlogDetails = () => {
 
         {/* Right Sidebar */}
         <aside className="lg:col-span-4 space-y-8">
+          {/* Spacer to align with paragraph content */}
+          <div className="h-44"></div>
+          
           {/* Filter by Categories */}
-          {/* <div>
+          <div>
             <h3 className="text-lg font-semibold mb-4 text-gray-900">Filter by Categories</h3>
             <div className="grid grid-cols-3 gap-2">
               {[
-                "Sofa", "Furniture", "Bed", "Offices", "Chair", "Lighting", 
-                "Nightstand", "Office Table", "Decor", "Stool", "Dining Table", "Mirrors"
+                "Apartments", "Villas", "Commercial", "Investment", "Luxury", "Modern", 
+                "Sustainable", "Smart Homes", "Location", "Rental", "Plots", "Offices"
               ].map((cat, idx) => (
                 <span
                   key={idx}
@@ -250,11 +253,11 @@ const BlogDetails = () => {
                 </span>
               ))}
             </div>
-          </div> */}
+          </div>
 
           {/* Table of Content */}
-          {/* <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Table of Content</h3>
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">Property Guide Sections</h3>
             <div className="space-y-3">
               {blog.content.body.map((section, index) => (
                 <div key={index} className="text-sm text-gray-600 hover:text-green-700 cursor-pointer transition-colors">
@@ -262,7 +265,7 @@ const BlogDetails = () => {
                 </div>
               ))}
             </div>
-          </div> */}
+          </div>
 
           {/* Sidebar Promo */}
           <div className="relative">
