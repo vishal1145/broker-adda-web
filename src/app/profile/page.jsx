@@ -29,6 +29,9 @@ const Profile = () => {
     // Additional professional fields
     licenseNumber: "",
     officeAddress: "",
+    address: "",
+    city: "",
+    state: "",
     linkedin: "",
     twitter: "",
     instagram: "",
@@ -269,14 +272,11 @@ const Profile = () => {
           if (currentUserRole === 'customer') {
             // Update customer form data from customer by ID API response
             const customerData = data.data?.customer || data.data || data;
-            console.log('📊 Customer API response data:', customerData);
-            
             // Extract customer image from the actual API response structure
             const customerImage = customerData.images?.customerImage || 
                                 customerData.files?.customerImage || 
                                 customerData.customerImage || 
                                 null;
-            console.log('🖼️ Customer image from API:', customerImage);
             
             // Extract preferences from the actual API response structure
             const preferences = customerData.preferences || {};
@@ -285,9 +285,8 @@ const Profile = () => {
             const propertyType = preferences.propertyType || [];
             const regions = preferences.region || [];
             
-            console.log('💰 Budget preferences:', { budgetMin, budgetMax });
-            console.log('🏠 Property types:', propertyType);
-            console.log('📍 Regions:', regions);
+            // Extract customer gender field
+            const gender = customerData.gender || customerFormData.gender || '';
             
             setCustomerFormData(prev => ({
               ...prev,
@@ -299,14 +298,12 @@ const Profile = () => {
               propertyType: propertyType,
               regions: regions,
               inquiryCount: customerData.inquiryCount || prev.inquiryCount,
-              customerImage: customerImage
+              customerImage: customerImage,
+              gender: gender
             }));
             
-            console.log('✅ Customer form data updated successfully');
           } else {
             // Broker data binding - improved handling
-            console.log('Processing broker data...');
-            
             // Handle different API response structures for broker data
             let brokerData;
             if (data.data) {
@@ -316,9 +313,6 @@ const Profile = () => {
               // If response is direct broker data
               brokerData = data;
             }
-            
-            console.log('Broker data structure:', brokerData);
-            console.log('Full broker response:', data);
             
             // Extract broker information with better error handling
             const extractBrokerField = (fieldName, fallbackValue = '') => {
@@ -353,6 +347,23 @@ const Profile = () => {
             const phone = brokerData.phone || brokerData.userId?.phone || brokerFormData.phone;
             const firmName = brokerData.firmName || brokerFormData.firmName;
             
+            // Extract additional fields from API response
+            const address = brokerData.address || brokerFormData.address || '';
+            const gender = brokerData.gender || brokerFormData.gender || '';
+            const city = brokerData.city || brokerFormData.city || '';
+            const licenseNumber = brokerData.licenseNumber || brokerFormData.licenseNumber || '';
+            const officeAddress = brokerData.address || brokerData.officeAddress || brokerFormData.officeAddress || '';
+            
+            const specializations = brokerData.specializations || brokerFormData.specializations || [];
+            const state = brokerData.state || brokerFormData.state || '';
+            
+            // Extract social media fields
+            const socialMedia = brokerData.socialMedia || {};
+            const linkedin = socialMedia.linkedin || brokerFormData.linkedin || '';
+            const twitter = socialMedia.twitter || brokerFormData.twitter || '';
+            const instagram = socialMedia.instagram || brokerFormData.instagram || '';
+            const facebook = socialMedia.facebook || brokerFormData.facebook || '';
+            
             // Handle KYC documents from the actual API response structure
             const kycDocs = brokerData.kycDocs || {};
             const aadharFile = kycDocs.aadhar || null;
@@ -360,12 +371,6 @@ const Profile = () => {
             const gstFile = kycDocs.gst || null;
             const brokerImage = brokerData.brokerImage || null;
             
-            console.log('📄 KYC documents:', { aadharFile, panFile, gstFile, brokerImage });
-            console.log('👤 Parsed broker data:', { name, email, phone, firmName, regions });
-            console.log('🏢 Firm name from API:', brokerData.firmName);
-            console.log('📱 Phone from API:', brokerData.phone);
-            console.log('📧 Email from API:', brokerData.email);
-            console.log('👨‍💼 Name from API:', brokerData.name);
             
             // Update broker form data with extracted values
             setBrokerFormData(prev => ({
@@ -374,6 +379,17 @@ const Profile = () => {
               email: email,
               phone: phone,
               firmName: firmName,
+              address: address,
+              gender: gender,
+              city: city,
+              licenseNumber: licenseNumber,
+              officeAddress: officeAddress,
+              specializations: specializations,
+              state: state,
+              linkedin: linkedin,
+              twitter: twitter,
+              instagram: instagram,
+              facebook: facebook,
               regions: regions,
               aadharFile: aadharFile,
               panFile: panFile,
@@ -381,7 +397,54 @@ const Profile = () => {
               brokerImage: brokerImage
             }));
             
-            console.log('Successfully bound broker data to form');
+            // Set office address for the Select component
+            if (officeAddress) {
+              const addressOption = {
+                value: officeAddress,
+                label: officeAddress
+              };
+              
+              // Add the address to options if it's not already there
+              setOfficeAddressOptions(prev => {
+                const exists = prev.some(option => option.value === officeAddress);
+                if (!exists) {
+                  return [...prev, addressOption];
+                }
+                return prev;
+              });
+              
+              setSelectedOfficeAddress(addressOption);
+            } else {
+              setSelectedOfficeAddress(null);
+            }
+            
+            // Set state and city for the Select components
+            if (state) {
+              const stateOption = statesList.find(s => s.value === state.toLowerCase().replace(/\s+/g, '-'));
+              if (stateOption) {
+                setSelectedState(stateOption);
+                // Load cities for the selected state
+                loadHardcodedCities(stateOption.value);
+              }
+            }
+            
+            if (city) {
+              // Wait a bit for cities to load, then set the city
+              setTimeout(() => {
+                const cityOption = citiesList.find(c => c.value === city.toLowerCase().replace(/\s+/g, '-'));
+                if (cityOption) {
+                  setSelectedCity(cityOption);
+                } else {
+                  // If city not found in current list, create it
+                  const newCityOption = {
+                    value: city.toLowerCase().replace(/\s+/g, '-'),
+                    label: city
+                  };
+                  setSelectedCity(newCityOption);
+                }
+              }, 100);
+            }
+            
           }
           
           // Profile data loaded successfully
@@ -423,7 +486,7 @@ const Profile = () => {
     if (userRole === 'broker') {
       console.log('🔍 Loading regions for broker...');
       loadRegions();
-    } else {
+        } else {
       console.log('🔍 Not a broker, skipping region loading');
     }
   }, [userRole]);
@@ -706,6 +769,22 @@ const Profile = () => {
         const email = brokerData.email || brokerData.userId?.email || brokerFormData.email;
         const phone = brokerData.phone || brokerData.userId?.phone || brokerFormData.phone;
         const firmName = brokerData.firmName || brokerFormData.firmName;
+        
+        // Extract additional fields from API response
+        const address = brokerData.address || brokerFormData.address || '';
+        const gender = brokerData.gender || brokerFormData.gender || '';
+        const city = brokerData.city || brokerFormData.city || '';
+        const licenseNumber = brokerData.licenseNumber || brokerFormData.licenseNumber || '';
+        const officeAddress = brokerData.address || brokerData.officeAddress || brokerFormData.officeAddress || '';
+        const specializations = brokerData.specializations || brokerFormData.specializations || [];
+        const state = brokerData.state || brokerFormData.state || '';
+        
+        // Extract social media fields
+        const socialMedia = brokerData.socialMedia || {};
+        const linkedin = socialMedia.linkedin || brokerFormData.linkedin || '';
+        const twitter = socialMedia.twitter || brokerFormData.twitter || '';
+        const instagram = socialMedia.instagram || brokerFormData.instagram || '';
+        const facebook = socialMedia.facebook || brokerFormData.facebook || '';
 
         // Handle KYC documents from the actual API response structure
         const kycDocs = brokerData.kycDocs || {};
@@ -721,12 +800,71 @@ const Profile = () => {
           email: email,
           phone: phone,
           firmName: firmName,
+          address: address,
+          gender: gender,
+          city: city,
+          licenseNumber: licenseNumber,
+          officeAddress: officeAddress,
+          specializations: specializations,
+          state: state,
+          linkedin: linkedin,
+          twitter: twitter,
+          instagram: instagram,
+          facebook: facebook,
           regions: regions,
           aadharFile: aadharFile,
           panFile: panFile,
           gstFile: gstFile,
           brokerImage: brokerImage
         }));
+        
+        // Set office address for the Select component
+        if (officeAddress) {
+          const addressOption = {
+            value: officeAddress,
+            label: officeAddress
+          };
+          
+          // Add the address to options if it's not already there
+          setOfficeAddressOptions(prev => {
+            const exists = prev.some(option => option.value === officeAddress);
+            if (!exists) {
+              return [...prev, addressOption];
+            }
+            return prev;
+          });
+          
+          setSelectedOfficeAddress(addressOption);
+        } else {
+          setSelectedOfficeAddress(null);
+        }
+        
+        // Set state and city for the Select components
+        if (state) {
+          const stateOption = statesList.find(s => s.value === state.toLowerCase().replace(/\s+/g, '-'));
+          if (stateOption) {
+            setSelectedState(stateOption);
+            // Load cities for the selected state
+            loadHardcodedCities(stateOption.value);
+          }
+        }
+        
+        if (city) {
+          // Wait a bit for cities to load, then set the city
+          setTimeout(() => {
+            const cityOption = citiesList.find(c => c.value === city.toLowerCase().replace(/\s+/g, '-'));
+            if (cityOption) {
+              setSelectedCity(cityOption);
+            } else {
+              // If city not found in current list, create it
+              const newCityOption = {
+                value: city.toLowerCase().replace(/\s+/g, '-'),
+                label: city
+              };
+              setSelectedCity(newCityOption);
+            }
+          }, 100);
+        }
 
         toast.success('Broker data refreshed successfully!');
       } else {
@@ -953,9 +1091,9 @@ const Profile = () => {
                             className="w-full px-3 py-2 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body appearance-none"
                           >
                             <option value="">Select gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
                           </select>
                         </div>
 
@@ -1019,7 +1157,7 @@ const Profile = () => {
 
                             <div className="md:col-span-2">
                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Office Address <span className="text-red-500">*</span>
+                                Address <span className="text-red-500">*</span>
                               </label>
                               <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
@@ -1033,7 +1171,7 @@ const Profile = () => {
                                   onChange={handleOfficeAddressChange}
                                   onInputChange={handleOfficeAddressInputChange}
                                   options={officeAddressOptions}
-                                  placeholder={googleLoaded ? "Search for your office address..." : "Loading address search..."}
+                                  placeholder={googleLoaded ? "Search for your address..." : "Loading address search..."}
                                   isClearable
                                   isSearchable
                                   isLoading={isLoadingAddresses}
@@ -1326,7 +1464,7 @@ const Profile = () => {
                         }`}
                       />
                               </div>
-                  </div>
+                            </div>
                   
                   {/* Budget Error Message */}
                   {budgetError && (
@@ -1339,8 +1477,8 @@ const Profile = () => {
                       </div>
                     </div>
                   )}
-                </div>
-              </div>
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -1429,7 +1567,7 @@ const Profile = () => {
                 {regionsLoading ? (
                           <div className="flex items-center justify-center py-4">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                            <span className="ml-3 text-gray-600">Loading regions...</span>
+                          <span className="ml-3 text-gray-600">Loading regions...</span>
                         </div>
                 ) : regionsError ? (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -1441,8 +1579,8 @@ const Profile = () => {
                     name="regions"
                     options={(() => {
                       const options = Array.isArray(regionsList) ? regionsList.map(region => ({
-                        value: region._id,
-                        label: region.name
+                      value: region._id,
+                      label: region.name
                       })) : [];
                       return options;
                     })()}
@@ -1711,6 +1849,8 @@ const Profile = () => {
                               formDataToSend.append(`customerDetails[preferences][propertyType][${index}]`, type);
                             });
                             
+                            // Add customer gender
+                            formDataToSend.append('customerDetails[gender]', currentFormData.gender || "");
                             
                             formDataToSend.append('customerDetails[inquiryCount]', currentFormData.inquiryCount || 0);
                             
@@ -1731,6 +1871,32 @@ const Profile = () => {
                           } else {
                             // Broker-specific fields
                             formDataToSend.append('brokerDetails[firmName]', currentFormData.firmName || "");
+                            formDataToSend.append('brokerDetails[licenseNumber]', currentFormData.licenseNumber || "");
+                            formDataToSend.append('brokerDetails[address]', currentFormData.officeAddress || currentFormData.address || "");
+                            formDataToSend.append('brokerDetails[state]', currentFormData.state || "");
+                            formDataToSend.append('brokerDetails[city]', currentFormData.city || "");
+                            formDataToSend.append('brokerDetails[gender]', currentFormData.gender || "");
+                            
+                            // Add specializations
+                            if (currentFormData.specializations && currentFormData.specializations.length > 0) {
+                              currentFormData.specializations.forEach((spec, index) => {
+                                formDataToSend.append(`brokerDetails[specializations][${index}]`, spec);
+                              });
+                            }
+                            
+                            // Add social media
+                            if (currentFormData.linkedin) {
+                              formDataToSend.append('brokerDetails[socialMedia][linkedin]', currentFormData.linkedin);
+                            }
+                            if (currentFormData.twitter) {
+                              formDataToSend.append('brokerDetails[socialMedia][twitter]', currentFormData.twitter);
+                            }
+                            if (currentFormData.instagram) {
+                              formDataToSend.append('brokerDetails[socialMedia][instagram]', currentFormData.instagram);
+                            }
+                            if (currentFormData.facebook) {
+                              formDataToSend.append('brokerDetails[socialMedia][facebook]', currentFormData.facebook);
+                            }
                             
                             // Add regions
                             currentFormData.regions.forEach((region, index) => {
