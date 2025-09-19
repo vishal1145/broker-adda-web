@@ -47,7 +47,6 @@ const Profile = () => {
     budgetMin: "",
     budgetMax: "",
     propertyType: [],
-    regions: [],
     inquiryCount: 0,
     customerImage: null,
     // Additional contact fields
@@ -514,9 +513,8 @@ const Profile = () => {
 
   const handleRegionChange = (selectedOptions) => {
     const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
-    if (userRole === 'customer') {
-      setCustomerFormData((prev) => ({ ...prev, regions: selectedValues }));
-    } else {
+    // Only update regions for brokers
+    if (userRole === 'broker') {
       setBrokerFormData((prev) => ({ ...prev, regions: selectedValues }));
     }
   };
@@ -1721,7 +1719,8 @@ const Profile = () => {
                           formData: currentFormData
                         });
                         
-                        if (!Array.isArray(currentFormData.regions) || currentFormData.regions.length === 0) {
+                        // Only validate regions for brokers
+                        if (userRole === 'broker' && (!Array.isArray(currentFormData.regions) || currentFormData.regions.length === 0)) {
                           toast.error('Please select at least one region.');
                           setSubmitting(false);
                           return;
@@ -1748,12 +1747,6 @@ const Profile = () => {
                             // Add property types
                             currentFormData.propertyType.forEach((type, index) => {
                               formDataToSend.append(`customerDetails[preferences][propertyType][${index}]`, type);
-                            });
-                            
-                            // Add regions
-                            currentFormData.regions.forEach((region, index) => {
-                              const regionId = typeof region === 'object' ? region._id : region;
-                              formDataToSend.append(`customerDetails[preferences][region][${index}]`, regionId);
                             });
                             
                             
