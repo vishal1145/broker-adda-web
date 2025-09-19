@@ -202,6 +202,88 @@ const Profile = () => {
     }
   };
 
+  // Handle current location
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by this browser');
+      return;
+    }
+
+    toast.loading('Getting your current location...');
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        // Use Google Geocoding API to get address from coordinates
+        if (window.google && window.google.maps) {
+          const geocoder = new window.google.maps.Geocoder();
+          const latlng = new window.google.maps.LatLng(latitude, longitude);
+          
+          geocoder.geocode({ location: latlng }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+              const address = results[0].formatted_address;
+              const addressOption = {
+                value: address,
+                label: address,
+                description: address
+              };
+              
+              // Add to options if not already there
+              setOfficeAddressOptions(prev => {
+                const exists = prev.some(option => option.value === address);
+                if (!exists) {
+                  return [...prev, addressOption];
+                }
+                return prev;
+              });
+              
+              // Set the selected address
+              setSelectedOfficeAddress(addressOption);
+              setBrokerFormData(prev => ({
+                ...prev,
+                officeAddress: address
+              }));
+              
+              toast.dismiss();
+              toast.success('Current location set successfully!');
+            } else {
+              toast.dismiss();
+              toast.error('Could not get address from location');
+            }
+          });
+        } else {
+          toast.dismiss();
+          toast.error('Google Maps API not loaded');
+        }
+      },
+      (error) => {
+        toast.dismiss();
+        let errorMessage = 'Error getting location: ';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += 'Permission denied';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += 'Position unavailable';
+            break;
+          case error.TIMEOUT:
+            errorMessage += 'Request timeout';
+            break;
+          default:
+            errorMessage += 'Unknown error';
+            break;
+        }
+        toast.error(errorMessage);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+    );
+  };
+
   // Pre-fill phone number from user data
   useEffect(() => {
     if (user?.phone) {
@@ -1157,9 +1239,22 @@ const Profile = () => {
 
 
                             <div className="md:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Address <span className="text-red-500">*</span>
-                              </label>
+                              <div className="flex items-center justify-between mb-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Address <span className="text-red-500">*</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={handleUseCurrentLocation}
+                                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  </svg>
+                                  Use Current Location
+                                </button>
+                              </div>
                               <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                                   <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
