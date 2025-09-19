@@ -77,10 +77,47 @@ const Login = () => {
         setPhoneNumber(formData.phoneNumber);
         setShowOTPModal(true);
       } else {
-        toast.error(data.message || `Login failed (${response.status})`);
+        let errorMessage = 'Login failed';
+        
+        try {
+          const errorData = await response.json();
+          console.error('Login API Error:', errorData);
+          
+          if (errorData.error && errorData.error.includes('E11000')) {
+            errorMessage = 'This phone number is already registered. Please use a different number.';
+          } else if (errorData.error && errorData.error.includes('validation')) {
+            errorMessage = 'Please check your phone number and try again.';
+          } else if (response.status === 400) {
+            errorMessage = 'Invalid phone number. Please check and try again.';
+          } else if (response.status === 401) {
+            errorMessage = 'Authentication failed. Please try again.';
+          } else if (response.status === 404) {
+            errorMessage = 'Phone number not found. Please sign up first.';
+          } else if (response.status >= 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else {
+            errorMessage = errorData.message || `Login failed (${response.status})`;
+          }
+        } catch (parseError) {
+          console.error('Error parsing login response:', parseError);
+          if (response.status === 400) {
+            errorMessage = 'Invalid phone number. Please check and try again.';
+          } else if (response.status >= 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else {
+            errorMessage = `Login failed (${response.status})`;
+          }
+        }
+        
+        toast.error(errorMessage);
       }
     } catch (error) {
-      toast.error('Network error. Please try again.');
+      console.error('Login network error:', error);
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        toast.error('Network error. Please check your connection and try again.');
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

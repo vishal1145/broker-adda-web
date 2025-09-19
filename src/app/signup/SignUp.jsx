@@ -87,10 +87,31 @@ const SignUp = () => {
           setPhoneNumber(formData.phone);
           setShowOTPModal(true);
         } else {
-          toast.error(data.message || 'Registration failed');
+          let errorMessage = 'Registration failed';
+          
+          if (data.error && data.error.includes('E11000')) {
+            errorMessage = 'This phone number is already registered. Please use a different number or try logging in.';
+          } else if (data.error && data.error.includes('validation')) {
+            errorMessage = 'Please check your phone number and try again.';
+          } else if (response.status === 400) {
+            errorMessage = 'Invalid phone number. Please check and try again.';
+          } else if (response.status === 409) {
+            errorMessage = 'This phone number is already in use. Please use a different number.';
+          } else if (response.status >= 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else {
+            errorMessage = data.message || 'Registration failed. Please try again.';
+          }
+          
+          toast.error(errorMessage);
         }
       } catch (error) {
-        toast.error('Network error. Please try again.');
+        console.error('Signup network error:', error);
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          toast.error('Network error. Please check your connection and try again.');
+        } else {
+          toast.error('Registration failed. Please try again.');
+        }
       } finally {
         setIsLoading(false);
       }

@@ -384,7 +384,7 @@ const Profile = () => {
             console.log('Successfully bound broker data to form');
           }
           
-          toast.success(`${currentUserRole === 'customer' ? 'Customer' : 'Broker'} profile data loaded successfully!`);
+          // Profile data loaded successfully
         } else {
           const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
           console.error('Failed to load profile data:', errorData);
@@ -1768,8 +1768,38 @@ const Profile = () => {
                           });
                           
                           if (!res.ok) {
-                            const errText = await res.text();
-                            throw new Error(errText || `Request failed with ${res.status}`);
+                            let errorMessage = 'Failed to update profile';
+                            
+                            try {
+                              const errorData = await res.json();
+                              console.error('API Error Response:', errorData);
+                              
+                              // Handle specific error types
+                              if (errorData.error && errorData.error.includes('E11000')) {
+                                // Duplicate key error (email already exists)
+                                errorMessage = 'This email address is already registered. Please use a different email.';
+                              } else if (errorData.error && errorData.error.includes('validation')) {
+                                // Validation error
+                                errorMessage = 'Please check your information and try again.';
+                              } else if (res.status === 400) {
+                                errorMessage = 'Invalid information provided. Please check your details.';
+                              } else if (res.status === 401) {
+                                errorMessage = 'Session expired. Please login again.';
+                              } else if (res.status === 403) {
+                                errorMessage = 'You do not have permission to perform this action.';
+                              } else if (res.status === 409) {
+                                errorMessage = 'This information is already in use. Please use different details.';
+                              } else if (res.status >= 500) {
+                                errorMessage = 'Server error. Please try again later.';
+                              } else {
+                                errorMessage = errorData.message || 'Failed to update profile. Please try again.';
+                              }
+                            } catch (parseError) {
+                              console.error('Error parsing API response:', parseError);
+                              errorMessage = `Request failed with status ${res.status}. Please try again.`;
+                            }
+                            
+                            throw new Error(errorMessage);
                           }
                           
                           const result = await res.json();
@@ -1781,7 +1811,8 @@ const Profile = () => {
                             router.push('/dashboard');
                           }, 1500);
                         } catch (err) {
-                          toast.error(err?.message || 'Failed to update profile');
+                          console.error('Profile update error:', err);
+                          toast.error(err?.message || 'Failed to update profile. Please try again.');
                         } finally {
                           setSubmitting(false);
                         }
