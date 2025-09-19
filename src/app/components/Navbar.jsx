@@ -322,10 +322,10 @@ const enableSuggestions = false;
                                 Profile
                               </Link>
                               <Link href="/leads" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Leads / Visitors
+                                Leads
                               </Link>
                               <Link href="/properties-management" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Properties / Sites
+                                Properties
                               </Link>
                             </>
                           ) : (

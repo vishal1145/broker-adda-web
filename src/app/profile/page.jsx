@@ -79,6 +79,8 @@ const Profile = () => {
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const searchTimeoutRef = useRef(null);
   const [budgetError, setBudgetError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [propertyTypeOptions] = useState(["apartment", "commercial", "plot", "villa", "house"]);
   const [specializationOptions] = useState([
     "Residential Sales", "Commercial Leasing", "Luxury Homes", 
@@ -113,7 +115,6 @@ const Profile = () => {
       };
       
       script.onerror = (error) => {
-        console.error('Failed to load Google Places API:', error);
         toast.error('Failed to load address autocomplete. Please check your API key.');
       };
       
@@ -415,13 +416,9 @@ const Profile = () => {
             let regions = [];
             if (brokerData.region && Array.isArray(brokerData.region)) {
               regions = brokerData.region;
-              console.log('Found regions from brokerData.region:', regions);
             } else if (brokerData.regions && Array.isArray(brokerData.regions)) {
               regions = brokerData.regions;
-              console.log('Found regions from brokerData.regions:', regions);
             }
-            
-            console.log('Final regions array:', regions);
             
             // Extract broker fields based on actual API response structure
             const name = brokerData.name || brokerData.userId?.name || brokerFormData.name;
@@ -532,7 +529,6 @@ const Profile = () => {
           // Profile data loaded successfully
         } else {
           const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-          console.error('Failed to load profile data:', errorData);
           
           if (response.status === 401) {
             toast.error('Authentication failed. Please login again.');
@@ -545,7 +541,6 @@ const Profile = () => {
           }
         }
       } catch (error) {
-        console.error('Error loading profile data:', error);
         
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
           toast.error('Network error. Please check your connection and try again.');
@@ -564,20 +559,19 @@ const Profile = () => {
 
   // Load regions on component mount for brokers
   useEffect(() => {
-    console.log('🔍 useEffect triggered - userRole:', userRole);
     if (userRole === 'broker') {
-      console.log('🔍 Loading regions for broker...');
       loadRegions();
-        } else {
-      console.log('🔍 Not a broker, skipping region loading');
     }
   }, [userRole]);
 
-
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Clear email error when user changes email
+    if (name === 'email') {
+      setEmailError("");
+    }
+    
     if (userRole === 'customer') {
       setCustomerFormData((prev) => ({ ...prev, [name]: value }));
     } else {
@@ -660,45 +654,28 @@ const Profile = () => {
         
         if (response.ok) {
           const data = await response.json();
-        console.log('🔍 API Response:', data);
-        console.log('🔍 Response structure check:', {
-          hasSuccess: !!data.success,
-          hasData: !!data.data,
-          hasRegions: !!(data.data && data.data.regions),
-          isRegionsArray: !!(data.data && Array.isArray(data.data.regions)),
-          regionsLength: data.data?.regions?.length || 0
-        });
           
           // Handle the API response structure: { success: true, message: "...", data: { regions: [...] } }
           let regions = [];
           if (data.success && data.data && Array.isArray(data.data.regions)) {
             regions = data.data.regions;
-            console.log('✅ Using data.data.regions:', regions);
           } else if (Array.isArray(data)) {
             regions = data;
-            console.log('✅ Using direct array:', regions);
           } else if (data.data && Array.isArray(data.data)) {
             regions = data.data;
-            console.log('✅ Using data.data:', regions);
           } else if (data.regions && Array.isArray(data.regions)) {
             regions = data.regions;
-            console.log('✅ Using data.regions:', regions);
           } else if (data._id && data.name) {
             // Handle single object response
             regions = [data];
-            console.log('✅ Using single object:', regions);
-          } else {
-            console.log('❌ No valid regions structure found');
           }
           setRegionsList(regions);
-        console.log('📝 Regions set in state:', regions);
         } else {
        
         setRegionsError('Failed to load regions');
         setRegionsList([]);
       }
     } catch (error) {
-      console.error('Error loading regions:', error);
         setRegionsError('Error loading regions');
       setRegionsList([]);
     } finally {
@@ -716,8 +693,56 @@ const Profile = () => {
     setBrokerFormData((prev) => ({ ...prev, specializations: selectedValues }));
   };
 
+  // Check if email exists in database
+  const checkEmailExists = async (email) => {
+    try {
+      const userId = user?.userId || user?._id || '';
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check-email?email=${encodeURIComponent(email)}&userId=${encodeURIComponent(userId)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      // API response structure: { success: true, data: { exists: true/false, message: "..." } }
+      if (data.success && data.data && data.data.exists === true) {
+        return { exists: true, message: data.data.message || "Email is already in use" };
+      }
+      return { exists: false, message: "" };
+    } catch (error) {
+      return { exists: false, message: "Error checking email. Please try again." };
+    }
+  };
+
   // Step navigation functions
-  const nextStep = () => {
+  const nextStep = async () => {
+    // If moving from step 1 (Personal Details) to step 2, check email
+    if (currentStep === 1) {
+      const currentFormData = userRole === 'customer' ? customerFormData : brokerFormData;
+      
+      if (currentFormData.email) {
+        setIsCheckingEmail(true);
+        setEmailError("");
+        
+        try {
+          const emailCheckResult = await checkEmailExists(currentFormData.email);
+          
+          if (emailCheckResult.exists) {
+            setEmailError(emailCheckResult.message);
+            setIsCheckingEmail(false);
+            return; // Don't proceed to next step
+          }
+        } catch (error) {
+          setEmailError("Error checking email. Please try again.");
+          setIsCheckingEmail(false);
+          return;
+        }
+        
+        setIsCheckingEmail(false);
+      }
+    }
+    
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
@@ -739,7 +764,7 @@ const Profile = () => {
     
     switch (step) {
       case 1: // Personal Details
-        return currentFormData.name && currentFormData.email && currentFormData.phone;
+        return currentFormData.name && currentFormData.email && currentFormData.phone && !emailError;
       case 2: // Professional/Preferences
         if (userRole === 'broker') {
           return true; // Professional info is optional
@@ -819,7 +844,6 @@ const Profile = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Refreshed broker data:', data);
         
         // Process and bind the refreshed data
         let brokerData = data.data?.broker || data.data || data;
@@ -953,7 +977,6 @@ const Profile = () => {
         toast.error('Failed to refresh broker data');
       }
     } catch (error) {
-      console.error('Error refreshing broker data:', error);
       toast.error('Error refreshing broker data');
     } finally {
       setProfileLoading(false);
@@ -1142,8 +1165,20 @@ const Profile = () => {
                             value={userRole === 'customer' ? customerFormData.email : brokerFormData.email}
                             onChange={handleChange}
                             placeholder="Enter your email address"
-                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                            className={`w-full px-3 py-2 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-body ${
+                              emailError 
+                                ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                                : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                            }`}
                           />
+                          {emailError && (
+                            <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                              </svg>
+                              {emailError}
+                            </p>
+                          )}
                         </div>
 
                         <div>
@@ -1242,7 +1277,7 @@ const Profile = () => {
                               <div className="flex items-center justify-between mb-2">
                                 <label className="block text-sm font-medium text-gray-700">
                                   Address <span className="text-red-500">*</span>
-                                </label>
+                              </label>
                                 <button
                                   type="button"
                                   onClick={handleUseCurrentLocation}
@@ -1892,14 +1927,26 @@ const Profile = () => {
                 <button
                         type="button"
                         onClick={nextStep}
-                        disabled={!validateStep(currentStep)}
+                        disabled={!validateStep(currentStep) || isCheckingEmail}
                         className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-heading text-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                       >
-                        Continue to {getStepTitle(currentStep + 1)}
-                        <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                </button>
+                        {isCheckingEmail ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Checking email...
+                          </>
+                        ) : (
+                          <>
+                            Continue to {getStepTitle(currentStep + 1)}
+                            <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </>
+                        )}
+                      </button>
                     ) : (
                       <button
                       type="button"
@@ -1908,12 +1955,6 @@ const Profile = () => {
                         setSubmitting(true);
                         
                         const currentFormData = userRole === 'customer' ? customerFormData : brokerFormData;
-                        
-                        // Debug: Log current form data before submission
-                        console.log('🔍 Current form data before submission:', {
-                          userRole,
-                          formData: currentFormData
-                        });
                         
                         // Only validate regions for brokers
                         if (userRole === 'broker' && (!Array.isArray(currentFormData.regions) || currentFormData.regions.length === 0)) {
@@ -1955,14 +1996,10 @@ const Profile = () => {
                               // Check if it's a File object or a string URL
                               if (currentFormData.customerImage instanceof File) {
                               formDataToSend.append('customerImage', currentFormData.customerImage);
-                                console.log('📷 Customer image file being sent:', currentFormData.customerImage.name);
                               } else if (typeof currentFormData.customerImage === 'string') {
                                 // If it's a URL string, we might need to fetch it as a file
-                                console.log('📷 Customer image URL found:', currentFormData.customerImage);
                                 // For now, we'll skip URL strings as they're already uploaded
                               }
-                            } else {
-                              console.log('📷 No customer image to send');
                             }
                           } else {
                             // Broker-specific fields
@@ -2015,12 +2052,6 @@ const Profile = () => {
                             }
                           }
 
-                          // Debug: Log all FormData entries
-                          console.log('📤 FormData entries being sent:');
-                          for (let [key, value] of formDataToSend.entries()) {
-                            console.log(`${key}:`, value);
-                          }
-
                           const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/complete-profile`, {
                             method: 'POST',
                             headers: {
@@ -2034,7 +2065,6 @@ const Profile = () => {
                             
                             try {
                               const errorData = await res.json();
-                              console.error('API Error Response:', errorData);
                               
                               // Handle specific error types
                               if (errorData.error && errorData.error.includes('E11000')) {
@@ -2057,7 +2087,6 @@ const Profile = () => {
                                 errorMessage = errorData.message || 'Failed to update profile. Please try again.';
                               }
                             } catch (parseError) {
-                              console.error('Error parsing API response:', parseError);
                               errorMessage = `Request failed with status ${res.status}. Please try again.`;
                             }
                             
@@ -2066,14 +2095,12 @@ const Profile = () => {
                           
                           const result = await res.json();
                           toast.success('Profile updated successfully! Redirecting to dashboard...');
-                          console.log('Profile updated:', result);
                           
                           // Redirect to dashboard after successful profile update
                           setTimeout(() => {
                             router.push('/dashboard');
                           }, 1500);
                         } catch (err) {
-                          console.error('Profile update error:', err);
                           toast.error(err?.message || 'Failed to update profile. Please try again.');
                         } finally {
                           setSubmitting(false);
