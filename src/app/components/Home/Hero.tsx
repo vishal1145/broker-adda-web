@@ -174,8 +174,8 @@ const Hero = ({ data = {
 
             <div className="flex gap-6 flex-wrap items-center">
               <button
-                onClick={handleOpenPropertiesPage}
-                className="bg-green-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-green-800 flex items-center gap-2"
+                disabled
+                className="bg-gray-400 text-white px-6 py-2.5 rounded-full text-sm font-semibold cursor-not-allowed flex items-center gap-2"
               >
                 Properties
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -190,7 +190,8 @@ const Hero = ({ data = {
               {/* Use Next Link instead of <a href> for client navigation */}
               <Link
                 href="/properties"
-                className="text-black text-sm mt-2 font-semibold underline decoration-black hover:opacity-80"
+  onClick={(e) => e.preventDefault()}  // block navigation
+               className="text-gray-400 text-sm mt-2 font-semibold  decoration-black hover:opacity-80 cursor-not-allowed"
               >
                 {buttons?.secondary ?? 'Explore'}
               </Link>
@@ -250,14 +251,14 @@ const Hero = ({ data = {
                   <p className="text-gray-500 text-xs text-left">{card.items}</p>
 
                   <div
-                    className={`absolute bottom-3 cursor-pointer right-3 ${
+                    className={`absolute bottom-3 cursor-not-allowed right-3 ${
                       card.color === 'green'
-                        ? 'bg-green-900 hover:bg-green-800'
-                        : 'bg-yellow-500 hover:bg-yellow-600'
-                    } text-white p-2 rounded-full shadow-lg transition`}
+                        ? 'bg-gray-400'
+                        : 'bg-gray-400'
+                    } text-white p-2 rounded-full shadow-lg`}
                   >
                     <svg
-                      onClick={() => openProductDetails(card)}
+                      // onClick={() => openProductDetails(card)}
                       className="w-4 h-4 -rotate-45"
                       fill="none"
                       stroke="currentColor"

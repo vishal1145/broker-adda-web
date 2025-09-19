@@ -1074,7 +1074,8 @@ const Profile = () => {
                             value={userRole === 'customer' ? customerFormData.phone : brokerFormData.phone}
                             onChange={handleChange}
                             placeholder="Enter your phone number"
-                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                            disabled
+                            className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-500 cursor-not-allowed text-sm font-body"
                           />
                         </div>
                       </div>

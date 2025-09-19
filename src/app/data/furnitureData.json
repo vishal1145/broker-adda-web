@@ -387,42 +387,42 @@
     "subtitle": "Testimonial",
     "items": [
       {
-        "name": "Leslie Alexander",
+        "name": "Priya Sharma",
         "role": "Architecture",
         "rating": 4.4,
         "image": "images/Leslie .jpg",
         "text": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa"
       },
       {
-        "name": "Jenny Wilson",
+        "name": "Rajesh Kumar",
         "role": "Interior Designer",
         "rating": 4.5,
         "image": "images/user-5.jpeg",
         "text": "An interior designer creates functional, beautiful spaces that reflect personality, comfort, and modern elegance."
       },
       {
-        "name": "John Doe",
+        "name": "Sakshi Singh",
         "role": "Product Designer",
         "image": "/images/user-1.webp",
         "text": "A product designer crafts innovative, user-friendly solutions that seamlessly blend function with aesthetic appeal.",
         "rating": 5.0
       },
       {
-        "name": "Jane Smith",
+        "name": "Himesh Gupta",
         "role": "Homeowner",
         "image": "/images/user-2.jpeg",
         "text": "A homeowner takes pride in creating a cozy, welcoming, and personalized living space.",
         "rating": 4.8
       },
       {
-        "name": "Michael Brown",
+        "name": "Vikash Jain",
         "role": "Architect",
         "image": "/images/user-3.jpeg",
         "text": "An architect blends creativity and precision to design inspiring, functional, and timeless living spaces.",
         "rating": 4.9
       },
       {
-        "name": "Emily White",
+        "name": "Sunita Patel",
         "role": "Interior Decorator",
         "image": "/images/user-4.jpeg",
         "text": "An interior decorator transforms spaces with style, harmony, and personal touches that inspire comfort.",

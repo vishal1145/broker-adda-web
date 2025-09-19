@@ -153,7 +153,7 @@ const Deals = ({ data = { subtitle: '', title: '', description: '', items: [] } 
   };
 
   return (
-    <section className="px-6 sm:px-12 lg:px-32 py-16 bg-white">
+    <section className="px-6 sm:px-12 lg:px-32 py-16 bg-white"style={{ display: "none" }}>
       <div className="max-w-7xl mx-auto">
         {/* Section Heading */}
         <div className="flex items-end justify-between mb-8 flex-wrap gap-2  text-left">
