@@ -19,11 +19,62 @@ const Navbar = ({ data }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { user, logout } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
   
   // Debug user object
   useEffect(() => {
     console.log('Navbar: User object updated:', user);
   }, [user]);
+
+  // Load profile image from API
+  useEffect(() => {
+    const loadProfileImage = async () => {
+      if (!user?.token || !user?.userId) {
+        setProfileImage(null);
+        return;
+      }
+
+      try {
+        const currentUserRole = user.role || 'broker';
+        const apiUrl = currentUserRole === 'customer' 
+          ? `${process.env.NEXT_PUBLIC_API_URL}/customers/${user.userId}`
+          : `${process.env.NEXT_PUBLIC_API_URL}/brokers/${user.userId}`;
+
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (currentUserRole === 'customer') {
+            const customerData = data.data?.customer || data.data || data;
+            const customerImage = customerData.images?.customerImage || 
+                                customerData.files?.customerImage || 
+                                customerData.customerImage || 
+                                customerData.profileImage || 
+                                null;
+            setProfileImage(customerImage);
+          } else {
+            const brokerData = data.data?.broker || data.data || data;
+            const brokerImage = brokerData.brokerImage || brokerData.profileImage || null;
+            setProfileImage(brokerImage);
+          }
+        }
+      } catch (error) {
+        console.log('Error loading profile image for navbar:', error);
+        setProfileImage(null);
+      }
+    };
+
+    if (user?.token && user?.userId) {
+      loadProfileImage();
+    }
+  }, [user?.token, user?.userId, user?.role]);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -287,7 +338,6 @@ const enableSuggestions = false;
             {/* Authentication */}
             {isMounted && (
               <>
-                {console.log('Navbar render: isMounted:', isMounted, 'user:', user)}
                 {user ? (
                   <div className="flex items-center gap-3">
                     {/* My Account Dropdown */}
@@ -295,7 +345,7 @@ const enableSuggestions = false;
                       <button className="flex items-center gap-2 text-gray-700 hover:text-green-600 transition-colors">
                         <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-green-600 hover:border-green-700 transition-colors">
                           <img
-                            src="/images/user-1.webp"
+                            src={profileImage || '/images/user-1.webp'}
                             alt="Profile"
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -312,7 +362,6 @@ const enableSuggestions = false;
                       {/* Dropdown Menu */}
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                         <div className="py-2">
-                          {console.log('Navbar: User role check:', user?.role, 'Is broker?', user?.role === 'broker')}
                           {user.role === 'broker' ? (
                             <>
                               <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -405,7 +454,7 @@ const enableSuggestions = false;
                     >
                       <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-green-600">
                         <img
-                          src="/images/user-1.webp"
+                          src={profileImage || '/images/user-1.webp'}
                           alt="Profile"
                           className="w-full h-full object-cover"
                           onError={(e) => {
