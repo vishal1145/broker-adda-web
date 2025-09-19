@@ -21,10 +21,22 @@ const SignUp = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'phone') {
+      // Only allow digits and limit to 10 characters
+      const digitsOnly = value.replace(/\D/g, '');
+      const limitedValue = digitsOnly.slice(0, 10);
+      
+      setFormData(prev => ({
+        ...prev,
+        [name]: limitedValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleCheckboxChange = (e) => {
@@ -42,8 +54,8 @@ const SignUp = () => {
     if (!formData.phone.trim()) {
       toast.error("Phone number is required");
       return false;
-    } else if (!/^[0-9+\-\s()]+$/.test(formData.phone)) {
-      toast.error("Please enter a valid phone number");
+    } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
+      toast.error("Please enter a valid 10-digit phone number");
       return false;
     }
     
@@ -375,8 +387,9 @@ const SignUp = () => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-gray-50"
-                          placeholder="Enter your phone number"
+                maxLength={10}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-gray-50"
+                placeholder="Enter your 10-digit phone number"
               />
                       </div>
             </div>

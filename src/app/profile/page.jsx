@@ -417,78 +417,16 @@ const Profile = () => {
     }
   }, [userRole, user]);
 
-  // Load regions on component mount
+  // Load regions on component mount for brokers
   useEffect(() => {
-    const loadRegions = async () => {
-      setRegionsLoading(true);
-      setRegionsError("");
-      
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/regions`);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Regions API response:', data);
-          
-          // Handle different response structures
-          let regions = [];
-          if (Array.isArray(data)) {
-            regions = data;
-          } else if (data.data && data.data.regions && Array.isArray(data.data.regions)) {
-            regions = data.data.regions;
-          } else if (data.data && Array.isArray(data.data)) {
-            regions = data.data;
-          } else if (data.regions && Array.isArray(data.regions)) {
-            regions = data.regions;
-          }
-          
-          setRegionsList(regions);
-          console.log('Regions loaded:', regions);
-        } else {
-          const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-          console.error('Failed to load regions:', errorData);
-          setRegionsError(errorData.message || 'Failed to load regions');
-          
-          // Set fallback regions if API fails
-          const fallbackRegions = [
-            { _id: '1', name: 'Bangalore' },
-            { _id: '2', name: 'Mumbai' },
-            { _id: '3', name: 'Delhi' },
-            { _id: '4', name: 'Chennai' },
-            { _id: '5', name: 'Hyderabad' },
-            { _id: '6', name: 'Pune' },
-            { _id: '7', name: 'Kolkata' },
-            { _id: '8', name: 'Ahmedabad' }
-          ];
-          setRegionsList(fallbackRegions);
-          console.log('Using fallback regions:', fallbackRegions);
-          toast.error('Using fallback regions due to API error');
-        }
-      } catch (error) {
-        console.error('Error loading regions:', error);
-        setRegionsError('Error loading regions');
-        
-        // Set fallback regions if network error
-        const fallbackRegions = [
-          { _id: '1', name: 'Bangalore' },
-          { _id: '2', name: 'Mumbai' },
-          { _id: '3', name: 'Delhi' },
-          { _id: '4', name: 'Chennai' },
-          { _id: '5', name: 'Hyderabad' },
-          { _id: '6', name: 'Pune' },
-          { _id: '7', name: 'Kolkata' },
-          { _id: '8', name: 'Ahmedabad' }
-        ];
-        setRegionsList(fallbackRegions);
-        console.log('Using fallback regions due to network error:', fallbackRegions);
-        toast.error('Using fallback regions due to network error');
-      } finally {
-        setRegionsLoading(false);
-      }
-    };
-
-    loadRegions();
-  }, []);
+    console.log('🔍 useEffect triggered - userRole:', userRole);
+    if (userRole === 'broker') {
+      console.log('🔍 Loading regions for broker...');
+      loadRegions();
+    } else {
+      console.log('🔍 Not a broker, skipping region loading');
+    }
+  }, [userRole]);
 
 
 
@@ -558,45 +496,66 @@ const Profile = () => {
       regions: []
     }));
     
-    // Load regions for selected city
-    if (selectedOption) {
-      loadRegions(selectedOption.value);
-    }
+    // Load all regions from API
+    loadRegions();
   };
 
-  const loadCities = async (stateId) => {
+  // Removed loadCities function - using hardcoded cities instead
+
+    const loadRegions = async () => {
     try {
       setRegionsLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?state=${stateId}`, {
+      setRegionsError("");
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/regions`, {
         headers: {
           'Authorization': `Bearer ${user?.token}`
         }
       });
-      if (response.ok) {
-        const data = await response.json();
-        setCitiesList(data);
-      }
-    } catch (error) {
-      console.error('Error loading cities:', error);
-    } finally {
-      setRegionsLoading(false);
-    }
-  };
-
-  const loadRegions = async (cityId) => {
-    try {
-      setRegionsLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/regions?city=${cityId}`, {
-        headers: {
-          'Authorization': `Bearer ${user?.token}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setRegionsList(data);
+        
+        if (response.ok) {
+          const data = await response.json();
+        console.log('🔍 API Response:', data);
+        console.log('🔍 Response structure check:', {
+          hasSuccess: !!data.success,
+          hasData: !!data.data,
+          hasRegions: !!(data.data && data.data.regions),
+          isRegionsArray: !!(data.data && Array.isArray(data.data.regions)),
+          regionsLength: data.data?.regions?.length || 0
+        });
+          
+          // Handle the API response structure: { success: true, message: "...", data: { regions: [...] } }
+          let regions = [];
+          if (data.success && data.data && Array.isArray(data.data.regions)) {
+            regions = data.data.regions;
+            console.log('✅ Using data.data.regions:', regions);
+          } else if (Array.isArray(data)) {
+            regions = data;
+            console.log('✅ Using direct array:', regions);
+          } else if (data.data && Array.isArray(data.data)) {
+            regions = data.data;
+            console.log('✅ Using data.data:', regions);
+          } else if (data.regions && Array.isArray(data.regions)) {
+            regions = data.regions;
+            console.log('✅ Using data.regions:', regions);
+          } else if (data._id && data.name) {
+            // Handle single object response
+            regions = [data];
+            console.log('✅ Using single object:', regions);
+          } else {
+            console.log('❌ No valid regions structure found');
+          }
+          setRegionsList(regions);
+        console.log('📝 Regions set in state:', regions);
+        } else {
+       
+        setRegionsError('Failed to load regions');
+        setRegionsList([]);
       }
     } catch (error) {
       console.error('Error loading regions:', error);
+        setRegionsError('Error loading regions');
+      setRegionsList([]);
     } finally {
       setRegionsLoading(false);
     }
@@ -1470,7 +1429,7 @@ const Profile = () => {
                 {regionsLoading ? (
                           <div className="flex items-center justify-center py-4">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                            <span className="ml-3 text-gray-600">Loading...</span>
+                            <span className="ml-3 text-gray-600">Loading regions...</span>
                         </div>
                 ) : regionsError ? (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -1480,10 +1439,13 @@ const Profile = () => {
                   <Select
                     isMulti
                     name="regions"
-                    options={Array.isArray(regionsList) ? regionsList.map(region => ({
-                      value: region._id,
-                      label: region.name
-                    })) : []}
+                    options={(() => {
+                      const options = Array.isArray(regionsList) ? regionsList.map(region => ({
+                        value: region._id,
+                        label: region.name
+                      })) : [];
+                      return options;
+                    })()}
                             value={Array.isArray(brokerFormData.regions) && Array.isArray(regionsList) ? brokerFormData.regions.map(region => {
                       if (typeof region === 'object' && region._id) {
                         return { value: region._id, label: region.name };
