@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import VerifyCode from './VerifyCode';
 
 export const metadata = {
-  title: 'Verify Code -Byron Bay Real Estate',
-  description: 'Verify your phone number with the code sent to your phone',
+  title: 'Verify Code - Broker Adda | A-17, Tajganj, Agra',
+  description: 'Verify your phone number with the code sent to your phone. Broker Adda, A-17, Tajganj, Agra.',
 };
 
 export default function VerifyCodePage() {

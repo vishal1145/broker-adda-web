@@ -8,7 +8,7 @@ import { AuthProvider } from './contexts/AuthContext';
 
 export const metadata = {
   title: "Broker Adda Real Estate | Coastal Homes & Luxury Apartments",
-  description: 'Search homes for sale and rent in Byron Bay and across NSW, VIC & QLD. Beachfront houses, luxury apartments, and family properties with expert local guidance.',
+  description: 'Search homes for sale and rent in A-17, Tajganj, Agra. Beachfront houses, luxury apartments, and family properties with expert local guidance.',
   icons: {
     icon: '/House and Handshake Logo (1).png',
     shortcut: '/House and Handshake Logo (1).png',
