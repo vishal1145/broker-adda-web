@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Select from 'react-select';
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from 'next/navigation';
@@ -65,8 +65,7 @@ const Profile = () => {
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [regionsError, setRegionsError] = useState("");
   const [statesList, setStatesList] = useState([
-    { value: 'uttar-pradesh', label: 'Uttar Pradesh' },
-    { value: 'uttarakhand', label: 'Uttarakhand' }
+    { value: 'uttar-pradesh', label: 'Uttar Pradesh' }
   ]);
   const [citiesList, setCitiesList] = useState([]);
   const [selectedState, setSelectedState] = useState(null);
@@ -77,6 +76,7 @@ const Profile = () => {
   const [officeAddressOptions, setOfficeAddressOptions] = useState([]);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const searchTimeoutRef = useRef(null);
+  const [budgetError, setBudgetError] = useState("");
   const [propertyTypeOptions] = useState(["apartment", "commercial", "plot", "villa", "house"]);
   const [specializationOptions] = useState([
     "Residential Sales", "Commercial Leasing", "Luxury Homes", 
@@ -129,6 +129,23 @@ const Profile = () => {
       }
     };
   }, []);
+
+
+  // Validate budget when customer form data changes
+  useEffect(() => {
+    if (userRole === 'customer' && customerFormData.budgetMin && customerFormData.budgetMax) {
+      const min = parseFloat(customerFormData.budgetMin);
+      const max = parseFloat(customerFormData.budgetMax);
+      
+      if (min > max) {
+        setBudgetError("Minimum budget cannot be greater than maximum budget");
+      } else {
+        setBudgetError("");
+      }
+    } else if (userRole === 'customer') {
+      setBudgetError("");
+    }
+  }, [customerFormData.budgetMin, customerFormData.budgetMax, userRole]);
 
   // Handle input change for office address search with debouncing
   const handleOfficeAddressInputChange = (inputValue) => {
@@ -527,64 +544,8 @@ const Profile = () => {
     
     if (stateValue === 'uttar-pradesh') {
       cities = [
-        { value: 'lucknow', label: 'Lucknow' },
-        { value: 'kanpur', label: 'Kanpur' },
-        { value: 'agra', label: 'Agra' },
-        { value: 'varanasi', label: 'Varanasi' },
-        { value: 'meerut', label: 'Meerut' },
-        { value: 'allahabad', label: 'Allahabad' },
-        { value: 'bareilly', label: 'Bareilly' },
-        { value: 'ghaziabad', label: 'Ghaziabad' },
         { value: 'noida', label: 'Noida' },
-        { value: 'gorakhpur', label: 'Gorakhpur' },
-        { value: 'moradabad', label: 'Moradabad' },
-        { value: 'aligarh', label: 'Aligarh' },
-        { value: 'saharanpur', label: 'Saharanpur' },
-        { value: 'jhansi', label: 'Jhansi' },
-        { value: 'muzaffarnagar', label: 'Muzaffarnagar' },
-        { value: 'mathura', label: 'Mathura' },
-        { value: 'shahjahanpur', label: 'Shahjahanpur' },
-        { value: 'firozabad', label: 'Firozabad' },
-        { value: 'budaun', label: 'Budaun' },
-        { value: 'raebareli', label: 'Raebareli' },
-        { value: 'etawah', label: 'Etawah' },
-        { value: 'mirzapur', label: 'Mirzapur' },
-        { value: 'bulandshahr', label: 'Bulandshahr' },
-        { value: 'sambhal', label: 'Sambhal' },
-        { value: 'amroha', label: 'Amroha' },
-        { value: 'hardoi', label: 'Hardoi' },
-        { value: 'fatehpur', label: 'Fatehpur' },
-        { value: 'rudauli', label: 'Rudauli' },
-        { value: 'modinagar', label: 'Modinagar' },
-        { value: 'sikandrabad', label: 'Sikandrabad' }
-      ];
-    } else if (stateValue === 'uttarakhand') {
-      cities = [
-        { value: 'dehradun', label: 'Dehradun' },
-        { value: 'haridwar', label: 'Haridwar' },
-        { value: 'rishikesh', label: 'Rishikesh' },
-        { value: 'nainital', label: 'Nainital' },
-        { value: 'mussoorie', label: 'Mussoorie' },
-        { value: 'almora', label: 'Almora' },
-        { value: 'pithoragarh', label: 'Pithoragarh' },
-        { value: 'udham-singh-nagar', label: 'Udham Singh Nagar' },
-        { value: 'chamoli', label: 'Chamoli' },
-        { value: 'pauri-garhwal', label: 'Pauri Garhwal' },
-        { value: 'tehri-garhwal', label: 'Tehri Garhwal' },
-        { value: 'uttarkashi', label: 'Uttarkashi' },
-        { value: 'bageshwar', label: 'Bageshwar' },
-        { value: 'champawat', label: 'Champawat' },
-        { value: 'rudraprayag', label: 'Rudraprayag' },
-        { value: 'kotdwar', label: 'Kotdwar' },
-        { value: 'kashipur', label: 'Kashipur' },
-        { value: 'roorkee', label: 'Roorkee' },
-        { value: 'ramnagar', label: 'Ramnagar' },
-        { value: 'haldwani', label: 'Haldwani' },
-        { value: 'ranikhet', label: 'Ranikhet' },
-        { value: 'lansdowne', label: 'Lansdowne' },
-        { value: 'chakrata', label: 'Chakrata' },
-        { value: 'vikasnagar', label: 'Vikasnagar' },
-        { value: 'doiwala', label: 'Doiwala' }
+        { value: 'agra', label: 'Agra' }
       ];
     }
     
@@ -681,6 +642,12 @@ const Profile = () => {
         if (userRole === 'broker') {
           return true; // Professional info is optional
         } else {
+          // For customers, validate budget if both fields are filled
+          if (currentFormData.budgetMin && currentFormData.budgetMax) {
+            const min = parseFloat(currentFormData.budgetMin);
+            const max = parseFloat(currentFormData.budgetMax);
+            return min <= max;
+          }
           return true; // Customer preferences are optional
         }
       case 3: // Regions (only for brokers)
@@ -1382,7 +1349,9 @@ const Profile = () => {
                         value={customerFormData.budgetMin}
                         onChange={handleChange}
                         placeholder="Enter minimum budget"
-                                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
+                          budgetError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                        }`}
                       />
                     </div>
                     <div>
@@ -1395,12 +1364,26 @@ const Profile = () => {
                         value={customerFormData.budgetMax}
                         onChange={handleChange}
                         placeholder="Enter maximum budget"
-                                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
+                          budgetError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                        }`}
                       />
                               </div>
-                            </div>
-                    </div>
                   </div>
+                  
+                  {/* Budget Error Message */}
+                  {budgetError && (
+                    <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-red-700 text-sm font-medium">{budgetError}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
                 </>
               )}
 

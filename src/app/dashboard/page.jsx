@@ -9,7 +9,7 @@ const Dashboard = () => {
       <ComingSoon
         title="Dashboard"
         description="Your business dashboard is under development. Coming soon!"
-        icon="📊"
+      
       />
     </ProtectedRoute>
   );

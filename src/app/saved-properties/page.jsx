@@ -9,7 +9,7 @@ const SavedProperties = () => {
       <ComingSoon
         title="Saved Properties"
         description="Your saved properties feature is under development. Coming soon!"
-        icon="❤️"
+       
       />
     </ProtectedRoute>
   );

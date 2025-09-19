@@ -9,9 +9,9 @@ const ComingSoon = ({
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="text-center max-w-lg">
         {/* Icon */}
-        <div className="text-8xl mb-8 animate-bounce">
+        {/* <div className="text-8xl mb-8 animate-bounce">
           {icon}
-        </div>
+        </div> */}
 
         {/* Coming Soon Badge */}
         <div className="inline-block bg-orange-500 text-white px-6 py-2 rounded-full text-sm font-semibold mb-6 shadow-lg">

@@ -9,7 +9,7 @@ const PropertiesManagement = () => {
       <ComingSoon
         title="Property Management"
         description="Property management system is under development. Coming soon!"
-        icon="🏠"
+      
       />
     </ProtectedRoute>
   );
