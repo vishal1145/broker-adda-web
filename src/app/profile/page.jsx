@@ -771,7 +771,17 @@ const Profile = () => {
   };
 
   const goToStep = (step) => {
-    setCurrentStep(step);
+    // Allow moving back freely
+    if (step <= currentStep) {
+      setCurrentStep(step);
+      return;
+    }
+    // Prevent moving forward if current step is invalid
+    if (validateStep(currentStep)) {
+      setCurrentStep(step);
+    } else {
+      toast.error('Please complete the required fields before continuing.');
+    }
   };
 
   // Step validation
@@ -780,10 +790,11 @@ const Profile = () => {
     
     switch (step) {
       case 1: // Personal Details
-        return currentFormData.name && currentFormData.email && currentFormData.phone && !emailError;
+        return currentFormData.name && currentFormData.email && currentFormData.phone && currentFormData.gender && !emailError;
       case 2: // Professional/Preferences
         if (userRole === 'broker') {
-          return true; // Professional info is optional
+          // Require license number and address for brokers
+          return Boolean(currentFormData.licenseNumber) && Boolean(currentFormData.officeAddress);
         } else {
           // For customers, validate budget if both fields are filled
           if (currentFormData.budgetMin && currentFormData.budgetMax) {
@@ -795,7 +806,7 @@ const Profile = () => {
         }
       case 3: // Regions (only for brokers)
         if (userRole === 'broker') {
-        return Array.isArray(currentFormData.regions) && currentFormData.regions.length > 0;
+        return Boolean(currentFormData.state) && Boolean(currentFormData.city) && Array.isArray(currentFormData.regions) && currentFormData.regions.length > 0;
         }
         return true; // Skip for customers
       case 4: // Documents (only for brokers) - OPTIONAL
@@ -1222,7 +1233,7 @@ const Profile = () => {
                       <div className="space-y-4">
                         <div>
                           <label className="block text-xs font-label text-gray-700 mb-2">
-                            Gender
+                            Gender <span className="text-red-500">*</span>
                           </label>
                           <select
                             name="gender"
@@ -1299,8 +1310,8 @@ const Profile = () => {
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                License Number
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              License Number <span className="text-red-500">*</span>
                               </label>
                               <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

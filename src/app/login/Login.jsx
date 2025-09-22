@@ -83,7 +83,15 @@ const Login = () => {
           const errorData = await response.json();
           console.error('Login API Error:', errorData);
           
-          if (errorData.error && errorData.error.includes('E11000')) {
+          // Prioritize the API's actual error message
+          console.log('API Error Data:', errorData);
+          if (errorData.message) {
+            errorMessage = errorData.message;
+            console.log('Using API message:', errorMessage);
+          } else if (errorData.error && typeof errorData.error === 'string') {
+            errorMessage = errorData.error;
+            console.log('Using API error:', errorMessage);
+          } else if (errorData.error && errorData.error.includes('E11000')) {
             errorMessage = 'This phone number is already registered. Please use a different number.';
           } else if (errorData.error && errorData.error.includes('validation')) {
             errorMessage = 'Please check your phone number and try again.';
@@ -92,16 +100,20 @@ const Login = () => {
           } else if (response.status === 401) {
             errorMessage = 'Authentication failed. Please try again.';
           } else if (response.status === 404) {
-            errorMessage = 'Phone number not found. Please sign up first.';
+            errorMessage = 'Phone number not found. Please sign up first or check your number.';
           } else if (response.status >= 500) {
             errorMessage = 'Server error. Please try again later.';
           } else {
-            errorMessage = errorData.message || `Login failed (${response.status})`;
+            errorMessage = `Login failed (${response.status})`;
           }
         } catch (parseError) {
           console.error('Error parsing login response:', parseError);
           if (response.status === 400) {
             errorMessage = 'Invalid phone number. Please check and try again.';
+          } else if (response.status === 401) {
+            errorMessage = 'Authentication failed. Please try again.';
+          } else if (response.status === 404) {
+            errorMessage = 'Phone number not found. Please sign up first or check your number.';
           } else if (response.status >= 500) {
             errorMessage = 'Server error. Please try again later.';
           } else {
