@@ -25,6 +25,8 @@ const Profile = () => {
     aadharFile: null,
     panFile: null,
     gstFile: null,
+    brokerLicenseFile: null,
+    companyIdFile: null,
     brokerImage: null,
     // Additional professional fields
     licenseNumber: "",
@@ -36,6 +38,8 @@ const Profile = () => {
     twitter: "",
     instagram: "",
     facebook: "",
+    whatsapp: "",
+    website: "",
     specializations: [],
     // Personal details
     gender: "",
@@ -52,12 +56,6 @@ const Profile = () => {
     propertyType: [],
     inquiryCount: 0,
     customerImage: null,
-    // Additional contact fields
-    address: "",
-    linkedin: "",
-    twitter: "",
-    instagram: "",
-    facebook: "",
     // Personal details
     gender: "",
     dateOfBirth: ""
@@ -442,12 +440,16 @@ const Profile = () => {
             const twitter = socialMedia.twitter || brokerFormData.twitter || '';
             const instagram = socialMedia.instagram || brokerFormData.instagram || '';
             const facebook = socialMedia.facebook || brokerFormData.facebook || '';
+             const whatsapp = brokerData.whatsappNumber || brokerFormData.whatsapp || '';
+             const website = brokerData.website || brokerFormData.website || '';
             
             // Handle KYC documents from the actual API response structure
             const kycDocs = brokerData.kycDocs || {};
             const aadharFile = kycDocs.aadhar || null;
             const panFile = kycDocs.pan || null;
             const gstFile = kycDocs.gst || null;
+             const brokerLicenseFile = kycDocs.brokerLicense || null;
+             const companyIdFile = kycDocs.companyId || null;
             const brokerImage = brokerData.brokerImage || null;
             
             
@@ -469,10 +471,14 @@ const Profile = () => {
               twitter: twitter,
               instagram: instagram,
               facebook: facebook,
+               whatsapp: whatsapp,
+               website: website,
               regions: regions,
               aadharFile: aadharFile,
               panFile: panFile,
               gstFile: gstFile,
+               brokerLicenseFile: brokerLicenseFile,
+               companyIdFile: companyIdFile,
               brokerImage: brokerImage
             }));
             
@@ -513,6 +519,8 @@ const Profile = () => {
                 const cityOption = citiesList.find(c => c.value === city.toLowerCase().replace(/\s+/g, '-'));
                 if (cityOption) {
                   setSelectedCity(cityOption);
+                   // Load regions for this city
+                   loadRegions(cityOption.value);
                 } else {
                   // If city not found in current list, create it
                   const newCityOption = {
@@ -520,6 +528,8 @@ const Profile = () => {
                     label: city
                   };
                   setSelectedCity(newCityOption);
+                   // Load regions for this city
+                   loadRegions(newCityOption.value);
                 }
               }, 100);
             }
@@ -557,12 +567,8 @@ const Profile = () => {
     }
   }, [userRole, user]);
 
-  // Load regions on component mount for brokers
-  useEffect(() => {
-    if (userRole === 'broker') {
-      loadRegions();
-    }
-  }, [userRole]);
+  // Load regions only when a city is selected (not on component mount)
+  // Regions will be loaded when user selects a city in handleCityChange
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -588,11 +594,11 @@ const Profile = () => {
     }
   };
 
-  const handleRegionChange = (selectedOptions) => {
-    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+  const handleRegionChange = (selectedOption) => {
+    const selectedValue = selectedOption ? selectedOption.value : null;
     // Only update regions for brokers
     if (userRole === 'broker') {
-      setBrokerFormData((prev) => ({ ...prev, regions: selectedValues }));
+      setBrokerFormData((prev) => ({ ...prev, regions: selectedValue ? [selectedValue] : [] }));
     }
   };
 
@@ -635,18 +641,28 @@ const Profile = () => {
       regions: []
     }));
     
-    // Load all regions from API
-    loadRegions();
+    // Load regions based on selected city
+    if (selectedOption) {
+      loadRegions(selectedOption.value);
+    } else {
+      setRegionsList([]);
+    }
   };
 
   // Removed loadCities function - using hardcoded cities instead
 
-    const loadRegions = async () => {
+  const loadRegions = async (cityId = null) => {
     try {
       setRegionsLoading(true);
       setRegionsError("");
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/regions`, {
+      // Build API URL with city filter if city is selected
+      let apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/regions`;
+      if (cityId) {
+        apiUrl += `?city=${cityId}`;
+      }
+      
+      const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${user?.token}`
         }
@@ -891,6 +907,8 @@ const Profile = () => {
         const twitter = socialMedia.twitter || brokerFormData.twitter || '';
         const instagram = socialMedia.instagram || brokerFormData.instagram || '';
         const facebook = socialMedia.facebook || brokerFormData.facebook || '';
+             const whatsapp = brokerData.whatsappNumber || brokerFormData.whatsapp || '';
+             const website = brokerData.website || brokerFormData.website || '';
 
         // Handle KYC documents from the actual API response structure
         const kycDocs = brokerData.kycDocs || {};
@@ -917,10 +935,14 @@ const Profile = () => {
           twitter: twitter,
           instagram: instagram,
           facebook: facebook,
+               whatsapp: whatsapp,
+               website: website,
           regions: regions,
           aadharFile: aadharFile,
           panFile: panFile,
           gstFile: gstFile,
+               brokerLicenseFile: brokerLicenseFile,
+               companyIdFile: companyIdFile,
           brokerImage: brokerImage
         }));
         
@@ -1231,6 +1253,31 @@ const Profile = () => {
                             />
                           </div>
                         )}
+
+                        {userRole === 'broker' && (
+                          <div>
+                            <label className="block text-xs font-label text-gray-700 mb-2 flex items-center">
+                              <svg className="w-4 h-4 text-green-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                              </svg>
+                              WhatsApp Number
+                            </label>
+                            <input
+                              type="tel"
+                              name="whatsapp"
+                              value={brokerFormData.whatsapp}
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                                if (value.length <= 10) {
+                                  setBrokerFormData(prev => ({ ...prev, whatsapp: value }));
+                                }
+                              }}
+                              placeholder="Enter your WhatsApp number"
+                              maxLength="10"
+                              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-body"
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1499,6 +1546,24 @@ const Profile = () => {
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
+
+
+                   <div>
+                               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                 <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"/>
+                                 </svg>
+                                 Website
+                     </label>
+                     <input
+                                 type="url"
+                                 name="website"
+                                 value={brokerFormData.website}
+                       onChange={handleChange}
+                                 placeholder="https://yourwebsite.com"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
                           </div>
                         </div>
                       </>
@@ -1706,7 +1771,6 @@ const Profile = () => {
                         </div>
                 ) : (
                   <Select
-                    isMulti
                     name="regions"
                     options={(() => {
                       const options = Array.isArray(regionsList) ? regionsList.map(region => ({
@@ -1715,7 +1779,8 @@ const Profile = () => {
                       })) : [];
                       return options;
                     })()}
-                            value={Array.isArray(brokerFormData.regions) && Array.isArray(regionsList) ? brokerFormData.regions.map(region => {
+                            value={Array.isArray(brokerFormData.regions) && brokerFormData.regions.length > 0 && Array.isArray(regionsList) ? (() => {
+                      const region = brokerFormData.regions[0];
                       if (typeof region === 'object' && region._id) {
                         return { value: region._id, label: region.name };
                       } else if (typeof region === 'string') {
@@ -1723,9 +1788,9 @@ const Profile = () => {
                         return regionObj ? { value: regionObj._id, label: regionObj.name } : null;
                       }
                       return null;
-                    }).filter(Boolean) : []}
+                    })() : null}
                     onChange={handleRegionChange}
-                    placeholder="Select regions..."
+                    placeholder="Select a region..."
                     className="react-select-container"
                     classNamePrefix="react-select"
                     styles={{
@@ -1735,24 +1800,6 @@ const Profile = () => {
                                 borderRadius: '0.5rem',
                         minHeight: '48px',
                                 fontSize: '14px'
-                      }),
-                      multiValue: (provided) => ({
-                        ...provided,
-                              backgroundColor: '#dbeafe',
-                                borderRadius: '0.375rem'
-                      }),
-                      multiValueLabel: (provided) => ({
-                        ...provided,
-                                color: '#1e40af',
-                                fontSize: '12px'
-                      }),
-                      multiValueRemove: (provided) => ({
-                        ...provided,
-                              color: '#1e40af',
-                        '&:hover': {
-                                  backgroundColor: '#93c5fd',
-                                  color: '#1e40af'
-                        }
                       })
                     }}
                   />
@@ -1790,11 +1837,11 @@ const Profile = () => {
                       <h3 className="text-lg font-semibold text-gray-900">Documents <span className="text-sm font-normal text-gray-500">(Optional)</span></h3>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Aadhar File Upload */}
                   <div className="flex flex-col h-full">
                     <label className="block text-sm font-medium text-gray-900 mb-2">
-                          Aadhar Card <span className="text-red-500">*</span>
+                          Aadhar Card 
                     </label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
                       <input
@@ -1836,7 +1883,7 @@ const Profile = () => {
                   {/* PAN File Upload */}
                   <div className="flex flex-col h-full">
                     <label className="block text-sm font-medium text-gray-900 mb-2">
-                          PAN Card <span className="text-red-500">*</span>
+                          PAN Card 
                     </label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
                       <input
@@ -1878,7 +1925,7 @@ const Profile = () => {
                   {/* GST File Upload */}
                   <div className="flex flex-col h-full">
                     <label className="block text-sm font-medium text-gray-900 mb-2">
-                          GST Certificate <span className="text-red-500">*</span>
+                          GST Certificate 
                     </label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
                       <input
@@ -1916,7 +1963,91 @@ const Profile = () => {
                       </label>
                         </div>
                     </div>
+
+                   {/* Broker License File Upload */}
+                   <div className="flex flex-col h-full">
+                     <label className="block text-sm font-medium text-gray-900 mb-2">
+                           Broker License 
+                     </label>
+                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
+                       <input
+                         type="file"
+                         name="brokerLicenseFile"
+                         onChange={handleFileChange}
+                         accept=".pdf,.jpg,.jpeg,.png"
+                         className="hidden"
+                         id="broker-license-upload"
+                       />
+                       <label htmlFor="broker-license-upload" className="cursor-pointer">
+                         <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                           <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                         </svg>
+                         <div className="mt-2">
+                           <p className="text-sm text-gray-600">
+                             {brokerFormData.brokerLicenseFile ? 
+                               (typeof brokerFormData.brokerLicenseFile === 'string' ? 
+                                 'Broker License uploaded' : 
+                                 brokerFormData.brokerLicenseFile.name) : 
+                               "Click to upload Broker License"}
+                           </p>
+                           <p className="text-xs text-gray-500">PDF, JPG, PNG up to 10MB</p>
+                           {brokerFormData.brokerLicenseFile && typeof brokerFormData.brokerLicenseFile === 'string' && (
+                             <a 
+                               href={brokerFormData.brokerLicenseFile} 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               className="text-xs text-blue-600 hover:underline"
+                             >
+                               View uploaded file
+                             </a>
+                           )}
                   </div>
+                       </label>
+                         </div>
+                     </div>
+
+                   {/* Company Identification Details File Upload */}
+                   <div className="flex flex-col h-full">
+                     <label className="block text-sm font-medium text-gray-900 mb-2">
+                           Company Identification Details
+                     </label>
+                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
+                       <input
+                         type="file"
+                         name="companyIdFile"
+                         onChange={handleFileChange}
+                         accept=".pdf,.jpg,.jpeg,.png"
+                         className="hidden"
+                         id="company-id-upload"
+                       />
+                       <label htmlFor="company-id-upload" className="cursor-pointer">
+                         <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                           <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                         </svg>
+                         <div className="mt-2">
+                           <p className="text-sm text-gray-600">
+                             {brokerFormData.companyIdFile ? 
+                               (typeof brokerFormData.companyIdFile === 'string' ? 
+                                 'Company ID uploaded' : 
+                                 brokerFormData.companyIdFile.name) : 
+                               "Click to upload Company ID"}
+                           </p>
+                           <p className="text-xs text-gray-500">PDF, JPG, PNG up to 10MB</p>
+                           {brokerFormData.companyIdFile && typeof brokerFormData.companyIdFile === 'string' && (
+                             <a 
+                               href={brokerFormData.companyIdFile} 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               className="text-xs text-blue-600 hover:underline"
+                             >
+                               View uploaded file
+                             </a>
+                           )}
+                         </div>
+                       </label>
+                         </div>
+                     </div>
+                   </div>
                 </div>
               )}
 
@@ -2030,6 +2161,12 @@ const Profile = () => {
                             if (currentFormData.facebook) {
                               formDataToSend.append('brokerDetails[socialMedia][facebook]', currentFormData.facebook);
                             }
+                             if (currentFormData.whatsapp) {
+                               formDataToSend.append('brokerDetails[whatsappNumber]', currentFormData.whatsapp);
+                             }
+                             if (currentFormData.website) {
+                               formDataToSend.append('brokerDetails[website]', currentFormData.website);
+                             }
                             
                             // Add regions
                             currentFormData.regions.forEach((region, index) => {
@@ -2037,17 +2174,23 @@ const Profile = () => {
                               formDataToSend.append(`brokerDetails[region][${index}]`, regionId);
                             });
                             
-                            // Add file uploads
-                            if (currentFormData.aadharFile) {
+                            // Add file uploads - only append if they are File objects
+                            if (currentFormData.aadharFile && currentFormData.aadharFile instanceof File) {
                               formDataToSend.append('aadhar', currentFormData.aadharFile);
                             }
-                            if (currentFormData.panFile) {
+                            if (currentFormData.panFile && currentFormData.panFile instanceof File) {
                               formDataToSend.append('pan', currentFormData.panFile);
                             }
-                            if (currentFormData.gstFile) {
+                            if (currentFormData.gstFile && currentFormData.gstFile instanceof File) {
                               formDataToSend.append('gst', currentFormData.gstFile);
                             }
-                            if (currentFormData.brokerImage) {
+                             if (currentFormData.brokerLicenseFile && currentFormData.brokerLicenseFile instanceof File) {
+                               formDataToSend.append('brokerLicense', currentFormData.brokerLicenseFile);
+                             }
+                             if (currentFormData.companyIdFile && currentFormData.companyIdFile instanceof File) {
+                               formDataToSend.append('companyId', currentFormData.companyIdFile);
+                            }
+                            if (currentFormData.brokerImage && currentFormData.brokerImage instanceof File) {
                               formDataToSend.append('brokerImage', currentFormData.brokerImage);
                             }
                           }
