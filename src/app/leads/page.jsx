@@ -233,6 +233,31 @@ export default function BrokerLeadsPage() {
   // View Lead modal
   const [showView, setShowView] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
+  // View drawer UX state
+  const [viewEditMode, setViewEditMode] = useState(false);
+  const [viewClosing, setViewClosing] = useState(false);
+  const [viewForm, setViewForm] = useState({ name: '', contact: '', email: '', budget: '', requirement: '' });
+  const saveViewEdits = () => {
+    setSelectedLead((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        name: viewForm.name || prev.name,
+        contact: viewForm.contact || prev.contact,
+        customerName: viewForm.name || prev.customerName,
+        customerPhone: viewForm.contact || prev.customerPhone,
+        customerEmail: viewForm.email || prev.customerEmail,
+        budget: viewForm.budget !== '' ? viewForm.budget : prev.budget,
+        requirement: viewForm.requirement || prev.requirement,
+      };
+    });
+    setViewEditMode(false);
+  };
+
+  const handleViewFieldChange = (e) => {
+    const { name, value } = e.target;
+    setViewForm((p) => ({ ...p, [name]: value }));
+  };
 
   const clearFilters = () => {
     setFilters({
@@ -445,7 +470,7 @@ export default function BrokerLeadsPage() {
           {/* Lead List - full table columns with action buttons */}
           <div className="mt-8">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-gray-900">Lead List</h3>
+              <h3 className="text-base font-semibold text-gray-900">Leads List</h3>
               <button type="button" onClick={() => setShowAddLead(true)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-green-800 hover:bg-green-900 focus:outline-none focus:ring-4 focus:ring-green-100">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
                 Add New Lead
@@ -481,16 +506,16 @@ export default function BrokerLeadsPage() {
                     <div className="col-span-2 text-right">
                       <div className="flex items-center justify-end  text-gray-500 whitespace-nowrap gap-2">
                        {/* View */}
-                       <button className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50" aria-label="view" onClick={() => { setSelectedLead(row); setShowView(true); }}>
+                      <button className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50" aria-label="view" onClick={() => { setSelectedLead(row); setViewEditMode(false); setViewClosing(false); setViewForm({ name: row.name || '', contact: row.contact || '', email: '-', budget: row.budget || '', requirement: row.req || '' }); setShowView(true); }}>
                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                        </button>
-                       {/* Edit */}
+                      {/* Edit (disabled as edit happens inside drawer) */}
+                      {false && (
                         <button className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50" aria-label="edit">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536M4 16.5V20h3.5l9.793-9.793a1 1 0 000-1.414L16.207 5.5a1 1 0 00-1.414 0L4 16.5z" />
-                          </svg>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536M4 16.5V20h3.5l9.793-9.793a1 1 0 000-1.414L16.207 5.5a1 1 0 00-1.414 0L4 16.5z" /></svg>
                        </button>
-                      {/* Transfer */}
+                      )}
+                        {/* Transfer */}
                         <button className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50" aria-label="transfer" onClick={() => setShowTransfer(true)}>
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h8m0 0l-3-3m3 3l-3 3M16 17H8m0 0l3 3m-3-3l3-3"/></svg>
                         </button>
@@ -687,33 +712,83 @@ export default function BrokerLeadsPage() {
 
           {/* View Lead Drawer (right side) */}
           {showView && selectedLead && (
-            <div className="fixed inset-0 z-50">
-              <div className="absolute inset-0 bg-black/50" onClick={() => setShowView(false)} />
-              <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl  animate-slide-in">
+            <div className={`fixed inset-0 z-50 ${viewClosing ? 'pointer-events-none' : ''}`}>
+              <div className="absolute inset-0 bg-black/50" onClick={() => { setViewClosing(true); setTimeout(() => setShowView(false), 200); }} />
+              <div className={`absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl ${viewClosing ? 'animate-slide-out' : 'animate-slide-in'}`}>
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
                   <div className="flex items-center gap-2">
                     {/* <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6zm8-4a4 4 0 100 8 4 4 0 000-8z"/></svg> */}
-                    <h4 className="text-[18px] font-semibold text-black">Lead Details: {selectedLead.name}</h4>
+                    <h4 className="text-[18px] font-semibold text-black">Lead Details</h4>
                   </div>
-                  <button onClick={() => setShowView(false)} className="p-2 rounded hover:bg-gray-100">
+                  <button onClick={() => { setViewClosing(true); setTimeout(() => setShowView(false), 200); }} className="p-2 rounded hover:bg-gray-100" aria-label="Close">
                     <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
                 </div>
-                <div className="p-5 space-y-4 overflow-y-auto no-scrollbar h-[calc(100%-56px)]">
-                  <div className="border border-gray-200 rounded-xl p-4 shadow-sm">
-                    <h5 className="text-[16px] font-semibold text-black mb-3">Customer Information</h5>
+                <div className="p-5 space-y-4 overflow-y-auto no-scrollbar h-[calc(100%-56px)] bg-gray-50">
+                  {/* Lead summary */}
+                  <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-semibold">
+                        {(selectedLead.name || '?').split(' ').map(n=>n[0]).join('').slice(0,2)}
+                      </div>
+                      <div>
+                        <div className="text-[14px] font-semibold text-gray-900">{selectedLead.name}</div>
+                        <div className="text-[12px] text-gray-500">{selectedLead.region} • {selectedLead.contact}</div>
+                      </div>
+                    </div>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${selectedLead.statusColor || 'bg-gray-100 text-gray-700'}`}>{selectedLead.status || 'Active'}</span>
+                  </div>
+                  <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
+                    <div className="flex items-center justify-between mb-3">
+                      <h5 className="text-[16px] font-semibold text-black">Customer Information</h5>
+                      {!viewEditMode ? (
+                        <button onClick={() => setViewEditMode(true)} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-green-700 hover:bg-green-800">Edit</button>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <button onClick={saveViewEdits} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-green-700 hover:bg-green-800">Save</button>
+                          <button onClick={() => setViewEditMode(false)} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200">Cancel</button>
+                        </div>
+                      )}
+                    </div>
                     <div className="text-[13px] text-gray-700">
                       <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                        <span className="col-span-1 text-gray-500">Name:</span>
-                        <span className="col-span-2 text-gray-900">{selectedLead.name}</span>
+                        <span className="col-span-1 text-gray-500 inline-flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A4 4 0 018 17h8a4 4 0 012.879 1.196M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                          Name:
+                        </span>
+                        <span className="col-span-2 text-gray-900">
+                          {viewEditMode ? (
+                            <input name="name" value={viewForm.name} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
+                          ) : (
+                            selectedLead.name
+                          )}
+                        </span>
                       </div>
                       <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                        <span className="col-span-1 text-gray-500">Phone:</span>
-                        <span className="col-span-2 text-gray-900">{selectedLead.contact}</span>
+                        <span className="col-span-1 text-gray-500 inline-flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.518 4.553a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.553 1.518A1 1 0 0121 19.72V23a2 2 0 01-2 2h-1C9.163 25 1 16.837 1 7V6a2 2 0 012-2z"/></svg>
+                          Phone:
+                        </span>
+                        <span className="col-span-2 text-gray-900">
+                          {viewEditMode ? (
+                            <input name="contact" value={viewForm.contact} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
+                          ) : (
+                            selectedLead.contact
+                          )}
+                        </span>
                       </div>
                       <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                        <span className="col-span-1 text-gray-500">Email:</span>
-                        <span className="col-span-2 text-gray-900">-</span>
+                        <span className="col-span-1 text-gray-500 inline-flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18 8h18a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                          Email:
+                        </span>
+                        <span className="col-span-2 text-gray-900">
+                          {viewEditMode ? (
+                            <input name="email" value={viewForm.email} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
+                          ) : (
+                            '-'
+                          )}
+                        </span>
                       </div>
                       <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
                         <span className="col-span-1 text-gray-500">Requirement:</span>
@@ -726,40 +801,50 @@ export default function BrokerLeadsPage() {
                         </span>
                       </div>
                       <div className="grid grid-cols-3 items-center py-2">
-                        <span className="col-span-1 text-gray-500">Budget:</span>
-                        <span className="col-span-2 text-gray-900">{selectedLead.budget}</span>
+                        <span className="col-span-1 text-gray-500 inline-flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-10v10m-7 4h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                          Budget:
+                        </span>
+                        <span className="col-span-2 text-gray-900">
+                          {viewEditMode ? (
+                            <input name="budget" value={viewForm.budget} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
+                          ) : (
+                            selectedLead.budget
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="border border-gray-200 rounded-xl p-4 shadow-sm">
-                    <h5 className="text-[16px] font-semibold text-black mb-3">Lead Lifecycle</h5>
-                    <ul className="text-[13px] text-gray-700 space-y-3">
-                      <li className="flex items-start gap-2">
-                        <span className="mt-2 w-2 h-2 rounded-full bg-gray-400"></span>
-                        <div>
-                          <div className="font-medium">Created</div>
-                          <div className="text-gray-500">2023-10-26 10:00 AM</div>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="mt-2 w-2 h-2 rounded-full bg-blue-500"></span>
-                        <div>
-                          <div className="font-medium">Assigned</div>
-                          <div className="text-gray-500">2023-10-26 11:30 AM</div>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="mt-2 w-2 h-2 rounded-full bg-green-500"></span>
-                        <div>
-                          <div className="font-medium">In Progress <span className="ml-1 text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">Current</span></div>
-                          <div className="text-gray-500">2023-10-27 02:00 PM</div>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
+                   <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
+                     <h5 className="text-[16px] font-semibold text-black mb-3">Lead Lifecycle</h5>
+                     <ul className="text-[13px] text-gray-700 space-y-3">
+                       <li className="flex items-start gap-2">
+                         <span className="mt-2 w-2 h-2 rounded-full bg-gray-400"></span>
+                         <div>
+                           <div className="font-medium">Created At</div>
+                           <div className="text-gray-500">{selectedLead.createdAt ? new Date(selectedLead.createdAt).toLocaleString() : '—'}</div>
+                         </div>
+                       </li>
+                       <li className="flex items-start gap-2">
+                         <span className="mt-2 w-2 h-2 rounded-full bg-blue-500"></span>
+                         <div>
+                           <div className="font-medium">Created By</div>
+                           <div className="text-gray-500">{selectedLead.createdBy?.name || '—'}</div>
+                         </div>
+                       </li>
+                       <li className="flex items-start gap-2">
+                         <span className="mt-2 w-2 h-2 rounded-full bg-emerald-500"></span>
+                         <div>
+                           <div className="font-medium">Updated At</div>
+                           <div className="text-gray-500">{selectedLead.updatedAt ? new Date(selectedLead.updatedAt).toLocaleString() : '—'}</div>
+                         </div>
+                       </li>
+                     </ul>
+                   </div>
 
-                  
+               
+
                 </div>
               </div>
             </div>
@@ -771,6 +856,8 @@ export default function BrokerLeadsPage() {
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes slideInFromRight { from { transform: translateX(100%); opacity: .6; } to { transform: translateX(0); opacity: 1; } }
         .animate-slide-in { animation: slideInFromRight .25s ease-out both; }
+        @keyframes slideOutToRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: .4; } }
+        .animate-slide-out { animation: slideOutToRight .2s ease-in both; }
       `}</style>
     </ProtectedRoute>
   );
