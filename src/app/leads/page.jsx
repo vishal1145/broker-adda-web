@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Select from 'react-select';
 import ProtectedRoute from '../components/ProtectedRoute';
 
-const StatCard = ({ label, value, delta, deltaPositive }) => (
-  <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+const StatCard = ({ label, value, delta, deltaPositive, bg = 'bg-gray-50' }) => (
+  <div className={`${bg} border border-gray-200 rounded-2xl p-6 shadow-sm`}>
     <p className="text-[12px] text-gray-500 mb-2 font-medium">{label}</p>
     <p className="text-[28px] leading-tight font-extrabold text-gray-900 mb-3">{value}</p>
     <span
@@ -283,10 +283,10 @@ export default function BrokerLeadsPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <StatCard label="Total Leads" value="1,245" delta="+12% last month" deltaPositive />
-            <StatCard label="New Leads Today" value="35" delta="-5% from yesterday" />
-            <StatCard label="Converted Leads" value="187" delta="+8% last month" deltaPositive />
-            <StatCard label="Avg. Deal Size" value="$12,500" delta="+3% last quarter" deltaPositive />
+            <StatCard bg="bg-blue-50" label="Total Leads" value="1,245" delta="+12% last month" deltaPositive />
+            <StatCard bg="bg-amber-50" label="New Leads Today" value="35" delta="-5% from yesterday" />
+            <StatCard bg="bg-green-50" label="Converted Leads" value="187" delta="+8% last month" deltaPositive />
+            <StatCard bg="bg-purple-50" label="Avg. Deal Size" value="$12,500" delta="+3% last quarter" deltaPositive />
           </div>
 
           {/* Search and Advanced Filter Bar */}
