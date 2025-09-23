@@ -197,7 +197,7 @@ const Navbar = ({ data }) => {
   }, []);
 const enableSuggestions = false; 
   return (
-    <nav className="bg-white shadow-sm px-6 sm:px-12 lg:px-32 ">
+    <nav className="bg-white shadow-sm px-6 sm:px-10 lg:px-28 ">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between w-full">
           {/* Logo */}
