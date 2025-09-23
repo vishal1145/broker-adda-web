@@ -6,7 +6,7 @@ import ProtectedRoute from '../components/ProtectedRoute';
 
 const StatCard = ({ label, value, delta, deltaPositive, bg = 'bg-gray-50' }) => (
   <div className={`${bg} border border-gray-200 rounded-2xl p-6 shadow-sm`}>
-    <p className="text-[12px] text-gray-500 mb-2 font-medium">{label}</p>
+    <p className="text-[14px] text-gray-500 mb-2 font-medium">{label}</p>
     <p className="text-[28px] leading-tight font-extrabold text-gray-900 mb-3">{value}</p>
     <span
       className={`inline-block text-[11px] font-semibold px-3 py-1 rounded-full border ${
@@ -294,7 +294,7 @@ export default function BrokerLeadsPage() {
             <div className="relative flex-1">
               <input
                 type="text"
-                placeholder="Search by Name, Phone Number, Email or Tag ID"
+                placeholder="Search by Name, Phone Number, Email"
                 value={filters.query}
                 onChange={(e) => setFilters({ ...filters, query: e.target.value })}
                 className="w-full pl-11 pr-4 py-2 border border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 text-sm"
@@ -317,7 +317,7 @@ export default function BrokerLeadsPage() {
             <button
               type="button"
               onClick={() => setShowAdvanced((v) => !v)}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold text-white bg-green-800 hover:bg-green-900 focus:outline-none focus:ring-4 focus:ring-green-100 shadow-sm flex items-center justify-center ${showAdvanced ? 'ring-4 ring-green-100' : ''}`}
+              className={`px-3 py-2 rounded-lg text-sm font-semibold text-white bg-green-800 hover:bg-green-900 focus:outline-none focus:ring-4 focus:ring-green-100 shadow-sm flex items-center justify-center ${showAdvanced ? 'ring-4 ring-green-100' : ''}`}
             >
               <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1.447.894l-2-1A1 1 0 0111 18v-4.586L3.293 6.707A1 1 0 013 6V4z" />
@@ -354,7 +354,7 @@ export default function BrokerLeadsPage() {
       <div className="px-6 py-5 space-y-6 max-h-[70vh] overflow-auto">
         {/* Row 1: Region */}
                 <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">Region</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Region</label>
           <Select
             value={filters.region}
             onChange={(opt) => setFilters({ ...filters, region: opt })}
@@ -379,7 +379,7 @@ export default function BrokerLeadsPage() {
 
         {/* Row 2: Property Type */}
                 <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">Property Type</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
           <Select
             value={filters.propertyType}
             onChange={(opt) => setFilters({ ...filters, propertyType: opt })}
@@ -404,7 +404,7 @@ export default function BrokerLeadsPage() {
 
         {/* Row 3: Requirement */}
                 <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">Requirement</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Requirement</label>
           <Select
             value={filters.requirement}
             onChange={(opt) => setFilters({ ...filters, requirement: opt })}
@@ -429,7 +429,7 @@ export default function BrokerLeadsPage() {
 
         {/* Row 4: Max Budget */}
                 <div>
-          <label className="block text-xs font-medium text-gray-700 mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-4">
             Max Budget:{" "}
             <span className="text-blue-700 font-semibold">
               ${filters.maxBudget.toLocaleString()}
@@ -451,13 +451,13 @@ export default function BrokerLeadsPage() {
       <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
                 <button
                   onClick={clearFilters}
-                  className="px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Clear Filters
                 </button>
                 <button
           onClick={() => setShowAdvanced(false)}
-          className="px-3 py-2.5 rounded-xl text-xs font-semibold text-white bg-green-800 hover:bg-green-900 focus:outline-none focus:ring-4 focus:ring-green-100 shadow-sm"
+          className="px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-800 hover:bg-green-900 focus:outline-none focus:ring-4 focus:ring-green-100 shadow-sm"
                 >
                   Apply Filters
                 </button>
@@ -471,13 +471,13 @@ export default function BrokerLeadsPage() {
           <div className="mt-8">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-base font-semibold text-gray-900">Leads List</h3>
-              <button type="button" onClick={() => setShowAddLead(true)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-green-800 hover:bg-green-900 focus:outline-none focus:ring-4 focus:ring-green-100">
+              <button type="button" onClick={() => setShowAddLead(true)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-white bg-green-800 hover:bg-green-900 focus:outline-none focus:ring-4 focus:ring-green-100">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
                 Add New Lead
               </button>
             </div>
             <div className="">
-              <div className="grid grid-cols-12  px-6 py-3 text-[11px] font-medium text-gray-600 bg-gray-100 rounded-xl mb-3">
+              <div className="grid grid-cols-12  px-6 py-3 text-[14px] font-medium text-gray-600 bg-gray-100 rounded-xl mb-3">
                 <div className="col-span-2 text-left whitespace-nowrap">Customer Name</div>
                 <div className="col-span-2 text-left whitespace-nowrap">Contact</div>
                 <div className="col-span-2 text-left whitespace-nowrap">Requirement</div>
@@ -496,12 +496,12 @@ export default function BrokerLeadsPage() {
                     <div className="col-span-2 flex items-center gap-3 min-h-[44px]">
                       <span className="text-sm font-medium text-gray-900 whitespace-normal break-words">{row.name}</span>
                     </div>
-                    <div className="col-span-2 text-[12px] text-gray-700 whitespace-normal break-words text-left">{row.contact}</div>
-                    <div className="col-span-2 text-[12px] text-gray-700 whitespace-normal break-words text-left">{row.req}</div>
-                    <div className="col-span-2 text-[12px] text-gray-700 whitespace-normal break-words text-left">{row.budget}</div>
-                    <div className="col-span-1 text-[12px] text-gray-700 whitespace-normal break-words text-left">{row.region}</div>
+                    <div className="col-span-2 text-[14px] text-gray-700 whitespace-normal break-words text-left">{row.contact}</div>
+                    <div className="col-span-2 text-[14px] text-gray-700 whitespace-normal break-words text-left">{row.req}</div>
+                    <div className="col-span-2 text-[14px] text-gray-700 whitespace-normal break-words text-left">{row.budget}</div>
+                    <div className="col-span-1 text-[14px] text-gray-700 whitespace-normal break-words text-left">{row.region}</div>
                     <div className="col-span-1 text-left">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold min-w-[64px] justify-center ${row.statusColor}`}>{row.status}</span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[14px] font-semibold min-w-[64px] justify-center ${row.statusColor}`}>{row.status}</span>
                     </div>
                     <div className="col-span-2 text-right">
                       <div className="flex items-center justify-end  text-gray-500 whitespace-nowrap gap-2">
@@ -547,7 +547,7 @@ export default function BrokerLeadsPage() {
 
                 <div className="px-6 py-5 space-y-5 max-h-[70vh] overflow-auto">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Customer Name</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Customer Name</label>
           <input
             name="customerName"
             value={newLead.customerName}
@@ -560,7 +560,7 @@ export default function BrokerLeadsPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Contact Phone</label>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Contact Phone</label>
             <input
               name="customerPhone"
               value={newLead.customerPhone}
@@ -571,7 +571,7 @@ export default function BrokerLeadsPage() {
             />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Contact Email</label>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Contact Email</label>
             <input
               name="customerEmail"
               value={newLead.customerEmail}
@@ -585,7 +585,7 @@ export default function BrokerLeadsPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Property Type</label>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Property Type</label>
             <Select
               value={newLead.propertyType}
               onChange={(selectedOption) => setNewLead({ ...newLead, propertyType: selectedOption })}
@@ -603,7 +603,7 @@ export default function BrokerLeadsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Requirement</label>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Requirement</label>
             <Select
               value={newLead.requirement}
               onChange={(selectedOption) => setNewLead({ ...newLead, requirement: selectedOption })}
@@ -622,7 +622,7 @@ export default function BrokerLeadsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Budget</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Budget</label>
           <input
             name="budget"
             value={newLead.budget}
@@ -634,7 +634,7 @@ export default function BrokerLeadsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Region</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Region</label>
           <Select
             value={newLead.region}
             onChange={(selectedOption) => setNewLead({ ...newLead, region: selectedOption })}
@@ -653,10 +653,10 @@ export default function BrokerLeadsPage() {
                   </div>
                   
                 <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-        <button onClick={() => setShowAddLead(false)} className="px-4 py-2 rounded-lg border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50">
+        <button onClick={() => setShowAddLead(false)} className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
           Cancel
         </button>
-        <button onClick={() => setShowAddLead(false)} className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-green-800 hover:bg-green-900">
+        <button onClick={() => setShowAddLead(false)} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-800 hover:bg-green-900">
           Add Lead
         </button>
                 </div>
@@ -678,7 +678,7 @@ export default function BrokerLeadsPage() {
                 </div>
                 <div className="px-6 py-5 space-y-5">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Select Broker(s)</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Select Broker(s)</label>
                       <Select
                       value={transferForm.brokerIds.map(id => {
                         const broker = brokers.find(b => b.id === id);
@@ -698,13 +698,13 @@ export default function BrokerLeadsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Transfer Notes (Optional)</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Transfer Notes (Optional)</label>
                     <textarea rows={3} value={transferForm.notes} onChange={(e)=>setTransferForm({...transferForm, notes: e.target.value})} placeholder="Add any specific instructions or context for the new broker..." className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 text-sm" />
                   </div>
                 </div>
                 <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                  <button onClick={() => setShowTransfer(false)} className="px-4 py-2 rounded-lg border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-                  <button onClick={() => setShowTransfer(false)} className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-green-800 hover:bg-green-900">Send Transfer Request</button>
+                  <button onClick={() => setShowTransfer(false)} className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+                  <button onClick={() => setShowTransfer(false)} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-800 hover:bg-green-900">Send Transfer Request</button>
                 </div>
               </div>
             </div>
@@ -733,7 +733,7 @@ export default function BrokerLeadsPage() {
                       </div>
                       <div>
                         <div className="text-[14px] font-semibold text-gray-900">{selectedLead.name}</div>
-                        <div className="text-[12px] text-gray-500">{selectedLead.region} • {selectedLead.contact}</div>
+                        <div className="text-[14px] text-gray-500">{selectedLead.region} • {selectedLead.contact}</div>
                       </div>
                     </div>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${selectedLead.statusColor || 'bg-gray-100 text-gray-700'}`}>{selectedLead.status || 'Active'}</span>
@@ -742,15 +742,15 @@ export default function BrokerLeadsPage() {
                     <div className="flex items-center justify-between mb-3">
                       <h5 className="text-[16px] font-semibold text-black">Customer Information</h5>
                       {!viewEditMode ? (
-                        <button onClick={() => setViewEditMode(true)} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-green-700 hover:bg-green-800">Edit</button>
+                        <button onClick={() => setViewEditMode(true)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-700 hover:bg-green-800">Edit</button>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <button onClick={saveViewEdits} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-green-700 hover:bg-green-800">Save</button>
-                          <button onClick={() => setViewEditMode(false)} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200">Cancel</button>
+                          <button onClick={saveViewEdits} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-700 hover:bg-green-800">Save</button>
+                          <button onClick={() => setViewEditMode(false)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200">Cancel</button>
                         </div>
                       )}
                     </div>
-                    <div className="text-[13px] text-gray-700">
+                    <div className="text-[14px] text-gray-700">
                       <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
                         <span className="col-span-1 text-gray-500 inline-flex items-center gap-2">
                           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A4 4 0 018 17h8a4 4 0 012.879 1.196M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -758,7 +758,7 @@ export default function BrokerLeadsPage() {
                         </span>
                         <span className="col-span-2 text-gray-900">
                           {viewEditMode ? (
-                            <input name="name" value={viewForm.name} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
+                            <input name="name" value={viewForm.name} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
                           ) : (
                             selectedLead.name
                           )}
@@ -771,7 +771,7 @@ export default function BrokerLeadsPage() {
                         </span>
                         <span className="col-span-2 text-gray-900">
                           {viewEditMode ? (
-                            <input name="contact" value={viewForm.contact} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
+                            <input name="contact" value={viewForm.contact} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
                           ) : (
                             selectedLead.contact
                           )}
@@ -784,7 +784,7 @@ export default function BrokerLeadsPage() {
                         </span>
                         <span className="col-span-2 text-gray-900">
                           {viewEditMode ? (
-                            <input name="email" value={viewForm.email} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
+                            <input name="email" value={viewForm.email} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
                           ) : (
                             '-'
                           )}
@@ -794,9 +794,9 @@ export default function BrokerLeadsPage() {
                         <span className="col-span-1 text-gray-500">Requirement:</span>
                         <span className="col-span-2">
                           <span className="inline-flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px]">Buy</span>
-                          <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[10px]">Apartment</span>
-                          <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[10px]">3 BHK</span>
+                          <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-[12px]">Buy</span>
+                          <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[12px]">Apartment</span>
+                          <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[12px]">3 BHK</span>
                           </span>
                         </span>
                       </div>
@@ -807,7 +807,7 @@ export default function BrokerLeadsPage() {
                         </span>
                         <span className="col-span-2 text-gray-900">
                           {viewEditMode ? (
-                            <input name="budget" value={viewForm.budget} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
+                            <input name="budget" value={viewForm.budget} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600" />
                           ) : (
                             selectedLead.budget
                           )}
@@ -818,7 +818,7 @@ export default function BrokerLeadsPage() {
 
                    <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
                      <h5 className="text-[16px] font-semibold text-black mb-3">Lead Lifecycle</h5>
-                     <ul className="text-[13px] text-gray-700 space-y-3">
+                     <ul className="text-[14px] text-gray-700 space-y-3">
                        <li className="flex items-start gap-2">
                          <span className="mt-2 w-2 h-2 rounded-full bg-gray-400"></span>
                          <div>
