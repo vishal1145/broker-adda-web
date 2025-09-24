@@ -220,7 +220,10 @@ export default function BrokerLeadsPage() {
       color: s.isSelected ? 'white' : s.isFocused ? '#111827' : '#4b5563',
       fontSize: 14, borderRadius: 6, margin: '2px 6px', padding: '8px 12px'
     }),
-    singleValue: (p) => ({ ...p, color: '#111827', fontWeight: 500 }),
+    singleValue: (p) => ({ ...p, color: '#6b7280', fontWeight: 500 }),
+    input: (p) => ({ ...p, color: '#6b7280' }),
+    placeholder: (p) => ({ ...p, color: '#6b7280' }),
+    multiValueLabel: (p) => ({ ...p, color: '#6b7280' }),
     menu: (p) => ({ ...p, zIndex: 9999, overflow: 'hidden', border: '1px solid #e5e7eb', borderRadius: 10 }),
     menuList: (p) => ({
       ...p,
