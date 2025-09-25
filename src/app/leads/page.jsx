@@ -61,6 +61,7 @@ export default function BrokerLeadsPage() {
   const [regionsList, setRegionsList] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [regionsError, setRegionsError] = useState('');
+  const [applyingFilters, setApplyingFilters] = useState(false);
 
   /* ───────────── Leads API ───────────── */
   const [leads, setLeads] = useState([]);
@@ -105,7 +106,7 @@ export default function BrokerLeadsPage() {
       if (q) params.set('search', q);
       if (effectiveFilters.status?.value && effectiveFilters.status.value !== 'all') params.set('status', effectiveFilters.status.value);
       if (effectiveFilters.broker?.value && effectiveFilters.broker.value !== 'all') params.set('broker', effectiveFilters.broker.value);
-      if (effectiveFilters.region?.value && effectiveFilters.region.value !== 'all') params.set('region', effectiveFilters.region.value);
+      if (effectiveFilters.region?.value && effectiveFilters.region.value !== 'all') params.set('regionId', effectiveFilters.region.value);
       if (effectiveFilters.propertyType?.value && effectiveFilters.propertyType.value !== 'all') params.set('propertyType', effectiveFilters.propertyType.value);
       if (effectiveFilters.requirement?.value && effectiveFilters.requirement.value !== 'all') params.set('requirement', effectiveFilters.requirement.value);
       if (effectiveFilters.startDate) params.set('startDate', effectiveFilters.startDate);
@@ -206,13 +207,14 @@ export default function BrokerLeadsPage() {
     { value: 'Closed', label: 'Closed' },
     { value: 'Rejected', label: 'Rejected' },
   ];
-  const propertyTypeOptions = [
-    { value: 'all', label: 'All Property Types' },
-    { value: 'residential', label: 'Residential' },
-    { value: 'commercial', label: 'Commercial' },
-    { value: 'plot', label: 'Plot' },
-    { value: 'other', label: 'Other' }
-  ];
+ const propertyTypeOptions = [
+  { value: 'all', label: 'All Property Types' },
+  { value: 'Residential', label: 'Residential' },
+  { value: 'Commercial', label: 'Commercial' },
+  { value: 'Plot', label: 'Plot' },
+  { value: 'Other', label: 'Other' }
+];
+
   const requirementOptions = [  { value: 'all', label: 'All Requirements' }, { value: 'buy', label: 'Buy' }, { value: 'rent', label: 'Rent' } ];
   const regionOptions = useMemo(() => ([
     { value: 'all', label: 'All Regions' },
@@ -251,6 +253,7 @@ export default function BrokerLeadsPage() {
 
   /* ───────────── Add Lead modal ───────────── */
   const [showAddLead, setShowAddLead] = useState(false);
+  const [addLeadLoading, setAddLeadLoading] = useState(false);
   const [newLead, setNewLead] = useState({
     customerName: '', customerPhone: '', customerEmail: '',
     requirement: { value: 'all', label: 'All Requirements' }, propertyType: { value: 'all', label: 'All propertyType' },
@@ -267,6 +270,7 @@ export default function BrokerLeadsPage() {
 };
   const handleAddLeadSubmit = async () => {
     try {
+      setAddLeadLoading(true);
       const req = typeof newLead.requirement === 'object' ? (newLead.requirement.label || newLead.requirement.value) : newLead.requirement;
       const ptype = typeof newLead.propertyType === 'object' ? (newLead.propertyType.label || newLead.propertyType.value) : newLead.propertyType;
       const regionId = typeof newLead.region === 'object' ? (newLead.region.value || newLead.region._id) : newLead.region;
@@ -289,6 +293,9 @@ export default function BrokerLeadsPage() {
       await loadLeads(); setShowAddLead(false);
       setNewLead({ customerName:'', customerPhone:'', customerEmail:'', requirement:'select requirement', propertyType:'select propertyType', budget:'', region:'select region', notes:'', files:null });
     } catch { toast.error('Error creating lead'); }
+    finally {
+      setAddLeadLoading(false);
+    }
   };
 
   /* ───────────── Transfer modal ───────────── */
@@ -385,18 +392,56 @@ export default function BrokerLeadsPage() {
     setFilters(reset); setPage(1); loadLeads(reset, 1, limit, '');
   };
 
-  /* ───────────── Skeleton row ───────────── */
-  const SkeletonRow = () => (
+  /* ───────────── Content Loader Components ───────────── */
+  const ContentLoader = ({ className = "" }) => (
+    <div className={`animate-pulse ${className}`}>
+      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+    </div>
+  );
+
+  const TableRowLoader = () => (
     <div className="grid grid-cols-12 items-center px-6 py-4 animate-pulse">
-      <div className="col-span-3 flex items-center gap-3"><div className="w-8 h-8 rounded-full bg-gray-100" /><div className="h-3 w-28 rounded bg-gray-100" /></div>
-      <div className="col-span-3 h-3 w-40 rounded bg-gray-100" />
-      <div className="col-span-2 h-3 w-28 rounded bg-gray-100" />
-      <div className="col-span-1 h-3 w-14 rounded bg-gray-100" />
-      <div className="col-span-1 h-3 w-20 rounded bg-gray-100" />
-      <div className="col-span-1 h-5 w-16 rounded-full bg-gray-100" />
-      <div className="col-span-1 flex justify-end gap-2">
-        <div className="w-7 h-7 rounded-lg bg-gray-100" /><div className="w-7 h-7 rounded-lg bg-gray-100" /><div className="w-7 h-7 rounded-lg bg-gray-100" />
+      <div className="col-span-2 flex items-center gap-3">
+        <div className="h-4 w-28 rounded bg-gray-200" />
       </div>
+      <div className="col-span-2 h-4 w-40 rounded bg-gray-200" />
+      <div className="col-span-2 h-4 w-28 rounded bg-gray-200" />
+      <div className="col-span-1 h-4 w-14 rounded bg-gray-200" />
+      <div className="col-span-2 h-4 w-20 rounded bg-gray-200" />
+      <div className="col-span-1 flex justify-center">
+        <div className="h-6 w-16 rounded-full bg-gray-200" />
+      </div>
+      <div className="col-span-2 flex justify-end gap-2">
+        <div className="w-7 h-7 rounded-lg bg-gray-200" />
+        <div className="w-7 h-7 rounded-lg bg-gray-200" />
+        <div className="w-7 h-7 rounded-lg bg-gray-200" />
+      </div>
+    </div>
+  );
+
+  const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-12 px-6">
+      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">No leads found</h3>
+      <p className="text-sm text-gray-500 text-center max-w-sm">
+        {filters.query || filters.status?.value !== 'all' || filters.region?.value !== 'all' || filters.propertyType?.value !== 'all' || filters.requirement?.value !== 'all' || filters.budgetMax !== 500000
+          ? "No leads match your current filters. Try adjusting your search criteria."
+          : "You don't have any leads yet. Click 'Add New Lead' to get started."
+        }
+      </p>
+      {(!filters.query && filters.status?.value === 'all' && filters.region?.value === 'all' && filters.propertyType?.value === 'all' && filters.requirement?.value === 'all' && filters.budgetMax === 500000) && (
+        <button
+          onClick={() => setShowAddLead(true)}
+          className="mt-4 px-4 py-2 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
+        >
+          Add Your First Lead
+        </button>
+      )}
     </div>
   );
 
@@ -508,13 +553,13 @@ export default function BrokerLeadsPage() {
   {/* Loading */}
   {leadsLoading && (
     <div className="divide-y divide-gray-100">
-      {[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
+      {[...Array(5)].map((_, i) => <TableRowLoader key={i} />)}
     </div>
   )}
 
-  {/* Empty */}
+  {/* Empty State */}
   {!leadsLoading && Array.isArray(leads) && leads.length === 0 && (
-    <div className="px-6 py-6 text-sm text-gray-600">No leads found.</div>
+    <EmptyState />
   )}
 
   {/* Rows */}
@@ -971,7 +1016,13 @@ export default function BrokerLeadsPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-2">Region</label>
                   {regionsLoading ? (
                     <div className="flex items-center justify-center py-3 border border-gray-200 rounded-lg bg-gray-50">
-                      <div className="text-sm text-gray-500">Loading regions...</div>
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 animate-spin text-gray-500" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span className="text-sm text-gray-500">Loading regions...</span>
+                      </div>
                     </div>
                   ) : regionsError ? (
                     <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 text-sm text-rose-700">{regionsError}</div>
@@ -1037,8 +1088,32 @@ export default function BrokerLeadsPage() {
                 </div>
 
               <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                <button onClick={clearFilters} className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer">Clear Filters</button>
-                <button onClick={() => { setPage(1); setShowAdvanced(false); loadLeads(filters, 1, limit, debouncedQuery); }} className="px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-900 hover:bg-green-950 shadow-sm cursor-pointer">Apply Filters</button>
+                <button 
+                  onClick={clearFilters} 
+                  disabled={applyingFilters}
+                  className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Clear Filters
+                </button>
+                <button 
+                  onClick={async () => { 
+                    setApplyingFilters(true); 
+                    setPage(1); 
+                    setShowAdvanced(false); 
+                    await loadLeads(filters, 1, limit, debouncedQuery); 
+                    setApplyingFilters(false);
+                  }} 
+                  disabled={applyingFilters}
+                  className="px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-900 hover:bg-green-950 shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {applyingFilters && (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  )}
+                  {applyingFilters ? 'Applying...' : 'Apply Filters'}
+                </button>
             </div>
           </div>
           </div>
@@ -1106,7 +1181,15 @@ export default function BrokerLeadsPage() {
                   <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Region</label>
                   {regionsLoading ? (
-                    <div className="flex items-center justify-center py-3 border border-gray-200 rounded-lg bg-gray-50"><div className="text-sm text-gray-500">Loading regions...</div></div>
+                    <div className="flex items-center justify-center py-3 border border-gray-200 rounded-lg bg-gray-50">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 animate-spin text-gray-500" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span className="text-sm text-gray-500">Loading regions...</span>
+                      </div>
+                    </div>
                   ) : regionsError ? (
                     <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 text-sm text-rose-700">{regionsError}</div>
                   ) : (
@@ -1123,8 +1206,26 @@ export default function BrokerLeadsPage() {
                   </div>
                   
                 <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                <button onClick={() => setShowAddLead(false)} className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer">Cancel</button>
-                <button onClick={handleAddLeadSubmit} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Add Lead</button>
+                <button 
+                  onClick={() => setShowAddLead(false)} 
+                  disabled={addLeadLoading}
+                  className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleAddLeadSubmit} 
+                  disabled={addLeadLoading}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {addLeadLoading && (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  )}
+                  {addLeadLoading ? 'Adding Lead...' : 'Add Lead'}
+                </button>
                 </div>
               </div>
             </div>
