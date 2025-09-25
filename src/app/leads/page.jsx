@@ -63,6 +63,49 @@ export default function BrokerLeadsPage() {
   const [regionsError, setRegionsError] = useState('');
   const [applyingFilters, setApplyingFilters] = useState(false);
 
+  // Auth and API base
+  const token = typeof window !== 'undefined'
+    ? (localStorage.getItem('token') || localStorage.getItem('authToken'))
+    : null;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+  /* ───────────── Metrics API ───────────── */
+  const [metrics, setMetrics] = useState({ totalLeads: 0, newLeadsToday: 0, convertedLeads: 0, avgDealSize: 0 });
+  const [metricsLoading, setMetricsLoading] = useState(false);
+  const [metricsError, setMetricsError] = useState('');
+
+  const loadMetrics = useCallback(async () => {
+    try {
+      setMetricsLoading(true); setMetricsError('');
+      const res = await fetch(`${apiUrl}/leads/metrics`, {
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+      });
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          setMetricsError(err?.message || err?.error || 'Failed to load metrics');
+        } catch {
+          setMetricsError('Failed to load metrics');
+        }
+        return;
+      }
+      const data = await res.json();
+      const payload = data?.data || data || {};
+      setMetrics({
+        totalLeads: Number(payload.totalLeads || payload.total || 0),
+        newLeadsToday: Number(payload.newLeadsToday || payload.today || 0),
+        convertedLeads: Number(payload.convertedLeads || payload.converted || 0),
+        avgDealSize: Number(payload.avgDealSize || payload.averageDealSize || 0),
+      });
+    } catch {
+      setMetricsError('Error loading metrics');
+    } finally {
+      setMetricsLoading(false);
+    }
+  }, [apiUrl, token]);
+
+  useEffect(() => { loadMetrics(); }, [loadMetrics]);
+
   /* ───────────── Leads API ───────────── */
   const [leads, setLeads] = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
@@ -78,10 +121,7 @@ export default function BrokerLeadsPage() {
     return () => clearTimeout(t);
   }, [filters.query]);
 
-  const token = typeof window !== 'undefined'
-    ? (localStorage.getItem('token') || localStorage.getItem('authToken'))
-    : null;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  // token and apiUrl declared above
 
   const getCurrentUserIdFromToken = (jwtToken) => {
     try {
@@ -562,29 +602,29 @@ export default function BrokerLeadsPage() {
   <StatCard
     color="sky"
     label="Total Leads"
-    value="1,248"
-    deltaText="↑ 12.5% vs last month"
+    value={metricsLoading ? '—' : metrics.totalLeads.toLocaleString()}
+    deltaText={metricsError ? 'Unable to load' : '↑ 12.5% vs last month'}
     trend="up"
   />
   <StatCard
     color="amber"
     label="New Leads Today"
-    value="36"
-    deltaText="↑ 8.2% vs yesterday"
+    value={metricsLoading ? '—' : Number(metrics.newLeadsToday || 0).toLocaleString()}
+    deltaText={metricsError ? 'Unable to load' : '↑ 8.2% vs yesterday'}
     trend="up"
   />
   <StatCard
     color="emerald"
     label="Converted Leads"
-    value="287"
-    deltaText="↓ 3.7% vs last month"
+    value={metricsLoading ? '—' : Number(metrics.convertedLeads || 0).toLocaleString()}
+    deltaText={metricsError ? 'Unable to load' : '↓ 3.7% vs last month'}
     trend="down"
   />
   <StatCard
     color="violet"
     label="Avg. Deal Size"
-    value="$8,540"
-    deltaText="↑ 5.1% vs last month"
+    value={metricsLoading ? '—' : `$${Number(metrics.avgDealSize || 0).toLocaleString()}`}
+    deltaText={metricsError ? 'Unable to load' : '↑ 5.1% vs last month'}
     trend="up"
   />
           </div>
