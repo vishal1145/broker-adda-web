@@ -288,7 +288,16 @@ export default function BrokerLeadsPage() {
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) { toast.error('Failed to create lead'); return; }
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          const msg = err?.message || err?.error || 'Failed to create lead';
+          toast.error(msg);
+        } catch {
+          toast.error('Failed to create lead');
+        }
+        return;
+      }
       toast.success('Lead created successfully');
       await loadLeads(); setShowAddLead(false);
       setNewLead({ customerName:'', customerPhone:'', customerEmail:'', requirement:'select requirement', propertyType:'select propertyType', budget:'', region:'select region', notes:'', files:null });
@@ -326,6 +335,34 @@ export default function BrokerLeadsPage() {
       setBrokersList([]);
     } finally {
       setBrokersLoading(false);
+    }
+  };
+
+  // Delete lead
+  const handleDeleteLead = async (lead) => {
+    try {
+      const leadId = lead?._id || lead?.id;
+      if (!leadId) { toast.error('Invalid lead id'); return; }
+      const res = await fetch(`${apiUrl}/leads/${leadId}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      });
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          const msg = err?.message || err?.error || 'Failed to delete lead';
+          toast.error(msg);
+        } catch {
+          toast.error('Failed to delete lead');
+        }
+        return;
+      }
+      toast.success('Lead deleted');
+      await loadLeads();
+    } catch (e) {
+      toast.error('Error deleting lead');
     }
   };
 
@@ -371,19 +408,76 @@ export default function BrokerLeadsPage() {
   const [selectedLead, setSelectedLead] = useState(null);
   const [viewEditMode, setViewEditMode] = useState(false);
   const [viewClosing, setViewClosing] = useState(false);
-  const [viewForm, setViewForm] = useState({ name:'', contact:'', email:'', budget:'', requirement:'' });
-  const saveViewEdits = () => {
-    setSelectedLead((prev) => prev ? {
+  const [viewForm, setViewForm] = useState({
+    name: '',
+    contact: '',
+    email: '',
+    budget: '',
+    requirement: '',
+    propertyType: '',
+    region: null,
+  });
+  const [viewSaving, setViewSaving] = useState(false);
+  const saveViewEdits = async () => {
+    if (!selectedLead) return;
+    try {
+      setViewSaving(true);
+      const leadId = selectedLead._id || selectedLead.id;
+      const payload = {
+        customerName: viewForm.name !== undefined ? viewForm.name : (selectedLead.customerName || selectedLead.name || ''),
+        customerPhone: viewForm.contact !== undefined ? viewForm.contact : (selectedLead.customerPhone || ''),
+        customerEmail: viewForm.email !== undefined ? viewForm.email : (selectedLead.customerEmail || ''),
+        requirement: viewForm.requirement !== undefined ? viewForm.requirement : (selectedLead.requirement || ''),
+        propertyType: viewForm.propertyType !== undefined ? viewForm.propertyType : (selectedLead.propertyType || ''),
+        budget: viewForm.budget !== '' && viewForm.budget !== null ? Number(viewForm.budget) : (typeof selectedLead.budget === 'number' ? selectedLead.budget : 0),
+      };
+      if (viewForm.region && viewForm.region.value && viewForm.region.value !== 'all') {
+        payload.regionId = viewForm.region.value;
+      }
+
+      const res = await fetch(`${apiUrl}/leads/${leadId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          const msg = err?.message || err?.error || 'Failed to update lead';
+          toast.error(msg);
+        } catch {
+          toast.error('Failed to update lead');
+        }
+        return;
+      }
+      const data = await res.json();
+      const updated = data?.data || data;
+
+      setSelectedLead((prev) => ({
         ...prev,
-        name: viewForm.name || prev.name,
-        contact: viewForm.contact || prev.contact,
-        customerName: viewForm.name || prev.customerName,
-        customerPhone: viewForm.contact || prev.customerPhone,
-        customerEmail: viewForm.email || prev.customerEmail,
-        budget: viewForm.budget !== '' ? viewForm.budget : prev.budget,
-      requirement: viewForm.requirement || prev.requirement
-    } : prev);
-    setViewEditMode(false);
+        ...updated,
+        name: updated.name || updated.customerName || viewForm.name || prev?.name,
+        customerName: updated.customerName || viewForm.name || prev?.customerName,
+        contact: updated.contact || updated.customerPhone || viewForm.contact || prev?.contact,
+        customerPhone: updated.customerPhone || viewForm.contact || prev?.customerPhone,
+        customerEmail: updated.customerEmail || viewForm.email || prev?.customerEmail,
+        requirement: updated.requirement || viewForm.requirement || prev?.requirement,
+        propertyType: updated.propertyType || viewForm.propertyType || prev?.propertyType,
+        budget: typeof updated.budget === 'number' ? updated.budget : (viewForm.budget !== '' ? Number(viewForm.budget) : prev?.budget),
+        region: updated.region || (viewForm.region ? { name: viewForm.region.label, _id: viewForm.region.value } : prev?.region),
+      }));
+
+      toast.success('Lead updated');
+      setViewEditMode(false);
+      await loadLeads();
+    } catch (e) {
+      toast.error('Error updating lead');
+    } finally {
+      setViewSaving(false);
+    }
   };
   const handleViewFieldChange = (e) => setViewForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -622,9 +716,15 @@ export default function BrokerLeadsPage() {
                 setViewForm({
                   name: row.customerName || row.name || "",
                   contact: row.customerPhone || row.contact || "",
-                  email: row.customerEmail || "-",
+                  email: row.customerEmail || "",
                   budget: String(row.budget ?? ""),
                   requirement: row.requirement || row.req || "",
+                  propertyType: row.propertyType || "",
+                  region: row.region ? (
+                    typeof row.region === 'object'
+                      ? { value: row.region._id || row.region.id || row.region.value || row.region, label: row.region.name || row.region.label || row.region }
+                      : { value: row.region, label: row.region }
+                  ) : null,
                 });
                 setShowView(true);
               }}
@@ -1307,8 +1407,16 @@ export default function BrokerLeadsPage() {
                       <button onClick={() => setViewEditMode(true)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Edit</button>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <button onClick={saveViewEdits} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Save</button>
-                        <button onClick={() => setViewEditMode(false)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 cursor-pointer">Cancel</button>
+                          <button onClick={saveViewEdits} disabled={viewSaving} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                            {viewSaving && (
+                              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            )}
+                            {viewSaving ? 'Saving...' : 'Save'}
+                          </button>
+                        <button onClick={() => setViewEditMode(false)} disabled={viewSaving} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">Cancel</button>
                         </div>
                       )}
                     </div>
@@ -1336,6 +1444,57 @@ export default function BrokerLeadsPage() {
                           {viewEditMode ? (
                           <input name="email" value={viewForm.email} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600" />
                         ) : (selectedLead.customerEmail || '—')}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
+                      <span className="col-span-1 text-slate-500">Requirement:</span>
+                      <span className="col-span-2 text-slate-900">
+                          {viewEditMode ? (
+                            <Select
+                              value={viewForm.requirement ? { value: viewForm.requirement, label: viewForm.requirement } : null}
+                              onChange={(opt) => setViewForm((p) => ({ ...p, requirement: opt?.value || '' }))}
+                              options={requirementOptions.filter(o => o.value !== 'all')}
+                              styles={modalSelectStyles}
+                              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                              menuPosition="fixed"
+                            />
+                          ) : (selectedLead.requirement || selectedLead.req || '—')}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
+                      <span className="col-span-1 text-slate-500">Property Type:</span>
+                      <span className="col-span-2 text-slate-900">
+                          {viewEditMode ? (
+                            <Select
+                              value={viewForm.propertyType ? { value: viewForm.propertyType, label: viewForm.propertyType } : null}
+                              onChange={(opt) => setViewForm((p) => ({ ...p, propertyType: opt?.value || '' }))}
+                              options={propertyTypeOptions.filter(o => o.value !== 'all')}
+                              styles={modalSelectStyles}
+                              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                              menuPosition="fixed"
+                            />
+                          ) : (selectedLead.propertyType || '—')}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
+                      <span className="col-span-1 text-slate-500">Region:</span>
+                      <span className="col-span-2 text-slate-900">
+                          {viewEditMode ? (
+                            regionsLoading ? (
+                              <div className="text-[13px] text-slate-500">Loading regions...</div>
+                            ) : regionsError ? (
+                              <div className="text-[13px] text-rose-600">{regionsError}</div>
+                            ) : (
+                              <Select
+                                value={viewForm.region}
+                                onChange={(opt) => setViewForm((p) => ({ ...p, region: opt }))}
+                                options={regionOptions.filter(o => o.value !== 'all')}
+                                styles={modalSelectStyles}
+                                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                menuPosition="fixed"
+                              />
+                            )
+                          ) : (selectedLead.region?.name || selectedLead.region || '—')}
                         </span>
                       </div>
                       <div className="grid grid-cols-3 items-center py-2">
