@@ -82,6 +82,21 @@ export default function BrokerLeadsPage() {
     : null;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
+  const getCurrentUserIdFromToken = (jwtToken) => {
+    try {
+      if (!jwtToken || typeof window === 'undefined') return '';
+      const base64Url = jwtToken.split('.')[1];
+      if (!base64Url) return '';
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      const payload = JSON.parse(jsonPayload);
+      return payload.userId || payload.id || payload.sub || '';
+    } catch {
+      return '';
+    }
+  };
+  const currentUserId = useMemo(() => getCurrentUserIdFromToken(token), [token]);
+
   const buildRequestUrl = useCallback(
     (effectiveFilters, p = page, l = limit, q = debouncedQuery) => {
       const params = new URLSearchParams();
@@ -279,7 +294,70 @@ export default function BrokerLeadsPage() {
   /* ───────────── Transfer modal ───────────── */
   const [showTransfer, setShowTransfer] = useState(false);
   const [transferForm, setTransferForm] = useState({ brokerIds:[], notes: '' });
-  const brokers = [{ id: 'all', name: 'All Broker' }, { id: 'b1', name: 'Alice Smith' }, { id: 'b2', name: 'Bob Johnson' }, { id: 'b3', name: 'Charlie Brown' } ];
+  const [transferLoading, setTransferLoading] = useState(false);
+  const [brokersList, setBrokersList] = useState([]);
+  const [brokersLoading, setBrokersLoading] = useState(false);
+  const [brokersError, setBrokersError] = useState('');
+
+  const loadBrokers = async () => {
+    try {
+      setBrokersLoading(true); setBrokersError('');
+      const base = apiUrl ;
+      const res = await fetch(`${base}/brokers`, {
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+      });
+      if (!res.ok) throw new Error('bad');
+      const data = await res.json();
+      let items = [];
+      if (Array.isArray(data?.data?.brokers)) items = data.data.brokers;
+      else if (Array.isArray(data?.data)) items = data.data;
+      else if (Array.isArray(data?.brokers)) items = data.brokers;
+      else if (Array.isArray(data)) items = data;
+      setBrokersList(items);
+    } catch {
+      setBrokersError('Failed to load brokers');
+      setBrokersList([]);
+    } finally {
+      setBrokersLoading(false);
+    }
+  };
+
+  const openTransferForLead = (lead) => {
+    setSelectedLead(lead);
+    setTransferForm({ brokerIds: [], notes: '' });
+    setShowTransfer(true);
+    if (!brokersList || brokersList.length === 0) {
+      loadBrokers();
+    }
+  };
+
+  const submitTransfer = async () => {
+    if (!selectedLead) { toast.error('No lead selected'); return; }
+    const leadId = selectedLead._id || selectedLead.id;
+    const toBrokers = (transferForm.brokerIds || []).filter((id) => id !== 'all');
+    if (!leadId) { toast.error('Invalid lead id'); return; }
+    if (!toBrokers.length) { toast.error('Select at least one broker'); return; }
+
+    try {
+      setTransferLoading(true);
+      const res = await fetch(`${apiUrl}/leads/${leadId}/transfer-and-notes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ toBrokers, notes: transferForm.notes || '' })
+      });
+      if (!res.ok) { toast.error('Failed to transfer lead'); return; }
+      toast.success('Transfer request sent');
+      setShowTransfer(false);
+      setTransferForm({ brokerIds: [], notes: '' });
+    } catch {
+      toast.error('Error sending transfer request');
+    } finally {
+      setTransferLoading(false);
+    }
+  };
 
   /* ───────────── View Drawer ───────────── */
   const [showView, setShowView] = useState(false);
@@ -327,7 +405,7 @@ export default function BrokerLeadsPage() {
       
       <div className="min-h-screen bg-slate-50 py-8">
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-        <div className="w-full mx-auto px-6 lg:px-10">
+        <div className="w-full mx-auto px-6 ">
           {/* 9 / 3 layout */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Header */}
@@ -418,20 +496,20 @@ export default function BrokerLeadsPage() {
 <div className="mt-6 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
   {/* Table Header */}
   <div className="grid grid-cols-12 px-6 py-3 text-[14px] font-medium text-gray-600 bg-gray-50">
-    <div className="col-span-2">Customer Name</div>
-    <div className="col-span-2">Contact</div>
-    <div className="col-span-2">Requirement</div>
-    <div className="col-span-1">Budget</div>
-    <div className="col-span-2">Region</div>
-    <div className="col-span-1">Status</div>
+    <div className="col-span-2 text-left">Customer Name</div>
+    <div className="col-span-2 text-left">Contact</div>
+    <div className="col-span-2 text-left">Requirement</div>
+    <div className="col-span-1 text-left">Budget</div>
+    <div className="col-span-2 text-left">Region</div>
+    <div className="col-span-1 text-center">Status</div>
     <div className="col-span-2 text-center">Actions</div>
-                </div>
+  </div>
 
   {/* Loading */}
   {leadsLoading && (
     <div className="divide-y divide-gray-100">
       {[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
-                </div>
+    </div>
   )}
 
   {/* Empty */}
@@ -444,48 +522,51 @@ export default function BrokerLeadsPage() {
     {(leadsLoading ? [] : leads).map((row, idx) => (
       <div
         key={row._id || row.id || idx}
-        className="grid grid-cols-12 items-start px-6 py-4 bg-white gap-y-1 gap-x-4"
+        className="grid grid-cols-12 items-center px-6 py-4 gap-x-4 bg-white"
       >
         {/* Customer Name */}
-        <div className="col-span-2 flex items-start ">
-         
-          <div className="text-sm font-medium text-gray-900 whitespace-normal break-words leading-5">
-            {row.customerName || row.name || "-"}
-          </div>
-                </div>
+        <div className="col-span-2 text-left text-sm font-medium text-gray-900 break-words">
+          {row.customerName || row.name || "-"}
+        </div>
 
-        {/* Contact (emails can be very long → break-all) */}
-        <div className="col-span-2 text-[13px] text-gray-700 whitespace-normal break-all leading-5">
+        {/* Contact */}
+        <div className="col-span-2 text-left text-[13px] text-gray-700 break-all leading-5">
           {row.customerEmail || row.customerPhone || row.contact || "-"}
-                </div>
+        </div>
 
         {/* Requirement */}
-        <div className="col-span-2 text-[13px] text-gray-700 whitespace-normal break-words leading-5">
+        <div className="col-span-2 text-left text-[13px] text-gray-700 break-words leading-5">
           {row.requirement || row.req || "-"}
-              </div>
+        </div>
 
         {/* Budget */}
-        <div className="col-span-1 text-[13px] text-gray-700 whitespace-normal break-words leading-5">
-          {typeof row.budget === "number" ? `$${row.budget.toLocaleString()}` : (row.budget || "—")}
+        <div className="col-span-1 text-left text-[13px] text-gray-700 break-words leading-5">
+          {typeof row.budget === "number"
+            ? `$${row.budget.toLocaleString()}`
+            : row.budget || "—"}
         </div>
 
         {/* Region */}
-        <div className="col-span-2 text-[13px] text-gray-700 whitespace-normal break-words leading-5">
+        <div className="col-span-2 text-left text-[13px] text-gray-700 break-words leading-5">
           {row.region?.name || row.region || "—"}
         </div>
 
         {/* Status */}
-        <div className="col-span-1">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(row.status)}`}>
+        <div className="col-span-1 text-center">
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
+              row.status
+            )}`}
+          >
             {row.status || "—"}
           </span>
         </div>
 
         {/* Actions */}
-        <div className="col-span-2 text-right">
-          <div className="inline-flex items-center gap-2 pl-6">
+        <div className="col-span-2 text-center">
+          <div className="inline-flex items-center gap-2">
             {/* View */}
-                <button
+            <button
               title="View"
               className="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer"
               aria-label="view"
@@ -503,44 +584,78 @@ export default function BrokerLeadsPage() {
                 setShowView(true);
               }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 
+                  4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
               </svg>
-                </button>
+            </button>
 
             {/* Transfer */}
-                <button
+            <button
               title="Transfer"
               className="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer"
               aria-label="transfer"
-              onClick={() => setShowTransfer(true)}
+              onClick={() => openTransferForLead(row)}
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="22" y1="2" x2="11" y2="13" />
                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
               </svg>
             </button>
 
-          
-
-            {/* Delete (restored) */}
+            {/* Delete */}
             <button
               title="Delete"
               className="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 cursor-pointer"
               aria-label="delete"
               onClick={() => handleDeleteLead(row)}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 
+                  7h22M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"
+                />
               </svg>
-                </button>
+            </button>
+          </div>
+        </div>
       </div>
-              </div>
-            </div>
     ))}
   </div>
 </div>
+
 
 
 
@@ -1030,12 +1145,20 @@ export default function BrokerLeadsPage() {
                   <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Select Broker(s)</label>
                       <Select
-                    value={transferForm.brokerIds.map(id => ({ value: id, label: (['b1','b2','b3'].includes(id) ? ['Alice Smith','Bob Johnson','Charlie Brown'][['b1','b2','b3'].indexOf(id)] : id) }))}
+                    value={transferForm.brokerIds
+                      .filter(id => (brokersList || []).some(x => (x._id || x.id) === id && (x._id || x.id) !== currentUserId))
+                      .map(id => {
+                        const b = (brokersList || []).find(x => (x._id || x.id) === id);
+                        return { value: id, label: b?.name || b?.fullName || b?.email || id };
+                      })}
                     onChange={(opts) => setTransferForm(prev => ({ ...prev, brokerIds: (opts || []).map(o => o.value) }))}
-                    options={[{ value:'all', label:'All Broker' },{ value:'b1', label:'Alice Smith' }, { value:'b2', label:'Bob Johnson' }, { value:'b3', label:'Charlie Brown' }]}
+                    options={(brokersList || [])
+                      .filter(b => (b._id || b.id) && (b._id || b.id) !== currentUserId)
+                      .map(b => ({ value: b._id || b.id, label: b.name || b.fullName || b.email || 'Unnamed' }))}
                       styles={customSelectStyles}
                     isMulti isSearchable closeMenuOnSelect={false} hideSelectedOptions
-                      placeholder="Choose brokers..."
+                      placeholder={brokersLoading ? 'Loading brokers...' : (brokersError ? brokersError : 'Choose brokers...')}
+                    isLoading={brokersLoading}
                     />
                   </div>
                   <div>
@@ -1044,8 +1167,8 @@ export default function BrokerLeadsPage() {
                   </div>
                 </div>
                 <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                <button onClick={() => setShowTransfer(false)} className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer">Cancel</button>
-                <button onClick={() => setShowTransfer(false)} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Send Transfer Request</button>
+                <button onClick={() => setShowTransfer(false)} className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer" disabled={transferLoading}>Cancel</button>
+                <button onClick={submitTransfer} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer disabled:opacity-60" disabled={transferLoading}>{transferLoading ? 'Sending...' : 'Send Transfer Request'}</button>
                 </div>
               </div>
             </div>
