@@ -955,58 +955,70 @@ export default function BrokerLeadsPage() {
   /> */}
           </div>
 
-              {/* Search + status + buttons */}
-              <div className="mt-6 flex flex-col sm:flex-row sm:flex-nowrap items-stretch sm:items-center gap-3">
-            <div className={`relative ${isAdvancedFiltersApplied ? 'basis-[35%] md:basis-[35%] lg:basis-[35%] min-w-[220px]' : 'flex-1'} shrink-0`}>
-              <input
-                type="text"
+              {/* Search + status + buttons - Flexible layout */}
+              <div className="mt-6 flex items-center gap-3">
+                {/* Search - Flexible width */}
+                <div className={`relative ${isAdvancedFiltersApplied ? 'flex-1' : 'flex-1'}`}>
+                  <input
+                    type="text"
                     placeholder="Search leads..."
-                value={filters.query}
-                onChange={(e) => setFilters({ ...filters, query: e.target.value })}
+                    value={filters.query}
+                    onChange={(e) => setFilters({ ...filters, query: e.target.value })}
                     className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl shadow-sm bg-white text-sm focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500"
-              />
+                  />
                   <svg className="w-5 h-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
-              </svg>
-            </div>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+                  </svg>
+                </div>
 
-            <div className="w-full sm:w-48 ">
-              <Select
-                value={filters.status}
+                {/* Status Filter - Fixed width */}
+                <div className="w-48">
+                  <Select
+                    value={filters.status}
                     onChange={(opt) => { const next = { ...filters, status: opt }; setFilters(next); setPage(1); loadLeads(next, 1, limit, debouncedQuery); }}
-                options={statusOptions}
-                styles={customSelectStyles}
+                    options={statusOptions}
+                    styles={customSelectStyles}
                     isSearchable
                     menuPlacement="bottom"
-              />
-            </div>
-
-            <button
-              type="button"
-                  onClick={() => setShowAdvanced(true)}
-                  className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-green-300 bg-white text-green-700 hover:bg-green-50 hover:border border-green-500 shadow-sm cursor-pointer whitespace-nowrap"
-            >
-              Advanced Filters
-            </button>
-           
-        <button
-                  type="button"
-                  onClick={() => setShowAddLead(true)}
-                  className="px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-900 hover:bg-emerald-700 shadow-sm cursor-pointer"
-                >
-                  Add New Lead
-        </button>
-         {isAdvancedFiltersApplied && (
-              <button
-                type="button"
-                onClick={clearAdvancedFilters}
-                className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer whitespace-nowrap"
-                title="Clear advanced filters"
-              >
-                Clear Filters
-              </button>
-            )}
+                  />
                 </div>
+
+                {/* Advanced Filters - Fixed width */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvanced(true)}
+                    className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-green-300 bg-white text-green-700 hover:bg-green-50 hover:border-green-500 shadow-sm cursor-pointer whitespace-nowrap"
+                  >
+                    Advanced Filters
+                  </button>
+                </div>
+                
+                {/* Add New Lead - Fixed width */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddLead(true)}
+                    className="px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-900 hover:bg-emerald-700 shadow-sm cursor-pointer whitespace-nowrap"
+                  >
+                    Add New Lead
+                  </button>
+                </div>
+                
+                {/* Clear Filters - Fixed width, only when needed */}
+                {isAdvancedFiltersApplied && (
+                  <div>
+                    <button
+                      type="button"
+                      onClick={clearAdvancedFilters}
+                      className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer whitespace-nowrap"
+                      title="Clear advanced filters"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                )}
+              </div>
 
             {/* Table */}
 <div className="mt-6 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
