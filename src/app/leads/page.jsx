@@ -62,6 +62,20 @@ export default function BrokerLeadsPage() {
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [regionsError, setRegionsError] = useState('');
   const [applyingFilters, setApplyingFilters] = useState(false);
+  const isAdvancedFiltersApplied = useMemo(() => {
+    return (
+      (filters.status?.value && filters.status.value !== 'all') ||
+      (filters.broker?.value && filters.broker.value !== 'all') ||
+      (filters.region?.value && filters.region.value !== 'all') ||
+      (filters.propertyType?.value && filters.propertyType.value !== 'all') ||
+      (filters.requirement?.value && filters.requirement.value !== 'all') ||
+      !!filters.startDate || !!filters.endDate ||
+      (typeof filters.budgetMax === 'number' && filters.budgetMax !== 500000)
+    );
+  }, [filters]);
+
+  // clearAdvancedFilters is defined later, after pagination and loadLeads are created
+  let clearAdvancedFilters = () => {};
 
   // Auth and API base
   const token = typeof window !== 'undefined'
@@ -270,6 +284,24 @@ export default function BrokerLeadsPage() {
     },
     [filters, page, limit, debouncedQuery, token, buildRequestUrl, brokerId, brokerIdLoading]
   );
+
+  // Now that page/limit/loadLeads exist, define clearAdvancedFilters
+  clearAdvancedFilters = () => {
+    const reset = {
+      ...filters,
+      status: { value: 'all', label: 'All Status' },
+      broker: { value: 'all', label: 'All Brokers' },
+      region: { value: 'all', label: 'All Regions' },
+      propertyType: { value: 'all', label: 'All Property Types' },
+      requirement: { value: 'all', label: 'All Requirements' },
+      startDate: '',
+      endDate: '',
+      budgetMax: 500000,
+    };
+    setFilters(reset);
+    setPage(1);
+    loadLeads(reset, 1, limit, debouncedQuery);
+  };
 
   useEffect(() => { loadLeads(); }, [page, limit]); // eslint-disable-line
   useEffect(() => { page !== 1 ? setPage(1) : loadLeads(); }, [debouncedQuery]); // eslint-disable-line
@@ -812,8 +844,8 @@ export default function BrokerLeadsPage() {
           </div>
 
               {/* Search + status + buttons */}
-              <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            <div className="relative flex-1">
+              <div className="mt-6 flex flex-col sm:flex-row sm:flex-nowrap items-stretch sm:items-center gap-3">
+            <div className={`relative ${isAdvancedFiltersApplied ? 'basis-[35%] md:basis-[35%] lg:basis-[35%] min-w-[220px]' : 'flex-1'} shrink-0`}>
               <input
                 type="text"
                     placeholder="Search leads..."
@@ -840,10 +872,20 @@ export default function BrokerLeadsPage() {
             <button
               type="button"
                   onClick={() => setShowAdvanced(true)}
-                  className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-green-300 bg-white text-green-700 hover:bg-green-50 hover:border border-green-500 shadow-sm cursor-pointer"
+                  className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-green-300 bg-white text-green-700 hover:bg-green-50 hover:border border-green-500 shadow-sm cursor-pointer whitespace-nowrap"
             >
               Advanced Filters
             </button>
+            {isAdvancedFiltersApplied && (
+              <button
+                type="button"
+                onClick={clearAdvancedFilters}
+                className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer whitespace-nowrap"
+                title="Clear advanced filters"
+              >
+                Clear Filters
+              </button>
+            )}
         <button
                   type="button"
                   onClick={() => setShowAddLead(true)}
@@ -856,12 +898,13 @@ export default function BrokerLeadsPage() {
             {/* Table */}
 <div className="mt-6 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
   {/* Table Header */}
-  <div className="grid grid-cols-12 px-6 py-3 text-[13px] font-medium text-gray-600 bg-gray-50">
-    <div className="col-span-2 text-left">Customer Name</div>
+  <div className="grid grid-cols-12 gap-x-4 px-6 py-3 text-[13px] font-medium text-gray-600 bg-gray-50">
+    <div className="col-span-1 text-left">Customer Name</div>
     <div className="col-span-2 text-left">Contact</div>
     <div className="col-span-2 text-left">Requirement</div>
     <div className="col-span-1 text-left">Budget</div>
-    <div className="col-span-2 text-left">Region</div>
+    <div className="col-span-1 text-left">Region</div>
+    <div className="col-span-2 text-left">Shared With</div>
     <div className="col-span-1 text-center">Status</div>
     <div className="col-span-2 text-center">Actions</div>
   </div>
@@ -886,7 +929,7 @@ export default function BrokerLeadsPage() {
         className="grid grid-cols-12 items-center px-6 py-4 gap-x-4 bg-white"
       >
         {/* Customer Name */}
-        <div className="col-span-2 text-left text-sm font-medium text-gray-900 break-words">
+        <div className="col-span-1 text-left text-sm font-medium text-gray-900 break-words">
           {row.customerName || row.name || "-"}
         </div>
 
@@ -908,8 +951,60 @@ export default function BrokerLeadsPage() {
         </div>
 
         {/* Region */}
-        <div className="col-span-2 text-left text-[13px] text-gray-700 break-words leading-5">
+        <div className="col-span-1 text-left text-[13px] text-gray-700 break-words leading-5">
           {row.region?.name || row.region || "—"}
+        </div>
+
+        {/* Shared With (avatar group from transfers) */}
+        <div className="col-span-2 text-left">
+          {(() => {
+            const transfers = Array.isArray(row?.transfers) ? row.transfers : [];
+            // Unique toBroker ids
+            const uniqueToBrokerIds = Array.from(new Set(
+              transfers
+                .map(t => t?.toBroker)
+                .filter(Boolean)
+            ));
+
+            if (uniqueToBrokerIds.length === 0) {
+              return <span className="text-[12px] text-gray-400">Not shared</span>;
+            }
+
+            // Build minimal avatar objects from brokersList if available
+            const idToBroker = new Map((brokersList || []).map(b => [b._id || b.id, b]));
+            const avatars = uniqueToBrokerIds.map(id => {
+              const b = idToBroker.get(id) || {};
+              return {
+                id,
+                name: b.name || b.fullName || b.email || 'Broker',
+                image: b.brokerImage || b.avatarUrl || b.imageUrl || ''
+              };
+            });
+
+            const visible = avatars.slice(0, 3);
+            const remaining = Math.max(0, avatars.length - visible.length);
+
+            return (
+              <div className="flex items-center">
+                <div className="flex -space-x-2">
+                  {visible.map((a, i) => (
+                    <div key={`${a.id || 'broker'}-${i}`} className="w-7 h-7 rounded-full ring-2 ring-white bg-gray-200 overflow-hidden flex items-center justify-center text-[10px] text-gray-600" title={a.name}>
+                      {a.image ? (
+                        <img src={a.image} alt={a.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{(a.name || 'B').slice(0,1).toUpperCase()}</span>
+                      )}
+                    </div>
+                  ))}
+                  {remaining > 0 && (
+                    <div className="w-7 h-7 rounded-full ring-2 ring-white bg-yellow-400 text-black flex items-center justify-center text-[11px] font-semibold" title={`+${remaining} more`}>
+                      +{remaining}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Status */}
@@ -996,7 +1091,7 @@ export default function BrokerLeadsPage() {
 
             {/* Delete */}
             <div className="relative group">
-              <button
+            <button
                 className={`w-7 h-7 inline-flex items-center justify-center rounded-lg border ${
                   (() => {
                     const transferredTo = row?.transferredTo || row?.transferredBrokers || row?.transfers || [];
@@ -1006,15 +1101,15 @@ export default function BrokerLeadsPage() {
                       : "border-gray-200 text-gray-500 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 cursor-pointer";
                   })()
                 }`}
-                aria-label="delete"
-                onClick={() => handleDeleteLead(row)}
+              aria-label="delete"
+              onClick={() => handleDeleteLead(row)}
                 disabled={
                   (() => {
                     const transferredTo = row?.transferredTo || row?.transferredBrokers || row?.transfers || [];
                     return Array.isArray(transferredTo) && transferredTo.length > 0;
                   })()
                 }
-              >
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -1029,7 +1124,7 @@ export default function BrokerLeadsPage() {
                   7h22M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"
                 />
               </svg>
-              </button>
+            </button>
               
               {/* Custom Tooltip */}
               {(() => {
@@ -1039,7 +1134,7 @@ export default function BrokerLeadsPage() {
                   <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[9999] min-w-max">
                     Cannot delete - Lead has been transferred
                     <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-                  </div>
+          </div>
                 ) : (
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                     Delete
@@ -1096,7 +1191,7 @@ export default function BrokerLeadsPage() {
     {/* Links */}
     <ul className="text-sm text-sky-700 space-y-2">
       <li>
-        <a href="#" className="flex items-center gap-3 pl-0.5">
+        <a href="#" className="py-2 flex items-center gap-3 pl-0.5">
           {/* Doc */}
           <svg className="w-4 h-4 text-sky-600 shrink-0 overflow-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -1106,7 +1201,7 @@ export default function BrokerLeadsPage() {
         </a>
       </li>
       <li>
-        <a href="#" className="flex items-center gap-3 pl-0.5">
+        <a href="#" className=" py-2 flex items-center gap-3 pl-0.5">
           {/* Video */}
           <svg className="w-4 h-4 text-sky-600 shrink-0 overflow-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 7l-6 4 6 4z"/>
@@ -1115,7 +1210,7 @@ export default function BrokerLeadsPage() {
         </a>
       </li>
       <li>
-        <a href="#" className="flex items-center gap-3 pl-0.5">
+        <a href="#" className="py-2 flex items-center gap-3 pl-0.5">
           {/* Docs list */}
           <svg className="w-4 h-4 text-sky-600 shrink-0 overflow-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/>
@@ -1321,25 +1416,25 @@ export default function BrokerLeadsPage() {
   <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
     <h4 className="text-md font-bold text-slate-900 mb-3">Resources</h4>
     <ul className="text-sm text-slate-700 space-y-2">
-      <li>
+      <li className='py-2'>
         <a href="#" className="group flex items-center gap-2 px-2  rounded-lg hover:bg-slate-50 text-sky-700">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
           Lead Generation Playbook
         </a>
       </li>
-      <li>
+      <li className='py-2'>
         <a href="#" className="group flex items-center gap-2 px-2  rounded-lg hover:bg-slate-50 text-sky-700">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>
           Email Templates
         </a>
       </li>
-      <li>
+      <li className='py-2'>
         <a href="#" className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
           Sales Calendar
         </a>
       </li>
-      <li>
+      <li className='py-2'>
         <a href="#" className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Team Directory
@@ -1442,13 +1537,15 @@ export default function BrokerLeadsPage() {
                 </div>
 
               <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                {isAdvancedFiltersApplied && (
                 <button 
-                  onClick={clearFilters} 
+                    onClick={clearAdvancedFilters} 
                   disabled={applyingFilters}
                   className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Clear Filters
                 </button>
+                )}
                 <button 
                   onClick={async () => { 
                     setApplyingFilters(true); 
