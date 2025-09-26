@@ -1963,15 +1963,61 @@ export default function BrokerLeadsPage() {
                    <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
                   <h5 className="text-[16px] font-semibold text-slate-900 mb-3 flex items-center gap-2">
                     <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h7M5 20l2.5-2.5M19 20l-2.5-2.5" />
                     </svg>
-                    Lead Lifecycle
+                    Share History
                   </h5>
+                  {(() => {
+                    const transfers = Array.isArray(selectedLead?.transfers) ? selectedLead.transfers : [];
+                    if (!transfers.length) {
+                      return <div className="text-[14px] text-slate-500">Not shared yet.</div>;
+                    }
+                    const idToBroker = new Map((brokersList || []).map(b => [b._id || b.id, b]));
+                    return (
                   <ul className="text-[14px] text-slate-700 space-y-3">
-                    <li className="flex items-start gap-2"><span className="mt-2 w-2 h-2 rounded-full bg-gray-400"></span><div><div className="font-medium">Created At</div><div className="text-slate-500">{selectedLead.createdAt ? new Date(selectedLead.createdAt).toLocaleString() : '—'}</div></div></li>
-                    <li className="flex items-start gap-2"><span className="mt-2 w-2 h-2 rounded-full bg-indigo-500"></span><div><div className="font-medium">Created By</div><div className="text-slate-500">{selectedLead.createdBy?.name || '—'}</div></div></li>
-                    <li className="flex items-start gap-2"><span className="mt-2 w-2 h-2 rounded-full bg-emerald-500"></span><div><div className="font-medium">Updated At</div><div className="text-slate-500">{selectedLead.updatedAt ? new Date(selectedLead.updatedAt).toLocaleString() : '—'}</div></div></li>
+                        {transfers.map((t, i) => {
+                          const toB = (t && typeof t.toBroker === 'object') ? t.toBroker : (idToBroker.get(t?.toBroker) || {});
+                          const fromB = (t && typeof t.fromBroker === 'object') ? t.fromBroker : (idToBroker.get(t?.fromBroker) || {});
+                          const toName = toB.name || toB.fullName || toB.email || toB._id || t?.toBroker || 'Unknown broker';
+                          const fromName = fromB.name || fromB.fullName || fromB.email || fromB._id || t?.fromBroker || 'Unknown broker';
+                          const toAvatar = toB.brokerImage || toB.avatarUrl || toB.imageUrl || '';
+                          const fromAvatar = fromB.brokerImage || fromB.avatarUrl || fromB.imageUrl || '';
+                          const when = t?.createdAt ? new Date(t.createdAt).toLocaleString() : '';
+                          const keyFrom = (typeof t?.fromBroker === 'object' ? t?.fromBroker?._id : t?.fromBroker) || 'from';
+                          const keyTo = (typeof t?.toBroker === 'object' ? t?.toBroker?._id : t?.toBroker) || 'to';
+                          return (
+                            <li key={`${keyFrom}-${keyTo}-${t?._id || i}`} className="flex items-center gap-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700" title={typeof fromName === 'string' ? fromName : String(fromName)}>
+                                  {fromAvatar ? (
+                                    <img src={fromAvatar} alt={typeof fromName === 'string' ? fromName : 'Broker'} className="w-full h-full object-cover" />
+                                  ) : (
+                                    (typeof fromName === 'string' ? fromName.charAt(0) : String(fromName || 'B').charAt(0)).toUpperCase()
+                                  )}
+                                </div>
+                                <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5l7 7-7 7"/></svg>
+                                <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700" title={typeof toName === 'string' ? toName : String(toName)}>
+                                  {toAvatar ? (
+                                    <img src={toAvatar} alt={typeof toName === 'string' ? toName : 'Broker'} className="w-full h-full object-cover" />
+                                  ) : (
+                                    (typeof toName === 'string' ? toName.charAt(0) : String(toName || 'B').charAt(0)).toUpperCase()
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-slate-900 truncate">
+                                  {typeof fromName === 'string' ? fromName : String(fromName)}
+                                  <span className="mx-1 text-slate-400">→</span>
+                                  {typeof toName === 'string' ? toName : String(toName)}
+                                </div>
+                                {when && <div className="text-[12px] text-slate-500">Shared on {when}</div>}
+                              </div>
+                            </li>
+                          );
+                        })}
                      </ul>
+                    );
+                  })()}
                    </div>
                 </div>
               </div>
