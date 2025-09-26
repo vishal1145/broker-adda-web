@@ -961,25 +961,24 @@ export default function BrokerLeadsPage() {
         <div className="col-span-2 text-left">
           {(() => {
             const transfers = Array.isArray(row?.transfers) ? row.transfers : [];
-            // Unique toBroker ids
-            const uniqueToBrokerIds = Array.from(new Set(
-              transfers
-                .map(t => t?.toBroker)
-                .filter(Boolean)
-            ));
+            // Extract toBroker objects/ids and normalize
+            const toBrokers = transfers
+              .map(t => (typeof t?.toBroker === 'object' ? t.toBroker : { _id: t?.toBroker }))
+              .filter(b => b && (b._id || b.name || b.email));
+            const uniqueToBrokers = Array.from(new Map(toBrokers.map(b => [b._id || b.email || b.name, b])).values());
 
-            if (uniqueToBrokerIds.length === 0) {
+            if (uniqueToBrokers.length === 0) {
               return <span className="text-[12px] text-gray-400">Not shared</span>;
             }
 
-            // Build minimal avatar objects from brokersList if available
+            // Map to avatar data: prefer brokerImage from embedded object; fallback to brokersList by id
             const idToBroker = new Map((brokersList || []).map(b => [b._id || b.id, b]));
-            const avatars = uniqueToBrokerIds.map(id => {
-              const b = idToBroker.get(id) || {};
+            const avatars = uniqueToBrokers.map(b => {
+              const merged = b._id ? { ...(idToBroker.get(b._id) || {}), ...b } : b;
               return {
-                id,
-                name: b.name || b.fullName || b.email || 'Broker',
-                image: b.brokerImage || b.avatarUrl || b.imageUrl || ''
+                id: merged._id || merged.id || merged.email || merged.name,
+                name: merged.name || merged.fullName || merged.email || 'Broker',
+                image: merged.brokerImage || merged.avatarUrl || merged.imageUrl || ''
               };
             });
 
@@ -991,11 +990,7 @@ export default function BrokerLeadsPage() {
                 <div className="flex -space-x-2">
                   {visible.map((a, i) => (
                     <div key={`${a.id || 'broker'}-${i}`} className="w-7 h-7 rounded-full ring-2 ring-white bg-gray-200 overflow-hidden flex items-center justify-center text-[10px] text-gray-600" title={a.name}>
-                      {a.image ? (
-                        <img src={a.image} alt={a.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{(a.name || 'B').slice(0,1).toUpperCase()}</span>
-                      )}
+                      <img src={a.image || 'https://www.w3schools.com/howto/img_avatar.png'} alt={a.name} className="w-full h-full object-cover" />
                     </div>
                   ))}
                   {remaining > 0 && (
@@ -2015,19 +2010,11 @@ export default function BrokerLeadsPage() {
                             <li key={`${keyFrom}-${keyTo}-${t?._id || i}`} className="flex items-center gap-3">
                               <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700" title={typeof fromName === 'string' ? fromName : String(fromName)}>
-                                  {fromAvatar ? (
-                                    <img src={fromAvatar} alt={typeof fromName === 'string' ? fromName : 'Broker'} className="w-full h-full object-cover" />
-                                  ) : (
-                                    (typeof fromName === 'string' ? fromName.charAt(0) : String(fromName || 'B').charAt(0)).toUpperCase()
-                                  )}
+                                  <img src={fromAvatar || 'https://www.w3schools.com/howto/img_avatar.png'} alt={typeof fromName === 'string' ? fromName : 'Broker'} className="w-full h-full object-cover" />
                                 </div>
                                 <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5l7 7-7 7"/></svg>
                                 <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700" title={typeof toName === 'string' ? toName : String(toName)}>
-                                  {toAvatar ? (
-                                    <img src={toAvatar} alt={typeof toName === 'string' ? toName : 'Broker'} className="w-full h-full object-cover" />
-                                  ) : (
-                                    (typeof toName === 'string' ? toName.charAt(0) : String(toName || 'B').charAt(0)).toUpperCase()
-                                  )}
+                                  <img src={toAvatar || 'https://www.w3schools.com/howto/img_avatar.png'} alt={typeof toName === 'string' ? toName : 'Broker'} className="w-full h-full object-cover" />
                                 </div>
                               </div>
                               <div className="flex-1 min-w-0">
