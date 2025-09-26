@@ -69,6 +69,86 @@ export default function BrokerLeadsPage() {
     : null;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
+  // Get current user ID from token
+  const getCurrentUserIdFromToken = (jwtToken) => {
+    try {
+      if (!jwtToken || typeof window === 'undefined') return '';
+      const base64Url = jwtToken.split('.')[1];
+      if (!base64Url) return '';
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      const payload = JSON.parse(jsonPayload);
+      // no-op
+      // Use brokerId if available, otherwise fall back to userId
+      return payload.brokerId || payload.userId || payload.id || payload.sub || '';
+    } catch {
+      return '';
+    }
+  };
+  const currentUserId = useMemo(() => getCurrentUserIdFromToken(token), [token]);
+
+  // State to store the actual broker ID (might be different from token userId)
+  const [brokerId, setBrokerId] = useState('');
+  const [brokerIdLoading, setBrokerIdLoading] = useState(false);
+
+  // Function to get broker details and extract the correct broker ID
+  const getBrokerId = useCallback(async () => {
+    if (!currentUserId || !token) {
+      // missing auth
+      return;
+    }
+    
+    // No hardcoded mapping. Always resolve via API only.
+    
+    try {
+      setBrokerIdLoading(true);
+      // fetch broker details for user
+      
+      // Try the most likely endpoint first
+      const res = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+      });
+      
+      // status read
+      
+      if (res.ok) {
+        const data = await res.json();
+        // raw data
+        
+        // Try different possible data structures
+        const brokerData = data?.data?.broker || data?.broker || data?.data || data;
+        // processed data
+        
+        // Use the broker's _id for filtering leads
+        if (brokerData && brokerData._id) {
+          setBrokerId(brokerData._id);
+          // set broker id
+        } else {
+          // no id in response
+          
+          // Fallback: do not guess. Keep brokerId empty and log for visibility
+          // leave brokerId empty
+        }
+      } else {
+        // failed to fetch broker details
+        const errorText = await res.text();
+        // Do not fallback to userId; keep brokerId empty so queries won't filter wrongly
+      }
+    } catch (error) {
+      // error fetching broker details
+      // Do not fallback to userId; keep brokerId empty so queries won't filter wrongly
+    } finally {
+      setBrokerIdLoading(false);
+    }
+  }, [currentUserId, token, apiUrl]);
+
+  // Get broker ID when currentUserId changes
+  useEffect(() => {
+    if (currentUserId) {
+      getBrokerId();
+    }
+  }, [currentUserId, getBrokerId]);
+
   /* ───────────── Metrics API ───────────── */
   const [metrics, setMetrics] = useState({ totalLeads: 0, newLeadsToday: 0, convertedLeads: 0, avgDealSize: 0 });
   const [metricsLoading, setMetricsLoading] = useState(false);
@@ -77,7 +157,10 @@ export default function BrokerLeadsPage() {
   const loadMetrics = useCallback(async () => {
     try {
       setMetricsLoading(true); setMetricsError('');
-      const res = await fetch(`${apiUrl}/leads/metrics`, {
+      const metricsUrl = brokerId
+        ? `${apiUrl}/leads/metrics?createdBy=${brokerId}`
+        : `${apiUrl}/leads/metrics`;
+      const res = await fetch(metricsUrl, {
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
       });
       if (!res.ok) {
@@ -102,7 +185,7 @@ export default function BrokerLeadsPage() {
     } finally {
       setMetricsLoading(false);
     }
-  }, [apiUrl, token]);
+  }, [apiUrl, token, brokerId]);
 
   useEffect(() => { loadMetrics(); }, [loadMetrics]);
 
@@ -121,31 +204,21 @@ export default function BrokerLeadsPage() {
     return () => clearTimeout(t);
   }, [filters.query]);
 
-  // token and apiUrl declared above
-
-  const getCurrentUserIdFromToken = (jwtToken) => {
-    try {
-      if (!jwtToken || typeof window === 'undefined') return '';
-      const base64Url = jwtToken.split('.')[1];
-      if (!base64Url) return '';
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-      const payload = JSON.parse(jsonPayload);
-      return payload.userId || payload.id || payload.sub || '';
-    } catch {
-      return '';
-    }
-  };
-  const currentUserId = useMemo(() => getCurrentUserIdFromToken(token), [token]);
-
   const buildRequestUrl = useCallback(
     (effectiveFilters, p = page, l = limit, q = debouncedQuery) => {
       const params = new URLSearchParams();
       params.set('page', String(p));
       params.set('limit', String(l));
+      // Filter by current broker's created leads
+      if (brokerId) {
+        params.set('createdBy', brokerId);
+      }
       if (q) params.set('search', q);
       if (effectiveFilters.status?.value && effectiveFilters.status.value !== 'all') params.set('status', effectiveFilters.status.value);
-      if (effectiveFilters.broker?.value && effectiveFilters.broker.value !== 'all') params.set('broker', effectiveFilters.broker.value);
+      // Only add broker filter if specifically selected (not 'all')
+      if (effectiveFilters.broker?.value && effectiveFilters.broker.value !== 'all') {
+        params.set('broker', effectiveFilters.broker.value);
+      }
       if (effectiveFilters.region?.value && effectiveFilters.region.value !== 'all') params.set('regionId', effectiveFilters.region.value);
       if (effectiveFilters.propertyType?.value && effectiveFilters.propertyType.value !== 'all') params.set('propertyType', effectiveFilters.propertyType.value);
       if (effectiveFilters.requirement?.value && effectiveFilters.requirement.value !== 'all') params.set('requirement', effectiveFilters.requirement.value);
@@ -154,11 +227,14 @@ export default function BrokerLeadsPage() {
       if (typeof effectiveFilters.budgetMax === 'number' && effectiveFilters.budgetMax !== 500000) params.set('budgetMax', String(effectiveFilters.budgetMax));
       return `${apiUrl}/leads?${params.toString()}`;
     },
-    [apiUrl, page, limit, debouncedQuery]
+    [apiUrl, page, limit, debouncedQuery, brokerId]
   );
 
   const loadLeads = useCallback(
     async (overrideFilters = null, overridePage = null, overrideLimit = null, overrideQuery = null) => {
+      // Don't load leads if we don't have brokerId yet
+      if (!brokerId && !brokerIdLoading) return;
+      
       try {
         setLeadsLoading(true);
         setLeadsError('');
@@ -192,11 +268,12 @@ export default function BrokerLeadsPage() {
         setLeadsLoading(false);
       }
     },
-    [filters, page, limit, debouncedQuery, token, buildRequestUrl]
+    [filters, page, limit, debouncedQuery, token, buildRequestUrl, brokerId, brokerIdLoading]
   );
 
   useEffect(() => { loadLeads(); }, [page, limit]); // eslint-disable-line
   useEffect(() => { page !== 1 ? setPage(1) : loadLeads(); }, [debouncedQuery]); // eslint-disable-line
+  useEffect(() => { if (brokerId) loadLeads(); }, [brokerId]); // Load leads when brokerId is available
 
   /* ───────────── Status styles to match screenshot ───────────── */
   const getStatusBadgeClasses = (status) => {
@@ -414,7 +491,11 @@ export default function BrokerLeadsPage() {
         propertyType: ptype || '',
         budget: newLead.budget !== '' && newLead.budget !== null ? parseFloat(newLead.budget) : 0,
         regionId: regionId && regionId !== 'select region' ? regionId : '',
+        createdBy: brokerId, // Explicitly set the createdBy field
       };
+      
+      // creating lead payload
+      
       const res = await fetch(`${apiUrl}/leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
