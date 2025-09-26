@@ -206,7 +206,7 @@ export default function BrokerLeadsPage() {
 
   /* ───────────── Leads API ───────────── */
   const [leads, setLeads] = useState([]);
-  const [leadsLoading, setLeadsLoading] = useState(false);
+  const [leadsLoading, setLeadsLoading] = useState(true);
   const [leadsError, setLeadsError] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -682,6 +682,8 @@ export default function BrokerLeadsPage() {
   const [selectedLead, setSelectedLead] = useState(null);
   const [viewEditMode, setViewEditMode] = useState(false);
   const [viewClosing, setViewClosing] = useState(false);
+  const [statusEditMode, setStatusEditMode] = useState(false);
+  const [statusSaving, setStatusSaving] = useState(false);
   const [viewForm, setViewForm] = useState({
     name: '',
     contact: '',
@@ -755,6 +757,52 @@ export default function BrokerLeadsPage() {
       setViewSaving(false);
     }
   };
+
+  const saveStatusUpdate = async (newStatus) => {
+    if (!selectedLead) return;
+    try {
+      setStatusSaving(true);
+      const leadId = selectedLead._id || selectedLead.id;
+      const payload = {
+        status: newStatus,
+      };
+
+      const res = await fetch(`${apiUrl}/leads/${leadId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          const msg = err?.message || err?.error || 'Failed to update status';
+          toast.error(msg);
+        } catch {
+          toast.error('Failed to update status');
+        }
+        return;
+      }
+      const data = await res.json();
+      const updated = data?.data || data;
+
+      setSelectedLead((prev) => ({
+        ...prev,
+        status: updated.status || newStatus,
+      }));
+
+      toast.success('Status updated successfully');
+      setStatusEditMode(false);
+      await loadLeads();
+    } catch (e) {
+      toast.error('Error updating status');
+    } finally {
+      setStatusSaving(false);
+    }
+  };
+
   const handleViewFieldChange = (e) => setViewForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const clearFilters = () => {
@@ -1328,7 +1376,7 @@ export default function BrokerLeadsPage() {
 
   <div className="space-y-2 text-sm">
     {/* Item 1 */}
-    <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
+    <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors" open>
       <summary className="list-none cursor-pointer flex items-center justify-between">
         <span className="text-[15px] font-semibold text-slate-900">
           How do I import leads from CSV?
@@ -1879,8 +1927,10 @@ export default function BrokerLeadsPage() {
                       Customer Information
                     </h5>
                       {!viewEditMode ? (
-                        ((selectedLead?.createdBy?._id || selectedLead?.createdBy) === brokerId) && (
+                        ((selectedLead?.createdBy?._id || selectedLead?.createdBy) === brokerId) ? (
                           <button onClick={() => setViewEditMode(true)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Edit</button>
+                        ) : (
+                          <button onClick={() => setStatusEditMode(true)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Edit Status</button>
                         )
                       ) : (
                         <div className="flex items-center gap-2">
@@ -1900,7 +1950,7 @@ export default function BrokerLeadsPage() {
 
                   <div className="text-[14px] text-slate-700">
                     {/* Status field (editable only if created by current broker) */}
-                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
+                      <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
                       <span className="col-span-1 text-slate-500 flex items-center gap-2">
                         <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2z" />
@@ -1908,7 +1958,7 @@ export default function BrokerLeadsPage() {
                         Status:
                       </span>
                       <span className="col-span-2 text-slate-900">
-                        {viewEditMode && ((selectedLead?.createdBy?._id || selectedLead?.createdBy) === brokerId) ? (
+                        {viewEditMode ? (
                           <select name="status" value={viewForm.status || selectedLead.status || 'New'} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600">
                             <option value="New">New</option>
                             <option value="Assigned">Assigned</option>
@@ -1916,6 +1966,38 @@ export default function BrokerLeadsPage() {
                             <option value="Closed">Closed</option>
                             <option value="Rejected">Rejected</option>
                           </select>
+                        ) : statusEditMode ? (
+                          <div className="flex items-center gap-2">
+                            <select 
+                              value={viewForm.status || selectedLead.status || 'New'} 
+                              onChange={(e) => setViewForm(prev => ({ ...prev, status: e.target.value }))}
+                              className="px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600"
+                              disabled={statusSaving}
+                            >
+                              <option value="New">New</option>
+                              <option value="Assigned">Assigned</option>
+                              <option value="In Progress">In Progress</option>
+                              <option value="Closed">Closed</option>
+                              <option value="Rejected">Rejected</option>
+                            </select>
+                            <button
+                              onClick={() => saveStatusUpdate(viewForm.status || selectedLead.status)}
+                              disabled={statusSaving}
+                              className="px-3 py-1 text-xs font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              {statusSaving ? 'Saving...' : 'Save'}
+                            </button>
+                            <button
+                              onClick={() => {
+                                setStatusEditMode(false);
+                                setViewForm(prev => ({ ...prev, status: selectedLead.status }));
+                              }}
+                              className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700 font-medium"
+                              disabled={statusSaving}
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         ) : (
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(selectedLead.status)}`}>{selectedLead.status || 'New'}</span>
                         )}
