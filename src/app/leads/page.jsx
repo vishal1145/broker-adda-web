@@ -45,6 +45,7 @@ const StatCard = ({ label, value, deltaText, trend = 'up', color = 'sky' }) => {
 export default function BrokerLeadsPage() {
   /* ───────────── Filters & UI state ───────────── */
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [leadViewMode, setLeadViewMode] = useState('my-leads'); // 'my-leads' or 'transferred'
   const [filters, setFilters] = useState({
     query: '',
     status: { value: 'all', label: 'All Status' },
@@ -219,11 +220,28 @@ export default function BrokerLeadsPage() {
   }, [filters.query]);
 
   const buildRequestUrl = useCallback(
-    (effectiveFilters, p = page, l = limit, q = debouncedQuery) => {
+    (effectiveFilters, p = page, l = limit, q = debouncedQuery, viewMode = leadViewMode) => {
       const params = new URLSearchParams();
       params.set('page', String(p));
       params.set('limit', String(l));
-      // Filter by current broker's created leads
+      
+      // Use different endpoint and parameters for transferred leads
+      if (viewMode === 'transferred') {
+        if (brokerId) {
+          params.set('toBroker', brokerId);
+        }
+        if (q) params.set('search', q);
+        if (effectiveFilters.status?.value && effectiveFilters.status.value !== 'all') params.set('status', effectiveFilters.status.value);
+        if (effectiveFilters.region?.value && effectiveFilters.region.value !== 'all') params.set('regionId', effectiveFilters.region.value);
+        if (effectiveFilters.propertyType?.value && effectiveFilters.propertyType.value !== 'all') params.set('propertyType', effectiveFilters.propertyType.value);
+        if (effectiveFilters.requirement?.value && effectiveFilters.requirement.value !== 'all') params.set('requirement', effectiveFilters.requirement.value);
+        if (effectiveFilters.startDate) params.set('startDate', effectiveFilters.startDate);
+        if (effectiveFilters.endDate) params.set('endDate', effectiveFilters.endDate);
+        if (typeof effectiveFilters.budgetMax === 'number' && effectiveFilters.budgetMax !== 500000) params.set('budgetMax', String(effectiveFilters.budgetMax));
+        return `${apiUrl}/leads/transferred?${params.toString()}`;
+      }
+      
+      // Default behavior for my leads
       if (brokerId) {
         params.set('createdBy', brokerId);
       }
@@ -241,11 +259,11 @@ export default function BrokerLeadsPage() {
       if (typeof effectiveFilters.budgetMax === 'number' && effectiveFilters.budgetMax !== 500000) params.set('budgetMax', String(effectiveFilters.budgetMax));
       return `${apiUrl}/leads?${params.toString()}`;
     },
-    [apiUrl, page, limit, debouncedQuery, brokerId]
+    [apiUrl, page, limit, debouncedQuery, brokerId, leadViewMode]
   );
 
   const loadLeads = useCallback(
-    async (overrideFilters = null, overridePage = null, overrideLimit = null, overrideQuery = null) => {
+    async (overrideFilters = null, overridePage = null, overrideLimit = null, overrideQuery = null, overrideViewMode = null) => {
       // Don't load leads if we don't have brokerId yet
       if (!brokerId && !brokerIdLoading) return;
       
@@ -256,8 +274,9 @@ export default function BrokerLeadsPage() {
         const p = overridePage ?? page;
         const l = overrideLimit ?? limit;
         const q = overrideQuery ?? debouncedQuery;
+        const v = overrideViewMode ?? leadViewMode;
 
-        const response = await fetch(buildRequestUrl(f, p, l, q), {
+        const response = await fetch(buildRequestUrl(f, p, l, q, v), {
           headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
         });
 
@@ -282,7 +301,7 @@ export default function BrokerLeadsPage() {
         setLeadsLoading(false);
       }
     },
-    [filters, page, limit, debouncedQuery, token, buildRequestUrl, brokerId, brokerIdLoading]
+    [filters, page, limit, debouncedQuery, token, buildRequestUrl, brokerId, brokerIdLoading, leadViewMode]
   );
 
   // Now that page/limit/loadLeads exist, define clearAdvancedFilters
@@ -306,6 +325,7 @@ export default function BrokerLeadsPage() {
   useEffect(() => { loadLeads(); }, [page, limit]); // eslint-disable-line
   useEffect(() => { page !== 1 ? setPage(1) : loadLeads(); }, [debouncedQuery]); // eslint-disable-line
   useEffect(() => { if (brokerId) loadLeads(); }, [brokerId]); // Load leads when brokerId is available
+  useEffect(() => { loadLeads(); }, [leadViewMode]); // Load leads when view mode changes
 
   /* ───────────── Status styles to match screenshot ───────────── */
   const getStatusBadgeClasses = (status) => {
@@ -807,8 +827,50 @@ export default function BrokerLeadsPage() {
  {/* Left 9 */}
             <div className="md:col-span-9">
           <div className="mb-6">
-            <h1 className="text-4xl font-display text-gray-900">Leads & Visitors</h1>
-            <p className="text-sm font-body text-gray-600 mt-2">Track and manage your sales pipeline effectively</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-display text-gray-900">Leads & Visitors</h1>
+                <p className="text-sm font-body text-gray-600 mt-2">Track and manage your sales pipeline effectively</p>
+              </div>
+              
+              {/* View Mode Toggle */}
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => {
+                    setLeadViewMode('my-leads');
+                    setPage(1);
+                    loadLeads(filters, 1, limit, debouncedQuery, 'my-leads');
+                  }}
+                  className={`flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    leadViewMode === 'my-leads'
+                      ? 'bg-green-900 text-white shadow-lg shadow-green-200'
+                      : 'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200'
+                  }`}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  My Leads
+                </button>
+                <button
+                  onClick={() => {
+                    setLeadViewMode('transferred');
+                    setPage(1);
+                    loadLeads(filters, 1, limit, debouncedQuery, 'transferred');
+                  }}
+                  className={`flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    leadViewMode === 'transferred'
+                      ? 'bg-green-900 text-white shadow-lg shadow-green-200'
+                      : 'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200'
+                  }`}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                  Transferred to Me
+                </button>
+              </div>
+            </div>
           </div>
 
           
@@ -878,7 +940,15 @@ export default function BrokerLeadsPage() {
             >
               Advanced Filters
             </button>
-            {isAdvancedFiltersApplied && (
+           
+        <button
+                  type="button"
+                  onClick={() => setShowAddLead(true)}
+                  className="px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-900 hover:bg-emerald-700 shadow-sm cursor-pointer"
+                >
+                  Add New Lead
+        </button>
+         {isAdvancedFiltersApplied && (
               <button
                 type="button"
                 onClick={clearAdvancedFilters}
@@ -888,13 +958,6 @@ export default function BrokerLeadsPage() {
                 Clear Filters
               </button>
             )}
-        <button
-                  type="button"
-                  onClick={() => setShowAddLead(true)}
-                  className="px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-900 hover:bg-emerald-700 shadow-sm cursor-pointer"
-                >
-                  Add New Lead
-        </button>
                 </div>
 
             {/* Table */}
