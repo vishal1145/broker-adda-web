@@ -20,6 +20,7 @@ const Navbar = ({ data }) => {
   const { user, logout } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [profileImageLoading, setProfileImageLoading] = useState(false);
   
   // Debug user object
   useEffect(() => {
@@ -31,9 +32,11 @@ const Navbar = ({ data }) => {
     const loadProfileImage = async () => {
       if (!user?.token || !user?.userId) {
         setProfileImage(null);
+        setProfileImageLoading(false);
         return;
       }
 
+      setProfileImageLoading(true);
       try {
         const currentUserRole = user.role || 'broker';
         const apiUrl = currentUserRole === 'customer' 
@@ -68,11 +71,15 @@ const Navbar = ({ data }) => {
       } catch (error) {
         console.log('Error loading profile image for navbar:', error);
         setProfileImage(null);
+      } finally {
+        setProfileImageLoading(false);
       }
     };
 
     if (user?.token && user?.userId) {
       loadProfileImage();
+    } else {
+      setProfileImageLoading(false);
     }
   }, [user?.token, user?.userId, user?.role]);
 
@@ -344,14 +351,22 @@ const enableSuggestions = false;
                     <div className="relative group">
                       <button className="flex items-center gap-2 text-gray-700 hover:text-green-600 transition-colors">
                         <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-green-600 hover:border-green-700 transition-colors">
-                          <img
-                            src={profileImage || '/images/user-1.webp'}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = '/images/user-1.webp';
-                            }}
-                          />
+                          {profileImageLoading ? (
+                            <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
+                              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                            </div>
+                          ) : (
+                            <img
+                              src={profileImage || '/images/user-1.webp'}
+                              alt="Profile"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = '/images/user-1.webp';
+                              }}
+                            />
+                          )}
                         </div>
                         {/* <span className="hidden md:block text-sm font-medium">My Account</span> */}
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -453,14 +468,22 @@ const enableSuggestions = false;
                       className="hover:text-green-700 block flex items-center gap-3"
                     >
                       <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-green-600">
-                        <img
-                          src={profileImage || '/images/user-1.webp'}
-                          alt="Profile"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/images/user-1.webp';
-                          }}
-                        />
+                        {profileImageLoading ? (
+                          <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <img
+                            src={profileImage || '/images/user-1.webp'}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/images/user-1.webp';
+                            }}
+                          />
+                        )}
                       </div>
                       My Account
                     </Link>
