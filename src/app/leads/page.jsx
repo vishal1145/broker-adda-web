@@ -670,6 +670,7 @@ export default function BrokerLeadsPage() {
     requirement: '',
     propertyType: '',
     region: null,
+    status: '',
   });
   const [viewSaving, setViewSaving] = useState(false);
   const saveViewEdits = async () => {
@@ -684,6 +685,7 @@ export default function BrokerLeadsPage() {
         requirement: viewForm.requirement !== undefined ? viewForm.requirement : (selectedLead.requirement || ''),
         propertyType: viewForm.propertyType !== undefined ? viewForm.propertyType : (selectedLead.propertyType || ''),
         budget: viewForm.budget !== '' && viewForm.budget !== null ? Number(viewForm.budget) : (typeof selectedLead.budget === 'number' ? selectedLead.budget : 0),
+        status: viewForm.status ? viewForm.status : (selectedLead.status || 'New'),
       };
       if (viewForm.region && viewForm.region.value && viewForm.region.value !== 'all') {
         payload.regionId = viewForm.region.value;
@@ -1819,7 +1821,9 @@ export default function BrokerLeadsPage() {
                       Customer Information
                     </h5>
                       {!viewEditMode ? (
-                      <button onClick={() => setViewEditMode(true)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Edit</button>
+                        ((selectedLead?.createdBy?._id || selectedLead?.createdBy) === brokerId) && (
+                          <button onClick={() => setViewEditMode(true)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Edit</button>
+                        )
                       ) : (
                         <div className="flex items-center gap-2">
                           <button onClick={saveViewEdits} disabled={viewSaving} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
@@ -1837,6 +1841,28 @@ export default function BrokerLeadsPage() {
                     </div>
 
                   <div className="text-[14px] text-slate-700">
+                    {/* Status field (editable only if created by current broker) */}
+                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
+                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
+                        <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2z" />
+                        </svg>
+                        Status:
+                      </span>
+                      <span className="col-span-2 text-slate-900">
+                        {viewEditMode && ((selectedLead?.createdBy?._id || selectedLead?.createdBy) === brokerId) ? (
+                          <select name="status" value={viewForm.status || selectedLead.status || 'New'} onChange={handleViewFieldChange} className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600">
+                            <option value="New">New</option>
+                            <option value="Assigned">Assigned</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Closed">Closed</option>
+                            <option value="Rejected">Rejected</option>
+                          </select>
+                        ) : (
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(selectedLead.status)}`}>{selectedLead.status || 'New'}</span>
+                        )}
+                      </span>
+                    </div>
                       <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
                       <span className="col-span-1 text-slate-500 flex items-center gap-2">
                         <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
