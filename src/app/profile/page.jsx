@@ -1078,7 +1078,7 @@ const Profile = () => {
                             isActive
                               ? 'bg-blue-600 text-white scale-110'
                               : isCompleted
-                              ? 'bg-green-500 text-white'
+                              ? 'bg-green-900 text-white'
                               : 'bg-gray-200 text-gray-500'
                           }`}
                         >
@@ -1091,7 +1091,7 @@ const Profile = () => {
                           )}
                         </div>
                         <span className={`text-xs mt-1 text-center font-label ${
-                          isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                          isActive ? 'text-blue-600' : isCompleted ? 'text-green-900' : 'text-gray-500'
                         }`}>
                           {getStepTitle(step)}
                         </span>
@@ -1100,7 +1100,7 @@ const Profile = () => {
                       {/* Connecting Line */}
                       {step < totalSteps && (
                         <div className={`w-12 h-0.5 mx-1 rounded-full ${
-                          isCompleted ? 'bg-green-500' : isActive ? 'bg-blue-600' : 'bg-gray-300'
+                          isCompleted ? 'bg-green-900' : isActive ? 'bg-blue-600' : 'bg-gray-300'
                         }`} />
                       )}
                     </div>
@@ -2261,7 +2261,7 @@ const Profile = () => {
                         }
                       }}
                       disabled={submitting || !validateStep(currentStep)}
-                      className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-heading text-lg hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      className="w-full py-4 bg-gradient-to-r from-green-800 to-green-900 text-white rounded-xl font-heading text-lg hover:from-green-700 hover:to-green-900 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
                     >
                       {submitting ? (
                         <>

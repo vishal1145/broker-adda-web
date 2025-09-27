@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 
 const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading = false }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -220,9 +221,14 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
           <div className="text-center mt-6">
             <p className="text-gray-500 text-sm" style={{ fontFamily: 'Open Sans, sans-serif' }}>
               Can't access to your email?{' '}
-              <button className="text-green-600 hover:text-green-700 font-medium" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+              <Link 
+                href="/contact"
+                target="_blank"  
+                className="text-green-600 hover:text-green-700 font-medium" 
+                style={{ fontFamily: 'Open Sans, sans-serif' }}
+              >
                 Contact support
-              </button>
+              </Link>
             </p>
           </div>
         </div>
