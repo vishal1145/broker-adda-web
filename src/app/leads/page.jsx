@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import Select from 'react-select';
+import Select, { components as RSComponents } from 'react-select';
 import ProtectedRoute from '../components/ProtectedRoute';
 
 /* ───────────── Small stat card ───────────── */
@@ -24,7 +24,7 @@ const StatCard = ({ label, value, deltaText, trend = 'up', color = 'sky' }) => {
 <div className={`absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b ${colorStrip}`} />
       <div className="px-5 py-6">
         <p className="text-xs font-body text-gray-600 font-medium">{label}</p>
-        <p className="mt-5 text-3xl leading-none font-display text-gray-900">{value}</p>
+        <p className="mt-5 text-3xl leading-none  text-gray-800">{value}</p>
         {/* <p className={`mt-5 flex items-center gap-1.5 text-[12px] font-medium ${deltaClass}`}>
           {trendDown ? (
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -232,7 +232,7 @@ export default function BrokerLeadsPage() {
         }
         if (q) params.set('search', q);
         if (effectiveFilters.status?.value && effectiveFilters.status.value !== 'all') params.set('status', effectiveFilters.status.value);
-        if (effectiveFilters.region?.value && effectiveFilters.region.value !== 'all') params.set('regionId', effectiveFilters.region.value);
+        if (effectiveFilters.region?.value && effectiveFilters.region.value !== 'all') params.set('region', effectiveFilters.region.value);
         if (effectiveFilters.propertyType?.value && effectiveFilters.propertyType.value !== 'all') params.set('propertyType', effectiveFilters.propertyType.value);
         if (effectiveFilters.requirement?.value && effectiveFilters.requirement.value !== 'all') params.set('requirement', effectiveFilters.requirement.value);
         if (effectiveFilters.startDate) params.set('startDate', effectiveFilters.startDate);
@@ -384,7 +384,12 @@ export default function BrokerLeadsPage() {
   { value: 'Other', label: 'Other' }
 ];
 
-  const requirementOptions = [  { value: 'all', label: 'All Requirements' }, { value: 'buy', label: 'Buy' }, { value: 'rent', label: 'Rent' } ];
+  const requirementOptions = [  
+    { value: 'all', label: 'All Requirements' }, 
+    { value: 'buy', label: 'Buy' }, 
+    { value: 'rent', label: 'Rent' },
+    { value: 'shell', label: 'Shell' }
+  ];
   const regionOptions = useMemo(() => ([
     { value: 'all', label: 'All Regions' },
     ...(Array.isArray(regionsList) ? regionsList.map(r => ({ value: r._id || r.id || r, label: r.name || r.region || r })) : [])
@@ -431,13 +436,62 @@ export default function BrokerLeadsPage() {
     }),
   };
 
+  // Light avatar color helper
+  const getAvatarColor = (seed) => {
+    // Solid light colors with dark text for high readability
+    const palette = [
+      { bg: 'bg-sky-100', text: 'text-sky-800' },
+      { bg: 'bg-emerald-100', text: 'text-emerald-800' },
+      { bg: 'bg-violet-100', text: 'text-violet-800' },
+    ];
+    const s = String(seed || '');
+    let hash = 0;
+    for (let i = 0; i < s.length; i++) {
+      hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+    }
+    return palette[hash % palette.length];
+  };
+
+  // No gradient needed now; avatars use solid light backgrounds
+
+  // Region helpers (support new and old API shapes)
+  const regionIdToName = useMemo(() => {
+    const map = new Map();
+    (Array.isArray(regionsList) ? regionsList : []).forEach((reg) => {
+      const id = reg?._id || reg?.id;
+      const name = reg?.name || reg?.region || reg?.city || '';
+      if (id && name) map.set(String(id), String(name));
+    });
+    return map;
+  }, [regionsList]);
+
+  const getRegionName = (r) => {
+    if (!r) return '';
+    if (typeof r === 'string') return regionIdToName.get(r) || r;
+    if (typeof r === 'object') return r.name || r.region || r.city || '';
+    return '';
+  };
+  const getPrimarySecondaryRegionText = (row) => {
+    const primary = row?.primaryRegion || row?.region;
+    const secondary = row?.secondaryRegion;
+    const p = getRegionName(primary);
+    const s = getRegionName(secondary);
+    return s ? `${p} • ${s}` : (p || '—');
+  };
+
+  const getRegionNames = (row) => {
+    const primary = getRegionName(row?.primaryRegion || row?.region);
+    const secondary = getRegionName(row?.secondaryRegion);
+    return { primary, secondary };
+  };
+
   /* ───────────── Add Lead modal ───────────── */
   const [showAddLead, setShowAddLead] = useState(false);
   const [addLeadLoading, setAddLeadLoading] = useState(false);
   const [newLead, setNewLead] = useState({
     customerName: '', customerPhone: '', customerEmail: '',
     requirement: { value: 'all', label: 'All Requirements' }, propertyType: { value: 'all', label: 'All propertyType' },
-    budget: '', region: { value: 'all', label: 'All Region' }, notes: '', files: null
+    budget: '', primaryRegion: null, secondaryRegion: null, notes: '', files: null
   });
   const [validationErrors, setValidationErrors] = useState({});
   
@@ -534,7 +588,8 @@ export default function BrokerLeadsPage() {
       setAddLeadLoading(true);
       const req = typeof newLead.requirement === 'object' ? (newLead.requirement.label || newLead.requirement.value) : newLead.requirement;
       const ptype = typeof newLead.propertyType === 'object' ? (newLead.propertyType.label || newLead.propertyType.value) : newLead.propertyType;
-      const regionId = typeof newLead.region === 'object' ? (newLead.region.value || newLead.region._id) : newLead.region;
+      const primaryRegionId = typeof newLead.primaryRegion === 'object' ? (newLead.primaryRegion.value || newLead.primaryRegion._id) : newLead.primaryRegion;
+      const secondaryRegionId = typeof newLead.secondaryRegion === 'object' ? (newLead.secondaryRegion.value || newLead.secondaryRegion._id) : newLead.secondaryRegion;
       const payload = {
         customerName: newLead.customerName || '',
         customerPhone: newLead.customerPhone || '',
@@ -542,7 +597,9 @@ export default function BrokerLeadsPage() {
         requirement: req || '',
         propertyType: ptype || '',
         budget: newLead.budget !== '' && newLead.budget !== null ? parseFloat(newLead.budget) : 0,
-        regionId: regionId && regionId !== 'select region' ? regionId : '',
+        // API requires primaryRegionId (required) and secondaryRegionId (optional)
+        primaryRegionId: primaryRegionId && primaryRegionId !== 'select region' ? primaryRegionId : '',
+        secondaryRegionId: secondaryRegionId && secondaryRegionId !== 'select region' ? secondaryRegionId : '',
         createdBy: brokerId, // Explicitly set the createdBy field
       };
       
@@ -576,7 +633,61 @@ export default function BrokerLeadsPage() {
 
   /* ───────────── Transfer modal ───────────── */
   const [showTransfer, setShowTransfer] = useState(false);
-  const [transferForm, setTransferForm] = useState({ brokerIds:[], notes: '' });
+  const [transferForm, setTransferForm] = useState({ brokerIds:[], notes: '', selectAllFiltered: false });
+  const [transferFilter, setTransferFilter] = useState('');
+  const transferSelectRef = useRef(null);
+  
+  // Custom react-select MenuList with a Select All checkbox
+  const BrokerMenuList = (props) => {
+    const { children } = props;
+    const selectAllChecked = !!transferForm.selectAllFiltered;
+    // Compute visible options from current props (supports single child and groups)
+    const rawChildren = props?.children;
+    const toArray = (c) => (Array.isArray(c) ? c : (c ? [c] : []));
+    const options = toArray(rawChildren)
+      .flatMap((child) => {
+        const direct = child?.props?.data?.value;
+        if (direct) return [direct];
+        const grouped = toArray(child?.props?.children).map((gc) => gc?.props?.data?.value).filter(Boolean);
+        return grouped;
+      })
+      .filter(Boolean);
+    return (
+      <div>
+        <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50">
+          <span className="text-xs text-slate-600">Filtered brokers</span>
+          <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+              checked={selectAllChecked}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setTransferForm((prev) => ({
+                  ...prev,
+                  selectAllFiltered: checked,
+                  brokerIds: checked
+                    ? Array.from(new Set([...(prev.brokerIds || []), ...options]))
+                    : (prev.brokerIds || []).filter((id) => !options.includes(id))
+                }));
+                // keep the menu open and focus the input again
+                try {
+                  const input = document.querySelector('[id^="react-select"][id$="-input"]');
+                  input?.focus();
+                } catch {}
+                // Auto-uncheck after applying so user can use it again easily
+                if (checked) {
+                  setTimeout(() => setTransferForm((prev) => ({ ...prev, selectAllFiltered: false })), 0);
+                }
+              }}
+            />
+            Select all
+          </label>
+        </div>
+        <RSComponents.MenuList {...props}>{children}</RSComponents.MenuList>
+      </div>
+    );
+  };
   const [transferLoading, setTransferLoading] = useState(false);
   const [brokersList, setBrokersList] = useState([]);
   const [brokersLoading, setBrokersLoading] = useState(false);
@@ -691,7 +802,8 @@ export default function BrokerLeadsPage() {
     budget: '',
     requirement: '',
     propertyType: '',
-    region: null,
+    primaryRegion: null,
+    secondaryRegion: null,
     status: '',
   });
   const [viewSaving, setViewSaving] = useState(false);
@@ -709,8 +821,11 @@ export default function BrokerLeadsPage() {
         budget: viewForm.budget !== '' && viewForm.budget !== null ? Number(viewForm.budget) : (typeof selectedLead.budget === 'number' ? selectedLead.budget : 0),
         status: viewForm.status ? viewForm.status : (selectedLead.status || 'New'),
       };
-      if (viewForm.region && viewForm.region.value && viewForm.region.value !== 'all') {
-        payload.regionId = viewForm.region.value;
+      if (viewForm.primaryRegion && viewForm.primaryRegion.value && viewForm.primaryRegion.value !== 'all') {
+        payload.primaryRegionId = viewForm.primaryRegion.value;
+      }
+      if (viewForm.secondaryRegion && viewForm.secondaryRegion.value && viewForm.secondaryRegion.value !== 'all') {
+        payload.secondaryRegionId = viewForm.secondaryRegion.value;
       }
 
       const res = await fetch(`${apiUrl}/leads/${leadId}`, {
@@ -745,7 +860,8 @@ export default function BrokerLeadsPage() {
         requirement: updated.requirement || viewForm.requirement || prev?.requirement,
         propertyType: updated.propertyType || viewForm.propertyType || prev?.propertyType,
         budget: typeof updated.budget === 'number' ? updated.budget : (viewForm.budget !== '' ? Number(viewForm.budget) : prev?.budget),
-        region: updated.region || (viewForm.region ? { name: viewForm.region.label, _id: viewForm.region.value } : prev?.region),
+        primaryRegion: updated.primaryRegion || (viewForm.primaryRegion ? { name: viewForm.primaryRegion.label, _id: viewForm.primaryRegion.value } : prev?.primaryRegion || prev?.region),
+        secondaryRegion: updated.secondaryRegion || (viewForm.secondaryRegion ? { name: viewForm.secondaryRegion.label, _id: viewForm.secondaryRegion.value } : prev?.secondaryRegion),
       }));
 
       toast.success('Lead updated');
@@ -877,8 +993,8 @@ export default function BrokerLeadsPage() {
           <div className="mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-display text-gray-900">Leads & Visitors</h1>
-                <p className="text-sm font-body text-gray-600 mt-2">Track and manage your sales pipeline effectively</p>
+            <h1 className="text-4xl font-display text-gray-700">Leads & Visitors</h1>
+            <p className="text-sm font-body text-gray-600 mt-2">Track and manage your sales pipeline effectively</p>
               </div>
               
               {/* View Mode Toggle */}
@@ -889,7 +1005,7 @@ export default function BrokerLeadsPage() {
                     setPage(1);
                     loadLeads(filters, 1, limit, debouncedQuery, 'my-leads');
                   }}
-                  className={`flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center px-4 py-2.5 rounded-lg text-sm  transition-all duration-200 ${
                     leadViewMode === 'my-leads'
                       ? 'bg-green-900 text-white shadow-lg shadow-green-200'
                       : 'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200'
@@ -906,7 +1022,7 @@ export default function BrokerLeadsPage() {
                     setPage(1);
                     loadLeads(filters, 1, limit, debouncedQuery, 'transferred');
                   }}
-                  className={`flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center px-4 py-2.5 rounded-lg text-sm  transition-all duration-200 ${
                     leadViewMode === 'transferred'
                       ? 'bg-green-900 text-white shadow-lg shadow-green-200'
                       : 'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200'
@@ -959,39 +1075,39 @@ export default function BrokerLeadsPage() {
               <div className="mt-6 flex items-center gap-3">
                 {/* Search - Flexible width */}
                 <div className={`relative ${isAdvancedFiltersApplied ? 'flex-1' : 'flex-1'}`}>
-                  <input
-                    type="text"
+              <input
+                type="text"
                     placeholder="Search leads..."
-                    value={filters.query}
-                    onChange={(e) => setFilters({ ...filters, query: e.target.value })}
+                value={filters.query}
+                onChange={(e) => setFilters({ ...filters, query: e.target.value })}
                     className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl shadow-sm bg-white text-sm focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500"
-                  />
+              />
                   <svg className="w-5 h-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
-                  </svg>
-                </div>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+              </svg>
+            </div>
 
                 {/* Status Filter - Fixed width */}
                 <div className="w-48">
-                  <Select
-                    value={filters.status}
+              <Select
+                value={filters.status}
                     onChange={(opt) => { const next = { ...filters, status: opt }; setFilters(next); setPage(1); loadLeads(next, 1, limit, debouncedQuery); }}
-                    options={statusOptions}
-                    styles={customSelectStyles}
+                options={statusOptions}
+                styles={customSelectStyles}
                     isSearchable
                     menuPlacement="bottom"
-                  />
-                </div>
+              />
+            </div>
 
                 {/* Advanced Filters - Fixed width */}
                 <div>
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvanced(true)}
-                    className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-green-300 bg-white text-green-700 hover:bg-green-50 hover:border-green-500 shadow-sm cursor-pointer whitespace-nowrap"
-                  >
-                    Advanced Filters
-                  </button>
+            <button
+              type="button"
+                  onClick={() => setShowAdvanced(true)}
+                    className="px-3 py-2.5 rounded-xl text-sm  border border-green-300 bg-white text-green-700 hover:bg-green-50 hover:border-green-500 shadow-sm cursor-pointer whitespace-nowrap"
+            >
+              Advanced Filters
+            </button>
                 </div>
                 
                 {/* Add New Lead - Fixed width */}
@@ -999,203 +1115,277 @@ export default function BrokerLeadsPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddLead(true)}
-                    className="px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-900 hover:bg-emerald-700 shadow-sm cursor-pointer whitespace-nowrap"
+                    className="px-3 py-2.5 rounded-xl text-sm  text-white bg-green-900 hover:bg-emerald-700 shadow-sm cursor-pointer whitespace-nowrap"
                   >
                     Add New Lead
                   </button>
                 </div>
                 
                 {/* Clear Filters - Fixed width, only when needed */}
-                {isAdvancedFiltersApplied && (
+            {isAdvancedFiltersApplied && (
                   <div>
-                    <button
-                      type="button"
-                      onClick={clearAdvancedFilters}
-                      className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer whitespace-nowrap"
-                      title="Clear advanced filters"
-                    >
-                      Clear Filters
-                    </button>
+              <button
+                type="button"
+                onClick={clearAdvancedFilters}
+                className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer whitespace-nowrap"
+                title="Clear advanced filters"
+              >
+                Clear Filters
+              </button>
                   </div>
                 )}
-              </div>
+                </div>
 
             {/* Table */}
-<div className="mt-6 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-  {/* Table Header */}
-  <div className="grid grid-cols-12 gap-x-4 px-6 py-3 text-[13px] font-medium text-gray-600 bg-gray-50">
-    <div className="col-span-1 text-left">Customer Name</div>
-    <div className="col-span-2 text-left">Contact</div>
-    <div className="col-span-2 text-left">Requirement</div>
-    <div className="col-span-1 text-left">Budget</div>
-    <div className="col-span-1 text-left">Region</div>
-    <div className="col-span-2 text-left">Shared With</div>
-    <div className="col-span-1 text-center">Status</div>
-    <div className="col-span-2 text-center">Actions</div>
-  </div>
-
+<div className="mt-6">
   {/* Loading */}
   {leadsLoading && (
-    <div className="divide-y divide-gray-100">
-      {[...Array(5)].map((_, i) => <TableRowLoader key={i} />)}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4 animate-pulse">
+          <div className="h-5 w-2/3 bg-gray-200 rounded mb-3" />
+          <div className="h-4 w-1/2 bg-gray-200 rounded mb-4" />
+          <div className="h-28 w-full bg-gray-100 rounded mb-4" />
+          <div className="flex items-center justify-between">
+            <div className="h-7 w-28 bg-gray-200 rounded" />
+            <div className="flex gap-2">
+              <div className="h-7 w-7 bg-gray-200 rounded-lg" />
+              <div className="h-7 w-7 bg-gray-200 rounded-lg" />
+              <div className="h-7 w-7 bg-gray-200 rounded-lg" />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   )}
 
   {/* Empty State */}
-  {!leadsLoading && Array.isArray(leads) && leads.length === 0 && (
-    <EmptyState />
-  )}
+  {!leadsLoading && Array.isArray(leads) && leads.length === 0 && <EmptyState />}
 
-  {/* Rows */}
-  <div className="divide-y divide-gray-100">
-    {(leadsLoading ? [] : leads).map((row, idx) => (
-      <div
-        key={row._id || row.id || idx}
-        className="grid grid-cols-12 items-center px-6 py-4 gap-x-4 bg-white"
-      >
-        {/* Customer Name */}
-        <div className="col-span-1 text-left text-sm font-medium text-gray-900 break-words">
-          {row.customerName || row.name || "-"}
-        </div>
+   {/* Cards */}
+   {!leadsLoading && Array.isArray(leads) && leads.length > 0 && (
+     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+       {leads.map((row, idx) => {
+         // ----- Shared With (avatars from transfers) -----
+         const transfers = Array.isArray(row?.transfers) ? row.transfers : [];
+         const toBrokers = transfers
+           .map(t => (typeof t?.toBroker === "object" ? t.toBroker : { _id: t?.toBroker }))
+           .filter(b => b && (b._id || b.name || b.email));
+         const uniqueToBrokers = Array.from(
+           new Map(toBrokers.map(b => [b._id || b.email || b.name, b])).values()
+         );
+         const idToBroker = new Map((brokersList || []).map(b => [b._id || b.id, b]));
+         const avatars = uniqueToBrokers.map(b => {
+           const merged = b._id ? { ...(idToBroker.get(b._id) || {}), ...b } : b;
+           return {
+             id: merged._id || merged.id || merged.email || merged.name,
+             name: merged.name || merged.fullName || merged.email || "Broker",
+             image: merged.brokerImage || merged.avatarUrl || merged.imageUrl || "",
+           };
+         });
 
-        {/* Contact */}
-        <div className="col-span-2 text-left text-[13px] text-gray-700 break-all leading-5">
-          {row.customerEmail || row.customerPhone || row.contact || "-"}
-        </div>
+         const isTransferred = (() => {
+           const transferredTo = row?.transferredTo || row?.transferredBrokers || row?.transfers || [];
+           return Array.isArray(transferredTo) && transferredTo.length > 0;
+         })();
 
-        {/* Requirement */}
-        <div className="col-span-2 text-left text-[13px] text-gray-700 break-words leading-5">
-          {row.requirement || row.req || "-"}
-        </div>
+         return (
+           <div
+             key={row._id || row.id || idx}
+            className="group relative bg-white rounded-2xl shadow-2xl"
+           >
+             {/* Status Badge - Horizontal Ribbon with Folded Corner */}
+             <div className="absolute top-0 right-0 z-10">
+               <div
+                 className="text-white text-xs font-bold px-4 py-2 relative"
+                 style={{
+                   background: row.status?.toLowerCase() === "new"
+                     ? "linear-gradient(90deg, #f59e0b 0%, #dc2626 100%)"
+                     : row.status?.toLowerCase() === "assigned"
+                     ? "linear-gradient(90deg, #3b82f6 0%, #1e40af 100%)"
+                     : row.status?.toLowerCase() === "in progress"
+                     ? "linear-gradient(90deg, #f59e0b 0%, #dc2626 100%)"
+                     : row.status?.toLowerCase() === "closed"
+                     ? "linear-gradient(90deg, #10b981 0%, #047857 100%)"
+                     : row.status?.toLowerCase() === "rejected"
+                     ? "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)"
+                     : row.status?.toLowerCase() === "transferred"
+                     ? "linear-gradient(90deg, #f97316 0%, #ea580c 100%)"
+                     : row.status?.toLowerCase() === "active"
+                     ? "linear-gradient(90deg, #10b981 0%, #047857 100%)"
+                     : "linear-gradient(90deg, #f59e0b 0%, #dc2626 100%)",
+                   minWidth: "60px",
+                   textAlign: "center",
+                   boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                   clipPath: "polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%)"
+                 }}
+               >
+                 {row.status ? row.status.toUpperCase() : "NEW"}
+               </div>
+             </div>
+             {/* Card Content */}
+             <div className="p-6 pt-8">
+               {/* Header Section */}
+               <div className="flex items-start justify-between mb-6">
+                 {/* Left Side - Avatar and Name */}
+                 <div className="flex items-start gap-4">
+                  {(() => { 
+                    const seed = row.customerName || row.name; 
+                    const c = getAvatarColor(seed);
+                    return (
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold ${c.bg} ${c.text}`}>
+                     {(row.customerName || row.name || "-")
+                       .split(" ")
+                       .map(s => s[0])
+                       .filter(Boolean)
+                       .join("")
+                       .slice(0, 2)
+                       .toUpperCase()}
+                  </div>
+                  ); })()}
+                   <div className="flex-1 pr-4">
+                     <h3 className="text-lg font-bold text-gray-900 mb-1 break-words leading-tight">
+                       {row.customerName || row.name || "-"}
+                     </h3>
+                     <p className="text-sm text-gray-500 break-words leading-tight">
+                       {row.customerEmail || row.customerPhone || row.contact || "-"}
+                     </p>
+                   </div>
+                 </div>
+               </div>
 
-        {/* Budget */}
-        <div className="col-span-1 text-left text-[13px] text-gray-700 break-words leading-5">
-          {typeof row.budget === "number"
-            ? `$${row.budget.toLocaleString()}`
-            : row.budget || "—"}
-        </div>
+               {/* Lead Details Section - Two Rows */}
+               <div className="space-y-4">
+                 {/* First Row */}
+                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                   <div className="flex-1">
+                     <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">REQUIREMENT</div>
+                     <div className="text-sm font-medium text-gray-700 break-words leading-tight">
+                       {row.requirement || row.req || "—"}
+                     </div>
+                   </div>
+                   <div className="flex-1 pl-4">
+                     <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">PROPERTY TYPE</div>
+                     <div className="text-sm font-medium text-gray-700 break-words leading-tight">
+                       {row.propertyType || "—"}
+                     </div>
+                   </div>
+                 </div>
 
-        {/* Region */}
-        <div className="col-span-1 text-left text-[13px] text-gray-700 break-words leading-5">
-          {row.region?.name || row.region || "—"}
-        </div>
+                 {/* Second Row */}
+                 <div className="flex justify-between items-center py-3">
+                   <div className="flex-1">
+                     <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">BUDGET</div>
+                     <div className="text-sm font-medium text-gray-700 break-words leading-tight">
+                       {typeof row.budget === "number"
+                         ? `$${row.budget.toLocaleString()}`
+                         : row.budget || "—"}
+                     </div>
+                   </div>
+                   <div className="flex-1 pl-4">
+                    <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">REGION(S)</div>
+                    {(() => { const { primary, secondary } = getRegionNames(row); return (
+                      <div className="text-sm font-medium text-gray-700 break-words leading-tight">
+                        <div>{primary || '—'}</div>
+                        {secondary && <div className="text-sm font-medium text-gray-700">{secondary}</div>}
+                      </div>
+                    ); })()}
+                   </div>
+                 </div>
+               </div>
 
-        {/* Shared With (avatar group from transfers) */}
-        <div className="col-span-2 text-left">
-          {(() => {
-            const transfers = Array.isArray(row?.transfers) ? row.transfers : [];
-            // Extract toBroker objects/ids and normalize
-            const toBrokers = transfers
-              .map(t => (typeof t?.toBroker === 'object' ? t.toBroker : { _id: t?.toBroker }))
-              .filter(b => b && (b._id || b.name || b.email));
-            const uniqueToBrokers = Array.from(new Map(toBrokers.map(b => [b._id || b.email || b.name, b])).values());
+               {/* Bottom Section - Shared With and Actions */}
+               <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                 {/* Shared With */}
+                 <div>
+                   <div className="text-xs text-gray-400 uppercase tracking-wide mb-2">SHARED WITH</div>
+                   {(() => {
+                     const transfers = Array.isArray(row?.transfers) ? row.transfers : [];
+                     // Extract toBroker objects/ids and normalize
+                     const toBrokers = transfers
+                       .map(t => (typeof t?.toBroker === 'object' ? t.toBroker : { _id: t?.toBroker }))
+                       .filter(b => b && (b._id || b.name || b.email));
+                     const uniqueToBrokers = Array.from(new Map(toBrokers.map(b => [b._id || b.email || b.name, b])).values());
 
-            if (uniqueToBrokers.length === 0) {
-              return <span className="text-[12px] text-gray-400">Not shared</span>;
-            }
+                     if (uniqueToBrokers.length === 0) {
+                       return <span className="text-[12px] text-gray-400">Not shared</span>;
+                     }
 
-            // Map to avatar data: prefer brokerImage from embedded object; fallback to brokersList by id
-            const idToBroker = new Map((brokersList || []).map(b => [b._id || b.id, b]));
-            const avatars = uniqueToBrokers.map(b => {
-              const merged = b._id ? { ...(idToBroker.get(b._id) || {}), ...b } : b;
-              return {
-                id: merged._id || merged.id || merged.email || merged.name,
-                name: merged.name || merged.fullName || merged.email || 'Broker',
-                image: merged.brokerImage || merged.avatarUrl || merged.imageUrl || ''
-              };
-            });
+                     // Map to avatar data: prefer brokerImage from embedded object; fallback to brokersList by id
+                     const idToBroker = new Map((brokersList || []).map(b => [b._id || b.id, b]));
+                     const avatars = uniqueToBrokers.map(b => {
+                       const merged = b._id ? { ...(idToBroker.get(b._id) || {}), ...b } : b;
+                       return {
+                         id: merged._id || merged.id || merged.email || merged.name,
+                         name: merged.name || merged.fullName || merged.email || 'Broker',
+                         image: merged.brokerImage || merged.avatarUrl || merged.imageUrl || ''
+                       };
+                     });
 
-            const visible = avatars.slice(0, 3);
-            const remaining = Math.max(0, avatars.length - visible.length);
+                     const visible = avatars.slice(0, 2);
+                     const remaining = Math.max(0, avatars.length - visible.length);
 
-            return (
-              <div className="flex items-center">
-                <div className="flex -space-x-2">
-                  {visible.map((a, i) => (
-                    <div key={`${a.id || 'broker'}-${i}`} className="w-7 h-7 rounded-full ring-2 ring-white bg-gray-200 overflow-hidden flex items-center justify-center text-[10px] text-gray-600" title={a.name}>
-                      <img src={a.image || 'https://www.w3schools.com/howto/img_avatar.png'} alt={a.name} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                  {remaining > 0 && (
-                    <div className="w-7 h-7 rounded-full ring-2 ring-white bg-yellow-400 text-black flex items-center justify-center text-[11px] font-semibold" title={`+${remaining} more`}>
-                      +{remaining}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })()}
-        </div>
+                     return (
+                       <div className="flex items-center">
+                         <div className="flex -space-x-2">
+                           {visible.map((a, i) => (
+                             <div key={`${a.id || 'broker'}-${i}`} className="w-7 h-7 rounded-full ring-2 ring-white bg-gray-200 overflow-hidden flex items-center justify-center text-[10px] text-gray-600" title={a.name}>
+                               <img src={a.image || 'https://www.w3schools.com/howto/img_avatar.png'} alt={a.name} className="w-full h-full object-cover" />
+                             </div>
+                           ))}
+                           {remaining > 0 && (
+                             <div className="w-7 h-7 rounded-full ring-2 ring-white bg-yellow-400 text-black flex items-center justify-center text-[11px] font-semibold" title={`+${remaining} more`}>
+                               +{remaining}
+                             </div>
+                           )}
+                         </div>
+                       </div>
+                     );
+                   })()}
+                 </div>
 
-        {/* Status */}
-        <div className="col-span-1 text-center">
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
-              row.status
-            )}`}
-          >
-            {row.status || "—"}
-          </span>
-        </div>
+                 {/* Action Icons */}
+                 <div className="flex items-center gap-4">
+                   {/* View Button */}
+                   <button
+                     title="View Details"
+                     className="flex flex-col items-center gap-1 text-green-900 hover:text-green-900 transition-colors cursor-pointer"
+                     onClick={() => {
+                       setSelectedLead(row);
+                       setViewEditMode(false);
+                       setViewClosing(false);
+                       setViewForm({
+                         name: row.customerName || row.name || "",
+                         contact: row.customerPhone || row.contact || "",
+                         email: row.customerEmail || "",
+                         budget: String(row.budget ?? ""),
+                         requirement: row.requirement || row.req || "",
+                         propertyType: row.propertyType || "",
+                          primaryRegion: row.primaryRegion
+                            ? { value: row.primaryRegion._id || row.primaryRegion.id || row.primaryRegion, label: row.primaryRegion.name || row.primaryRegion }
+                            : (row.region ? (typeof row.region === 'object' ? { value: row.region._id || row.region.id || row.region, label: row.region.name || row.region } : { value: row.region, label: getRegionName(row.region) || row.region }) : null),
+                          secondaryRegion: row.secondaryRegion
+                            ? { value: row.secondaryRegion._id || row.secondaryRegion.id || row.secondaryRegion, label: row.secondaryRegion.name || row.secondaryRegion }
+                            : null,
+                         status: row.status || "active",
+                       });
+                       setShowView(true);
+                     }}
+                   >
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                     </svg>
+                     <span className="text-xs">View</span>
+                   </button>
 
-        {/* Actions */}
-        <div className="col-span-2 text-center">
-          <div className="inline-flex items-center gap-2">
-            {/* View */}
-            <button
-              title="View"
-              className="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer"
-              aria-label="view"
-              onClick={() => {
-                setSelectedLead(row);
-                setViewEditMode(false);
-                setViewClosing(false);
-                setViewForm({
-                  name: row.customerName || row.name || "",
-                  contact: row.customerPhone || row.contact || "",
-                  email: row.customerEmail || "",
-                  budget: String(row.budget ?? ""),
-                  requirement: row.requirement || row.req || "",
-                  propertyType: row.propertyType || "",
-                  region: row.region ? (
-                    typeof row.region === 'object'
-                      ? { value: row.region._id || row.region.id || row.region.value || row.region, label: row.region.name || row.region.label || row.region }
-                      : { value: row.region, label: row.region }
-                  ) : null,
-                });
-                setShowView(true);
-              }}
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 
-                  4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
-            </button>
-
-            {/* Transfer */}
-            <button
-              title="Transfer"
-              className="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer"
-              aria-label="transfer"
-              onClick={() => openTransferForLead(row)}
-            >
-              <svg
+                   {/* Transfer Button */}
+                   <button
+                     title="Transfer Lead"
+                     className="flex flex-col items-center gap-1 text-blue-700 hover:text-blue-800 transition-colors cursor-pointer"
+                     onClick={() => openTransferForLead(row)}
+                   >
+                     <svg
                 className="w-4 h-4"
                 viewBox="0 0 24 24"
                 fill="none"
@@ -1207,68 +1397,35 @@ export default function BrokerLeadsPage() {
                 <line x1="22" y1="2" x2="11" y2="13" />
                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
               </svg>
-            </button>
+                     <span className="text-xs">Transfer</span>
+                   </button>
 
-            {/* Delete */}
-            <div className="relative group">
-            <button
-                className={`w-7 h-7 inline-flex items-center justify-center rounded-lg border ${
-                  (() => {
-                    const transferredTo = row?.transferredTo || row?.transferredBrokers || row?.transfers || [];
-                    const isTransferred = Array.isArray(transferredTo) && transferredTo.length > 0;
-                    return isTransferred
-                      ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                      : "border-gray-200 text-gray-500 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 cursor-pointer";
-                  })()
-                }`}
-              aria-label="delete"
-              onClick={() => handleDeleteLead(row)}
-                disabled={
-                  (() => {
-                    const transferredTo = row?.transferredTo || row?.transferredBrokers || row?.transfers || [];
-                    return Array.isArray(transferredTo) && transferredTo.length > 0;
-                  })()
-                }
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 
-                  7h22M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"
-                />
-              </svg>
-            </button>
-              
-              {/* Custom Tooltip */}
-              {(() => {
-                const transferredTo = row?.transferredTo || row?.transferredBrokers || row?.transfers || [];
-                const isTransferred = Array.isArray(transferredTo) && transferredTo.length > 0;
-                return isTransferred ? (
-                  <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[9999] min-w-max">
-                    Cannot delete - Lead has been transferred
-                    <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-          </div>
-                ) : (
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-                    Delete
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
+                   {/* Delete Button */}
+                   <button
+                     title="Delete Lead"
+                     className={`flex flex-col items-center gap-1 transition-colors ${
+                       isTransferred 
+                         ? 'text-gray-300 cursor-not-allowed' 
+                         : 'text-red-700 hover:text-red-700 cursor-pointer'
+                     }`}
+                     onClick={() => !isTransferred && handleDeleteLead(row)}
+                     disabled={isTransferred}
+                   >
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                     </svg>
+                     <span className="text-xs">Delete</span>
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>
+         );
+       })}
+     </div>
+   )}
 </div>
+
 
 
 
@@ -1286,8 +1443,179 @@ export default function BrokerLeadsPage() {
             {/* Right 3 (sticky) */}
            <aside className="md:col-span-3 space-y-6 md:sticky md:top-6 self-start">
 
+  {/* Recent Activity */}
+<div className="bg-white rounded-2xl shadow-2xl p-4">
+  <h4 className="text-[15px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+    {/* clock-in-circle */}
+    <svg
+      className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 7v5l4 2" />
+    </svg>
+    Recent Activity
+  </h4>
+
+  <ul className="text-sm text-slate-900 space-y-3">
+    {/* New lead created */}
+    <li className="flex items-start gap-3">
+      <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-100">
+        {/* user-plus */}
+        <svg className="w-=4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="10" cy="7" r="4" />
+          <path d="M19 8v6M22 11h-6" />
+        </svg>
+      </span>
+      <div className="flex-1">
+        <div className="text-gray-700 leading-5 mb-1">New lead created</div>
+        <div className="text-xs text-slate-500 leading-5">Today, 10:45 AM</div>
+      </div>
+    </li>
+
+    {/* Follow-up email */}
+    <li className="flex items-start gap-3">
+      <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-50 text-sky-600 ring-1 ring-indigo-100">
+        {/* mail */}
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="M22 7 12 13 2 7" />
+        </svg>
+      </span>
+      <div className="flex-1">
+        <div className="text-gray-700 leading-5 mb-1">Follow-up email sent to Michael Chen</div>
+        <div className="text-xs text-slate-500 leading-5">Yesterday, 3:20 PM</div>
+      </div>
+    </li>
+
+    {/* Qualified */}
+    <li className="flex items-start gap-3">
+      <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-50 text-sky-600 ring-1 ring-emerald-100">
+        {/* check */}
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      </span>
+      <div className="flex-1">
+        <div className="text-gray-700 leading-5 mb-1">Lead status changed to Qualified</div>
+        <div className="text-xs text-slate-500 leading-5">Yesterday, 11:15 AM</div>
+      </div>
+    </li>
+  </ul>
+</div>
+
+
+  {/* FAQ */}
+<div className="bg-white rounded-2xl shadow-2xl p-4">
+  <div className="flex items-center justify-between mb-2">
+  <h4 className="text-[15px] font-bold text-slate-900 flex items-center gap-2">
+    {/* chat/faq icon */}
+    <svg
+      className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {/* message square */}
+      <rect x="3" y="4" width="18" height="14" rx="3" />
+      {/* tail */}
+      <path d="M8 18v3l3-3" />
+    </svg>
+    FAQ
+  </h4>
+    <a href="/faq" className="text-xs font-medium text-sky-700 hover:underline">View all</a>
+  </div>
+
+  <div className="space-y-2 text-sm">
+    {/* Item 1 */}
+    <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors" open>
+      <summary className="list-none cursor-pointer flex items-center justify-between">
+        <span className="text-[15px]  text-gray-700">
+          How do I import leads from CSV?
+        </span>
+        <svg
+          className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </summary>
+<p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-gray-600 border-l-2 border-gray-300">
+        Go to Settings → Import Data → Select CSV format and follow the template
+        instructions to map your fields correctly.
+      </p>
+      
+    </details>
+
+    {/* Item 2 */}
+    <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
+      <summary className="list-none cursor-pointer flex items-center justify-between">
+        <span className="text-[15px]  text-gray-700">
+          Can I customize lead statuses?
+        </span>
+        <svg
+          className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </summary>
+<p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
+        Yes, you can add, edit, or remove lead statuses from Settings → Lead
+        Management → Status Configuration.
+      </p>
+    </details>
+
+    {/* Item 3 */}
+    <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
+      <summary className="list-none cursor-pointer flex items-center justify-between">
+        <span className="text-[15px]  text-gray-700">
+          How to set up email notifications?
+        </span>
+        <svg
+          className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </summary>
+<p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
+        Navigate to Profile → Notifications and select which lead activities you
+        want to receive alerts for.
+      </p>
+    </details>
+  </div>
+</div>
+
+
   {/* Help & Support */}
- <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+ <div className="bg-white rounded-2xl shadow-2xl">
   <div className="p-4">
     <h4 className="text-md font-bold text-slate-900 mb-3 flex items-center gap-2 pl-0.5">
       {/* Headset */}
@@ -1321,25 +1649,27 @@ export default function BrokerLeadsPage() {
         </a>
       </li>
       <li>
-        <a href="#" className=" py-2 flex items-center gap-3 pl-0.5">
-          {/* Video */}
-          <svg className="w-4 h-4 text-sky-600 shrink-0 overflow-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 7l-6 4 6 4z"/>
-          </svg>
-          Video Tutorials
-        </a>
-      </li>
-      <li>
         <a href="#" className="py-2 flex items-center gap-3 pl-0.5">
           {/* Docs list */}
           <svg className="w-4 h-4 text-sky-600 shrink-0 overflow-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/>
-          </svg>
+        </svg>
           Documentation
         </a>
-      </li>
-    </ul>
-  </div>
+    </li>
+       <li>
+        <a href="#" className="py-2 flex items-center gap-3 pl-0.5">
+          {/* Docs list */}
+          <svg className="w-4 h-4 text-sky-600 shrink-0 overflow-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/>
+        </svg>
+          Legal & Compliance Guide
+        </a>
+    </li>
+
+     
+  </ul>
+</div>
 
   {/* Divider like screenshot */}
   <div className="h-px bg-slate-100 mx-4" />
@@ -1364,176 +1694,12 @@ export default function BrokerLeadsPage() {
 </div>
 
 
-  {/* FAQ */}
-<div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-  <h4 className="text-[15px] font-bold text-slate-900 mb-2 flex items-center gap-2">
-    {/* chat/faq icon */}
-    <svg
-      className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {/* message square */}
-      <rect x="3" y="4" width="18" height="14" rx="3" />
-      {/* tail */}
-      <path d="M8 18v3l3-3" />
-    </svg>
-    FAQ
-  </h4>
-
-  <div className="space-y-2 text-sm">
-    {/* Item 1 */}
-    <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors" open>
-      <summary className="list-none cursor-pointer flex items-center justify-between">
-        <span className="text-[15px] font-semibold text-slate-900">
-          How do I import leads from CSV?
-        </span>
-        <svg
-          className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
-      </summary>
-<p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
-        Go to Settings → Import Data → Select CSV format and follow the template
-        instructions to map your fields correctly.
-      </p>
-      
-    </details>
-
-    {/* Item 2 */}
-    <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
-      <summary className="list-none cursor-pointer flex items-center justify-between">
-        <span className="text-[15px] font-semibold text-slate-900">
-          Can I customize lead statuses?
-        </span>
-        <svg
-          className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
-      </summary>
-<p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
-        Yes, you can add, edit, or remove lead statuses from Settings → Lead
-        Management → Status Configuration.
-      </p>
-    </details>
-
-    {/* Item 3 */}
-    <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
-      <summary className="list-none cursor-pointer flex items-center justify-between">
-        <span className="text-[15px] font-semibold text-slate-900">
-          How to set up email notifications?
-        </span>
-        <svg
-          className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
-      </summary>
-<p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
-        Navigate to Profile → Notifications and select which lead activities you
-        want to receive alerts for.
-      </p>
-    </details>
-  </div>
-</div>
 
 
-  {/* Recent Activity */}
-<div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-  <h4 className="text-[15px] font-bold text-slate-900 mb-3 flex items-center gap-2">
-    {/* clock-in-circle */}
-    <svg
-      className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 7v5l4 2" />
-    </svg>
-    Recent Activity
-  </h4>
-
-  <ul className="text-sm text-slate-900 space-y-3">
-    {/* New lead created */}
-    <li className="flex items-start gap-3">
-      <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-100">
-        {/* user-plus */}
-        <svg className="w-=4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-          <circle cx="10" cy="7" r="4" />
-          <path d="M19 8v6M22 11h-6" />
-        </svg>
-      </span>
-      <div className="flex-1">
-        <div className="font-medium leading-5 mb-1">New lead created</div>
-        <div className="text-xs text-slate-500 leading-5">Today, 10:45 AM</div>
-      </div>
-    </li>
-
-    {/* Follow-up email */}
-    <li className="flex items-start gap-3">
-      <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-50 text-sky-600 ring-1 ring-indigo-100">
-        {/* mail */}
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="3" y="5" width="18" height="14" rx="2" />
-          <path d="M22 7 12 13 2 7" />
-        </svg>
-      </span>
-      <div className="flex-1">
-        <div className="font-medium leading-5 mb-1">Follow-up email sent to Michael Chen</div>
-        <div className="text-xs text-slate-500 leading-5">Yesterday, 3:20 PM</div>
-      </div>
-    </li>
-
-    {/* Qualified */}
-    <li className="flex items-start gap-3">
-      <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-50 text-sky-600 ring-1 ring-emerald-100">
-        {/* check */}
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M20 6 9 17l-5-5" />
-        </svg>
-      </span>
-      <div className="flex-1">
-        <div className="font-medium leading-5 mb-1">Lead status changed to Qualified</div>
-        <div className="text-xs text-slate-500 leading-5">Yesterday, 11:15 AM</div>
-      </div>
-    </li>
-  </ul>
-</div>
 
 
   {/* Resources */}
-  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+  <div className="bg-white rounded-2xl shadow-2xl p-4">
     <h4 className="text-md font-bold text-slate-900 mb-3">Resources</h4>
     <ul className="text-sm text-slate-700 space-y-2">
       <li className='py-2'>
@@ -1551,13 +1717,13 @@ export default function BrokerLeadsPage() {
       <li className='py-2'>
         <a href="#" className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
-          Sales Calendar
+          Agreement Templates
         </a>
       </li>
       <li className='py-2'>
         <a href="#" className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Team Directory
+          Customer Guides
         </a>
       </li>
     </ul>
@@ -1612,6 +1778,22 @@ export default function BrokerLeadsPage() {
 
                   )}
                 </div>
+                        {/* Requirement */}
+                <div>
+                  <label className="block text-xs font-label text-gray-700 mb-2">Requirement</label>
+<Select
+  value={filters.requirement}
+  onChange={(opt) => setFilters({ ...filters, requirement: opt })}
+  options={requirementOptions}
+  styles={{
+    ...customSelectStyles,
+    menuPortal: (base) => ({ ...base, zIndex: 99999 }),
+    menu: (base) => ({ ...base, zIndex: 99999 }),
+  }}
+  menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+  menuPosition="fixed"
+  isSearchable
+/>                    </div>
 
                 {/* Property Type */}
                 <div>
@@ -1630,22 +1812,7 @@ export default function BrokerLeadsPage() {
   isSearchable
 />                      </div>
 
-                {/* Requirement */}
-                <div>
-                  <label className="block text-xs font-label text-gray-700 mb-2">Requirement</label>
-<Select
-  value={filters.requirement}
-  onChange={(opt) => setFilters({ ...filters, requirement: opt })}
-  options={requirementOptions}
-  styles={{
-    ...customSelectStyles,
-    menuPortal: (base) => ({ ...base, zIndex: 99999 }),
-    menu: (base) => ({ ...base, zIndex: 99999 }),
-  }}
-  menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-  menuPosition="fixed"
-  isSearchable
-/>                    </div>
+        
 
                 {/* Max Budget */}
                 <div>
@@ -1767,17 +1934,6 @@ export default function BrokerLeadsPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                    <label className="block text-xs font-label text-gray-700 mb-1">Property Type</label>
-            <Select
-              value={newLead.propertyType}
-  onChange={(opt) => setNewLead({ ...newLead, propertyType: opt })}
-              options={propertyTypeOptions}
-  styles={modalSelectStyles}
-  isSearchable
-              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-              menuPosition="fixed"
-/>                  </div>
-                    <div>
                     <label className="block text-xs font-label text-gray-700 mb-1">Requirement</label>
             <Select
               value={newLead.requirement}
@@ -1788,6 +1944,18 @@ export default function BrokerLeadsPage() {
               menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
               menuPosition="fixed"
 />                  </div>
+                    <div>
+                    <label className="block text-xs font-label text-gray-700 mb-1">Property Type</label>
+            <Select
+              value={newLead.propertyType}
+  onChange={(opt) => setNewLead({ ...newLead, propertyType: opt })}
+              options={propertyTypeOptions}
+  styles={modalSelectStyles}
+  isSearchable
+              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+              menuPosition="fixed"
+/>                  </div>
+                   
                   </div>
 
                   <div>
@@ -1795,31 +1963,31 @@ export default function BrokerLeadsPage() {
                   <input name="budget" value={newLead.budget} onChange={handleNewLeadChange} type="number" step="1" min="0" inputMode="numeric" onWheel={(e) => (e.target instanceof HTMLElement ? e.target.blur() : null)} onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }} placeholder="e.g., 500000" className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-600 text-sm bg-white" />
                   </div>
 
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                  <label className="block text-xs font-label text-gray-700 mb-1">Region</label>
-                  {regionsLoading ? (
-                    <div className="flex items-center justify-center py-3 border border-gray-200 rounded-lg bg-gray-50">
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4 animate-spin text-gray-500" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span className="text-sm text-gray-500">Loading regions...</span>
-                      </div>
-                    </div>
-                  ) : regionsError ? (
-                    <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 text-sm text-rose-700">{regionsError}</div>
-                  ) : (
+                  <label className="block text-xs font-label text-gray-700 mb-1">Primary Region *</label>
           <Select
-            value={newLead.region}
-  onChange={(opt) => setNewLead({ ...newLead, region: opt })}
-  options={regionOptions.filter(o => o.value !== 'all')}
+               value={newLead.primaryRegion}
+   onChange={(opt) => setNewLead({ ...newLead, primaryRegion: opt })}
+               options={regionOptions}
   styles={modalSelectStyles}
   isSearchable
             menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
             menuPosition="fixed"
-/>                  )}
+/>                  </div>
+                     <div>
+                     <label className="block text-xs font-label text-gray-700 mb-1">Optional Region</label>
+             <Select
+               value={newLead.secondaryRegion}
+   onChange={(opt) => setNewLead({ ...newLead, secondaryRegion: opt })}
+               options={regionOptions}
+   styles={modalSelectStyles}
+   isSearchable
+               menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+               menuPosition="fixed"
+/>                  </div>
         </div>
+
                   </div>
                   
                 <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
@@ -1867,13 +2035,50 @@ export default function BrokerLeadsPage() {
                       .filter(id => (brokersList || []).some(x => (x._id || x.id) === id && (x._id || x.id) !== currentUserId))
                       .map(id => {
                         const b = (brokersList || []).find(x => (x._id || x.id) === id);
-                        return { value: id, label: b?.name || b?.fullName || b?.email || id };
-                      })}
-                    onChange={(opts) => setTransferForm(prev => ({ ...prev, brokerIds: (opts || []).map(o => o.value) }))}
+                        let regionName = '';
+                        if (b?.region && Array.isArray(b.region) && b.region.length > 0) {
+                          regionName = b.region[0].name || 'Unknown';
+                        } else if (b?.region && typeof b.region === 'object' && !Array.isArray(b.region)) {
+                          regionName = b.region.name || b.region.region || 'Unknown';
+                        } else if (typeof b?.region === 'string') {
+                          regionName = b.region;
+                        }
+                        return { 
+                          value: id, 
+                          label: `${b?.name || b?.fullName || b?.email || id}${regionName ? ` (${regionName})` : ''}` 
+                        };
+                      })
+                    }
+                    onChange={(opts, meta) => {
+                      const selectedValues = (opts || []).map(o => o.value);
+                      setTransferForm(prev => ({ ...prev, brokerIds: selectedValues }));
+                    }}
                     options={(brokersList || [])
                       .filter(b => (b._id || b.id) && (b._id || b.id) !== currentUserId)
-                      .map(b => ({ value: b._id || b.id, label: b.name || b.fullName || b.email || 'Unnamed' }))}
+                      .map(b => {
+                        let regionName = '';
+                        if (b.region && Array.isArray(b.region) && b.region.length > 0) {
+                          regionName = b.region[0].name || 'Unknown';
+                        } else if (b.region && typeof b.region === 'object' && !Array.isArray(b.region)) {
+                          regionName = b.region.name || b.region.region || 'Unknown';
+                        } else if (typeof b.region === 'string') {
+                          regionName = b.region;
+                        }
+                        return { 
+                          value: b._id || b.id, 
+                          label: `${b.name || b.fullName || b.email || 'Unnamed'}${regionName ? ` (${regionName})` : ''}` 
+                        };
+                      })
+                    }
                       styles={customSelectStyles}
+                      components={{ MenuList: BrokerMenuList }}
+                      onInputChange={(inputValue, { action }) => {
+                        if (action === 'input-change' && transferForm.selectAllFiltered) {
+                          // Defer actual selection to MenuList header using props.children
+                        }
+                        setTransferFilter(inputValue || '');
+                        return inputValue;
+                      }}
                     isMulti isSearchable closeMenuOnSelect={false} hideSelectedOptions
                       placeholder={brokersLoading ? 'Loading brokers...' : (brokersError ? brokersError : 'Choose brokers...')}
                     isLoading={brokersLoading}
@@ -1924,7 +2129,13 @@ export default function BrokerLeadsPage() {
                       </div>
                       <div>
                       <div className="text-[14px] font-semibold text-slate-900">{selectedLead.name || selectedLead.customerName || '—'}</div>
-                      <div className="text-[13px] text-slate-500">{(selectedLead.region?.name || selectedLead.region || '—')} • {(selectedLead.contact || selectedLead.customerPhone || '—')}</div>
+                  {(() => { const { primary, secondary } = getRegionNames(selectedLead); return (
+                    <div className="text-[13px] text-slate-500">
+                      <div>{primary || '—'}</div>
+                      {secondary && <div className="text-[12px] text-slate-400">{secondary}</div>}
+                      <div className="text-[12px] text-slate-500 mt-0.5">{selectedLead.contact || selectedLead.customerPhone || '—'}</div>
+                    </div>
+                  ); })()}
                       </div>
                     </div>
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(selectedLead.status)}`}>{selectedLead.status || 'Active'}</span>
@@ -1940,7 +2151,7 @@ export default function BrokerLeadsPage() {
                     </h5>
                       {!viewEditMode ? (
                         ((selectedLead?.createdBy?._id || selectedLead?.createdBy) === brokerId) ? (
-                          <button onClick={() => setViewEditMode(true)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Edit</button>
+                           <button onClick={() => setViewEditMode(true)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Edit</button>
                         ) : (
                           <button onClick={() => setStatusEditMode(true)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer">Edit Status</button>
                         )
@@ -2096,14 +2307,14 @@ export default function BrokerLeadsPage() {
                         </span>
                       </div>
                       <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
-                        <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Region:
-                      </span>
-                      <span className="col-span-2 text-slate-900">
+                        <span className="col-span-1 text-slate-500 flex items-center gap-2">
+                          <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Primary Region:
+                        </span>
+                        <span className="col-span-2 text-slate-900">
                           {viewEditMode ? (
                             regionsLoading ? (
                               <div className="text-[13px] text-slate-500">Loading regions...</div>
@@ -2111,15 +2322,42 @@ export default function BrokerLeadsPage() {
                               <div className="text-[13px] text-rose-600">{regionsError}</div>
                             ) : (
                               <Select
-                                value={viewForm.region}
-                                onChange={(opt) => setViewForm((p) => ({ ...p, region: opt }))}
+                                value={viewForm.primaryRegion}
+                                onChange={(opt) => setViewForm((p) => ({ ...p, primaryRegion: opt }))}
                                 options={regionOptions.filter(o => o.value !== 'all')}
                                 styles={modalSelectStyles}
                                 menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                                 menuPosition="fixed"
                               />
                             )
-                          ) : (selectedLead.region?.name || selectedLead.region || '—')}
+                          ) : (getRegionName(selectedLead?.primaryRegion || selectedLead?.region) || '—')}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
+                        <span className="col-span-1 text-slate-500 flex items-center gap-2">
+                          <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Secondary Region:
+                        </span>
+                        <span className="col-span-2 text-slate-900">
+                          {viewEditMode ? (
+                            regionsLoading ? (
+                              <div className="text-[13px] text-slate-500">Loading regions...</div>
+                            ) : regionsError ? (
+                              <div className="text-[13px] text-rose-600">{regionsError}</div>
+                            ) : (
+                              <Select
+                                value={viewForm.secondaryRegion}
+                                onChange={(opt) => setViewForm((p) => ({ ...p, secondaryRegion: opt }))}
+                                options={regionOptions.filter(o => o.value !== 'all')}
+                                styles={modalSelectStyles}
+                                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                menuPosition="fixed"
+                              />
+                            )
+                          ) : (getRegionName(selectedLead?.secondaryRegion) || '—')}
                         </span>
                       </div>
                       <div className="grid grid-cols-3 items-center py-2">
@@ -2163,6 +2401,8 @@ export default function BrokerLeadsPage() {
                           const when = t?.createdAt ? new Date(t.createdAt).toLocaleString() : '';
                           const keyFrom = (typeof t?.fromBroker === 'object' ? t?.fromBroker?._id : t?.fromBroker) || 'from';
                           const keyTo = (typeof t?.toBroker === 'object' ? t?.toBroker?._id : t?.toBroker) || 'to';
+                          const fromRegion = getRegionName(fromB?.region) || getRegionName(fromB?.primaryRegion) || '';
+                          const toRegion = getRegionName(toB?.region) || getRegionName(toB?.primaryRegion) || '';
                           return (
                             <li key={`${keyFrom}-${keyTo}-${t?._id || i}`} className="flex items-center gap-3">
                               <div className="flex items-center gap-2">
@@ -2180,7 +2420,10 @@ export default function BrokerLeadsPage() {
                                   <span className="mx-1 text-slate-400">→</span>
                                   {typeof toName === 'string' ? toName : String(toName)}
                                 </div>
-                                {when && <div className="text-[12px] text-slate-500">Shared on {when}</div>}
+                                <div className="text-[12px] text-slate-500 truncate">
+                                  {(fromRegion || '—')} <span className="mx-1 text-slate-400">→</span> {(toRegion || '—')}
+                                </div>
+                                {when && <div className="text-[11px] text-slate-400">Shared on {when}</div>}
                               </div>
                             </li>
                           );
