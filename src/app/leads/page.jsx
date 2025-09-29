@@ -588,8 +588,12 @@ export default function BrokerLeadsPage() {
       setAddLeadLoading(true);
       const req = typeof newLead.requirement === 'object' ? (newLead.requirement.label || newLead.requirement.value) : newLead.requirement;
       const ptype = typeof newLead.propertyType === 'object' ? (newLead.propertyType.label || newLead.propertyType.value) : newLead.propertyType;
-      const primaryRegionId = typeof newLead.primaryRegion === 'object' ? (newLead.primaryRegion.value || newLead.primaryRegion._id) : newLead.primaryRegion;
-      const secondaryRegionId = typeof newLead.secondaryRegion === 'object' ? (newLead.secondaryRegion.value || newLead.secondaryRegion._id) : newLead.secondaryRegion;
+      const primaryRegionId = (newLead.primaryRegion && typeof newLead.primaryRegion === 'object')
+        ? (newLead.primaryRegion.value || newLead.primaryRegion._id)
+        : newLead.primaryRegion;
+      const secondaryRegionId = (newLead.secondaryRegion && typeof newLead.secondaryRegion === 'object')
+        ? (newLead.secondaryRegion.value || newLead.secondaryRegion._id)
+        : newLead.secondaryRegion;
       const payload = {
         customerName: newLead.customerName || '',
         customerPhone: newLead.customerPhone || '',
@@ -599,9 +603,11 @@ export default function BrokerLeadsPage() {
         budget: newLead.budget !== '' && newLead.budget !== null ? parseFloat(newLead.budget) : 0,
         // API requires primaryRegionId (required) and secondaryRegionId (optional)
         primaryRegionId: primaryRegionId && primaryRegionId !== 'select region' ? primaryRegionId : '',
-        secondaryRegionId: secondaryRegionId && secondaryRegionId !== 'select region' ? secondaryRegionId : '',
         createdBy: brokerId, // Explicitly set the createdBy field
       };
+      if (secondaryRegionId && secondaryRegionId !== 'select region') {
+        payload.secondaryRegionId = secondaryRegionId;
+      }
       
       // creating lead payload
       
