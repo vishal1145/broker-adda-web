@@ -64,6 +64,12 @@ const Profile = () => {
   const [regionsList, setRegionsList] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [regionsError, setRegionsError] = useState("");
+  // Nearest by coordinates mode and data
+  const [nearestMode, setNearestMode] = useState(true);
+  const [geoCoords, setGeoCoords] = useState({ latitude: null, longitude: null });
+  const [nearestRegions, setNearestRegions] = useState([]);
+  const [nearestRegionsLoading, setNearestRegionsLoading] = useState(false);
+  const [nearestRegionsError, setNearestRegionsError] = useState("");
   const [statesList, setStatesList] = useState([
     { value: 'uttar-pradesh', label: 'Uttar Pradesh' }
   ]);
@@ -189,6 +195,74 @@ const Profile = () => {
     }, 300);
   };
 
+  // Auto-fetch nearest only when coordinates are available (not just toggling)
+  useEffect(() => {
+    const tryFetch = async () => {
+      if (!nearestMode) return;
+      let { latitude, longitude } = geoCoords || {};
+      if (latitude && longitude) await loadNearestRegionsByCoords(latitude, longitude, 5);
+    };
+    tryFetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nearestMode]);
+
+  // If coords become available while in nearest mode, fetch automatically
+  useEffect(() => {
+    if (nearestMode && geoCoords?.latitude && geoCoords?.longitude) {
+      loadNearestRegionsByCoords(geoCoords.latitude, geoCoords.longitude, 5);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geoCoords?.latitude, geoCoords?.longitude]);
+
+  // When navigating to Preferred Regions step, auto-resolve coords and call nearest API
+  useEffect(() => {
+    const enterStepFetch = async () => {
+      const isPreferredRegionsStep = currentStep === 2 && userRole === 'broker';
+      if (!isPreferredRegionsStep || !nearestMode) return;
+      let { latitude, longitude } = geoCoords || {};
+      try {
+        if ((!latitude || !longitude) && selectedOfficeAddress && selectedOfficeAddress.placeId && window.google && window.google.maps) {
+          const service = new window.google.maps.places.PlacesService(document.createElement('div'));
+          await new Promise((resolve) => {
+            service.getDetails({ placeId: selectedOfficeAddress.placeId }, (place, status) => {
+              if (status === window.google.maps.places.PlacesServiceStatus.OK && place && place.geometry && place.geometry.location) {
+                latitude = place.geometry.location.lat();
+                longitude = place.geometry.location.lng();
+                setGeoCoords({ latitude, longitude });
+              }
+              resolve();
+            });
+          });
+        }
+        if ((!latitude || !longitude) && window.google && window.google.maps) {
+          const stateText = selectedState ? (selectedState.label || selectedState.value) : '';
+          const cityText = selectedCity ? (selectedCity.label || selectedCity.value) : '';
+          const query = [cityText, stateText].filter(Boolean).join(', ');
+          if (query) {
+            const geocoder = new window.google.maps.Geocoder();
+            await new Promise((resolve) => {
+              geocoder.geocode({ address: query }, (results, status) => {
+                if (status === 'OK' && results && results[0] && results[0].geometry && results[0].geometry.location) {
+                  latitude = results[0].geometry.location.lat();
+                  longitude = results[0].geometry.location.lng();
+                  setGeoCoords({ latitude, longitude });
+                }
+                resolve();
+              });
+            });
+          }
+        }
+        if (latitude && longitude) {
+          await loadNearestRegionsByCoords(latitude, longitude, 5);
+        }
+      } catch {
+        // silent
+      }
+    };
+    enterStepFetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, nearestMode]);
+
   // Handle office address selection
   const handleOfficeAddressChange = (selectedOption) => {
     setSelectedOfficeAddress(selectedOption);
@@ -198,6 +272,44 @@ const Profile = () => {
         officeAddress: selectedOption.description
       }));
       toast.success('Address selected successfully');
+      // Try to resolve coordinates from Google Place details if available
+      try {
+        if (window.google && window.google.maps && selectedOption.placeId) {
+          const service = new window.google.maps.places.PlacesService(document.createElement('div'));
+          service.getDetails({ placeId: selectedOption.placeId }, (place, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK && place && place.geometry && place.geometry.location) {
+              const latitude = place.geometry.location.lat();
+              const longitude = place.geometry.location.lng();
+              setGeoCoords({ latitude, longitude });
+            }
+          });
+        }
+      } catch {}
+    }
+  };
+
+  // Fetch nearest regions using stored coordinates
+  const loadNearestRegionsByCoords = async (latitude, longitude, limit = 5) => {
+    if (!latitude || !longitude) return;
+    try {
+      setNearestRegionsLoading(true); setNearestRegionsError('');
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const url = `${baseUrl}/regions/nearest?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&limit=${encodeURIComponent(limit)}`;
+      const res = await fetch(url, { headers: { 'Content-Type': 'application/json', ...(user?.token ? { Authorization: `Bearer ${user.token}` } : {}) } });
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      let list = [];
+      if (data?.success && Array.isArray(data?.data?.regions)) list = data.data.regions;
+      else if (Array.isArray(data)) list = data;
+      else if (Array.isArray(data?.data)) list = data.data;
+      else if (Array.isArray(data?.regions)) list = data.regions;
+      else if (data?._id && data?.name) list = [data];
+      setNearestRegions(Array.isArray(list) ? list : []);
+    } catch {
+      setNearestRegionsError('Error loading nearest regions');
+      setNearestRegions([]);
+    } finally {
+      setNearestRegionsLoading(false);
     }
   };
 
@@ -1696,25 +1808,37 @@ const Profile = () => {
                 {currentStep === 3 && userRole === 'broker' && (
                   <div className="space-y-8">
                     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-                        <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Preferred Regions <span className="text-red-500">*</span>
-                      </h3>
-                      
-                      <div className="mb-6">
-                        <p className="text-sm text-gray-600">
-                          {userRole === 'broker' 
-                            ? 'Select the regions where you provide real estate services'
-                            : 'Select the regions where you are looking for properties'
-                          }
-                        </p>
+                      <div className="mb-6 flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                          <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Preferred Regions <span className="text-red-500">*</span>
+                        </h3>
+                        <button
+                          type="button"
+                          onClick={() => setNearestMode(v => !v)}
+                          className="inline-flex items-center px-3 py-1.5 text-xs rounded border border-gray-200 bg-white hover:bg-gray-50"
+                        >
+                          {nearestMode ? 'Choose manually' : 'Use nearest'}
+                        </button>
                       </div>
                       
-                      {/* State and City Selection - Above */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      {!nearestMode && (
+                        <div className="mb-6">
+                          <p className="text-sm text-gray-600">
+                            {userRole === 'broker' 
+                              ? 'Select the regions where you provide real estate services'
+                              : 'Select the regions where you are looking for properties'
+                            }
+                          </p>
+                        </div>
+                      )}
+                      
+                      {/* State and City Selection - Above (hidden in nearest mode) */}
+                      {!nearestMode && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         {/* State Selection */}
                         <div className="mb-4">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1765,12 +1889,17 @@ const Profile = () => {
                           />
                         </div>
                       </div>
+                      )}
+
+                      {/* Toggle moved to header above */}
 
                       {/* Region Selection - Below */}
                       <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Regions <span className="text-red-500">*</span>
-                        </label>
+                        {!nearestMode && (
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Regions <span className="text-red-500">*</span>
+                          </label>
+                        )}
                 {regionsLoading ? (
                           <div className="flex items-center justify-center py-4">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
@@ -1780,6 +1909,52 @@ const Profile = () => {
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <p className="text-sm text-red-600">{regionsError}</p>
                         </div>
+                ) : nearestMode ? (
+                  <div>
+                    <div className="mb-2 text-[13px] text-slate-600 flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-sky-100 text-sky-700">📍</span>
+                      Showing nearest regions based on your location. Choose one.
+                    </div>
+                   
+                    {nearestRegionsError && (
+                      <div className="text-[13px] text-rose-600 mb-2">{nearestRegionsError}</div>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+                      {(Array.isArray(nearestRegions) ? nearestRegions.slice(0, 5) : []).map((r) => {
+                        const id = r._id || r.id;
+                        const label = r.name || r.region;
+                        const place = r.centerLocation || [r.city, r.state].filter(Boolean).join(', ');
+                        const dist = typeof r.distanceKm === 'number' ? r.distanceKm : null;
+                        const distanceText = dist !== null ? `${(dist >= 10 ? Math.round(dist) : Math.round(dist * 10) / 10)} km away` : '';
+                        const brokersText = typeof r.brokerCount === 'number' ? `${r.brokerCount} Broker${r.brokerCount === 1 ? '' : 's'}` : '';
+                        const isSelected = Array.isArray(brokerFormData.regions) && brokerFormData.regions.includes(id);
+                        return (
+                          <button
+                            key={id || label}
+                            type="button"
+                            onClick={() => setBrokerFormData(prev => ({ ...prev, regions: [id] }))}
+                            className={`relative text-left p-4 rounded-xl border transition-all ${isSelected ? 'border-sky-500 ring-2 ring-sky-100 shadow' : 'border-gray-200 hover:border-sky-400 hover:shadow-sm'} bg-white`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <div className="text-[14px] font-semibold text-slate-900">{label}</div>
+                                {place ? (
+                                  <div className="text-[12px] text-slate-500">{place}</div>
+                                ) : null}
+                                {(distanceText || brokersText) && (
+                                  <div className="text-[12px] text-slate-600 mt-1">{[distanceText, brokersText].filter(Boolean).join(' / ')}</div>
+                                )}
+                                {/* nearest badge removed per request */}
+                              </div>
+                                {isSelected && (
+                                  <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-sky-600 text-white flex items-center justify-center">✓</div>
+                                )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ) : (
                   <Select
                     name="regions"
