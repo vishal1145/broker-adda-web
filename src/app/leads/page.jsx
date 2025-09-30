@@ -62,6 +62,10 @@ export default function BrokerLeadsPage() {
   const [regionsList, setRegionsList] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [regionsError, setRegionsError] = useState('');
+  // Nearest regions for Add Lead modal (based on logged-in broker)
+  const [nearestRegionsList, setNearestRegionsList] = useState([]);
+  const [nearestRegionsLoading, setNearestRegionsLoading] = useState(false);
+  const [nearestRegionsError, setNearestRegionsError] = useState('');
   const [applyingFilters, setApplyingFilters] = useState(false);
   const isAdvancedFiltersApplied = useMemo(() => {
     return (
@@ -367,6 +371,34 @@ export default function BrokerLeadsPage() {
   };
   useEffect(() => { loadRegions(); }, []); // eslint-disable-line
 
+  // Fetch nearest regions for the logged-in broker to suggest in Add Lead modal
+  const loadNearestRegions = useCallback(async () => {
+    if (!brokerId) return;
+    try {
+      setNearestRegionsLoading(true); setNearestRegionsError('');
+      const url = `${apiUrl}/regions/nearest?brokerId=${encodeURIComponent(brokerId)}&limit=5`;
+      const res = await fetch(url, {
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+      });
+      if (!res.ok) throw new Error('bad');
+      const data = await res.json();
+      let regions = [];
+      if (data?.success && Array.isArray(data?.data?.regions)) regions = data.data.regions;
+      else if (Array.isArray(data)) regions = data;
+      else if (Array.isArray(data?.data)) regions = data.data;
+      else if (Array.isArray(data?.regions)) regions = data.regions;
+      else if (data?._id && data?.name) regions = [data];
+      setNearestRegionsList(regions);
+    } catch {
+      setNearestRegionsError('Error loading nearest regions');
+      setNearestRegionsList([]);
+    } finally {
+      setNearestRegionsLoading(false);
+    }
+  }, [apiUrl, token, brokerId]);
+
+  // (moved) Refresh nearest regions when Add Lead opens; placed after showAddLead is defined
+
   /* ───────────── Options & Select styles (light blue per mock) ───────────── */
   const statusOptions = [
     { value: 'all', label: 'All Status', isAll: true },
@@ -388,12 +420,18 @@ export default function BrokerLeadsPage() {
     { value: 'all', label: 'All Requirements' }, 
     { value: 'buy', label: 'Buy' }, 
     { value: 'rent', label: 'Rent' },
-    { value: 'shell', label: 'Shell' }
+    { value: 'sell', label: 'Sell' }
   ];
   const regionOptions = useMemo(() => ([
     { value: 'all', label: 'All Regions' },
     ...(Array.isArray(regionsList) ? regionsList.map(r => ({ value: r._id || r.id || r, label: r.name || r.region || r })) : [])
   ]), [regionsList]);
+
+  const nearestRegionOptions = useMemo(() => (
+    Array.isArray(nearestRegionsList)
+      ? nearestRegionsList.map(r => ({ value: r._id || r.id || r, label: r.name || r.region || r }))
+      : []
+  ), [nearestRegionsList]);
 
   const customSelectStyles = {
     control: (p, s) => ({
@@ -494,6 +532,13 @@ export default function BrokerLeadsPage() {
     budget: '', primaryRegion: null, secondaryRegion: null, notes: '', files: null
   });
   const [validationErrors, setValidationErrors] = useState({});
+  
+  // Refresh nearest regions when Add Lead opens; ensure this is declared after showAddLead
+  useEffect(() => {
+    if (showAddLead && brokerId) {
+      loadNearestRegions();
+    }
+  }, [showAddLead, brokerId, loadNearestRegions]);
   
   // Validation functions
   const validatePhone = (phone) => {
@@ -1975,9 +2020,10 @@ export default function BrokerLeadsPage() {
           <Select
                value={newLead.primaryRegion}
    onChange={(opt) => setNewLead({ ...newLead, primaryRegion: opt })}
-               options={regionOptions}
+               options={nearestRegionOptions && nearestRegionOptions.length > 0 ? nearestRegionOptions : regionOptions}
   styles={modalSelectStyles}
   isSearchable
+            isLoading={nearestRegionsLoading}
             menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
             menuPosition="fixed"
 />                  </div>
@@ -1986,9 +2032,10 @@ export default function BrokerLeadsPage() {
              <Select
                value={newLead.secondaryRegion}
    onChange={(opt) => setNewLead({ ...newLead, secondaryRegion: opt })}
-               options={regionOptions}
+               options={nearestRegionOptions && nearestRegionOptions.length > 0 ? nearestRegionOptions : regionOptions}
    styles={modalSelectStyles}
    isSearchable
+               isLoading={nearestRegionsLoading}
                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                menuPosition="fixed"
 />                  </div>
@@ -2137,8 +2184,7 @@ export default function BrokerLeadsPage() {
                       <div className="text-[14px] font-semibold text-slate-900">{selectedLead.name || selectedLead.customerName || '—'}</div>
                   {(() => { const { primary, secondary } = getRegionNames(selectedLead); return (
                     <div className="text-[13px] text-slate-500">
-                      <div>{primary || '—'}</div>
-                      {secondary && <div className="text-[12px] text-slate-400">{secondary}</div>}
+                     
                       <div className="text-[12px] text-slate-500 mt-0.5">{selectedLead.contact || selectedLead.customerPhone || '—'}</div>
                     </div>
                   ); })()}
@@ -2330,8 +2376,9 @@ export default function BrokerLeadsPage() {
                               <Select
                                 value={viewForm.primaryRegion}
                                 onChange={(opt) => setViewForm((p) => ({ ...p, primaryRegion: opt }))}
-                                options={regionOptions.filter(o => o.value !== 'all')}
+                                options={(nearestRegionOptions && nearestRegionOptions.length > 0 ? nearestRegionOptions : regionOptions).filter(o => o.value !== 'all')}
                                 styles={modalSelectStyles}
+                                isLoading={nearestRegionsLoading}
                                 menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                                 menuPosition="fixed"
                               />
@@ -2357,8 +2404,9 @@ export default function BrokerLeadsPage() {
                               <Select
                                 value={viewForm.secondaryRegion}
                                 onChange={(opt) => setViewForm((p) => ({ ...p, secondaryRegion: opt }))}
-                                options={regionOptions.filter(o => o.value !== 'all')}
+                                options={(nearestRegionOptions && nearestRegionOptions.length > 0 ? nearestRegionOptions : regionOptions).filter(o => o.value !== 'all')}
                                 styles={modalSelectStyles}
+                                isLoading={nearestRegionsLoading}
                                 menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                                 menuPosition="fixed"
                               />
