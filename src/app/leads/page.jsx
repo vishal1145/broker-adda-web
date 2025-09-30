@@ -169,7 +169,7 @@ export default function BrokerLeadsPage() {
   }, [currentUserId, getBrokerId]);
 
   /* ───────────── Metrics API ───────────── */
-  const [metrics, setMetrics] = useState({ totalLeads: 0, newLeadsToday: 0, convertedLeads: 0, avgDealSize: 0 });
+  const [metrics, setMetrics] = useState({ totalLeads: 0, newLeadsToday: 0, convertedLeads: 0, avgDealSize: 0, transferredToMe: 0, transferredByMe: 0 });
   const [metricsLoading, setMetricsLoading] = useState(false);
   const [metricsError, setMetricsError] = useState('');
 
@@ -198,6 +198,8 @@ export default function BrokerLeadsPage() {
         newLeadsToday: Number(payload.newLeadsToday || payload.today || 0),
         convertedLeads: Number(payload.convertedLeads || payload.converted || 0),
         avgDealSize: Number(payload.avgDealSize || payload.averageDealSize || 0),
+        transferredToMe: Number(payload.transferredToMe || payload.transfersToMe || 0),
+        transferredByMe: Number(payload.transferredByMe || payload.transfersByMe || 0),
       });
     } catch {
       setMetricsError('Error loading metrics');
@@ -1145,17 +1147,17 @@ export default function BrokerLeadsPage() {
   />
   <StatCard
     color="amber"
-    label="New Leads Today"
-    value={metricsLoading ? '—' : Number(metrics.newLeadsToday || 0).toLocaleString()}
-    // deltaText={metricsError ? 'Unable to load' : '↑ 8.2% vs yesterday'}
+    label="Shared With Me"
+    value={metricsLoading ? '—' : Number(metrics.transferredToMe || metrics.transfersToMe || 0).toLocaleString()}
+    deltaText=""
     trend="up"
   />
   <StatCard
     color="emerald"
-    label="Converted Leads"
-    value={metricsLoading ? '—' : Number(metrics.convertedLeads || 0).toLocaleString()}
-    deltaText={metricsError ? 'Unable to load' : '↓ 3.7% vs last month'}
-    trend="down"
+    label="Shared By Me"
+    value={metricsLoading ? '—' : Number(metrics.transferredByMe || metrics.transfersByMe || 0).toLocaleString()}
+    deltaText=""
+    trend="up"
   />
   {/* <StatCard
     color="violet"
