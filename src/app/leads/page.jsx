@@ -858,6 +858,50 @@ export default function BrokerLeadsPage() {
     status: '',
   });
   const [viewSaving, setViewSaving] = useState(false);
+  const [pendingDeleteTransferId, setPendingDeleteTransferId] = useState(null);
+
+  // Delete a specific transfer (to-broker) for the selected lead
+  const deleteTransfer = async (toBrokerId) => {
+    try {
+      if (!selectedLead || !toBrokerId) return;
+      const leadId = selectedLead._id || selectedLead.id;
+      const res = await fetch(`${apiUrl}/leads/${encodeURIComponent(leadId)}/transfers/${encodeURIComponent(toBrokerId)}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          'Accept': 'application/json'
+        }
+      });
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          toast.error(err?.message || err?.error || 'Failed to delete transfer');
+        } catch {
+          toast.error('Failed to delete transfer');
+        }
+        return;
+      }
+      toast.success('Transfer removed');
+      // Refresh selectedLead transfers: reload lead or mutate locally
+      // Simple approach: reload the leads list and re-open view drawer
+      await loadLeads();
+      // Also optimistically remove from selectedLead in memory
+      setSelectedLead((prev) => {
+        if (!prev) return prev;
+        const toId = toBrokerId;
+        const filtered = Array.isArray(prev.transfers)
+          ? prev.transfers.filter(tr => {
+              const id = (tr && typeof tr.toBroker === 'object') ? (tr.toBroker?._id || tr.toBroker?.id) : tr?.toBroker;
+              return String(id) !== String(toId);
+            })
+          : [];
+        return { ...prev, transfers: filtered };
+      });
+      setPendingDeleteTransferId(null);
+    } catch {
+      toast.error('Error deleting transfer');
+    }
+  };
   const saveViewEdits = async () => {
     if (!selectedLead) return;
     try {
@@ -2151,7 +2195,7 @@ export default function BrokerLeadsPage() {
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                   )}
-                  {transferLoading ? 'Sending...' : 'Send Transfer Request'}
+                  {transferLoading ? 'Sending...' : 'Share with broker'}
                 </button>
                 </div>
               </div>
@@ -2460,10 +2504,10 @@ export default function BrokerLeadsPage() {
                           return (
                             <li key={`${keyFrom}-${keyTo}-${t?._id || i}`} className="flex items-center gap-3">
                               <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700" title={typeof fromName === 'string' ? fromName : String(fromName)}>
+                                {/* <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700" title={typeof fromName === 'string' ? fromName : String(fromName)}>
                                   <img src={fromAvatar || 'https://www.w3schools.com/howto/img_avatar.png'} alt={typeof fromName === 'string' ? fromName : 'Broker'} className="w-full h-full object-cover" />
                                 </div>
-                                <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5l7 7-7 7"/></svg>
+                                <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5l7 7-7 7"/></svg> */}
                                 <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700" title={typeof toName === 'string' ? toName : String(toName)}>
                                   <img src={toAvatar || 'https://www.w3schools.com/howto/img_avatar.png'} alt={typeof toName === 'string' ? toName : 'Broker'} className="w-full h-full object-cover" />
                                 </div>
@@ -2479,6 +2523,25 @@ export default function BrokerLeadsPage() {
                                 </div>
                                 {when && <div className="text-[11px] text-slate-400">Shared on {when}</div>}
                               </div>
+                              {(() => {
+                                const toId = (t && typeof t.toBroker === 'object') ? (t.toBroker?._id || t.toBroker?.id) : t?.toBroker;
+                                const isPending = pendingDeleteTransferId === String(toId);
+                                return (
+                                  <button
+                                    type="button"
+                                    disabled={isPending}
+                                    onClick={async () => {
+                                      if (!toId) return;
+                                      setPendingDeleteTransferId(String(toId));
+                                      await deleteTransfer(toId);
+                                    }}
+                                    className={`ml-2 inline-flex items-center px-2 py-1 text-[12px] rounded border ${isPending ? 'border-gray-200 text-gray-400' : 'border-rose-200 text-rose-700 hover:bg-rose-50'}`}
+                                    title="Delete transfer"
+                                  >
+                                    {isPending ? 'Removing…' : 'Delete'}
+                                  </button>
+                                );
+                              })()}
                             </li>
                           );
                         })}

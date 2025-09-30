@@ -1347,17 +1347,43 @@ const Profile = () => {
                           <label className="block text-xs font-label text-gray-700 mb-2">
                             Gender <span className="text-red-500">*</span>
                           </label>
-                          <select
+                          <Select
                             name="gender"
-                            value={userRole === 'customer' ? customerFormData.gender : brokerFormData.gender}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body appearance-none"
-                          >
-                            <option value="">Select gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                          </select>
+                            options={[
+                              { value: '', label: 'Select gender' },
+                              { value: 'male', label: 'Male' },
+                              { value: 'female', label: 'Female' },
+                              { value: 'other', label: 'Other' },
+                            ]}
+                            value={(() => {
+                              const v = userRole === 'customer' ? customerFormData.gender : brokerFormData.gender;
+                              const opts = [
+                                { value: '', label: 'Select gender' },
+                                { value: 'male', label: 'Male' },
+                                { value: 'female', label: 'Female' },
+                                { value: 'other', label: 'Other' },
+                              ];
+                              return opts.find(o => o.value === (v || '')) || opts[0];
+                            })()}
+                            onChange={(opt) => {
+                              const value = opt?.value || '';
+                              if (userRole === 'customer') {
+                                setCustomerFormData(prev => ({ ...prev, gender: value }));
+                              } else {
+                                setBrokerFormData(prev => ({ ...prev, gender: value }));
+                              }
+                            }}
+                            classNamePrefix="react-select"
+                            styles={{
+                              control: (provided) => ({
+                                ...provided,
+                                border: '1px solid #d1d5db',
+                                borderRadius: '0.5rem',
+                                minHeight: '48px',
+                                fontSize: '14px'
+                              })
+                            }}
+                          />
                         </div>
 
 
