@@ -219,11 +219,27 @@ export default function BrokerLeadsPage() {
   const [total, setTotal] = useState(0);
   const totalPages = Math.max(1, Math.ceil(total / (limit || 10)));
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const DEBOUNCE_DELAY = 500; // Configurable debounce delay
 
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedQuery(filters.query || ''), 300);
-    return () => clearTimeout(t);
-  }, [filters.query]);
+    // Show searching indicator when user types (with small delay to avoid flickering)
+    const showSearchingTimer = setTimeout(() => {
+      if (filters.query !== debouncedQuery) {
+        setIsSearching(true);
+      }
+    }, 100);
+    
+    const debounceTimer = setTimeout(() => {
+      setDebouncedQuery(filters.query || '');
+      setIsSearching(false);
+    }, DEBOUNCE_DELAY);
+    
+    return () => {
+      clearTimeout(showSearchingTimer);
+      clearTimeout(debounceTimer);
+    };
+  }, [filters.query, debouncedQuery]);
 
   const buildRequestUrl = useCallback(
     (effectiveFilters, p = page, l = limit, q = debouncedQuery, viewMode = leadViewMode) => {
@@ -1182,6 +1198,12 @@ export default function BrokerLeadsPage() {
                   <svg className="w-5 h-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
               </svg>
+              {/* Search indicator */}
+              {isSearching && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="w-4 h-4 border-2 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
             </div>
 
                 {/* Status Filter - Fixed width */}

@@ -271,7 +271,7 @@ const Profile = () => {
         ...prev,
         officeAddress: selectedOption.description
       }));
-      toast.success('Address selected successfully');
+      // toast.success('Address selected successfully');
       // Try to resolve coordinates from Google Place details if available
       try {
         if (window.google && window.google.maps && selectedOption.placeId) {
@@ -360,7 +360,7 @@ const Profile = () => {
               setGeoCoords({ latitude, longitude });
               
               toast.dismiss();
-              toast.success('Current location set successfully!');
+              // toast.success('Current location set successfully!');
             } else {
               toast.dismiss();
               toast.error('Could not get address from location');
