@@ -174,11 +174,11 @@ export default function BrokerLeadsPage() {
   const [metricsError, setMetricsError] = useState('');
 
   const loadMetrics = useCallback(async () => {
+    // Only fetch metrics when brokerId is available to ensure broker-scoped numbers
+    if (!brokerId) return;
     try {
       setMetricsLoading(true); setMetricsError('');
-      const metricsUrl = brokerId
-        ? `${apiUrl}/leads/metrics?createdBy=${brokerId}`
-        : `${apiUrl}/leads/metrics`;
+      const metricsUrl = `${apiUrl}/leads/metrics?createdBy=${brokerId}`;
       const res = await fetch(metricsUrl, {
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
       });
@@ -207,8 +207,8 @@ export default function BrokerLeadsPage() {
       setMetricsLoading(false);
     }
   }, [apiUrl, token, brokerId]);
-
-  useEffect(() => { loadMetrics(); }, [loadMetrics]);
+  // Load metrics once brokerId is available
+  useEffect(() => { if (brokerId) loadMetrics(); }, [brokerId, loadMetrics]);
 
   /* ───────────── Leads API ───────────── */
   const [leads, setLeads] = useState([]);
