@@ -1953,7 +1953,14 @@ const Profile = () => {
                         const dist = typeof r.distanceKm === 'number' ? r.distanceKm : null;
                         const distanceText = dist !== null ? `${(dist >= 10 ? Math.round(dist) : Math.round(dist * 10) / 10)} km away` : '';
                         const brokersText = typeof r.brokerCount === 'number' ? `${r.brokerCount} Broker${r.brokerCount === 1 ? '' : 's'}` : '';
-                        const isSelected = Array.isArray(brokerFormData.regions) && brokerFormData.regions.includes(id);
+                        const isSelected = Array.isArray(brokerFormData.regions) && brokerFormData.regions.some(region => {
+                          if (typeof region === 'object' && region._id) {
+                            return region._id === id;
+                          } else if (typeof region === 'string') {
+                            return region === id;
+                          }
+                          return false;
+                        });
                         return (
                           <button
                             key={id || label}
