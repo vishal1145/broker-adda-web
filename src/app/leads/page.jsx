@@ -1800,25 +1800,25 @@ export default function BrokerLeadsPage() {
     <h4 className="text-md font-bold text-slate-900 mb-3">Resources</h4>
     <ul className="text-sm text-slate-700 space-y-2">
       <li className='py-2'>
-        <a href="/resources/lead-generation-playbook" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-2  rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors">
+        <a href="#"  rel="noopener noreferrer" className="group flex items-center gap-2 px-2  rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
           Lead Generation Playbook
         </a>
       </li>
       <li className='py-2'>
-        <a href="/resources/email-templates" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-2  rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors">
+        <a href="#"  rel="noopener noreferrer" className="group flex items-center gap-2 px-2  rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>
           Email Templates
         </a>
       </li>
       <li className='py-2'>
-        <a href="/resources/agreement-templates" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors">
+        <a href="#"  rel="noopener noreferrer" className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
           Agreement Templates
         </a>
       </li>
       <li className='py-2'>
-        <a href="/resources/customer-guides" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors">
+        <a href="#" rel="noopener noreferrer" className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors">
           <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Customer Guides
         </a>
