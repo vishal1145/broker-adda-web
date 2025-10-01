@@ -356,6 +356,9 @@ const Profile = () => {
                 officeAddress: address
               }));
               
+              // Set coordinates to trigger nearest regions API call
+              setGeoCoords({ latitude, longitude });
+              
               toast.dismiss();
               toast.success('Current location set successfully!');
             } else {
@@ -364,8 +367,11 @@ const Profile = () => {
             }
           });
         } else {
+          // Even if Google Maps API is not loaded, we can still set coordinates
+          // and let the user manually enter address
+          setGeoCoords({ latitude, longitude });
           toast.dismiss();
-          toast.error('Google Maps API not loaded');
+          toast.error('Google Maps API not loaded, but coordinates are set');
         }
       },
       (error) => {
