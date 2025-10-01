@@ -1,10 +1,10 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import legalComplianceData from '../data/legalCompliance.json';
-import HeaderFile from '../components/Header';
-import Features from '../components/Features';
-import furnitureData from '../data/furnitureData.json';
+import legalComplianceData from '../../data/legalCompliance.json';
+import HeaderFile from '../../components/Header';
+import Features from '../../components/Features';
+import furnitureData from '../../data/furnitureData.json';
 
 const LegalCompliancePage = () => {
   const { sections, complianceChecklist, regulatoryBodies, frequentlyAskedQuestions, contact } = legalComplianceData;

@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
-import documentationData from '../data/documentation.json';
-import HeaderFile from '../components/Header';
+import documentationData from '../../data/documentation.json';
+import HeaderFile from '../../components/Header';
  
 
 const DocumentationPage = () => {

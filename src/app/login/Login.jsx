@@ -139,7 +139,6 @@ const Login = () => {
     if (provider === 'Number') {
       setShowNumberForm(true);
     } else {
-      toast.info(`${provider} login coming soon!`);
     }
   };
 
@@ -326,7 +325,7 @@ const Login = () => {
                     {/* Number Login Button */}
                     <button
                       onClick={() => handleSocialLogin('Number')}
-                      className="w-full flex items-center justify-center px-4 py-3 bg-green-900 text-white rounded-lg font-medium text-base hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-md"
+                      className="w-full flex items-center justify-center px-4 py-3 bg-green-900 text-white rounded-lg font-medium text-base hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-md cursor-pointer"
                       style={{ fontFamily: 'Open Sans, sans-serif' }}
                     >
                       <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
@@ -338,7 +337,7 @@ const Login = () => {
                     {/* Google Login Button */}
                     <button
                       onClick={() => handleSocialLogin('Google')}
-                      className="w-full flex items-center justify-center px-4 py-3 border rounded-lg font-medium text-base hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200"
+                      className="w-full flex items-center justify-center px-4 py-3 border rounded-lg font-medium text-base hover:bg-gray-50 focus:outline-none transition-all duration-200 cursor-pointer"
                       style={{ 
                         fontFamily: 'Open Sans, sans-serif',
                         borderColor: '#ea4335',
@@ -352,7 +351,7 @@ const Login = () => {
                     {/* Facebook Login Button */}
                     <button
                       onClick={() => handleSocialLogin('Facebook')}
-                      className="w-full flex items-center justify-center px-4 py-3 border rounded-lg font-medium text-base hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200"
+                      className="w-full flex items-center justify-center px-4 py-3 border rounded-lg font-medium text-base hover:bg-gray-50 focus:outline-none transition-all duration-200 cursor-pointer"
                       style={{ 
                         fontFamily: 'Open Sans, sans-serif',
                         borderColor: '#1877f2',
@@ -381,7 +380,7 @@ const Login = () => {
                   <div className="text-left mb-14">
                     <button
                       onClick={handleBackToSocial}
-                      className="mb-2 text-gray-500 hover:text-gray-700 transition-colors"
+                      className="mb-2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                     >
                       ← Back
                     </button>
