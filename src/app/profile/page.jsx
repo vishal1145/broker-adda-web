@@ -1944,15 +1944,31 @@ const Profile = () => {
                 ) : nearestMode ? (
                   <div>
                     <div className="mb-2 text-[13px] text-slate-600 flex items-center gap-2">
-                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-sky-100 text-sky-700">📍</span>
+                    
                       Showing nearest regions based on your location. Choose one.
                     </div>
                    
                     {nearestRegionsError && (
                       <div className="text-[13px] text-rose-600 mb-2">{nearestRegionsError}</div>
                     )}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
-                      {(Array.isArray(nearestRegions) ? nearestRegions.slice(0, 5) : []).map((r) => {
+                    
+                    {nearestRegionsLoading ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <div key={i} className="relative p-4 rounded-xl border border-gray-200 bg-white animate-pulse">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                                <div className="h-3 bg-gray-200 rounded w-1/2 mb-1"></div>
+                                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+                        {(Array.isArray(nearestRegions) ? nearestRegions.slice(0, 5) : []).map((r) => {
                         const id = r._id || r.id;
                         const label = r.name || r.region;
                         const place = r.centerLocation || [r.city, r.state].filter(Boolean).join(', ');
@@ -1992,7 +2008,8 @@ const Profile = () => {
                           </button>
                         );
                       })}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <Select

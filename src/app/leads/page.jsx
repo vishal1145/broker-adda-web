@@ -2040,6 +2040,7 @@ export default function BrokerLeadsPage() {
   isSearchable
               menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
               menuPosition="fixed"
+              menuPlacement="auto"
 />                  </div>
                     <div>
                     <label className="block text-xs font-label text-gray-700 mb-1">Property Type</label>
@@ -2051,6 +2052,7 @@ export default function BrokerLeadsPage() {
   isSearchable
               menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
               menuPosition="fixed"
+              menuPlacement="auto"
 />                  </div>
                    
                   </div>
@@ -2072,6 +2074,7 @@ export default function BrokerLeadsPage() {
             isLoading={nearestRegionsLoading}
             menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
             menuPosition="fixed"
+            menuPlacement="auto"
 />                  </div>
                      <div>
                      <label className="block text-xs font-label text-gray-700 mb-1">Optional Region</label>
@@ -2084,6 +2087,7 @@ export default function BrokerLeadsPage() {
                isLoading={nearestRegionsLoading}
                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                menuPosition="fixed"
+               menuPlacement="auto"
 />                  </div>
         </div>
 
@@ -2379,6 +2383,7 @@ export default function BrokerLeadsPage() {
                               styles={modalSelectStyles}
                               menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                               menuPosition="fixed"
+                              menuPlacement="auto"
                             />
                           ) : (selectedLead.requirement || selectedLead.req || '—')}
                         </span>
@@ -2400,6 +2405,7 @@ export default function BrokerLeadsPage() {
                               styles={modalSelectStyles}
                               menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                               menuPosition="fixed"
+                              menuPlacement="auto"
                             />
                           ) : (selectedLead.propertyType || '—')}
                         </span>
@@ -2422,11 +2428,12 @@ export default function BrokerLeadsPage() {
                               <Select
                                 value={viewForm.primaryRegion}
                                 onChange={(opt) => setViewForm((p) => ({ ...p, primaryRegion: opt }))}
-                                options={(nearestRegionOptions && nearestRegionOptions.length > 0 ? nearestRegionOptions : regionOptions).filter(o => o.value !== 'all')}
+                                options={nearestRegionOptions && nearestRegionOptions.length > 0 ? nearestRegionOptions : regionOptions.filter(o => o.value !== 'all')}
                                 styles={modalSelectStyles}
                                 isLoading={nearestRegionsLoading}
                                 menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                                 menuPosition="fixed"
+                                menuPlacement="auto"
                               />
                             )
                           ) : (getRegionName(selectedLead?.primaryRegion || selectedLead?.region) || '—')}
@@ -2450,11 +2457,12 @@ export default function BrokerLeadsPage() {
                               <Select
                                 value={viewForm.secondaryRegion}
                                 onChange={(opt) => setViewForm((p) => ({ ...p, secondaryRegion: opt }))}
-                                options={(nearestRegionOptions && nearestRegionOptions.length > 0 ? nearestRegionOptions : regionOptions).filter(o => o.value !== 'all')}
+                                options={nearestRegionOptions && nearestRegionOptions.length > 0 ? nearestRegionOptions : regionOptions.filter(o => o.value !== 'all')}
                                 styles={modalSelectStyles}
                                 isLoading={nearestRegionsLoading}
                                 menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                                 menuPosition="fixed"
+                                menuPlacement="auto"
                               />
                             )
                           ) : (getRegionName(selectedLead?.secondaryRegion) || '—')}
