@@ -1,0 +1,176 @@
+{
+  "title": "Legal & Compliance ",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "Legal & Compliance", "href": "/legal-compliance" }
+  ],
+  
+  "sections": [
+    {
+      "title": "Property Transaction Legal Requirements",
+      "content": "Understanding the legal framework governing real estate transactions is crucial for all parties involved. This section covers the essential legal requirements for property sales, purchases, and transfers.",
+      "bullets": [
+        "Property registration and documentation requirements",
+        "Title verification and due diligence processes",
+        "Stamp duty and registration fee calculations",
+        "Legal compliance for property transfers",
+        "Required documentation for different property types"
+      ],
+      "subsections": [
+        {
+  "title": "Documentation Requirements",
+  "content": "Broker Adda keeps the registration process simple but requires basic documentation to maintain trust and compliance. The requirements differ slightly for Customers and Brokers:",
+  "items": [
+    "For Customers: Basic ID proof (Aadhaar, PAN, Passport, or Driving License)",
+    "For Customers: Verified mobile number or email via OTP",
+    "For Customers: Profile details including name, gender, location, budget, and property preferences",
+    "For Brokers: Government ID proof (PAN / Aadhaar)",
+    "For Brokers: Address proof (utility bill, Aadhaar, or rental agreement)",
+    "For Brokers: Business ID / RERA Registration Number (if applicable)",
+    "For Brokers: Company details such as business name, region, and license number",
+    "For Brokers: Optional GST Number for invoicing and compliance",
+    "For Brokers: Bank details if payouts or subscriptions are involved"
+  ]
+},
+     {
+  "title": "Registration Process",
+  "content": "Getting started with Broker Adda is simple and quick. The entire signup process is designed to be secure and role-specific for both brokers and customers.",
+  "items": [
+    "Go to the Broker Adda website or app and click 'Sign Up'",
+    "Choose your role – Broker or Customer",
+    "Enter your mobile number or email and receive an OTP",
+    "Verify OTP to confirm your identity",
+    "Fill in basic profile details (name, location, preferences, business info for brokers)",
+    "Complete registration and access your personalized dashboard",
+    "Brokers can start adding leads and properties; customers can browse, shortlist, and connect"
+  ]
+}
+
+      ]
+    }
+
+ 
+  
+
+
+  ],
+  "complianceChecklist": {
+    "title": "Real Estate Compliance Checklist",
+    "description": "Use this checklist to ensure your real estate transactions meet all legal requirements:",
+    "categories": [
+      {
+        "title": "Pre-Transaction Compliance",
+        "items": [
+          "Verify property title and ownership",
+          "Check for legal encumbrances",
+          "Obtain necessary NOCs and clearances",
+          "Verify developer's RERA registration",
+          "Review all project documentation"
+        ]
+      },
+      {
+        "title": "Transaction Documentation",
+        "items": [
+          "Prepare sale deed with proper clauses",
+          "Calculate and pay stamp duty",
+          "Arrange for property registration",
+          "Obtain tax clearance certificates",
+          "Complete all required documentation"
+        ]
+      },
+      {
+        "title": "Post-Transaction Compliance",
+        "items": [
+          "Update property records",
+          "Transfer utility connections",
+          "File necessary tax returns",
+          "Maintain transaction records",
+          "Comply with ongoing obligations"
+        ]
+      }
+    ]
+  },
+  "regulatoryBodies": {
+  "title": "Key Regulatory Bodies",
+  "description": "These are the primary regulatory authorities that govern real estate practices in India. Broker Adda aligns with their guidelines to ensure trust, transparency, and compliance.",
+  "bodies": [
+    {
+      "name": "Real Estate Regulatory Authority (RERA)",
+      "role": "Monitors real estate developers and brokers, ensuring transparency and protecting buyers' interests.",
+      "website": "https://rera.gov.in",
+      "contact": "State-specific RERA offices"
+    },
+    {
+      "name": "Ministry of Housing and Urban Affairs (MoHUA)",
+      "role": "Responsible for housing policies, real estate reforms, and urban development programs across India.",
+      "website": "https://mohua.gov.in",
+      "contact": "Central Government Ministry"
+    },
+    {
+      "name": "Income Tax Department",
+      "role": "Regulates tax obligations related to property transactions, rental income, and capital gains.",
+      "website": "https://incometax.gov.in",
+      "contact": "Regional Income Tax Offices"
+    },
+    {
+      "name": "State Revenue & Stamp Duty Departments",
+      "role": "Oversee property registration, land records, and collection of stamp duty and registration fees.",
+      "website": "Varies by state",
+      "contact": "Local Sub-Registrar Offices"
+    },
+    {
+      "name": "Data Protection Authorities",
+      "role": "Ensure secure handling of personal and financial data in compliance with privacy laws (like DPDP Act in India).",
+      "website": "https://www.meity.gov.in",
+      "contact": "Ministry of Electronics & IT (MeitY)"
+    }
+  ]
+}
+,
+  "frequentlyAskedQuestions": {
+  "title": "Legal & Compliance FAQ",
+  "questions": [
+    {
+      "question": "What documents are required to create an account on Broker Adda?",
+      "answer": "Customers need a basic ID proof (Aadhaar, PAN, Passport, or Driving License) along with mobile/email OTP verification. Brokers need to provide additional documents such as business/RERA ID, address proof, and company details."
+    },
+    {
+      "question": "Is RERA registration mandatory for brokers on Broker Adda?",
+      "answer": "Yes, in states where RERA regulations apply, brokers are required to provide their RERA registration number. This ensures trust and compliance on the platform."
+    },
+    {
+      "question": "Do customers need to complete KYC to browse properties?",
+      "answer": "No, customers can browse properties after completing basic profile setup and OTP verification. However, ID proof verification is recommended for connecting with brokers and accessing all features."
+    },
+    {
+      "question": "How are documents verified on Broker Adda?",
+      "answer": "Once documents are uploaded, the Broker Adda compliance team reviews and verifies them. Verification for brokers may take 1–2 working days."
+    },
+    {
+      "question": "Is my data and documentation safe on Broker Adda?",
+      "answer": "Yes, Broker Adda follows industry-standard data protection practices. All documents are stored securely with encryption and are never shared with third parties without consent."
+    },
+    {
+      "question": "What happens if a broker does not submit documents?",
+      "answer": "Unverified brokers will have limited access to features. Submitting complete documentation is mandatory for lead transfers, premium listings, and payouts."
+    }
+  ]
+},
+  "contact": {
+    "title": "Need Legal Assistance?",
+    "description": "Our legal experts are here to help you navigate complex real estate legal requirements and ensure full compliance.",
+    "buttons": [
+      {
+        "text": "Consult Legal Expert",
+        "href": "/contact",
+        "type": "primary"
+      },
+      {
+        "text": "Download Compliance Guide",
+        "href": "#",
+        "type": "secondary"
+      }
+    ]
+  }
+}
+

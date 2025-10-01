@@ -50,7 +50,7 @@ const Blog = () => {
                     alt={blog.title}
                     className="w-98 h-72 object-cover rounded-xl"
                   />
-                  <div className="absolute bottom-0 left-32 bg-yellow-500 text-gray-900 text-sm px-4 py-2 rounded-t-lg rounded-b-none shadow border-t-4 border-l-4 border-r-4 border-white">
+                  <div className="absolute bottom-0 left-30 bg-yellow-500 text-gray-900 text-sm px-4 py-2 rounded-t-lg rounded-b-none shadow border-t-4 border-l-4 border-r-4 border-white">
                     {blog.date}
                   </div>
                 </div>

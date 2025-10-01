@@ -387,42 +387,42 @@
     "subtitle": "Testimonial",
     "items": [
       {
-        "name": "Priya Sharma",
+        "name": "Leslie Alexander",
         "role": "Architecture",
         "rating": 4.4,
         "image": "images/Leslie .jpg",
         "text": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa"
       },
       {
-        "name": "Rajesh Kumar",
+        "name": "Jenny Wilson",
         "role": "Interior Designer",
         "rating": 4.5,
         "image": "images/user-5.jpeg",
         "text": "An interior designer creates functional, beautiful spaces that reflect personality, comfort, and modern elegance."
       },
       {
-        "name": "Sakshi Singh",
+        "name": "John Doe",
         "role": "Product Designer",
         "image": "/images/user-1.webp",
         "text": "A product designer crafts innovative, user-friendly solutions that seamlessly blend function with aesthetic appeal.",
         "rating": 5.0
       },
       {
-        "name": "Himesh Gupta",
+        "name": "Jane Smith",
         "role": "Homeowner",
         "image": "/images/user-2.jpeg",
         "text": "A homeowner takes pride in creating a cozy, welcoming, and personalized living space.",
         "rating": 4.8
       },
       {
-        "name": "Vikash Jain",
+        "name": "Michael Brown",
         "role": "Architect",
         "image": "/images/user-3.jpeg",
         "text": "An architect blends creativity and precision to design inspiring, functional, and timeless living spaces.",
         "rating": 4.9
       },
       {
-        "name": "Sunita Patel",
+        "name": "Emily White",
         "role": "Interior Decorator",
         "image": "/images/user-4.jpeg",
         "text": "An interior decorator transforms spaces with style, harmony, and personal touches that inspire comfort.",
@@ -530,18 +530,20 @@
       "Customer Services": [
         { "name": "My Account", "href": "/myaccount" },
         { "name": "Track Your Order", "href": "/trackorder" },
-
+        { "name": "Documentation", "href": "/documentation" },
+        { "name": "Getting Started", "href": "/help/getting-started" },
         { "name": "FAQ", "href": "/faq" }
       ],
       "Our Information": [
         { "name": "Privacy", "href": "/privacy" },
         { "name": "User Terms & Condition", "href": "/terms" },
-        { "name": "Return Policy", "href": "/refund" }
+        { "name": "Return Policy", "href": "/refund" },
+        { "name": "Legal & Compliance Guide", "href": "/legal-compliance" }
       ],
       "Contact Info": [
         { "name": "+91 98765 43210", "href": "tel:+919876543210" },
         { "name": "support@brokeradda.com", "href": "support@brokeradda.com" },
-        { "name": "A-17, Tajganj, Agra", "href": "#" }
+        { "name": "Broker Adda NSW 2481", "href": "#" }
       ]
     },
     "copyright": "© 2025 Broker Adda. All Rights Reserved."

@@ -1,0 +1,76 @@
+{
+  "title": "Documentation",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "Documentation", "href": "/documentation" }
+  ],
+  "sections": [
+    {
+      "title": "Account Setup",
+      "content": "Setting up your account on Broker Adda is quick, secure, and slightly different depending on whether you are a Customer or a Broker. This section explains the process in detail.",
+      "bullets": [
+        "Sign up using your mobile number or email – Registration begins with entering your basic contact details. Customers can use either phone or email, while brokers are encouraged to use their professional email for verification.",
+        "Verify your identity with OTP – A one-time password (OTP) will be sent to your registered contact. This ensures only authorized users access the platform and prevents fake accounts.",
+        "Complete your profile with role-specific details – Customers only need to provide basic details like gender, location, and budget, while brokers must enter professional information such as company name and operating region.",
+        "Upload required documents (for brokers) – Brokers must upload compliance documents like RERA registration number, PAN card, Aadhaar, or passport to prove legitimacy and build trust with clients.",
+        "Access your personalized dashboard – Once verified, customers see a property-focused dashboard with saved searches and alerts, while brokers see a business dashboard to manage leads, clients, and property listings."
+      ]
+    },
+    {
+      "title": "Privacy & Security",
+      "content": "At Broker Adda, we prioritize your privacy and security with industry-leading protection measures. The platform ensures that personal information, financial data, and property records are never compromised.",
+      "bullets": [
+        "End-to-end encryption – All communication, whether between brokers and customers or during transactions, is encrypted to prevent unauthorized access.",
+        "Multi-factor authentication – Users can enable additional verification such as OTP or device-based authentication to secure their account beyond just passwords.",
+        "Regular security audits – Broker Adda runs frequent vulnerability scans and audits to patch risks before they impact users.",
+        "GDPR and Indian data protection compliance – Your personal and property data is handled according to strict international and local regulations.",
+        "Secure payment processing – All financial transactions comply with PCI DSS standards, ensuring safe payments for booking fees, deposits, or subscriptions.",
+        "24/7 monitoring – Advanced monitoring systems track unusual activity to prevent fraud, identity theft, or misuse of the platform."
+      ]
+    },
+    {
+      "title": "Leads Management",
+      "content": "The Leads Management system helps brokers handle all inquiries, client details, and follow-ups in one centralized place. This ensures no lead is ignored, communication is streamlined, and deals move faster.",
+      "bullets": [
+        "Add New Leads – Brokers can add clients manually with details such as name, phone, email, and property requirements. This makes it easy to capture walk-in, referral, or phone-call leads without missing any information.",
+        "Track & Update – Each lead has a status like New, In-Progress, Converted, or Lost. Brokers can attach follow-up notes, schedule reminders, and document every interaction to maintain a complete client history.",
+        "Transfer & Share – If another broker or teammate is better suited for handling a lead, the system allows seamless lead transfer. This avoids duplication and ensures the right person follows up at the right time.",
+        "Smart Filters – Leads can be filtered by budget, location, property type, or priority level. This helps brokers focus on hot leads first and organize the pipeline efficiently.",
+        "Stay Notified – Automatic alerts remind brokers of pending follow-ups, status changes, or client activity. This ensures no client inquiry is ever left unattended."
+      ],
+      "subsections": [
+        {
+          "title": "Key Benefits",
+          "content": "Broker Adda’s Leads Management offers real business value for brokers by making lead handling more efficient and collaborative.",
+          "items": [
+            "Centralized lead database with client history that reduces data loss or miscommunication.",
+            "Automated reminders and notifications to improve conversion rates.",
+            "Collaboration features like lead sharing and transfers to keep the whole team aligned.",
+            "Advanced filters that help prioritize high-value clients.",
+            "Mobile-ready access so brokers can track and update leads even while on-site visits."
+          ]
+        },
+        {
+          "title": "Getting Started with Leads",
+          "content": "Brokers can begin using the Leads Management system in just a few steps:",
+          "items": [
+            "Log in and go to the Leads section from the dashboard.",
+            "Click on 'Add New Lead' and fill in client details like name, phone, and property preferences.",
+            "Set follow-up reminders and mark the priority level (e.g., urgent, medium, low).",
+            "Assign leads to a specific team member if needed.",
+            "Update lead status as conversations progress to keep track of deal movement."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Contact & Support",
+      "content": "We’re here to help with account issues, property questions, and technical support. Our support team works to ensure smooth usage of the Broker Adda platform.",
+      "bullets": [
+        "Contact via email or phone – Write to support@brokeradda.com or call +91 98765 43210 during business hours.",
+        "Help Center – Access guides, FAQs, and tutorials in the Help section for step-by-step assistance.",
+        "Response Time – The team aims to reply to queries within 24 hours on working days, with priority support available for brokers."
+      ]
+    }
+  ]
+}

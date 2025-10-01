@@ -1,0 +1,122 @@
+{
+  "title": "Getting Started",
+  "breadcrumb": [
+    { "label": "Home", "href": "/" },
+    { "label": "Getting Started", "href": "/help/getting-started" }
+  ],
+  "customSections": [
+    {
+      "title": "Create Your Account",
+      "description": "Sign up today to unlock exclusive listings, broker insights, and personalized shortlists tailored to your needs. Use your work email or phone number to register securely, then complete your profile to receive smarter recommendations based on locality, budget, and property type. With your account, you can save searches, shortlist properties, and get instant alerts when matching homes go live.",
+      "highlightsTitle": "You’ll get:",
+      "highlights": [
+        "Secure sign-up with work email or phone verification",
+        "Personalized property recommendations by budget, locality, and type",
+        "Save searches, create shortlists, and get real-time property alerts"
+      ],
+     
+      "link": { "text": "Sign Up Now →", "href": "/signup" },
+      "video": {
+        "url": "https://www.loom.com/share/d957959ce58f44b6b9fd738aadab1985?sid=2102638b-e3d5-402d-b95d-e7712b0e65d4",
+        "embedUrl": "https://www.loom.com/embed/d957959ce58f44b6b9fd738aadab1985"
+      }
+    },
+    {
+      "title": "Add & Transfer Lead",
+      "description": "Learn how to quickly add new leads and seamlessly transfer them between team members. This video shows the complete process from capturing details to handing off leads for collaboration. You’ll see how simple it is to record essential information like name, contact, and interest, update lead status with follow-up notes, and then assign the lead to the right teammate in just a click. By the end, you’ll understand how easy it is to keep your pipeline organized, ensure no opportunity is missed, and improve teamwork across your sales process.",
+      "highlightsTitle": "In this video, you’ll learn how to:",
+      "highlights": [
+        "Add a new lead with name, contact, and interest",
+        "Update lead status and include follow-up notes",
+        "Transfer a lead to a teammate with one click",
+        "Keep your pipeline clean and organized for better results"
+      ],
+   
+      "link": { "text": "Go to Leads →", "href": "/leads" },
+      "video": {
+        "url": "https://www.loom.com/share/2dab931854b54d038e98b153eedf6dba?sid=42e6f863-4dd9-4546-8f21-5cab44ac6c1a",
+        "embedUrl": "https://www.loom.com/embed/2dab931854b54d038e98b153eedf6dba"
+      }
+    }
+  ],
+  "quickStartGuide": {
+    "title": "Quick Start Guide",
+    "steps": [
+      {
+        "number": 1,
+        "title": "Create Your Account",
+        "description": "Sign up to unlock curated listings, broker-only insights, and personalized shortlists.",
+        "link": { "text": "Sign Up Now →", "href": "/signup" }
+      },
+      {
+        "number": 2,
+        "title": "Browse Properties",
+        "description": "Explore verified residential and commercial properties with floor plans, locality scores, and virtual tours.",
+        "link": { "text": "Browse Properties →", "href": "/properties" }
+      },
+      {
+        "number": 3,
+        "title": "Talk to an Expert",
+        "description": "Get a call back from our advisors for locality guidance, price trends, and investment fit.",
+        "link": { "text": "Contact Us →", "href": "/contact" }
+      },
+      {
+        "number": 4,
+        "title": "Schedule Viewings",
+        "description": "Pick convenient time slots. We coordinate with owners/builders and share visit itineraries."
+      },
+      {
+        "number": 5,
+        "title": "Make an Offer",
+        "description": "Negotiate confidently with transparent pricing, offer tracking, and digital documentation."
+      },
+      {
+        "number": 6,
+        "title": "Close Seamlessly",
+        "description": "From token to registration, our team handles paperwork, loan assistance, and final handover."
+      }
+    ]
+  },
+
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "questions": [
+      {
+        "question": "How do I register on Broker Adda?",
+        "answer": "You can sign up using your phone number or work email. Once verified, you can set up your profile, add preferences, and start exploring properties or managing leads."
+      },
+      {
+        "question": "What is Leads Management?",
+        "answer": "Leads Management helps brokers capture, track, and update client inquiries. You can add new leads, update their status, share them with teammates, and set reminders for follow-ups—all in one place."
+      },
+      {
+        "question": "Can I transfer a lead to another broker or team member?",
+        "answer": "Yes. With one click, you can transfer leads to teammates or share them for collaboration. This ensures the right person handles the lead quickly."
+      },
+      {
+        "question": "How do customers benefit from Broker Adda?",
+        "answer": "Customers get access to exclusive property listings, personalized recommendations, and direct communication with verified brokers. They can also save searches, shortlist properties, and receive instant alerts."
+      },
+      {
+        "question": "Is my data safe on Broker Adda?",
+        "answer": "Absolutely. All user information, including customer data and broker details, is protected with industry-standard security practices."
+      },
+      {
+        "question": "Do I need to complete my profile?",
+        "answer": "Yes. A complete profile helps us give you personalized property suggestions based on your region, budget, and preferences. It also builds trust with other users on the platform."
+      },
+      {
+        "question": "Can I access Broker Adda on mobile?",
+        "answer": "Yes. Broker Adda is accessible on both web and mobile, so you can manage leads or browse properties anytime, anywhere."
+      }
+    ]
+  },
+  "contact": {
+    "title": "Still Need Help?",
+    "description": "Tell us your budget, preferred locality, and timeline. Our experts will shortlist properties and guide you end-to-end.",
+    "buttons": [
+      { "text": "Contact Us", "href": "/contact", "type": "primary" },
+      { "text": "View FAQ", "href": "/faq", "type": "secondary" }
+    ]
+  }
+}
