@@ -1368,13 +1368,13 @@ const Profile = () => {
       <div className="min-h-screen bg-white py-16">
         <div className="w-full">
           {/* Header Section */}
-          <div className="text-center mb-12">
+          <div className="text-left mb-12">
             <h1 className="text-4xl font-display text-gray-900 mb-4">
               {userRole === "customer"
                 ? "Create Customer Profile"
                 : "Create Broker Profile"}
             </h1>
-            <p className="text-sm font-body text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm font-body text-gray-600 text-left">
               Complete your profile to get started with{" "}
               {userRole === "customer"
                 ? "finding your dream property"
@@ -1384,7 +1384,7 @@ const Profile = () => {
 
           {/* Progress Bar */}
           <div className="mb-8">
-            <div className="flex items-center justify-center">
+            <div className="flex items-left ">
               <div className="flex items-center p-1 ">
                 {Array.from({ length: totalSteps }, (_, index) => {
                   const step = index + 1;
