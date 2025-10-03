@@ -145,8 +145,8 @@ const Hero = ({ data = {
   };
 
   return (
-    <section className="bg-gray-100 px-6 sm:px-12 lg:px-32 py-24">
-      <div className="max-w-7xl mx-auto relative">
+    <section className="bg-gray-100 py-24">
+      <div className="w-full mx-auto relative">
         <div className="absolute left-72 top-96 z-10">
           <Dots />
         </div>

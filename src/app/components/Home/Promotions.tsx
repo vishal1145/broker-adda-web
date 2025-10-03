@@ -19,8 +19,9 @@ const Promotions = ({ data = [] }: { data: PromotionItem[] }) => {
     router.push(`/properties/${type}`);
   };
   return (
-    <section className="px-6 sm:px-12 lg:px-32 bg-white py-16">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+    <section className="bg-white py-16">
+      <div className="w-full mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {(data || []).map((promotion, index) => (
           <div
             key={index}
@@ -71,6 +72,7 @@ const Promotions = ({ data = [] }: { data: PromotionItem[] }) => {
             </div>
           </div>
         ))}
+      </div>
       </div>
     </section>
   );

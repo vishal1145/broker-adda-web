@@ -34,7 +34,7 @@ const Blog = () => {
     <>
       <HeaderFile data={blogData} />
 
-      <section className="py-16 px-6 sm:px-12 lg:px-32 bg-white">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto ">
           {/* Blog Cards */}
           <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-10">

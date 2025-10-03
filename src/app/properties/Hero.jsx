@@ -413,7 +413,7 @@ const ShopHero = ({ data = { filters: { price: { min: 0, max: 1000 } }, products
   };
 
   return (
-    <div className="px-6 sm:px-12 lg:px-32 bg-white py-8 ">
+    <div className="bg-white py-8 ">
       <div className="max-w-7xl mx-auto ">
         {/* Search Results Header */}
         {searchQuery && (

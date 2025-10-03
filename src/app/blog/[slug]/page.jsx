@@ -25,7 +25,7 @@ const BlogDetails = () => {
       <HeaderFile data={blogData} />
       
       {/* Hero Image */}
-      <div className="px-6 sm:px-12 lg:px-32 flex justify-center mt-6">
+      <div className="flex justify-center mt-6">
         <div className="max-w-7xl w-full rounded-2xl overflow-hidden">
           <img
             src={blog.heroImage}

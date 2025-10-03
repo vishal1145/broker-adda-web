@@ -105,7 +105,7 @@ const Wishlist = () => {
           { label: "Wishlist", href: "/wishlist" }
         ]
       }} />
-<div className="px-6 sm:px-12 lg:px-32 py-12">
+<div className="py-12">
       <div className="max-w-7xl mx-auto ">
         <h2 className="text-2xl font-bold mb-8">Your Wishlist ({wishlistItems.length} items)</h2>
 

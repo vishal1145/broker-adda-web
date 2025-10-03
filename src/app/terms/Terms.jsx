@@ -14,7 +14,7 @@ const Terms = () => {
   return (
      <>
       <HeaderFile data={termsData} />
-      <div className="px-6 sm:px-12 lg:px-32 py-12">
+      <div className="py-12">
     <div className="max-w-7xl mx-auto ">
       {/* <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-800">Terms & Conditions</h1> */}
       <div className="space-y-10">

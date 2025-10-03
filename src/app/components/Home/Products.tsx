@@ -214,8 +214,8 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
   }, []);
 
   return (
-    <section className="bg-white px-6 sm:px-12 lg:px-32 py-16 mb-4"style={{ display: "none" }}>
-      <div className="max-w-7xl mx-auto">
+    <section className="bg-white py-16 mb-4" style={{ display: "none" }}>
+      <div className="w-full mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <p className="text-xl text-gray-900">

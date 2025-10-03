@@ -24,7 +24,7 @@ const Faq = () => {
   return (
     <>
       <HeaderFile data={faqData} />
-      <div className=" p-12   px-6 sm:px-12 lg:px-32 py-4 ">
+      <div className=" p-14   py-4 ">
         <div className='max-w-7xl mx-auto'>
         {/* Breadcrumb Section */}
         {/* <div className="text-sm text-gray-500 mb-4">

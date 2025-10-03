@@ -828,6 +828,13 @@ const Profile = () => {
     }
   };
 
+  // Gate to enable documents after preferred region selection
+  const [canUploadDocs, setCanUploadDocs] = useState(false);
+  useEffect(() => {
+    const hasRegion = Array.isArray(brokerFormData?.regions) && brokerFormData.regions.length > 0;
+    if (hasRegion) setCanUploadDocs(true);
+  }, [brokerFormData?.regions]);
+
   const handleRegionChange = (selectedOption) => {
     const selectedValue = selectedOption ? selectedOption.value : null;
     // Only update regions for brokers
@@ -836,6 +843,8 @@ const Profile = () => {
         ...prev,
         regions: selectedValue ? [selectedValue] : [],
       }));
+      // Enable document uploads when a preferred region is selected
+      setCanUploadDocs(!!selectedValue);
     }
   };
 
@@ -1016,6 +1025,15 @@ const Profile = () => {
     }
 
     if (currentStep < totalSteps) {
+      // Ensure uploads are enabled when moving to Documents if a region is selected
+      if (
+        userRole === "broker" &&
+        currentStep === 3 &&
+        Array.isArray(brokerFormData?.regions) &&
+        brokerFormData.regions.length > 0
+      ) {
+        setCanUploadDocs(true);
+      }
       setCurrentStep(currentStep + 1);
     }
   };
@@ -1052,6 +1070,8 @@ const Profile = () => {
           currentFormData.email &&
           currentFormData.phone &&
           currentFormData.gender &&
+          // Require firm name for brokers
+          (userRole !== "broker" || Boolean(currentFormData.firmName)) &&
           !emailError
         );
       case 2: // Professional/Preferences
@@ -1072,11 +1092,18 @@ const Profile = () => {
         }
       case 3: // Regions (only for brokers)
         if (userRole === "broker") {
+          const hasSelectedRegion =
+            Array.isArray(currentFormData.regions) &&
+            currentFormData.regions.length > 0;
+          // In nearest mode, only a region selection is required
+          if (nearestMode) {
+            return hasSelectedRegion;
+          }
+          // In manual mode, require state + city + region
           return (
             Boolean(currentFormData.state) &&
             Boolean(currentFormData.city) &&
-            Array.isArray(currentFormData.regions) &&
-            currentFormData.regions.length > 0
+            hasSelectedRegion
           );
         }
         return true; // Skip for customers
@@ -1339,7 +1366,7 @@ const Profile = () => {
         }}
       />
       <div className="min-h-screen bg-white py-16">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="w-full">
           {/* Header Section */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-display text-gray-900 mb-4">
@@ -1430,8 +1457,11 @@ const Profile = () => {
             </div>
           </div>
 
+          {/* Layout: 9 / 3 columns */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+           
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-2xl border-0 overflow-hidden">
+          <div className="lg:col-span-9 bg-white rounded-2xl shadow-2xl border-0 overflow-hidden">
             {/* Step Content */}
             {profileLoading ? (
               <div className="flex items-center justify-center py-20">
@@ -2477,12 +2507,15 @@ const Profile = () => {
                                     <button
                                       key={id || label}
                                       type="button"
-                                      onClick={() =>
+                                      onClick={() => {
                                         setBrokerFormData((prev) => ({
                                           ...prev,
-                                          regions: [id],
-                                        }))
-                                      }
+                                          regions: isSelected ? [] : [id],
+                                          state: isSelected ? "" : (r.state || prev.state || ""),
+                                          city: isSelected ? "" : (r.city || prev.city || ""),
+                                        }));
+                                        setCanUploadDocs(!isSelected);
+                                      }}
                                       className={`relative text-left p-4 rounded-xl border transition-all ${
                                         isSelected
                                           ? "border-sky-500 ring-2 ring-sky-100 shadow"
@@ -2642,7 +2675,7 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                           Aadhar Card
                         </label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
+                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-blue-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
                             name="aadharFile"
@@ -2650,10 +2683,11 @@ const Profile = () => {
                             accept=".pdf,.jpg,.jpeg,.png"
                             className="hidden"
                             id="aadhar-upload"
+                            disabled={!canUploadDocs}
                           />
                           <label
                             htmlFor="aadhar-upload"
-                            className="cursor-pointer"
+                            className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
                           >
                             <svg
                               className="mx-auto h-8 w-8 text-gray-400"
@@ -2702,7 +2736,7 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                           PAN Card
                         </label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
+                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-blue-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
                             name="panFile"
@@ -2710,10 +2744,11 @@ const Profile = () => {
                             accept=".pdf,.jpg,.jpeg,.png"
                             className="hidden"
                             id="pan-upload"
+                            disabled={!canUploadDocs}
                           />
                           <label
                             htmlFor="pan-upload"
-                            className="cursor-pointer"
+                            className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
                           >
                             <svg
                               className="mx-auto h-8 w-8 text-gray-400"
@@ -2760,7 +2795,7 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                           GST Certificate
                         </label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
+                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-blue-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
                             name="gstFile"
@@ -2768,10 +2803,11 @@ const Profile = () => {
                             accept=".pdf,.jpg,.jpeg,.png"
                             className="hidden"
                             id="gst-upload"
+                            disabled={!canUploadDocs}
                           />
                           <label
                             htmlFor="gst-upload"
-                            className="cursor-pointer"
+                            className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
                           >
                             <svg
                               className="mx-auto h-8 w-8 text-gray-400"
@@ -2818,7 +2854,7 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                           Broker License
                         </label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
+                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-blue-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
                             name="brokerLicenseFile"
@@ -2826,10 +2862,11 @@ const Profile = () => {
                             accept=".pdf,.jpg,.jpeg,.png"
                             className="hidden"
                             id="broker-license-upload"
+                            disabled={!canUploadDocs}
                           />
                           <label
                             htmlFor="broker-license-upload"
-                            className="cursor-pointer"
+                            className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
                           >
                             <svg
                               className="mx-auto h-8 w-8 text-gray-400"
@@ -2943,7 +2980,7 @@ const Profile = () => {
                       <button
                         type="button"
                         onClick={nextStep}
-                        disabled={!validateStep(currentStep) || isCheckingEmail}
+                        disabled={isCheckingEmail || !validateStep(currentStep)}
                         className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-heading text-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                       >
                         {isCheckingEmail ? (
@@ -3105,11 +3142,11 @@ const Profile = () => {
                               );
                               formDataToSend.append(
                                 "brokerDetails[state]",
-                                currentFormData.state || ""
+                                currentFormData.state || (Array.isArray(currentFormData.regions) && currentFormData.regions[0]?.state) || ""
                               );
                               formDataToSend.append(
                                 "brokerDetails[city]",
-                                currentFormData.city || ""
+                                currentFormData.city || (Array.isArray(currentFormData.regions) && currentFormData.regions[0]?.city) || ""
                               );
                               formDataToSend.append(
                                 "brokerDetails[gender]",
@@ -3353,6 +3390,25 @@ const Profile = () => {
                 </div>
               </div>
             )}
+          </div>
+          {/* Sidebar: Resources / Help */}
+          <aside className="lg:col-span-3 space-y-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Need help?</h3>
+              <ul className="text-sm text-gray-600 list-disc pl-5 space-y-2">
+                <li>Complete required fields marked with *</li>
+                <li>Use "Use nearest" to auto-pick regions</li>
+                <li>Documents enable after choosing a region</li>
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Resources</h3>
+              <div className="space-y-2 text-sm">
+                <a className="text-blue-700 hover:underline" href="#">Profile guidelines</a>
+                <div className="text-gray-600">KYC: PDF/JPG/PNG up to 10MB</div>
+              </div>
+            </div>
+          </aside>
           </div>
         </div>
       </div>

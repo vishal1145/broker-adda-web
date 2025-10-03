@@ -7,7 +7,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
 
   return (
     <footer className="bg-green-900 text-white">
-      <div className="px-6 sm:px-12 lg:px-32 py-12">
+      <div className="px-14 py-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-4 ">
           {/* Logo and Description */}
           <div className=" md:text-left md:col-span-1 ">
@@ -114,7 +114,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
       </div>
       
       {/* Bottom Bar */}
-      <div className="bg-yellow-400 text-sm text-gray-900 mt-12 py-4 px-6 sm:px-12 lg:px-32">
+      <div className="bg-yellow-400 text-sm text-gray-900 mt-12 py-4 px-12">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center">
           <p className="mb-2 sm:mb-0">{data.copyright}</p>
           

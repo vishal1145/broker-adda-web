@@ -47,12 +47,14 @@ interface NewsletterData {
 
 const Newsletter = ({ data = { title: '', subtitle: '', description: '' } }: { data: NewsletterData }) => {
   return (
-    <section className="bg-gray-50 px-6 sm:px-12 lg:px-32 py-16 relative">
-                <div className="absolute left-72 bottom-0  ">
-        <Dots />
-      </div>
-      {/* Dots - top right */}
-  <div className="absolute right-72 top-0 ">
+    <section className="bg-gray-50 py-16 relative">
+                   <div className="w-full mx-auto">
+        <div className="absolute left-72 bottom-0">
+          <Dots />
+        </div>
+        
+        {/* Dots - top right */}
+        <div className="absolute right-72 top-0">
   <Dots />
 </div>
       <div className="max-w-3xl mx-auto text-center">
@@ -91,6 +93,7 @@ const Newsletter = ({ data = { title: '', subtitle: '', description: '' } }: { d
       {/* Optional dot background (mocked) */}
       <div className="absolute top-0 left-0 w-20 h-20 bg-[url('https://www.svgrepo.com/show/513156/dots-grid.svg')] opacity-10"></div>
       <div className="absolute bottom-0 right-0 w-20 h-20 bg-[url('https://www.svgrepo.com/show/513156/dots-grid.svg')] opacity-10"></div>
+      </div>
     </section>
   );
 };

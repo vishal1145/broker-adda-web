@@ -16,8 +16,8 @@ const GettingStartedPage = () => {
       <HeaderFile data={data} />
 
       {/* Main Content */}
-      <div className="px-6 sm:px-12 lg:px-32 py-12">
-        <div className="max-w-7xl mx-auto">
+      <div className="py-14">
+        <div className="w-full mx-auto">
           {/* Custom Sections with Video */}
           {Array.isArray(data.customSections) && data.customSections.length > 0 && (
             <div className="space-y-10 mb-10">

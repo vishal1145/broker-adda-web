@@ -616,7 +616,7 @@ export default function BrokerLeadsPage() {
   const customSelectStyles = {
     control: (p, s) => ({
       ...p,
-      minHeight: "38px",
+      minHeight: "40px",
       borderRadius: 10,
       border: "1px solid #e5e7eb",
       fontFamily: "var(--font-body, inherit)",
@@ -1481,7 +1481,7 @@ export default function BrokerLeadsPage() {
     <ProtectedRoute requiredRole="broker">
       <div className="min-h-screen bg-white py-16">
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-        <div className="w-full mx-auto px-6 ">
+        <div className="w-full mx-auto  ">
           {/* 9 / 3 layout */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Header */}
@@ -1498,74 +1498,39 @@ export default function BrokerLeadsPage() {
                     </p>
                   </div>
 
-                  {/* View Mode Toggle */}
-                  <div className="flex items-center space-x-1">
+                  {/* View Mode Toggle (single switch with label) */}
+                  <div className="flex items-center gap-3">
                     <button
+                      type="button"
+                      role="switch"
+                      aria-checked={leadViewMode === "transferred"}
                       onClick={() => {
-                        setLeadViewMode("my-leads");
+                        const next = leadViewMode === "my-leads" ? "transferred" : "my-leads";
+                        setLeadViewMode(next);
                         setPage(1);
                         loadLeads(
                           filters,
                           1,
                           limit,
                           debouncedQuery,
-                          "my-leads"
+                          next
                         );
                       }}
-                      className={`flex items-center px-4 py-2.5 rounded-lg text-sm  transition-all duration-200 ${
-                        leadViewMode === "my-leads"
-                          ? "bg-green-900 text-white shadow-lg shadow-green-200"
-                          : "bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200"
-                      }`}
-                    >
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                      My Leads
-                    </button>
-                    <button
-                      onClick={() => {
-                        setLeadViewMode("transferred");
-                        setPage(1);
-                        loadLeads(
-                          filters,
-                          1,
-                          limit,
-                          debouncedQuery,
-                          "transferred"
-                        );
-                      }}
-                      className={`flex items-center px-4 py-2.5 rounded-lg text-sm  transition-all duration-200 ${
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 border ${
                         leadViewMode === "transferred"
-                          ? "bg-green-900 text-white shadow-lg shadow-green-200"
-                          : "bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200"
+                          ? "bg-sky-600 border-sky-600"
+                          : "bg-gray-200 border-gray-300"
                       }`}
                     >
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-                        />
-                      </svg>
-                      Transferred to Me
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                          leadViewMode === "transferred" ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
                     </button>
+                    <span className="text-sm text-gray-700">
+                      {leadViewMode === "transferred" ? "Transferred to Me" : "My Leads"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1618,12 +1583,8 @@ export default function BrokerLeadsPage() {
 
               {/* Search + status + buttons - Flexible layout */}
               <div className="mt-6 flex items-center gap-3">
-                {/* Search - Flexible width */}
-                <div
-                  className={`relative ${
-                    isAdvancedFiltersApplied ? "flex-1" : "flex-1"
-                  }`}
-                >
+                {/* Search - Fixed width to match status dropdown */}
+                <div className="w-52 relative">
                   <input
                     type="text"
                     placeholder="Search leads..."
@@ -1631,7 +1592,8 @@ export default function BrokerLeadsPage() {
                     onChange={(e) =>
                       setFilters({ ...filters, query: e.target.value })
                     }
-                    className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl shadow-sm bg-white text-sm focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500"
+                    className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-body placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500"
+                    style={{ minHeight: "40px", fontSize: "14px" }}
                   />
                   <svg
                     className="w-5 h-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"
@@ -1654,8 +1616,8 @@ export default function BrokerLeadsPage() {
                   )}
                 </div>
 
-                {/* Status Filter - Fixed width */}
-                <div className="w-48">
+                {/* Status Filter - Same width as search */}
+                <div className="w-52">
                   <Select
                     value={filters.status}
                     onChange={(opt) => {
@@ -1671,24 +1633,32 @@ export default function BrokerLeadsPage() {
                   />
                 </div>
 
-                {/* Advanced Filters - Fixed width */}
+                {/* Advanced Filters - Gray color with icon */}
                 <div>
                   <button
                     type="button"
                     onClick={() => setShowAdvanced(true)}
-                    className="px-3 py-2.5 rounded-xl text-sm  border border-green-300 bg-white text-green-700 hover:bg-green-50 hover:border-green-500 shadow-sm cursor-pointer whitespace-nowrap"
+                    className="px-3 py-2.5 rounded-xl text-sm font-body border border-gray-200 bg-white text-gray-500 hover:text-gray-600 hover:bg-white hover:border-gray-300 shadow-sm cursor-pointer whitespace-nowrap flex items-center gap-2"
+                    style={{ minHeight: "40px", fontSize: "14px" }}
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                    </svg>
                     Advanced Filters
                   </button>
                 </div>
 
-                {/* Add New Lead - Fixed width */}
+                {/* Add New Lead - Outline style */}
                 <div>
                   <button
                     type="button"
                     onClick={() => setShowAddLead(true)}
-                    className="px-3 py-2.5 rounded-xl text-sm  text-white bg-green-900 hover:bg-emerald-700 shadow-sm cursor-pointer whitespace-nowrap"
+                    className="px-3 py-2.5 rounded-xl text-sm border-2 border-green-600 text-green-600 bg-white hover:bg-green-50 hover:border-green-700 shadow-sm cursor-pointer whitespace-nowrap flex items-center gap-2"
+                    style={{ minHeight: "40px", fontSize: "14px" }}
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
                     Add New Lead
                   </button>
                 </div>
@@ -2316,7 +2286,7 @@ export default function BrokerLeadsPage() {
                 </ul>
               </div>
 
-              {/* FAQ */}
+              {/* Lead Help & Resources */}
               <div className="bg-white rounded-2xl shadow-2xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-[15px] font-bold text-slate-900 flex items-center gap-2">
@@ -2342,21 +2312,21 @@ export default function BrokerLeadsPage() {
                     href="/faq"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-medium text-sky-700 hover:underline hover:text-sky-800 transition-colors"
+                    className="text-xs font-medium text-gray-500 hover:underline hover:text-sky-800 transition-colors"
                   >
                     View all
                   </a>
                 </div>
 
                 <div className="space-y-2 text-sm">
-                  {/* Item 1 */}
+                  {/* FAQ 1 - tailored to leads */}
                   <details
                     className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors"
                     open
                   >
                     <summary className="list-none cursor-pointer flex items-center justify-between">
                       <span className="text-[15px]  text-gray-700">
-                        How do I import leads from CSV?
+                        How do I add a new lead quickly?
                       </span>
                       <svg
                         className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
@@ -2371,17 +2341,15 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-gray-600 border-l-2 border-gray-300">
-                      Go to Settings → Import Data → Select CSV format and
-                      follow the template instructions to map your fields
-                      correctly.
+                      Use the Add Lead button, fill name, phone, requirement and region. You can edit details later in Lead Details.
                     </p>
                   </details>
 
-                  {/* Item 2 */}
+                  {/* FAQ 2 */}
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
                       <span className="text-[15px]  text-gray-700">
-                        Can I customize lead statuses?
+                        How do I change a lead status?
                       </span>
                       <svg
                         className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
@@ -2396,16 +2364,15 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
-                      Yes, you can add, edit, or remove lead statuses from
-                      Settings → Lead Management → Status Configuration.
+                      Open a lead, click Edit Status in the drawer header, pick the status and save.
                     </p>
                   </details>
 
-                  {/* Item 3 */}
+                  {/* FAQ 3 */}
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
                       <span className="text-[15px]  text-gray-700">
-                        How to set up email notifications?
+                        How do I share a lead with another broker?
                       </span>
                       <svg
                         className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
@@ -2420,12 +2387,11 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
-                      Navigate to Profile → Notifications and select which lead
-                      activities you want to receive alerts for.
+                      Use Share/Transfer, choose brokers, add notes and confirm. The transfer history appears in Lead Details.
                     </p>
                   </details>
                 </div>
-              </div>
+                </div>
 
               {/* Help & Support */}
               <div className="bg-white rounded-2xl shadow-2xl">
@@ -2450,17 +2416,17 @@ export default function BrokerLeadsPage() {
                   </h4>
 
                   {/* Links */}
-                  <ul className="text-sm text-sky-700 space-y-2">
+                  <ul className="text-sm text-gray-500 space-y-2">
                     <li>
                       <a
                         href="/help/getting-started"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-2 flex items-center gap-3 pl-0.5 hover:text-sky-800 transition-colors"
+                        className="py-2 flex items-center gap-3 pl-0.5 "
                       >
                         {/* Doc */}
                         <svg
-                          className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
+                          className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -2479,11 +2445,11 @@ export default function BrokerLeadsPage() {
                         href="/help/documentation"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-2 flex items-center gap-3 pl-0.5 hover:text-sky-800 transition-colors"
+                        className="py-2 flex items-center gap-3 pl-0.5 "
                       >
                         {/* Docs list */}
                         <svg
-                          className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
+                          className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -2502,11 +2468,11 @@ export default function BrokerLeadsPage() {
                         href="/help/legal-compliance"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-2 flex items-center gap-3 pl-0.5 hover:text-sky-800 transition-colors"
+                        className="py-2 flex items-center gap-3 pl-0.5 "
                       >
                         {/* Docs list */}
                         <svg
-                          className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
+                          className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -2520,62 +2486,14 @@ export default function BrokerLeadsPage() {
                         Legal & Compliance Guide
                       </a>
                     </li>
-                  </ul>
-                </div>
-
-                {/* Divider like screenshot */}
-                <div className="h-px bg-slate-100 mx-4" />
-
-                {/* Contact */}
-                <div className="px-4 py-3 text-sm text-slate-600 space-y-2">
-                  <div className="flex items-center gap-3 pl-0.5">
-                    {/* Mail */}
-                    <svg
-                      className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="5" width="18" height="14" rx="2" />
-                      <path d="M22 7 12 13 2 7" />
-                    </svg>
-                 <a href="mailto:support@company.com">support@company.com</a> 
-                  </div>
-                  <div className="flex items-center gap-3 pl-0.5">
-                    {/* Phone (handset) */}
-                    <svg
-                      className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M22 16.92V21a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3 6.18 2 2 0 0 1 5 4h3.3a1 1 0 0 1 .95.68l1.2 3.6a1 1 0 0 1-.27 1.06l-1.8 1.8a12 12 0 0 0 6.8 6.8l1.8-1.8a1 1 0 0 1 1.06-.27l3.6 1.2A1 1 0 0 1 22 16.92z" />
-                    </svg>
-                    <a href="tel:+18001234567"> +1 (800) 123–4567</a>
-                  </div>
-                </div>
-              </div>
-
-              {/* Resources */}
-              <div className="bg-white rounded-2xl shadow-2xl p-4">
-                <h4 className="text-md font-bold text-slate-900 mb-3">
-                  Resources
-                </h4>
-                <ul className="text-sm text-slate-700 space-y-2">
-                  <li className="py-2">
+                     <li className="py-2 ">
                     <a
                       href="#"
                       rel="noopener noreferrer"
-                      className="group flex items-center gap-2 px-2  rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors"
+                      className="group flex items-center gap-2   rounded-lg "
                     >
                       <svg
-                        className="w-4 h-4 text-sky-600"
+                        className="w-4 h-4 text-gray-500"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -2587,7 +2505,7 @@ export default function BrokerLeadsPage() {
                       Lead Generation Playbook
                     </a>
                   </li>
-                  <li className="py-2">
+                  {/* <li className="py-2">
                     <a
                       href="#"
                       rel="noopener noreferrer"
@@ -2624,15 +2542,15 @@ export default function BrokerLeadsPage() {
                       </svg>
                       Agreement Templates
                     </a>
-                  </li>
-                  <li className="py-2">
+                  </li> */}
+                  <li className="">
                     <a
                       href="#"
                       rel="noopener noreferrer"
-                      className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors"
+                      className="group flex items-center gap-2  rounded-lg "
                     >
                       <svg
-                        className="w-4 h-4 text-sky-600"
+                        className="w-4 h-4 text-gray-500"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -2647,6 +2565,46 @@ export default function BrokerLeadsPage() {
                     </a>
                   </li>
                 </ul>
+                </div>
+
+                {/* Divider like screenshot */}
+                <div className="h-px bg-slate-100 mx-4" />
+
+                {/* Contact */}
+                <div className="px-4 py-3 text-sm text-slate-600 space-y-2">
+                  <div className="flex items-center gap-3 pl-0.5">
+                    {/* Mail */}
+                    <svg
+                      className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="3" y="5" width="18" height="14" rx="2" />
+                      <path d="M22 7 12 13 2 7" />
+                    </svg>
+                 <a href="mailto:support@company.com">support@company.com</a> 
+                  </div>
+                  <div className="flex items-center gap-3 pl-0.5">
+                    {/* Phone (handset) */}
+                    <svg
+                      className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M22 16.92V21a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3 6.18 2 2 0 0 1 5 4h3.3a1 1 0 0 1 .95.68l1.2 3.6a1 1 0 0 1-.27 1.06l-1.8 1.8a12 12 0 0 0 6.8 6.8l1.8-1.8a1 1 0 0 1 1.06-.27l3.6 1.2A1 1 0 0 1 22 16.92z" />
+                    </svg>
+                    <a href="tel:+18001234567"> +1 (800) 123–4567</a>
+                  </div>
+                </div>
+               
               </div>
             </aside>
           </div>
@@ -3429,14 +3387,14 @@ export default function BrokerLeadsPage() {
                         );
                       })()}
                     </div>
-                  </div>
-                  <span
+                    </div>
+                    <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
-                      selectedLead.status
-                    )}`}
-                  >
-                    {selectedLead.status || "Active"}
-                  </span>
+                        selectedLead.status
+                      )}`}
+                    >
+                      {selectedLead.status || "Active"}
+                    </span>
                 </div>
 
                 <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
@@ -3535,24 +3493,24 @@ export default function BrokerLeadsPage() {
                         Status:
                       </span>
                       <span className="col-span-2 text-slate-900">
-                        {viewEditMode ? (
-                          <select
-                            name="status"
+                      {viewEditMode ? (
+                        <select
+                          name="status"
                             value={
                               viewForm.status || selectedLead.status || "New"
                             }
-                            onChange={handleViewFieldChange}
+                          onChange={handleViewFieldChange}
                             className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600"
-                          >
-                            <option value="New">New</option>
-                            <option value="Assigned">Assigned</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Closed">Closed</option>
-                            <option value="Rejected">Rejected</option>
-                          </select>
-                        ) : statusEditMode ? (
+                        >
+                          <option value="New">New</option>
+                          <option value="Assigned">Assigned</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Closed">Closed</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
+                      ) : statusEditMode ? (
                           <div className="flex items-center gap-2">
-                            <select
+                          <select
                               value={
                                 viewForm.status || selectedLead.status || "New"
                               }
@@ -3563,14 +3521,14 @@ export default function BrokerLeadsPage() {
                                 }))
                               }
                               className="px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600"
-                              disabled={statusSaving}
-                            >
-                              <option value="New">New</option>
-                              <option value="Assigned">Assigned</option>
-                              <option value="In Progress">In Progress</option>
-                              <option value="Closed">Closed</option>
-                              <option value="Rejected">Rejected</option>
-                            </select>
+                            disabled={statusSaving}
+                          >
+                            <option value="New">New</option>
+                            <option value="Assigned">Assigned</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Closed">Closed</option>
+                            <option value="Rejected">Rejected</option>
+                          </select>
                             <button
                               onClick={() =>
                                 saveStatusUpdate(
@@ -3595,16 +3553,16 @@ export default function BrokerLeadsPage() {
                             >
                               Cancel
                             </button>
-                          </div>
-                        ) : (
+                        </div>
+                      ) : (
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
                               selectedLead.status
                             )}`}
                           >
-                            {selectedLead.status || "New"}
-                          </span>
-                        )}
+                          {selectedLead.status || "New"}
+                        </span>
+                      )}
                       </span>
                     </div>
                     <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
@@ -3625,16 +3583,16 @@ export default function BrokerLeadsPage() {
                         Name:
                       </span>
                       <span className="col-span-2 text-slate-900">
-                        {viewEditMode ? (
-                          <input
-                            name="name"
-                            value={viewForm.name}
-                            onChange={handleViewFieldChange}
+                      {viewEditMode ? (
+                        <input
+                          name="name"
+                          value={viewForm.name}
+                          onChange={handleViewFieldChange}
                             className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600"
-                          />
-                        ) : (
+                        />
+                      ) : (
                           selectedLead.name || selectedLead.customerName || "—"
-                        )}
+                      )}
                       </span>
                     </div>
                     <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
@@ -3655,14 +3613,14 @@ export default function BrokerLeadsPage() {
                         Phone:
                       </span>
                       <span className="col-span-2 text-slate-900">
-                        {viewEditMode ? (
-                          <input
-                            name="contact"
-                            value={viewForm.contact}
-                            onChange={handleViewFieldChange}
+                      {viewEditMode ? (
+                        <input
+                          name="contact"
+                          value={viewForm.contact}
+                          onChange={handleViewFieldChange}
                             className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600"
-                          />
-                        ) : (
+                        />
+                      ) : (
                           selectedLead.contact ||
                           selectedLead.customerPhone ||
                           "—"

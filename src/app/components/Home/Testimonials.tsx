@@ -67,8 +67,9 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
   const testimonials = dummyTestimonials;
 
   return (
-    <section className="bg-gray-50 py-16 px-6 sm:px-12 lg:px-32">
-      <div className="max-w-7xl mx-auto text-center ">
+    <section className="bg-gray-50 py-16">
+      <div className="w-full mx-auto">
+        <div className="text-center">
         <div className="flex flex-col items-center justify-center mb-2">
           <p className="text-xl text-gray-900 text-left">
             <span className="text-yellow-500">—</span> {data.subtitle}
@@ -78,6 +79,7 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
           What <span className="text-green-900 ">Our Clients Say</span>
         </h2>
       </div>
+      
 
       {/* Carousel Container */}
       <div className="relative max-w-7xl mx-auto mt-8">
@@ -183,6 +185,7 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
         <span className="h-2 w-2 rounded-full bg-gray-300"></span>
         <span className="h-2 w-2 rounded-full bg-gray-300"></span>
       </div> */}
+      </div>
     </section>
   );
 };

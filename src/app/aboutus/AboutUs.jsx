@@ -14,7 +14,7 @@ const AboutUs = () => {
     <>
    
       <HeaderFile data={aboutData} />
-      <section className="py-16 px-6 sm:px-12 lg:px-32 bg-white">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto text-center">
           {/* Main Heading */}
           <p className="text-xl text-gray-900  text-center mb-2">

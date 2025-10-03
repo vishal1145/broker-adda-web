@@ -204,15 +204,15 @@ const Navbar = ({ data }) => {
   }, []);
 const enableSuggestions = false; 
   return (
-    <nav className="bg-white shadow-sm px-6  ">
-      <div className=" mx-auto">
+    <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+      <div className="w-full mx-auto px-14 py-4 ">
         <div className="flex items-center justify-between w-full">
           {/* Logo */}
           <div
             className="flex items-center cursor-pointer"
             onClick={() => router.push('/')}
           >
-            <div className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden">
+            <div className=" rounded-full flex items-center justify-center overflow-hidden">
               {/* Keep plain <img> to allow arbitrary file names in /public */}
               <img
                 src="/images/House and Handshake Logo (1).png"
@@ -220,7 +220,7 @@ const enableSuggestions = false;
                 className="w-10 h-10 object-contain"
               />
             </div>
-            <h1 className="text-3xl font-semibold text-gray-700">
+            <h1 className="text-3xl font-semibold text-gray-700 pl-2">
               {data?.logo?.text}
              
             </h1>

@@ -104,7 +104,7 @@ const Features = ({ data }: { data: FeaturesData }) => {
   };
 
   return (
-    <section className="bg-white px-6 sm:px-12 lg:px-32 py-12">
+    <section className="bg-white py-12">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {(data.items || []).map((feature, index) => (

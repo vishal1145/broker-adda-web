@@ -63,8 +63,8 @@ const LegalCompliancePage = () => {
   return (
     <>
       <HeaderFile data={legalComplianceData} />
-      <div className="px-6 sm:px-12 lg:px-32 py-12">
-        <div className="max-w-7xl mx-auto">
+      <div className="py-14">
+        <div className="w-full mx-auto">
           <div className="space-y-10">
             {/* Main Sections */}
             {sections.map((section, index) => (

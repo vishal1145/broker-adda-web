@@ -134,7 +134,7 @@ export default function RelatedProduct() {
   };
 
   return (
-    <div className="px-6 sm:px-12 lg:px-32 py-12">
+    <div className="py-14">
       {/* Section Title */}
       <div className="max-w-7xl mx-auto text-center">
         <div className="text-center mb-10">

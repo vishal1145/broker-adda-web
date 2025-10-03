@@ -32,9 +32,10 @@ const Blogs = ({ data = { subtitle: "", title: "", button: "", items: [] } }: { 
   };
 
   return (
-    <section className="bg-white px-6 sm:px-12 lg:px-32 py-16">
-      {/* Header Row */}
-      <div className="max-w-7xl mx-auto flex justify-between items-center mb-12 flex-wrap gap-4">
+    <section className="bg-white py-16">
+      <div className="w-full mx-auto">
+        {/* Header Row */}
+        <div className="flex justify-between items-center mb-12 flex-wrap gap-4">
         <div>
           <p className="text-xl text-gray-900  text-left">
             <span className="text-yellow-500">—</span> {data.subtitle}
@@ -102,6 +103,7 @@ const Blogs = ({ data = { subtitle: "", title: "", button: "", items: [] } }: { 
             </div>
           </div>
         ))}
+        </div>
       </div>
     </section>
   );
