@@ -261,7 +261,8 @@ export default function BrokerLeadsPage() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const DEBOUNCE_DELAY = 500; // Configurable debounce delay
-
+const [viewTab, setViewTab] = useState("overview");
+const [noteText, setNoteText] = useState("");
   useEffect(() => {
     // Show searching indicator when user types (with small delay to avoid flickering)
     const showSearchingTimer = setTimeout(() => {
@@ -687,7 +688,7 @@ export default function BrokerLeadsPage() {
     }),
     menuList: (p) => ({
       ...p,
-      maxHeight: 240,
+      maxHeight: 320,
       overflowY: "auto",
       overflowX: "hidden",
       paddingRight: 0,
@@ -1159,6 +1160,13 @@ export default function BrokerLeadsPage() {
   });
   const [viewSaving, setViewSaving] = useState(false);
   const [pendingDeleteTransferId, setPendingDeleteTransferId] = useState(null);
+
+  // Ensure nearest regions are loaded when the View Drawer opens as well
+  useEffect(() => {
+    if (showView && brokerId) {
+      loadNearestRegions();
+    }
+  }, [showView, brokerId, loadNearestRegions]);
 
   // Delete a specific transfer (to-broker) for the selected lead
   const deleteTransfer = async (toBrokerId) => {
@@ -2202,7 +2210,7 @@ export default function BrokerLeadsPage() {
                 <ul className="text-sm text-slate-900 space-y-3">
                   {/* New lead created */}
                   <li className="flex items-start gap-3">
-                    <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-100">
+                    <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200">
                       {/* user-plus */}
                       <svg
                         className="w-=4 h-4"
@@ -2231,7 +2239,7 @@ export default function BrokerLeadsPage() {
 
                   {/* Follow-up email */}
                   <li className="flex items-start gap-3">
-                    <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-50 text-sky-600 ring-1 ring-indigo-100">
+                    <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200">
                       {/* mail */}
                       <svg
                         className="w-4 h-4"
@@ -2259,7 +2267,7 @@ export default function BrokerLeadsPage() {
 
                   {/* Qualified */}
                   <li className="flex items-start gap-3">
-                    <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-50 text-sky-600 ring-1 ring-emerald-100">
+                    <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200">
                       {/* check */}
                       <svg
                         className="w-4 h-4"
@@ -3304,11 +3312,8 @@ export default function BrokerLeadsPage() {
 
         {/* View Drawer */}
         {showView && selectedLead && (
-          <div
-            className={`fixed inset-0 z-50 ${
-              viewClosing ? "pointer-events-none" : ""
-            }`}
-          >
+  <div className={`fixed inset-0 z-50 ${viewClosing ? "pointer-events-none" : ""}`}>
+    {/* Backdrop */}
             <div
               className="absolute inset-0 bg-black/50"
               onClick={() => {
@@ -3316,25 +3321,18 @@ export default function BrokerLeadsPage() {
                 setTimeout(() => setShowView(false), 200);
               }}
             />
+    {/* Panel */}
             <div
-              className={`absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl ${
+      className={`absolute right-0 top-0 h-full w-full max-w-md bg-slate-50 shadow-2xl ${
                 viewClosing ? "animate-slide-out" : "animate-slide-in"
               }`}
             >
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+      {/* Header Bar */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-white">
                 <h4 className="text-[18px] font-semibold text-slate-900 flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-sky-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
+          <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Lead Details
                 </h4>
@@ -3346,370 +3344,149 @@ export default function BrokerLeadsPage() {
                   className="p-2 rounded hover:bg-gray-100"
                   aria-label="Close"
                 >
-                  <svg
-                    className="w-5 h-5 text-gray-500 cursor-pointer"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
                 </button>
               </div>
-              <div className="p-5 space-y-4 overflow-y-auto no-scrollbar h-[calc(100%-56px)] bg-slate-50">
-                <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white flex items-center justify-between">
+
+      {/* Scroll Area */}
+      <div className="h-[calc(100%-56px)] overflow-y-auto no-scrollbar p-5">
+        {/* Profile Header */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-sky-50 text-sky-700 flex items-center justify-center text-sm font-semibold">
-                      {getInitials(
-                        selectedLead.name || selectedLead.customerName || "?"
-                      )}
+            <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-white bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-semibold">
+              {getInitials(selectedLead.name || selectedLead.customerName || "?")}
                     </div>
-                    <div>
-                      <div className="text-[14px] font-semibold text-slate-900">
+            <div className="min-w-0">
+              <div className="text-[16px] font-semibold text-slate-900 truncate">
                         {selectedLead.name || selectedLead.customerName || "—"}
                       </div>
-                      {(() => {
-                        const { primary, secondary } =
-                          getRegionNames(selectedLead);
-                        return (
-                          <div className="text-[13px] text-slate-500">
                             <div className="text-[12px] text-slate-500 mt-0.5">
-                              {selectedLead.contact ||
-                                selectedLead.customerPhone ||
-                                "—"}
-                            </div>
-                          </div>
-                        );
-                      })()}
+                {selectedLead.contact || selectedLead.customerPhone || "—"}
                     </div>
                     </div>
                     <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
-                        selectedLead.status
+              className={`ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
+                selectedLead.status || "Closed"
                       )}`}
                     >
-                      {selectedLead.status || "Active"}
+              {selectedLead.status || "Closed"}
                     </span>
+          </div>
                 </div>
 
-                <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
-                  <div className="flex items-center justify-between mb-3">
-                    <h5 className="text-[16px] font-semibold text-slate-900 flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4 text-sky-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                      Customer Information
-                    </h5>
-                    {!viewEditMode ? (
-                      (selectedLead?.createdBy?._id ||
-                        selectedLead?.createdBy) === brokerId ? (
+        {/* Tabs */}
+        <div className="mt-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
+          <div className="flex items-center gap-1 px-3 pt-3">
+            {(() => {
+              const TabButton = ({ active, children, onClick }) => (
                         <button
-                          onClick={() => setViewEditMode(true)}
-                          className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer"
-                        >
-                          Edit
+                  onClick={onClick}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
+                    active
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  {children}
                         </button>
-                      ) : (
-                        <button
-                          onClick={() => setStatusEditMode(true)}
-                          className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer"
-                        >
-                          Edit Status
-                        </button>
-                      )
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={saveViewEdits}
-                          disabled={viewSaving}
-                          className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                          {viewSaving && (
-                            <svg
-                              className="w-4 h-4 animate-spin"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
-                            </svg>
-                          )}
-                          {viewSaving ? "Saving..." : "Save"}
-                        </button>
-                        <button
-                          onClick={() => setViewEditMode(false)}
-                          disabled={viewSaving}
-                          className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                          Cancel
-                        </button>
+              );
+              return (
+                <div className="flex gap-2">
+                  <TabButton active={viewTab === "overview"} onClick={() => setViewTab("overview")}>
+                    Overview
+                  </TabButton>
+                  <TabButton active={viewTab === "share"} onClick={() => setViewTab("share")}>
+                    Share
+                  </TabButton>
+                  {/* Removed Notes tab as requested */}
                       </div>
-                    )}
+              );
+            })()}
                   </div>
 
-                  <div className="text-[14px] text-slate-700">
-                    {/* Status field (editable only if created by current broker) */}
-                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M9 12h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2z"
-                          />
+          {/* Tab Panels */}
+          <div className="p-4">
+            {/* OVERVIEW */}
+            {(!viewTab || viewTab === "overview") && (
+              <div className="space-y-4">
+                {/* Contact Details */}
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h5 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                         </svg>
-                        Status:
-                      </span>
-                      <span className="col-span-2 text-slate-900">
-                      {viewEditMode ? (
-                        <select
-                          name="status"
-                            value={
-                              viewForm.status || selectedLead.status || "New"
-                            }
-                          onChange={handleViewFieldChange}
-                            className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600"
-                        >
-                          <option value="New">New</option>
-                          <option value="Assigned">Assigned</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Closed">Closed</option>
-                          <option value="Rejected">Rejected</option>
-                        </select>
-                      ) : statusEditMode ? (
-                          <div className="flex items-center gap-2">
-                          <select
-                              value={
-                                viewForm.status || selectedLead.status || "New"
-                              }
-                              onChange={(e) =>
-                                setViewForm((prev) => ({
-                                  ...prev,
-                                  status: e.target.value,
-                                }))
-                              }
-                              className="px-2 py-1 border border-gray-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600"
-                            disabled={statusSaving}
-                          >
-                            <option value="New">New</option>
-                            <option value="Assigned">Assigned</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Closed">Closed</option>
-                            <option value="Rejected">Rejected</option>
-                          </select>
-                            <button
-                              onClick={() =>
-                                saveStatusUpdate(
-                                  viewForm.status || selectedLead.status
-                                )
-                              }
-                              disabled={statusSaving}
-                              className="px-3 py-1 text-xs font-semibold text-white bg-green-900 hover:bg-green-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                              {statusSaving ? "Saving..." : "Save"}
-                            </button>
-                            <button
-                              onClick={() => {
-                                setStatusEditMode(false);
-                                setViewForm((prev) => ({
-                                  ...prev,
-                                  status: selectedLead.status,
-                                }));
-                              }}
-                              className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700 font-medium"
-                              disabled={statusSaving}
-                            >
-                              Cancel
-                            </button>
+                      Contact Details
+                    </h5>
                         </div>
-                      ) : (
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
-                              selectedLead.status
-                            )}`}
-                          >
-                          {selectedLead.status || "New"}
-                        </span>
-                      )}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          />
+                  <div className="space-y-3 text-[14px]">
+                    {(() => {
+                      const isOwner = !!(
+                        (selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === currentUserId) ||
+                        (selectedLead?.brokerId && String(selectedLead.brokerId) === String(currentUserId))
+                      );
+                      return null;
+                    })()}
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                        <svg className="w-3.5 h-3.5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                            d="M3 5h6l2 5-2 1a10 10 0 005 5l1-2 5 2v6a2 2 0 01-2 2A16 16 0 013 7z"/>
                         </svg>
-                        Name:
                       </span>
-                      <span className="col-span-2 text-slate-900">
-                      {viewEditMode ? (
+                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
                         <input
-                          name="name"
-                          value={viewForm.name}
-                          onChange={handleViewFieldChange}
-                            className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600"
-                        />
-                      ) : (
-                          selectedLead.name || selectedLead.customerName || "—"
-                      )}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                          />
-                        </svg>
-                        Phone:
-                      </span>
-                      <span className="col-span-2 text-slate-900">
-                      {viewEditMode ? (
-                        <input
+                          type="tel"
                           name="contact"
-                          value={viewForm.contact}
+                          value={viewForm.contact ?? (selectedLead.contact || selectedLead.customerPhone || "")}
                           onChange={handleViewFieldChange}
-                            className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600"
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
+                          placeholder="Phone number"
                         />
                       ) : (
-                          selectedLead.contact ||
-                          selectedLead.customerPhone ||
-                          "—"
-                        )}
-                      </span>
+                        selectedLead.contact || selectedLead.customerPhone || "—"
+                      )}
                     </div>
-                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                          />
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                        <svg className="w-3.5 h-3.5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                            d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
-                        Email:
                       </span>
-                      <span className="col-span-2 text-slate-900">
-                        {viewEditMode ? (
-                          <input
-                            name="email"
-                            value={viewForm.email}
-                            onChange={handleViewFieldChange}
-                            className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600"
-                          />
-                        ) : (
-                          selectedLead.customerEmail || "—"
-                        )}
-                      </span>
+                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
+                        <input
+                          type="email"
+                          name="email"
+                          value={viewForm.email ?? (selectedLead.customerEmail || "")}
+                          onChange={handleViewFieldChange}
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
+                          placeholder="Email address"
+                        />
+                      ) : (
+                        selectedLead.customerEmail || "—"
+                      )}
                     </div>
-                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                          />
+                  </div>
+                </div>
+
+                {/* Property Preferences */}
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h5 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                          d="M7 8h10M7 12h7M5 20l2.5-2.5M19 20l-2.5-2.5"/>
                         </svg>
-                        Requirement:
-                      </span>
-                      <span className="col-span-2 text-slate-900">
-                        {viewEditMode ? (
-                          <Select
-                            value={
-                              viewForm.requirement
-                                ? {
-                                    value: viewForm.requirement,
-                                    label: viewForm.requirement,
-                                  }
-                                : null
-                            }
-                            onChange={(opt) =>
-                              setViewForm((p) => ({
-                                ...p,
-                                requirement: opt?.value || "",
-                              }))
-                            }
-                            options={requirementOptions.filter(
-                              (o) => o.value !== "all"
-                            )}
-                            styles={modalSelectStyles}
-                            menuPortalTarget={
-                              typeof window !== "undefined"
-                                ? document.body
-                                : null
-                            }
-                            menuPosition="fixed"
-                            menuPlacement="auto"
-                          />
-                        ) : (
-                          selectedLead.requirement || selectedLead.req || "—"
-                        )}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
+                      Property Preferences
+                    </h5>
+                  </div>
+                  <div className="space-y-3 text-[14px]">
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
                         <svg
                           className="w-3 h-3 text-slate-400"
                           fill="none"
@@ -3729,178 +3506,34 @@ export default function BrokerLeadsPage() {
                             d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"
                           />
                         </svg>
-                        Property Type:
                       </span>
-                      <span className="col-span-2 text-slate-900">
-                        {viewEditMode ? (
+                      <span className="text-slate-500 mr-1">Property Type:</span>
+                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
                           <Select
-                            value={
-                              viewForm.propertyType
-                                ? {
-                                    value: viewForm.propertyType,
-                                    label: viewForm.propertyType,
-                                  }
-                                : null
-                            }
-                            onChange={(opt) =>
-                              setViewForm((p) => ({
-                                ...p,
-                                propertyType: opt?.value || "",
-                              }))
-                            }
-                            options={propertyTypeOptions.filter(
-                              (o) => o.value !== "all"
-                            )}
-                            styles={modalSelectStyles}
-                            menuPortalTarget={
-                              typeof window !== "undefined"
-                                ? document.body
-                                : null
-                            }
-                            menuPosition="fixed"
-                            menuPlacement="auto"
-                          />
-                        ) : (
-                          selectedLead.propertyType || "—"
+                            name="propertyType"
+                            options={(() => {
+                              const base = propertyTypeOptions.filter((o) => o.value !== "all");
+                              const v = viewForm.propertyType ?? selectedLead.propertyType ?? "";
+                              return base.some((o) => o.value === v) ? base : [...base, { value: v, label: v }];
+                            })()}
+                            value={(() => {
+                              const v = viewForm.propertyType ?? selectedLead.propertyType ?? "";
+                              const opts = (() => {
+                                const base = propertyTypeOptions.filter((o) => o.value !== "all");
+                                return base.some((o) => o.value === v) ? base : [...base, { value: v, label: v }];
+                              })();
+                              return opts.find((o) => o.value === v) || null;
+                            })()}
+                            onChange={(opt) => setViewForm((prev) => ({ ...prev, propertyType: opt?.value || "" }))}
+                            classNamePrefix="react-select"
+                            styles={customSelectStyles}
+                        />
+                      ) : (
+                        <span className="text-slate-900">{selectedLead.propertyType || "—"}</span>
                         )}
-                      </span>
                     </div>
-                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                        Primary Region:
-                      </span>
-                      <span className="col-span-2 text-slate-900">
-                        {viewEditMode ? (
-                          regionsLoading ? (
-                            <div className="text-[13px] text-slate-500">
-                              Loading regions...
-                            </div>
-                          ) : regionsError ? (
-                            <div className="text-[13px] text-rose-600">
-                              {regionsError}
-                            </div>
-                          ) : (
-                            <Select
-                              value={viewForm.primaryRegion}
-                              onChange={(opt) =>
-                                setViewForm((p) => ({
-                                  ...p,
-                                  primaryRegion: opt,
-                                }))
-                              }
-                              options={
-                                nearestRegionOptions &&
-                                nearestRegionOptions.length > 0
-                                  ? nearestRegionOptions
-                                  : regionOptions.filter(
-                                      (o) => o.value !== "all"
-                                    )
-                              }
-                              styles={modalSelectStyles}
-                              isLoading={nearestRegionsLoading}
-                              menuPortalTarget={
-                                typeof window !== "undefined"
-                                  ? document.body
-                                  : null
-                              }
-                              menuPosition="fixed"
-                              menuPlacement="auto"
-                            />
-                          )
-                        ) : (
-                          getRegionName(
-                            selectedLead?.primaryRegion || selectedLead?.region
-                          ) || "—"
-                        )}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 items-center py-2 border-b border-gray-100">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                        Secondary Region:
-                      </span>
-                      <span className="col-span-2 text-slate-900">
-                        {viewEditMode ? (
-                          regionsLoading ? (
-                            <div className="text-[13px] text-slate-500">
-                              Loading regions...
-                            </div>
-                          ) : regionsError ? (
-                            <div className="text-[13px] text-rose-600">
-                              {regionsError}
-                            </div>
-                          ) : (
-                            <Select
-                              value={viewForm.secondaryRegion}
-                              onChange={(opt) =>
-                                setViewForm((p) => ({
-                                  ...p,
-                                  secondaryRegion: opt,
-                                }))
-                              }
-                              options={
-                                nearestRegionOptions &&
-                                nearestRegionOptions.length > 0
-                                  ? nearestRegionOptions
-                                  : regionOptions.filter(
-                                      (o) => o.value !== "all"
-                                    )
-                              }
-                              styles={modalSelectStyles}
-                              isLoading={nearestRegionsLoading}
-                              menuPortalTarget={
-                                typeof window !== "undefined"
-                                  ? document.body
-                                  : null
-                              }
-                              menuPosition="fixed"
-                              menuPlacement="auto"
-                            />
-                          )
-                        ) : (
-                          getRegionName(selectedLead?.secondaryRegion) || "—"
-                        )}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 items-center py-2">
-                      <span className="col-span-1 text-slate-500 flex items-center gap-2">
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
                         <svg
                           className="w-3 h-3 text-slate-400"
                           fill="currentColor"
@@ -3908,26 +3541,228 @@ export default function BrokerLeadsPage() {
                         >
                           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z" />
                         </svg>
-                        Budget:
                       </span>
-                      <span className="col-span-2 text-slate-900">
-                        {viewEditMode ? (
+                      <span className="text-slate-500 mr-1">Budget:</span>
+                        {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
                           <input
-                            name="budget"
-                            value={viewForm.budget}
+                          type="number"
+                          name="budget"
+                          value={viewForm.budget ?? (selectedLead.budget ?? "")}
                             onChange={handleViewFieldChange}
-                            className="w-full px-2 py-1 border border-gray-200 rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600"
+                          className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
+                          placeholder="Budget"
                           />
-                        ) : typeof selectedLead.budget === "number" ? (
-                          `$${selectedLead.budget.toLocaleString()}`
                         ) : (
-                          selectedLead.budget || "—"
-                        )}
+                        <span className="text-slate-900">
+                          {typeof selectedLead.budget === "number"
+                            ? `$${selectedLead.budget.toLocaleString()}`
+                            : (selectedLead.budget || "—")}
                       </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                        <svg
+                          className="w-3 h-3 text-slate-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                          />
+                        </svg>
+                      </span>
+                      <span className="text-slate-500 mr-1">Requirement:</span>
+                        {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === currentUserId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(currentUserId))) ? (
+                          <Select
+                            name="requirement"
+                            options={(() => {
+                              const base = requirementOptions.filter((o) => o.value !== "all");
+                              const v = viewForm.requirement ?? selectedLead.requirement ?? selectedLead.req ?? "";
+                              return base.some((o) => o.value === v) ? base : [...base, { value: v, label: v }];
+                            })()}
+                            value={(() => {
+                              const v = viewForm.requirement ?? selectedLead.requirement ?? selectedLead.req ?? "";
+                              const opts = (() => {
+                                const base = requirementOptions.filter((o) => o.value !== "all");
+                                return base.some((o) => o.value === v) ? base : [...base, { value: v, label: v }];
+                              })();
+                              return opts.find((o) => o.value === v) || null;
+                            })()}
+                            onChange={(opt) => setViewForm((prev) => ({ ...prev, requirement: opt?.value || "" }))}
+                            classNamePrefix="react-select"
+                            styles={customSelectStyles}
+                          />
+                        ) : (
+                        <span className="text-slate-900">
+                          {selectedLead.requirement || selectedLead.req || "—"}
+                      </span>
+                      )}
+                    </div>
+                    {/* Regions */}
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                        <svg
+                          className="w-3 h-3 text-slate-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                      </span>
+                      <span className="text-slate-500 mr-1">Primary Region:</span>
+                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
+                          <Select
+                          name="primaryRegion"
+                          options={(nearestRegionOptions && nearestRegionOptions.length > 0) ? nearestRegionOptions : regionOptions}
+                          value={viewForm.primaryRegion || null}
+                          onChange={(opt) => setViewForm((prev) => ({ ...prev, primaryRegion: opt }))}
+                          classNamePrefix="react-select"
+                          />
+                        ) : (
+                        <span className="text-slate-900">{getRegionName(selectedLead?.primaryRegion || selectedLead?.region) || "—"}</span>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                        <svg
+                          className="w-3 h-3 text-slate-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                      </span>
+                      <span className="text-slate-500 mr-1">Secondary Region:</span>
+                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
+                            <Select
+                          name="secondaryRegion"
+                          options={(nearestRegionOptions && nearestRegionOptions.length > 0) ? nearestRegionOptions : regionOptions}
+                          value={viewForm.secondaryRegion || null}
+                          onChange={(opt) => setViewForm((prev) => ({ ...prev, secondaryRegion: opt }))}
+                          classNamePrefix="react-select"
+                        />
+                      ) : (
+                        <span className="text-slate-900">{getRegionName(selectedLead?.secondaryRegion) || "—"}</span>
+                      )}
+                    </div>
+                            </div>
+                            </div>
+
+                {/* Lead Status + Actions */}
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[13px] text-slate-500">Status</div>
+                      <div className="mt-0.5">
+                        {viewEditMode ? (
+                            <Select
+                            name="status"
+                            options={statusOptions.filter((o) => o.value !== "all")}
+                            value={(() => {
+                              const v = viewForm.status ?? selectedLead.status ?? "New";
+                              return statusOptions.find((o) => o.value === v) || null;
+                            })()}
+                            onChange={(opt) => setViewForm((prev) => ({ ...prev, status: opt?.value || "New" }))}
+                            classNamePrefix="react-select"
+                            styles={customSelectStyles}
+                          />
+                        ) : (
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
+                              selectedLead.status || "Closed"
+                            )}`}
+                          >
+                            {selectedLead.status || "Closed"}
+                      </span>
+                        )}
+                    </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!viewEditMode ? (
+                        <button
+                          onClick={() => {
+                            // prefill edit form from selectedLead
+                            const primaryId = (selectedLead?.primaryRegion && (selectedLead.primaryRegion._id || selectedLead.primaryRegion.id || selectedLead.primaryRegion.value)) || selectedLead?.region || null;
+                            const primaryLabel = (selectedLead?.primaryRegion && (selectedLead.primaryRegion.name || selectedLead.primaryRegion.label)) || getRegionName(selectedLead?.primaryRegion || selectedLead?.region) || "";
+                            const secondaryId = selectedLead?.secondaryRegion && (selectedLead.secondaryRegion._id || selectedLead.secondaryRegion.id || selectedLead.secondaryRegion.value);
+                            const secondaryLabel = selectedLead?.secondaryRegion && (selectedLead.secondaryRegion.name || selectedLead.secondaryRegion.label);
+                            setViewForm({
+                              name: selectedLead.name || selectedLead.customerName || "",
+                              contact: selectedLead.contact || selectedLead.customerPhone || "",
+                              email: selectedLead.customerEmail || "",
+                              requirement: selectedLead.requirement || selectedLead.req || "",
+                              propertyType: selectedLead.propertyType || "",
+                              budget: typeof selectedLead.budget === "number" ? selectedLead.budget : (selectedLead.budget || ""),
+                              status: selectedLead.status || "Closed",
+                              primaryRegion: primaryId ? { value: primaryId, label: primaryLabel } : null,
+                              secondaryRegion: secondaryId ? { value: secondaryId, label: secondaryLabel || "" } : null,
+                            });
+                            setViewEditMode(true);
+                          }}
+                          className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950"
+                        >
+                          {((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? "Edit" : "Edit Status"}
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={saveViewEdits}
+                            className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setViewEditMode(false)}
+                            className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      )}
+                      {/* <button
+                        onClick={() => setViewTab("share")}
+                        className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200"
+                      >
+                        Share
+                      </button> */}
                     </div>
                   </div>
                 </div>
+                                  </div>
+                                )}
 
+            {/* SHARE DETAILS */}
+            {viewTab === "share" && (
+              <div className="space-y-3 text-[14px]">
                 <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
                   <h5 className="text-[16px] font-semibold text-slate-900 mb-3 flex items-center gap-2">
                     <svg
@@ -4013,16 +3848,18 @@ export default function BrokerLeadsPage() {
                             getRegionName(toB?.region) ||
                             getRegionName(toB?.primaryRegion) ||
                             "";
+                          const toId =
+                            t && typeof t.toBroker === "object"
+                              ? t.toBroker?._id || t.toBroker?.id
+                              : t?.toBroker;
+                          const isPending =
+                            pendingDeleteTransferId === String(toId);
                           return (
                             <li
                               key={`${keyFrom}-${keyTo}-${t?._id || i}`}
                               className="flex items-center gap-3"
                             >
                               <div className="flex items-center gap-2">
-                                {/* <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700" title={typeof fromName === 'string' ? fromName : String(fromName)}>
-                                  <img src={fromAvatar || 'https://www.w3schools.com/howto/img_avatar.png'} alt={typeof fromName === 'string' ? fromName : 'Broker'} className="w-full h-full object-cover" />
-                                </div>
-                                <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5l7 7-7 7"/></svg> */}
                                 <div
                                   className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700"
                                   title={
@@ -4066,14 +3903,6 @@ export default function BrokerLeadsPage() {
                                   </div>
                                 )}
                               </div>
-                              {(() => {
-                                const toId =
-                                  t && typeof t.toBroker === "object"
-                                    ? t.toBroker?._id || t.toBroker?.id
-                                    : t?.toBroker;
-                                const isPending =
-                                  pendingDeleteTransferId === String(toId);
-                                return (
                                   <button
                                     type="button"
                                     disabled={isPending}
@@ -4091,8 +3920,6 @@ export default function BrokerLeadsPage() {
                                   >
                                     {isPending ? "Removing…" : "Delete"}
                                   </button>
-                                );
-                              })()}
                             </li>
                           );
                         })}
@@ -4101,9 +3928,17 @@ export default function BrokerLeadsPage() {
                   })()}
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* (Optional) Share history card – keep your existing logic if you want it below */}
+        {/* <YourShareHistoryCard /> */}
+              </div>
             </div>
           </div>
         )}
+
       </div>
 
       <style jsx global>{`

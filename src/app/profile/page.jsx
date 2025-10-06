@@ -1458,10 +1458,10 @@ const Profile = () => {
           </div>
 
           {/* Layout: 9 / 3 columns */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
            
           {/* Form Card */}
-          <div className="lg:col-span-9 bg-white rounded-2xl shadow-2xl border-0 overflow-hidden">
+          <div className="lg:col-span-9 bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
             {/* Step Content */}
             {profileLoading ? (
               <div className="flex items-center justify-center py-20">
@@ -1473,10 +1473,10 @@ const Profile = () => {
                 </div>
               </div>
             ) : (
-              <div className="p-10">
+              <div className="p-8">
                 {/* Step 1: Personal Details */}
                 {currentStep === 1 && (
-                  <div className="max-w-3xl mx-auto">
+                  <div className="w-full mx-auto">
                     {/* Profile Image Section - Top */}
                     <div className="flex justify-left mb-8">
                       <div className="relative inline-block">
@@ -3340,9 +3340,7 @@ const Profile = () => {
                             const result = await res.json();
                             toast.success(
                               "Profile updated successfully! Redirecting to dashboard...",
-                              {
-                                style: { fontWeight: "700" },
-                              }
+                            
                             );
 
                             // Redirect to dashboard after successful profile update
@@ -3392,20 +3390,76 @@ const Profile = () => {
             )}
           </div>
           {/* Sidebar: Resources / Help */}
-          <aside className="lg:col-span-3 space-y-6">
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Need help?</h3>
+          <aside className="lg:col-span-3 space-y-5 lg:sticky lg:top-0 lg:-mt-54 self-start">
+            {/* Start/Create Broker Profile CTA */}
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-semibold text-gray-900">Create broker profile</h3>
+                  <p className="text-sm text-gray-600 mt-1">Finish basic details and choose your nearest region to get started.</p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="h-2 bg-gray-100 rounded w-2/3 overflow-hidden">
+                      <div className="h-full bg-blue-600" style={{ width: `${Math.min(100, (brokerFormData?.name ? 40 : 10) + (Array.isArray(brokerFormData?.regions) && brokerFormData.regions.length ? 40 : 0) + (brokerFormData?.email ? 20 : 0))}%` }} />
+                    </div>
+                    <button type="button" className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-green-900 hover:bg-green-950">Start</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Profile Summary */}
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Profile summary</h3>
+              <div className="space-y-2 text-sm text-gray-700">
+                <div className="flex justify-between"><span>Status</span><span className="font-medium">{userRole === "customer" ? (customerFormData?.name ? "In progress" : "New") : (brokerFormData?.name ? "In progress" : "New")}</span></div>
+                <div className="flex justify-between"><span>Name</span><span className="font-medium truncate max-w-[140px]">{userRole === "customer" ? (customerFormData?.name || "—") : (brokerFormData?.name || "—")}</span></div>
+                <div className="flex justify-between"><span>Email</span><span className="font-medium truncate max-w-[140px]">{userRole === "customer" ? (customerFormData?.email || "—") : (brokerFormData?.email || "—")}</span></div>
+              </div>
+            </div>
+
+            {/* Nearest Regions preview */}
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">Nearest regions</h3>
+                <button type="button" className="text-xs text-blue-700 hover:underline" onClick={() => setNearestMode?.(true)}>Use nearest</button>
+              </div>
+              <div className="space-y-2">
+                {(Array.isArray(nearestRegions) ? nearestRegions.slice(0,3) : []).map((r) => {
+                  const id = r._id || r.id;
+                  const name = r.name || r.region || "Region";
+                  const dist = typeof r.distanceKm === "number" ? r.distanceKm : null;
+                  const distanceText = dist !== null ? `${dist >= 10 ? Math.round(dist) : Math.round(dist * 10) / 10} km` : "";
+                  return (
+                    <div key={id || name} className="flex items-center justify-between text-sm">
+                      <div className="truncate max-w-[160px] text-gray-700">{name}</div>
+                      <div className="text-xs text-gray-500">{distanceText}</div>
+                    </div>
+                  );
+                })}
+                {(!nearestRegions || nearestRegions.length === 0) && (
+                  <div className="text-sm text-gray-500">Turn on location to fetch nearby regions.</div>
+                )}
+              </div>
+            </div>
+
+            {/* Tips */}
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Tips</h3>
               <ul className="text-sm text-gray-600 list-disc pl-5 space-y-2">
-                <li>Complete required fields marked with *</li>
-                <li>Use "Use nearest" to auto-pick regions</li>
-                <li>Documents enable after choosing a region</li>
+                <li>Fill personal info first, then regions.</li>
+                <li>Use nearest regions for quick setup.</li>
+                <li>Keep KYC under 10MB per file.</li>
               </ul>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Resources</h3>
+
+            {/* Quick links */}
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick links</h3>
               <div className="space-y-2 text-sm">
                 <a className="text-blue-700 hover:underline" href="#">Profile guidelines</a>
-                <div className="text-gray-600">KYC: PDF/JPG/PNG up to 10MB</div>
+                <a className="text-blue-700 hover:underline" href="#">KYC requirements</a>
               </div>
             </div>
           </aside>
