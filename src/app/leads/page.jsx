@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import Select, { components as RSComponents } from "react-select";
 import ProtectedRoute from "../components/ProtectedRoute";
+import siteConfig, { SUPPORT_EMAIL, SUPPORT_PHONE} from "../config/siteConfig";
 
 /* ───────────── Small stat card ───────────── */
 const StatCard = ({ label, value, deltaText, trend = "up", color = "sky" }) => {
@@ -918,8 +919,24 @@ const [noteText, setNoteText] = useState("");
         }
         return;
       }
+      // Read created lead from API to use its id for transfer
+      let createdLeadResp = null;
+      try {
+        createdLeadResp = await res.json();
+      } catch {}
+      const createdLead = (createdLeadResp && (createdLeadResp.lead || createdLeadResp.data || createdLeadResp.newLead)) || createdLeadResp || null;
+
       toast.success("Lead created successfully");
       await loadLeads();
+      // Prefill selectedLead with the newly created lead if available; else fetch latest
+      let leadForTransfer = createdLead && (createdLead._id || createdLead.id) ? createdLead : await fetchLatestLead();
+      if (leadForTransfer) setSelectedLead(leadForTransfer);
+      // Open transfer modal immediately for the newly created lead
+      setShowTransfer(true);
+      setTransferForm({ brokerIds: [], notes: "", selectAllFiltered: false });
+      if (!brokersList || brokersList.length === 0) {
+        loadBrokers();
+      }
       setShowAddLead(false);
       setNewLead({
         customerName: "",
@@ -949,6 +966,8 @@ const [noteText, setNoteText] = useState("");
   });
   const [transferFilter, setTransferFilter] = useState("");
   const transferSelectRef = useRef(null);
+  const [transferMode, setTransferMode] = useState("all"); // 'all' | 'region' | 'select'
+  const [transferRegion, setTransferRegion] = useState(null);
 
   // Custom react-select MenuList with a Select All checkbox
   const BrokerMenuList = (props) => {
@@ -1020,6 +1039,45 @@ const [noteText, setNoteText] = useState("");
   const [brokersList, setBrokersList] = useState([]);
   const [brokersLoading, setBrokersLoading] = useState(false);
   const [brokersError, setBrokersError] = useState("");
+  // Helper: fetch the most recent lead for this broker
+  const fetchLatestLead = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (brokerId) params.set("createdBy", brokerId);
+      // Fetch a few and sort client-side (API does not allow "sort")
+      params.set("limit", "5");
+      const url = `${apiUrl}/leads?${params.toString()}`;
+      const res = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const items = Array.isArray(data?.data?.items)
+        ? data.data.items
+        : Array.isArray(data?.data?.leads)
+        ? data.data.leads
+        : Array.isArray(data?.data)
+        ? data.data
+        : Array.isArray(data?.leads)
+        ? data.leads
+        : Array.isArray(data)
+        ? data
+        : [];
+      if (!items || items.length === 0) return null;
+      const withDate = items
+        .map((it) => ({
+          item: it,
+          ts: it?.createdAt ? Date.parse(it.createdAt) : (it?._id ? Date.parse(it._id?.toString().substring(0,8)) : 0),
+        }))
+        .sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      return withDate[0]?.item || items[0] || null;
+    } catch {
+      return null;
+    }
+  }, [apiUrl, token, brokerId]);
 
   const loadBrokers = async () => {
     try {
@@ -1092,10 +1150,33 @@ const [noteText, setNoteText] = useState("");
   const openTransferForLead = (lead) => {
     setSelectedLead(lead);
     setTransferForm({ brokerIds: [], notes: "" });
+    setTransferMode("all");
+    setTransferRegion(null);
     setShowTransfer(true);
     if (!brokersList || brokersList.length === 0) {
       loadBrokers();
     }
+  };
+
+  const brokerMatchesRegion = (b, regionId) => {
+    if (!b || !regionId) return false;
+    // b.region can be array of objects, single object, or string id
+    if (Array.isArray(b.region)) {
+      return b.region.some((r) => (r && (r._id || r.id || r)) && String(r._id || r.id || r) === String(regionId));
+    }
+    if (b.region && typeof b.region === "object") {
+      const id = b.region._id || b.region.id;
+      return id ? String(id) === String(regionId) : false;
+    }
+    if (typeof b.region === "string") {
+      return String(b.region) === String(regionId);
+    }
+    // some backends use primaryRegion
+    if (b.primaryRegion) {
+      const id = typeof b.primaryRegion === 'object' ? (b.primaryRegion._id || b.primaryRegion.id) : b.primaryRegion;
+      return id ? String(id) === String(regionId) : false;
+    }
+    return false;
   };
 
   const submitTransfer = async () => {
@@ -1103,15 +1184,39 @@ const [noteText, setNoteText] = useState("");
       toast.error("No lead selected");
       return;
     }
-    const leadId = selectedLead._id || selectedLead.id;
-    const toBrokers = (transferForm.brokerIds || []).filter(
-      (id) => id !== "all"
-    );
+    let leadId = selectedLead._id || selectedLead.id;
+    if (!leadId) {
+      const latest = await fetchLatestLead();
+      if (latest && (latest._id || latest.id)) {
+        leadId = latest._id || latest.id;
+        setSelectedLead((prev) => ({ ...(latest || prev) }));
+      }
+    }
+    let toBrokers = (transferForm.brokerIds || []).filter((id) => id !== "all");
     if (!leadId) {
       toast.error("Invalid lead id");
       return;
     }
+    if (transferMode === "all") {
+      toBrokers = (brokersList || [])
+        .filter((b) => (b._id || b.id) && (b._id || b.id) !== currentUserId)
+        .map((b) => b._id || b.id);
+    }
+    if (transferMode === "region") {
+      if (!(transferRegion && transferRegion.value)) {
+        toast.error("Select a region to share with");
+        return;
+      }
+      const regionId = transferRegion.value;
+      toBrokers = (brokersList || [])
+        .filter((b) => (b._id || b.id) && (b._id || b.id) !== currentUserId && brokerMatchesRegion(b, regionId))
+        .map((b) => b._id || b.id);
     if (!toBrokers.length) {
+        toast.error("No brokers found for the selected region");
+        return;
+      }
+    }
+    if (transferMode === "select" && !toBrokers.length) {
       toast.error("Select at least one broker");
       return;
     }
@@ -1507,7 +1612,7 @@ const [noteText, setNoteText] = useState("");
                   </div>
 
                   {/* View Mode Toggle (single switch with label) */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col items-center gap-3">
                     <button
                       type="button"
                       role="switch"
@@ -1589,6 +1694,8 @@ const [noteText, setNoteText] = useState("");
   /> */}
               </div>
 
+              {/* subtle divider before lead cards */}
+              <div className="h-px bg-gray-100 mt-4" />
               {/* Search + status + buttons - Flexible layout */}
               <div className="mt-6 flex items-center gap-3">
                 {/* Search - Fixed width to match status dropdown */}
@@ -1661,7 +1768,7 @@ const [noteText, setNoteText] = useState("");
                   <button
                     type="button"
                     onClick={() => setShowAddLead(true)}
-                    className="px-3 py-2.5 rounded-xl text-sm border-2 border-green-600 text-green-600 bg-white hover:bg-green-50 hover:border-green-700 shadow-sm cursor-pointer whitespace-nowrap flex items-center gap-2"
+                    className="px-3 py-2.5 rounded-xl text-sm border border-green-600 text-green-600 bg-white hover:bg-green-50 hover:border-green-700 shadow-sm cursor-pointer whitespace-nowrap flex items-center gap-2"
                     style={{ minHeight: "40px", fontSize: "14px" }}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1685,6 +1792,7 @@ const [noteText, setNoteText] = useState("");
                   </div>
                 )}
               </div>
+
 
               {/* Table */}
               <div className="mt-6">
@@ -2120,7 +2228,7 @@ const [noteText, setNoteText] = useState("");
                                     <line x1="22" y1="2" x2="11" y2="13" />
                                     <polygon points="22 2 15 22 11 13 2 9 22 2" />
                                   </svg>
-                                  <span className="text-xs">Transfer</span>
+                                  <span className="text-xs">Share</span>
                                 </button>
 
                                 {/* Delete Button */}
@@ -2494,84 +2602,7 @@ const [noteText, setNoteText] = useState("");
                         Legal & Compliance Guide
                       </a>
                     </li>
-                     <li className="py-2 ">
-                    <a
-                      href="#"
-                      rel="noopener noreferrer"
-                      className="group flex items-center gap-2   rounded-lg "
-                    >
-                      <svg
-                        className="w-4 h-4 text-gray-500"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <path d="M14 2v6h6" />
-                      </svg>
-                      Lead Generation Playbook
-                    </a>
-                  </li>
-                  {/* <li className="py-2">
-                    <a
-                      href="#"
-                      rel="noopener noreferrer"
-                      className="group flex items-center gap-2 px-2  rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors"
-                    >
-                      <svg
-                        className="w-4 h-4 text-sky-600"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <rect x="3" y="4" width="18" height="16" rx="2" />
-                        <path d="M7 8h10M7 12h10M7 16h6" />
-                      </svg>
-                      Email Templates
-                    </a>
-                  </li>
-                  <li className="py-2">
-                    <a
-                      href="#"
-                      rel="noopener noreferrer"
-                      className="group flex items-center gap-2 px-2 rounded-lg hover:bg-slate-50 text-sky-700 hover:text-sky-800 transition-colors"
-                    >
-                      <svg
-                        className="w-4 h-4 text-sky-600"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <rect x="3" y="4" width="18" height="18" rx="2" />
-                        <path d="M8 2v4M16 2v4M3 10h18" />
-                      </svg>
-                      Agreement Templates
-                    </a>
-                  </li> */}
-                  <li className="">
-                    <a
-                      href="#"
-                      rel="noopener noreferrer"
-                      className="group flex items-center gap-2  rounded-lg "
-                    >
-                      <svg
-                        className="w-4 h-4 text-gray-500"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                      Customer Guides
-                    </a>
-                  </li>
+                     
                 </ul>
                 </div>
 
@@ -2579,7 +2610,7 @@ const [noteText, setNoteText] = useState("");
                 <div className="h-px bg-slate-100 mx-4" />
 
                 {/* Contact */}
-                <div className="px-4 py-3 text-sm text-slate-600 space-y-2">
+                  <div className="px-4 py-3 text-sm text-slate-600 space-y-2">
                   <div className="flex items-center gap-3 pl-0.5">
                     {/* Mail */}
                     <svg
@@ -2594,7 +2625,7 @@ const [noteText, setNoteText] = useState("");
                       <rect x="3" y="5" width="18" height="14" rx="2" />
                       <path d="M22 7 12 13 2 7" />
                     </svg>
-                 <a href="mailto:support@company.com">support@company.com</a> 
+                 <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> 
                   </div>
                   <div className="flex items-center gap-3 pl-0.5">
                     {/* Phone (handset) */}
@@ -2609,8 +2640,9 @@ const [noteText, setNoteText] = useState("");
                     >
                       <path d="M22 16.92V21a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3 6.18 2 2 0 0 1 5 4h3.3a1 1 0 0 1 .95.68l1.2 3.6a1 1 0 0 1-.27 1.06l-1.8 1.8a12 12 0 0 0 6.8 6.8l1.8-1.8a1 1 0 0 1 1.06-.27l3.6 1.2A1 1 0 0 1 22 16.92z" />
                     </svg>
-                    <a href="tel:+18001234567"> +1 (800) 123–4567</a>
+                     <a href={`tel:${SUPPORT_PHONE.replace(/\s+/g,'')}`}> {SUPPORT_PHONE}</a>
                   </div>
+                  
                 </div>
                
               </div>
@@ -2959,39 +2991,57 @@ const [noteText, setNoteText] = useState("");
                     <label className="block text-xs font-label text-gray-700 mb-1">
                       Requirement
                     </label>
-                    <Select
-                      value={newLead.requirement}
-                      onChange={(opt) =>
-                        setNewLead({ ...newLead, requirement: opt })
-                      }
-                      options={requirementOptions}
-                      styles={modalSelectStyles}
-                      isSearchable
-                      menuPortalTarget={
-                        typeof window !== "undefined" ? document.body : null
-                      }
-                      menuPosition="fixed"
-                      menuPlacement="auto"
-                    />{" "}
+                    <div className="flex flex-wrap gap-2">
+                      {requirementOptions
+                        .filter((o) => o.value !== "all")
+                        .map((opt) => {
+                          const isSelected =
+                            (newLead.requirement && (newLead.requirement.value || newLead.requirement)) === opt.value;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              aria-pressed={isSelected}
+                              onClick={() => setNewLead({ ...newLead, requirement: opt })}
+                              className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${
+                                isSelected
+                                  ? "bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-100 shadow-sm"
+                                  : "bg-white text-slate-700 border-gray-200 hover:border-gray-300 hover:bg-slate-50"
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs font-label text-gray-700 mb-1">
                       Property Type
                     </label>
-                    <Select
-                      value={newLead.propertyType}
-                      onChange={(opt) =>
-                        setNewLead({ ...newLead, propertyType: opt })
-                      }
-                      options={propertyTypeOptions}
-                      styles={modalSelectStyles}
-                      isSearchable
-                      menuPortalTarget={
-                        typeof window !== "undefined" ? document.body : null
-                      }
-                      menuPosition="fixed"
-                      menuPlacement="auto"
-                    />{" "}
+                    <div className="flex flex-wrap gap-2">
+                      {propertyTypeOptions
+                        .filter((o) => o.value !== "all")
+                        .map((opt) => {
+                          const isSelected =
+                            (newLead.propertyType && (newLead.propertyType.value || newLead.propertyType)) === opt.value;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              aria-pressed={isSelected}
+                              onClick={() => setNewLead({ ...newLead, propertyType: opt })}
+                              className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${
+                                isSelected
+                                  ? "bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-100 shadow-sm"
+                                  : "bg-white text-slate-700 border-gray-200 hover:border-gray-300 hover:bg-slate-50"
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                    </div>
                   </div>
                 </div>
 
@@ -2999,24 +3049,59 @@ const [noteText, setNoteText] = useState("");
                   <label className="block text-xs font-label text-gray-700 mb-1">
                     Budget
                   </label>
+                  {(() => {
+                    const pTypeRaw =
+                      typeof newLead.propertyType === "object"
+                        ? (newLead.propertyType.value || newLead.propertyType.label || "")
+                        : (newLead.propertyType || "");
+                    const pType = String(pTypeRaw).toLowerCase();
+                    const presets = {
+                      residential: { min: 5000, max: 100000000, step: 5000 }, // 10 Cr
+                      commercial: { min: 10000, max: 500000000, step: 10000 }, // 50 Cr
+                      plot: { min: 50000, max: 250000000, step: 50000 }, // 25 Cr
+                      other: { min: 1000, max: 50000000, step: 1000 }, // 5 Cr
+                    };
+                    const preset = presets[pType] || { min: 0, max: 10000000, step: 5000 };
+                    const budgetMin = preset.min;
+                    const budgetMax = preset.max;
+                    const budgetStep = preset.step;
+                    const raw = Number(newLead.budget || 0);
+                    const value = isNaN(raw) ? budgetMin : Math.min(budgetMax, Math.max(budgetMin, raw));
+                    const pct = ((value - budgetMin) / (budgetMax - budgetMin)) * 100;
+                    const fillPct = value > budgetMin ? Math.max(2, pct) : 0;
+                    return (
+                      <div className="space-y-2">
+                        <div className="relative">
                   <input
-                    name="budget"
-                    value={newLead.budget}
-                    onChange={handleNewLeadChange}
-                    type="number"
-                    step="1"
-                    min="0"
+                            type="range"
+                            min={budgetMin}
+                            max={budgetMax}
+                            step={budgetStep}
+                            value={value}
+                            onChange={(e) => setNewLead({ ...newLead, budget: Number(e.target.value) })}
+                            className="w-full h-2 rounded-full appearance-none focus:outline-none"
+                            style={{
+                              background: `linear-gradient(to right, #2563eb 0%, #2563eb ${fillPct}%, #e5e7eb ${fillPct}%, #e5e7eb 100%)`,
+                            }}
+                          />
+                          <div className="absolute -top-6 right-0">
+                            <input
+                              type="text"
                     inputMode="numeric"
-                    onWheel={(e) =>
-                      e.target instanceof HTMLElement ? e.target.blur() : null
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === "ArrowUp" || e.key === "ArrowDown")
-                        e.preventDefault();
-                    }}
-                    placeholder="e.g., 500000"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-600 text-sm bg-white"
-                  />
+                              value={String(value)}
+                              onChange={(e) => {
+                                const n = Number((e.target.value || '').replace(/[^0-9]/g, ''));
+                                const clamped = isNaN(n) ? 0 : Math.min(budgetMax, Math.max(budgetMin, n));
+                                setNewLead({ ...newLead, budget: clamped });
+                              }}
+                              className="w-24 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 text-right focus:outline-none focus:ring-2 focus:ring-blue-100"
+                            />
+                          </div>
+                        </div>
+                        {/* removed below-slider controls per request */}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3029,11 +3114,7 @@ const [noteText, setNoteText] = useState("");
                       onChange={(opt) =>
                         setNewLead({ ...newLead, primaryRegion: opt })
                       }
-                      options={
-                        nearestRegionOptions && nearestRegionOptions.length > 0
-                          ? nearestRegionOptions
-                          : regionOptions
-                      }
+                      options={regionOptions}
                       styles={modalSelectStyles}
                       isSearchable
                       isLoading={nearestRegionsLoading}
@@ -3053,11 +3134,7 @@ const [noteText, setNoteText] = useState("");
                       onChange={(opt) =>
                         setNewLead({ ...newLead, secondaryRegion: opt })
                       }
-                      options={
-                        nearestRegionOptions && nearestRegionOptions.length > 0
-                          ? nearestRegionOptions
-                          : regionOptions
-                      }
+                      options={regionOptions}
                       styles={modalSelectStyles}
                       isSearchable
                       isLoading={nearestRegionsLoading}
@@ -3125,7 +3202,7 @@ const [noteText, setNoteText] = useState("");
             <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-xl">
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                 <h4 className="text-lg font-semibold text-slate-900">
-                  Transfer Lead
+                  Share Lead
                 </h4>
                 <button
                   onClick={() => setShowTransfer(false)}
@@ -3147,6 +3224,59 @@ const [noteText, setNoteText] = useState("");
                 </button>
               </div>
               <div className="px-6 py-5 space-y-5">
+                {/* Share mode toggles (radio) */}
+                <div className="space-y-3">
+                  <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="radio"
+                      name="transferMode"
+                      className="h-4 w-4 accent-blue-600 cursor-pointer"
+                      checked={transferMode === 'all'}
+                      onChange={() => setTransferMode('all')}
+                    />
+                    <span className="text-sm  text-slate-800">Share with All Broker</span>
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="radio"
+                        name="transferMode"
+                        className="h-4 w-4 accent-blue-600 cursor-pointer"
+                        checked={transferMode === 'region'}
+                        onChange={() => setTransferMode('region')}
+                      />
+                      <span className="text-sm  text-slate-800">Share with all broker of the region</span>
+                    </label>
+                  </div>
+                  <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="radio"
+                      name="transferMode"
+                      className="h-4 w-4 accent-blue-600 cursor-pointer"
+                      checked={transferMode === 'select'}
+                      onChange={() => setTransferMode('select')}
+                    />
+                    <span className="text-sm  text-slate-800">Share with select broker</span>
+                  </label>
+                </div>
+
+                {transferMode === 'region' && (
+                <div>
+                  <label className="block text-xs font-label text-gray-700 mb-1">
+                    Select Region
+                  </label>
+                  <Select
+                    value={transferRegion}
+                    onChange={(opt)=> setTransferRegion(opt)}
+                    options={regionOptions.filter(o=> o.value !== 'all')}
+                    styles={customSelectStyles}
+                    isSearchable
+                    placeholder="Select region"
+                  />
+                </div>
+                )}
+
+                {transferMode === 'select' && (
                 <div>
                   <label className="block text-xs font-label text-gray-700 mb-1">
                     Select Broker(s)
@@ -3251,6 +3381,7 @@ const [noteText, setNoteText] = useState("");
                     isLoading={brokersLoading}
                   />
                 </div>
+                )}
                 <div>
                   <label className="block text-xs font-label text-gray-700 mb-1">
                     Transfer Notes (Optional)
@@ -3630,7 +3761,7 @@ const [noteText, setNoteText] = useState("");
                       {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
                           <Select
                           name="primaryRegion"
-                          options={(nearestRegionOptions && nearestRegionOptions.length > 0) ? nearestRegionOptions : regionOptions}
+                          options={regionOptions}
                           value={viewForm.primaryRegion || null}
                           onChange={(opt) => setViewForm((prev) => ({ ...prev, primaryRegion: opt }))}
                           classNamePrefix="react-select"
@@ -3665,7 +3796,7 @@ const [noteText, setNoteText] = useState("");
                       {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
                             <Select
                           name="secondaryRegion"
-                          options={(nearestRegionOptions && nearestRegionOptions.length > 0) ? nearestRegionOptions : regionOptions}
+                          options={regionOptions}
                           value={viewForm.secondaryRegion || null}
                           onChange={(opt) => setViewForm((prev) => ({ ...prev, secondaryRegion: opt }))}
                           classNamePrefix="react-select"

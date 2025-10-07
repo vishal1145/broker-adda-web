@@ -1,9 +1,19 @@
 "use client";
 import React from 'react';
+import siteConfig, { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_ADDRESS } from '../config/siteConfig';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', links: { Company: [], 'Customer Services': [], 'Our Information': [], 'Contact Info': [] }, copyright: '' } }) => {
     const router = useRouter();
+
+  // Build contact info from config if not provided via props
+  const contactLinks = (data?.links?.['Contact Info'] && data.links['Contact Info'].length > 0)
+    ? data.links['Contact Info']
+    : [
+        { name: SUPPORT_PHONE, href: `tel:${SUPPORT_PHONE.replace(/\s+/g, '')}` },
+        { name: SUPPORT_EMAIL, href: `mailto:${SUPPORT_EMAIL}` },
+        { name: SUPPORT_ADDRESS, href: '' },
+      ];
 
   return (
     <footer className="bg-green-900 text-white">
@@ -98,8 +108,8 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
           {/* Contact Info */}
           <div className="text-left">
             <h3 className="text-lg mb-4 mt-4">Contact Info</h3>
-            <ul className="space-y-2 text-sm text-gray-300">
-              {data.links['Contact Info'].map((link, index) => (
+            <ul className="space-y-2 text-sm text-gray-300 cursor-pointer">
+              {contactLinks.map((link, index) => (
                 <li key={index}>
                   {link.href.startsWith('tel:') || link.href.startsWith('mailto:') ? (
                     <a href={link.href}>{link.name}</a>
