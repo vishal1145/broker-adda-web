@@ -6,6 +6,38 @@ import { useRouter } from "next/navigation";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { useAuth } from "../contexts/AuthContext";
 
+// Normalize backend file paths to public URLs for images
+const toPublicUrl = (raw) => {
+  if (!raw || typeof raw !== "string") return raw;
+  if (raw.startsWith('/opt/lampp/htdocs/')) {
+    const filename = raw.split('/').pop();
+    return `https://broker-adda-be.algofolks.com/uploads/${filename}`;
+  }
+  if (raw.startsWith('/uploads/')) {
+    return `https://broker-adda-be.algofolks.com${raw}`;
+  }
+  return raw;
+};
+
+// Helpers to detect and preview images (for document uploads)
+const isImageFile = (val) => {
+  if (!val) return false;
+  if (typeof val === 'string') return /\.(png|jpe?g|webp)$/i.test(val);
+  if (val.type) return val.type.startsWith('image/');
+  const name = val.name || '';
+  return /\.(png|jpe?g|webp)$/i.test(name);
+};
+
+const getImageSrc = (val) => {
+  if (!val) return null;
+  if (typeof val === 'string') return toPublicUrl(val);
+  try {
+    return URL.createObjectURL(val);
+  } catch {
+    return null;
+  }
+};
+
 const Profile = () => {
   const { user } = useAuth();
   const router = useRouter();
@@ -547,12 +579,13 @@ const Profile = () => {
           if (currentUserRole === "customer") {
             // Update customer form data from customer by ID API response
             const customerData = data.data?.customer || data.data || data;
-            // Extract customer image from the actual API response structure
-            const customerImage =
+            // Extract and normalize customer image URL
+            const customerImage = toPublicUrl(
               customerData.images?.customerImage ||
               customerData.files?.customerImage ||
               customerData.customerImage ||
-              null;
+              null
+            );
 
             // Extract preferences from the actual API response structure
             const preferences = customerData.preferences || {};
@@ -668,7 +701,12 @@ const Profile = () => {
             const gstFile = kycDocs.gst || null;
             const brokerLicenseFile = kycDocs.brokerLicense || null;
             const companyIdFile = kycDocs.companyId || null;
-            const brokerImage = brokerData.brokerImage || null;
+            const brokerImage = toPublicUrl(
+              brokerData.brokerImage ||
+              brokerData.userId?.profileImage ||
+              brokerData.personalInfo?.profileImage ||
+              null
+            );
 
             // Update broker form data with extracted values
             setBrokerFormData((prev) => ({
@@ -1241,7 +1279,12 @@ const Profile = () => {
         const aadharFile = kycDocs.aadhar || null;
         const panFile = kycDocs.pan || null;
         const gstFile = kycDocs.gst || null;
-        const brokerImage = brokerData.brokerImage || null;
+        const brokerImage = toPublicUrl(
+          brokerData.brokerImage ||
+          brokerData.userId?.profileImage ||
+          brokerData.personalInfo?.profileImage ||
+          null
+        );
 
         // Update form data
         setBrokerFormData((prev) => ({
@@ -2641,44 +2684,28 @@ const Profile = () => {
                             htmlFor="aadhar-upload"
                             className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
                           >
-                            <svg
-                              className="mx-auto h-8 w-8 text-gray-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            <div className="mt-2">
-                              <p className="text-sm text-gray-600">
-                                {brokerFormData.aadharFile
-                                  ? typeof brokerFormData.aadharFile ===
-                                    "string"
-                                    ? "Aadhar Card uploaded"
-                                    : brokerFormData.aadharFile.name
-                                  : "Click to upload Aadhar Card"}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                PDF, JPG, PNG up to 10MB
-                              </p>
-                              {brokerFormData.aadharFile &&
-                                typeof brokerFormData.aadharFile ===
-                                  "string" && (
-                                  <a
-                                    href={brokerFormData.aadharFile}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-blue-600 hover:underline"
+                            <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
+                              {isImageFile(brokerFormData.aadharFile) && getImageSrc(brokerFormData.aadharFile) ? (
+                                <img src={getImageSrc(brokerFormData.aadharFile)} alt="Aadhar Preview" className="absolute inset-0 w-full h-full object-contain" />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <svg
+                                    className="h-10 w-10 text-gray-400"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    viewBox="0 0 48 48"
                                   >
-                                    View uploaded file
-                                  </a>
-                                )}
+                                    <path
+                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                </div>
+                              )}
                             </div>
+                            <div className="mt-2"></div>
                           </label>
                         </div>
                       </div>
@@ -2702,42 +2729,28 @@ const Profile = () => {
                             htmlFor="pan-upload"
                             className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
                           >
-                            <svg
-                              className="mx-auto h-8 w-8 text-gray-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            <div className="mt-2">
-                              <p className="text-sm text-gray-600">
-                                {brokerFormData.panFile
-                                  ? typeof brokerFormData.panFile === "string"
-                                    ? "PAN Card uploaded"
-                                    : brokerFormData.panFile.name
-                                  : "Click to upload PAN Card"}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                PDF, JPG, PNG up to 10MB
-                              </p>
-                              {brokerFormData.panFile &&
-                                typeof brokerFormData.panFile === "string" && (
-                                  <a
-                                    href={brokerFormData.panFile}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-blue-600 hover:underline"
+                            <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
+                              {isImageFile(brokerFormData.panFile) && getImageSrc(brokerFormData.panFile) ? (
+                                <img src={getImageSrc(brokerFormData.panFile)} alt="PAN Preview" className="absolute inset-0 w-full h-full object-contain" />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <svg
+                                    className="h-10 w-10 text-gray-400"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    viewBox="0 0 48 48"
                                   >
-                                    View uploaded file
-                                  </a>
-                                )}
+                                    <path
+                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                </div>
+                              )}
                             </div>
+                            <div className="mt-2"></div>
                           </label>
                         </div>
                       </div>
@@ -2761,42 +2774,28 @@ const Profile = () => {
                             htmlFor="gst-upload"
                             className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
                           >
-                            <svg
-                              className="mx-auto h-8 w-8 text-gray-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            <div className="mt-2">
-                              <p className="text-sm text-gray-600">
-                                {brokerFormData.gstFile
-                                  ? typeof brokerFormData.gstFile === "string"
-                                    ? "GST Certificate uploaded"
-                                    : brokerFormData.gstFile.name
-                                  : "Click to upload GST Certificate"}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                PDF, JPG, PNG up to 10MB
-                              </p>
-                              {brokerFormData.gstFile &&
-                                typeof brokerFormData.gstFile === "string" && (
-                                  <a
-                                    href={brokerFormData.gstFile}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-blue-600 hover:underline"
+                            <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
+                              {isImageFile(brokerFormData.gstFile) && getImageSrc(brokerFormData.gstFile) ? (
+                                <img src={getImageSrc(brokerFormData.gstFile)} alt="GST Preview" className="absolute inset-0 w-full h-full object-contain" />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <svg
+                                    className="h-10 w-10 text-gray-400"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    viewBox="0 0 48 48"
                                   >
-                                    View uploaded file
-                                  </a>
-                                )}
+                                    <path
+                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                </div>
+                              )}
                             </div>
+                            <div className="mt-2"></div>
                           </label>
                         </div>
                       </div>
@@ -2820,44 +2819,28 @@ const Profile = () => {
                             htmlFor="broker-license-upload"
                             className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
                           >
-                            <svg
-                              className="mx-auto h-8 w-8 text-gray-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            <div className="mt-2">
-                              <p className="text-sm text-gray-600">
-                                {brokerFormData.brokerLicenseFile
-                                  ? typeof brokerFormData.brokerLicenseFile ===
-                                    "string"
-                                    ? "Broker License uploaded"
-                                    : brokerFormData.brokerLicenseFile.name
-                                  : "Click to upload Broker License"}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                PDF, JPG, PNG up to 10MB
-                              </p>
-                              {brokerFormData.brokerLicenseFile &&
-                                typeof brokerFormData.brokerLicenseFile ===
-                                  "string" && (
-                                  <a
-                                    href={brokerFormData.brokerLicenseFile}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-blue-600 hover:underline"
+                            <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
+                              {isImageFile(brokerFormData.brokerLicenseFile) && getImageSrc(brokerFormData.brokerLicenseFile) ? (
+                                <img src={getImageSrc(brokerFormData.brokerLicenseFile)} alt="License Preview" className="absolute inset-0 w-full h-full object-contain" />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <svg
+                                    className="h-10 w-10 text-gray-400"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    viewBox="0 0 48 48"
                                   >
-                                    View uploaded file
-                                  </a>
-                                )}
+                                    <path
+                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                </div>
+                              )}
                             </div>
+                            <div className="mt-2"></div>
                           </label>
                         </div>
                       </div>
@@ -2880,44 +2863,28 @@ const Profile = () => {
                             htmlFor="company-id-upload"
                             className="cursor-pointer"
                           >
-                            <svg
-                              className="mx-auto h-8 w-8 text-gray-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            <div className="mt-2">
-                              <p className="text-sm text-gray-600">
-                                {brokerFormData.companyIdFile
-                                  ? typeof brokerFormData.companyIdFile ===
-                                    "string"
-                                    ? "Company ID uploaded"
-                                    : brokerFormData.companyIdFile.name
-                                  : "Click to upload Company ID"}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                PDF, JPG, PNG up to 10MB
-                              </p>
-                              {brokerFormData.companyIdFile &&
-                                typeof brokerFormData.companyIdFile ===
-                                  "string" && (
-                                  <a
-                                    href={brokerFormData.companyIdFile}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-blue-600 hover:underline"
+                            <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
+                              {isImageFile(brokerFormData.companyIdFile) && getImageSrc(brokerFormData.companyIdFile) ? (
+                                <img src={getImageSrc(brokerFormData.companyIdFile)} alt="Company ID Preview" className="absolute inset-0 w-full h-full object-contain" />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <svg
+                                    className="h-10 w-10 text-gray-400"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    viewBox="0 0 48 48"
                                   >
-                                    View uploaded file
-                                  </a>
-                                )}
+                                    <path
+                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                </div>
+                              )}
                             </div>
+                            <div className="mt-2"></div>
                           </label>
                         </div>
                       </div>
