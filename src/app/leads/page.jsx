@@ -1232,10 +1232,10 @@ const [noteText, setNoteText] = useState("");
         body: JSON.stringify({ toBrokers, notes: transferForm.notes || "" }),
       });
       if (!res.ok) {
-        toast.error("Failed to transfer lead");
+        toast.error("Failed to share lead");
         return;
       }
-      toast.success("Transfer request sent");
+      toast.success("Share request sent");
       setShowTransfer(false);
       setTransferForm({ brokerIds: [], notes: "" });
     } catch {
@@ -3234,7 +3234,7 @@ const [noteText, setNoteText] = useState("");
                       checked={transferMode === 'all'}
                       onChange={() => setTransferMode('all')}
                     />
-                    <span className="text-sm  text-slate-800">Share with All Broker</span>
+                    <span className="text-sm  text-slate-800">Share with all brokers</span>
                   </label>
                   <div className="flex items-center gap-3">
                     <label className="inline-flex items-center gap-2 cursor-pointer select-none">
@@ -3245,7 +3245,7 @@ const [noteText, setNoteText] = useState("");
                         checked={transferMode === 'region'}
                         onChange={() => setTransferMode('region')}
                       />
-                      <span className="text-sm  text-slate-800">Share with all broker of the region</span>
+                      <span className="text-sm  text-slate-800">Share with brokers of a region</span>
                     </label>
                   </div>
                   <label className="inline-flex items-center gap-2 cursor-pointer select-none">
@@ -3256,7 +3256,7 @@ const [noteText, setNoteText] = useState("");
                       checked={transferMode === 'select'}
                       onChange={() => setTransferMode('select')}
                     />
-                    <span className="text-sm  text-slate-800">Share with select broker</span>
+                    <span className="text-sm  text-slate-800">Share with selected brokers</span>
                   </label>
                 </div>
 
@@ -3384,7 +3384,7 @@ const [noteText, setNoteText] = useState("");
                 )}
                 <div>
                   <label className="block text-xs font-label text-gray-700 mb-1">
-                    Transfer Notes (Optional)
+                    Share Notes (Optional)
                   </label>
                   <textarea
                     rows={3}
