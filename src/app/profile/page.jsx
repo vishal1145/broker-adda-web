@@ -1382,80 +1382,7 @@ const Profile = () => {
             </p>
           </div>
 
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex items-left ">
-              <div className="flex items-center p-1 ">
-                {Array.from({ length: totalSteps }, (_, index) => {
-                  const step = index + 1;
-                  const isActive = step === currentStep;
-                  const isCompleted = step < currentStep;
-
-                  return (
-                    <div key={step} className="flex items-center">
-                      {/* Step Circle and Label */}
-                      <div
-                        className="flex flex-col items-center px-2 cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => goToStep(step)}
-                      >
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                            isActive
-                              ? "bg-blue-600 text-white scale-110"
-                              : isCompleted
-                              ? "bg-green-900 text-white"
-                              : "bg-gray-200 text-gray-500"
-                          }`}
-                        >
-                          {isCompleted ? (
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          ) : (
-                            step
-                          )}
-                        </div>
-                        <span
-                          className={`text-xs mt-1 text-center font-label ${
-                            isActive
-                              ? "text-blue-600"
-                              : isCompleted
-                              ? "text-green-900"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          {getStepTitle(step)}
-                        </span>
-                      </div>
-
-                      {/* Connecting Line */}
-                      {step < totalSteps && (
-                        <div
-                          className={`w-12 h-0.5 mx-1 rounded-full ${
-                            isCompleted
-                              ? "bg-green-900"
-                              : isActive
-                              ? "bg-blue-600"
-                              : "bg-gray-300"
-                          }`}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          {/* Progress moved to right sidebar */}
 
           {/* Layout: 9 / 3 columns */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -3415,7 +3342,7 @@ const Profile = () => {
             )}
           </div>
           {/* Sidebar: Resources / Help */}
-          <aside className="lg:col-span-3 space-y-5 lg:sticky lg:top-0 lg:-mt-54 self-start">
+          <aside className="lg:col-span-3 space-y-5 lg:sticky lg:top-0 lg:-mt-30 self-start">
             {/* Start/Create Broker Profile CTA */}
             <div className="rounded-xl border border-gray-200 bg-white p-4">
               <div className="flex items-start gap-3">
@@ -3425,11 +3352,34 @@ const Profile = () => {
                 <div className="min-w-0 flex-1">
                   <h3 className="text-sm font-semibold text-gray-900">Create broker profile</h3>
                   <p className="text-sm text-gray-600 mt-1">Finish basic details and choose your nearest region to get started.</p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="h-2 bg-gray-100 rounded w-2/3 overflow-hidden">
-                      <div className="h-full bg-blue-600" style={{ width: `${Math.min(100, (brokerFormData?.name ? 40 : 10) + (Array.isArray(brokerFormData?.regions) && brokerFormData.regions.length ? 40 : 0) + (brokerFormData?.email ? 20 : 0))}%` }} />
-                    </div>
-                    <button type="button" className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-green-900 hover:bg-green-950">Start</button>
+                  <div className="mt-3">
+                    {(() => {
+                      const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
+                      return (
+                        <div className="w-full">
+                          <div className="flex items-center px-2">
+                            {steps.map((step, idx) => {
+                              const isActive = step === currentStep;
+                              const isCompleted = step < currentStep;
+                              const circleClass = isCompleted
+                                ? "bg-green-700 text-white"
+                                : isActive
+                                ? "bg-blue-600 text-white ring-4 ring-blue-100"
+                                : "bg-gray-400 text-white";
+                              return (
+                                <React.Fragment key={step}>
+                                  <button type="button" onClick={() => goToStep(step)} className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ${circleClass} cursor-pointer`}>{step}</button>
+                                  {idx < steps.length - 1 && (
+                                    <div className="flex-1 h-1 bg-gray-200 rounded-full mx-2" />
+                                  )}
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                   
                   </div>
                 </div>
               </div>
@@ -3479,14 +3429,7 @@ const Profile = () => {
               </ul>
             </div>
 
-            {/* Quick links */}
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick links</h3>
-              <div className="space-y-2 text-sm">
-                <a className="text-blue-700 hover:underline" href="#">Profile guidelines</a>
-                <a className="text-blue-700 hover:underline" href="#">KYC requirements</a>
-              </div>
-            </div>
+         
           </aside>
           </div>
         </div>
