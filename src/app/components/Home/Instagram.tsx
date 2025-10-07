@@ -39,7 +39,7 @@ const Instagram = ({ data = { subtitle: '', title: '', images: [] } }: { data: I
   const images = [...baseImages, ...baseImages];
 
   return (
-    <section className="bg-gray-50 py-16">
+    <section className=" py-16">
       <div className="w-full mx-auto">
       <div className="max-w-7xl mx-auto text-center mb-12">
         <p className="text-xl text-gray-900 mb-1">

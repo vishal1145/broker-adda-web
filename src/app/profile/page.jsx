@@ -1645,55 +1645,80 @@ const Profile = () => {
                           <label className="block text-xs font-label text-gray-700 mb-2">
                             Gender <span className="text-red-500">*</span>
                           </label>
-                          <Select
-                            name="gender"
-                            options={[
-                              { value: "", label: "Select gender" },
-                              { value: "male", label: "Male" },
-                              { value: "female", label: "Female" },
-                              { value: "other", label: "Other" },
-                            ]}
-                            value={(() => {
-                              const v =
-                                userRole === "customer"
-                                  ? customerFormData.gender
-                                  : brokerFormData.gender;
-                              const opts = [
-                                { value: "", label: "Select gender" },
-                                { value: "male", label: "Male" },
-                                { value: "female", label: "Female" },
-                                { value: "other", label: "Other" },
-                              ];
-                              return (
-                                opts.find((o) => o.value === (v || "")) ||
-                                opts[0]
-                              );
-                            })()}
-                            onChange={(opt) => {
-                              const value = opt?.value || "";
+                          {/* Icon buttons for gender selection */}
+                          {(() => {
+                            const selected =
+                              (userRole === "customer"
+                                ? customerFormData.gender
+                                : brokerFormData.gender) || "";
+                            const isMale = selected === "male";
+                            const isFemale = selected === "female";
+                            const setGender = (value) => {
                               if (userRole === "customer") {
-                                setCustomerFormData((prev) => ({
-                                  ...prev,
-                                  gender: value,
-                                }));
+                                setCustomerFormData((prev) => ({ ...prev, gender: value }));
                               } else {
-                                setBrokerFormData((prev) => ({
-                                  ...prev,
-                                  gender: value,
-                                }));
+                                setBrokerFormData((prev) => ({ ...prev, gender: value }));
                               }
-                            }}
-                            classNamePrefix="react-select"
-                            styles={{
-                              control: (provided) => ({
-                                ...provided,
-                                border: "1px solid #d1d5db",
-                                borderRadius: "0.5rem",
-                                minHeight: "48px",
-                                fontSize: "14px",
-                              }),
-                            }}
-                          />
+                            };
+                            const circleBase =
+                              "w-10 h-10 rounded-full flex items-center justify-center transition-all";
+                            const labelBase = "text-xs mt-1 text-center";
+                            return (
+                              <div className="flex items-center gap-6">
+                                {/* Male */}
+                                <button
+                                  type="button"
+                                  onClick={() => setGender("male")}
+                                  className="flex flex-col items-center focus:outline-none"
+                                >
+                                  <div
+                                    className={`${circleBase} ${
+                                      isMale
+                                        ? "bg-blue-600 text-white shadow"
+                                        : "bg-gray-200 text-gray-500"
+                                    }`}
+                                  >
+                                    {/* Male icon - outline restroom style */}
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <circle cx="12" cy="5" r="2" />
+                                      <path d="M9 9h6" />
+                                      <path d="M7 22V12a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v10" />
+                                      <path d="M10 22v-7M14 22v-7" />
+                                    </svg>
+                                  </div>
+                                  <span className={`${labelBase} ${isMale ? "text-blue-600" : "text-gray-600"}`}>
+                                    Male
+                                  </span>
+                                </button>
+
+                                {/* Female */}
+                                <button
+                                  type="button"
+                                  onClick={() => setGender("female")}
+                                  className="flex flex-col items-center focus:outline-none"
+                                >
+                                  <div
+                                    className={`${circleBase} ${
+                                      isFemale
+                                        ? "bg-blue-600 text-white shadow"
+                                        : "bg-gray-200 text-gray-500"
+                                    }`}
+                                  >
+                                    {/* Female icon - outline restroom style */}
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <circle cx="12" cy="5" r="2" />
+                                      <path d="M9 9h6" />
+                                      <path d="M9 9l-3 6h12l-3-6z" />
+                                      <path d="M8 22v-6M16 22v-6" />
+                                    </svg>
+                                  </div>
+                                  <span className={`${labelBase} ${isFemale ? "text-blue-600" : "text-gray-600"}`}>
+                                    Female
+                                  </span>
+                                </button>
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         {userRole === "broker" && (

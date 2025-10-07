@@ -111,3 +111,15 @@ body {
 .animate-bounce {
   animation: bounce 2s infinite;
 }
+
+/* Fixed ID-card aspect frame for document previews (Aadhaar/PAN ratio ~85.6x54mm) */
+.id-card-frame {
+  aspect-ratio: 85.6 / 54;
+}
+
+/* Ensure images fit inside the ID-card frame without cropping */
+.id-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

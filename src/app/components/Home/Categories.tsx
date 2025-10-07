@@ -14,10 +14,10 @@ const Categories = ({ data = [] }: { data: CategoryItem[] }) => {
   const cat1 = data[1] || { items: 0, name: '', products: [], image: '' };
   const cat2 = data[2] || { items: 0, name: '', products: [], image: '' };
   return (
-    <section className="bg-white py-12" style={{ display: "none" }}>
+    <section className="bg-white py-12" >
       <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Chairs Card */}
-        <div className="bg-gray-50 rounded-2xl px-8 flex items-center text-left relative overflow-hidden w-full min-h-[400px]">
+        <div className=" rounded-2xl px-8 flex items-center text-left relative overflow-hidden w-full min-h-[400px]">
           <div className="flex-1 flex flex-col mt-5 h-full ">
             <div className="inline-flex items-center px-3 py-1 bg-white rounded-full shadow-sm w-fit text-sm mb-2">
               <span className="text-yellow-500 font-bold">{cat0.items}+</span>&nbsp;

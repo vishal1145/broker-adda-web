@@ -67,7 +67,7 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
   const testimonials = dummyTestimonials;
 
   return (
-    <section className="bg-gray-50 py-16">
+    <section className=" py-16">
       <div className="w-full mx-auto">
         <div className="text-center">
         <div className="flex flex-col items-center justify-center mb-2">

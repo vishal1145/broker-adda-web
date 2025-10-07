@@ -214,7 +214,7 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
   }, []);
 
   return (
-    <section className="bg-white py-16 mb-4" style={{ display: "none" }}>
+    <section className="bg-white py-16 mb-4" >
       <div className="w-full mx-auto">
         {/* Header */}
         <div className="text-center mb-10">

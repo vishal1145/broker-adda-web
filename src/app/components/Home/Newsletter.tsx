@@ -47,7 +47,7 @@ interface NewsletterData {
 
 const Newsletter = ({ data = { title: '', subtitle: '', description: '' } }: { data: NewsletterData }) => {
   return (
-    <section className="bg-gray-50 py-16 relative">
+    <section className=" py-16 relative">
                    <div className="w-full mx-auto">
         <div className="absolute left-72 bottom-0">
           <Dots />
