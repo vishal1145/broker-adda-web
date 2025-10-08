@@ -76,6 +76,8 @@ const Profile = () => {
     // Personal details
     gender: "",
     dateOfBirth: "",
+    // Location coordinates
+    location: null,
   });
 
   // Customer form data
@@ -349,6 +351,36 @@ const Profile = () => {
     enterStepFetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep, nearestMode]);
+
+  // Auto-load nearest regions from broker's stored coordinates when profile loads
+  useEffect(() => {
+    const loadNearestFromBrokerCoords = async () => {
+      if (!nearestMode) return;
+      
+      // Check if we already have coordinates
+      if (geoCoords.latitude && geoCoords.longitude) return;
+      
+      // Use the already loaded broker data instead of making API call
+      if (brokerFormData && brokerFormData.location && 
+          brokerFormData.location.coordinates && 
+          Array.isArray(brokerFormData.location.coordinates) && 
+          brokerFormData.location.coordinates.length >= 2) {
+        
+        const [latitude, longitude] = brokerFormData.location.coordinates;
+        
+        if (latitude && longitude) {
+          // Set coordinates and load nearest regions (latitude, longitude order)
+          setGeoCoords({ latitude, longitude });
+          await loadNearestRegionsByCoords(latitude, longitude, 5);
+        }
+      }
+    };
+
+    // Only run if we don't have coordinates yet and nearest mode is enabled
+    if (!geoCoords.latitude && !geoCoords.longitude && nearestMode) {
+      loadNearestFromBrokerCoords();
+    }
+  }, [nearestMode, geoCoords.latitude, geoCoords.longitude, brokerFormData]);
 
   // Handle office address selection
   const handleOfficeAddressChange = (selectedOption) => {
@@ -708,6 +740,9 @@ const Profile = () => {
               null
             );
 
+            // Extract location coordinates
+            const location = brokerData.location || null;
+
             // Update broker form data with extracted values
             setBrokerFormData((prev) => ({
               ...prev,
@@ -735,6 +770,7 @@ const Profile = () => {
               brokerLicenseFile: brokerLicenseFile,
               companyIdFile: companyIdFile,
               brokerImage: brokerImage,
+              location: location,
             }));
 
             // Set office address for the Select component

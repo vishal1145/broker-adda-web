@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import { FaSearch, FaTimes } from 'react-icons/fa';
+import { FaSearch, FaTimes, FaBell } from 'react-icons/fa';
 
 import shopData from '../data/shop.json';
 import relatedProducts from '../data/relatedProduct.json';
@@ -21,6 +21,40 @@ const Navbar = ({ data }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [profileImageLoading, setProfileImageLoading] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  
+  // Hardcoded notifications
+  const notifications = [
+    {
+      id: 1,
+      title: "New Lead Received",
+      message: "You have received a new lead for a 3BHK apartment in Mumbai",
+      time: "2 minutes ago",
+      unread: true
+    },
+    {
+      id: 2,
+      title: "Property Inquiry",
+      message: "Customer interested in your commercial property listing",
+      time: "1 hour ago",
+      unread: true
+    },
+    {
+      id: 3,
+      title: "Lead Transfer",
+      message: "A lead has been shared with you by another broker",
+      time: "3 hours ago",
+      unread: false
+    },
+    {
+      id: 4,
+      title: "Profile Update Required",
+      message: "Please complete your broker profile to get more visibility",
+      time: "1 day ago",
+      unread: false
+    },
+ 
+  ];
   
   // Debug user object
   useEffect(() => {
@@ -150,10 +184,11 @@ const Navbar = ({ data }) => {
     router.push('/');
   };
 
-  // Close suggestions on outside click
+  // Close suggestions and notifications on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.search-container')) setShowSuggestions(false);
+      if (!event.target.closest('.notification-container')) setShowNotifications(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -327,6 +362,69 @@ const enableSuggestions = false;
                 </span>
               )}
             </Link>
+
+            {/* Notifications */}
+            {user && (
+              <div className="relative notification-container">
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="hover:text-green-600 mt-2 relative"
+                >
+                  <FaBell size={20} />
+                  {notifications.filter(n => n.unread).length > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                      {notifications.filter(n => n.unread).length}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notifications Dropdown */}
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                    <div className="p-4 border-b border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                      <p className="text-sm text-gray-500">{notifications.length} total notifications</p>
+                    </div>
+                    <div className="py-2">
+                      {notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={`px-4 py-3 hover:bg-gray-50 border-l-4 ${
+                            notification.unread 
+                              ? 'border-green-500 bg-green-50' 
+                              : 'border-transparent'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className={`text-sm font-medium ${
+                                notification.unread ? 'text-gray-900' : 'text-gray-700'
+                              }`}>
+                                {notification.title}
+                              </h4>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {notification.message}
+                              </p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {notification.time}
+                              </p>
+                            </div>
+                            {notification.unread && (
+                              <div className="w-2 h-2 bg-green-500 rounded-full mt-1 ml-2"></div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="p-3 border-t border-gray-200">
+                      <button className="w-full text-center text-sm text-green-600 hover:text-green-700 font-medium">
+                        Mark all as read
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Cart */}
             {/* <Link href="/cart" className="hover:text-green-700 relative mt-2">
