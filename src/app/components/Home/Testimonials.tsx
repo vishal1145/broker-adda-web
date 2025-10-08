@@ -82,7 +82,7 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
       
 
       {/* Carousel Container */}
-      <div className="relative max-w-7xl mx-auto mt-8">
+      <div className="relative  mx-auto mt-8">
         {/* Cards Container - Limited to show only 2 cards */}
         <div className="relative">
           <div

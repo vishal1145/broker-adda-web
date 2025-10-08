@@ -105,7 +105,7 @@ const Features = ({ data }: { data: FeaturesData }) => {
 
   return (
     <section className="bg-white py-12">
-      <div className="max-w-7xl mx-auto">
+      <div className=" mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {(data.items || []).map((feature, index) => (
             <div key={index} className="flex items-start gap-4">

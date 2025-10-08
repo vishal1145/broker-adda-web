@@ -155,7 +155,7 @@ const Deals = ({ data = { subtitle: '', title: '', description: '', items: [] } 
   return (
     <section className="py-16 bg-white">
       <div className="w-full mx-auto">
-      <div className="max-w-7xl mx-auto">
+      <div className=" mx-auto">
         {/* Section Heading */}
         <div className="flex items-end justify-between mb-8 flex-wrap gap-2  text-left">
           <h2 className="text-3xl font-medium ">

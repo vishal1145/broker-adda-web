@@ -57,7 +57,7 @@ const Blogs = ({ data = { subtitle: "", title: "", button: "", items: [] } }: { 
       </div>
 
       {/* Blog Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8  mx-auto">
         {(data.items || []).map((blog, index) => (
           <div
             key={index}
