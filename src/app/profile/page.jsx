@@ -28,7 +28,25 @@ const isImageFile = (val) => {
   return /\.(png|jpe?g|webp)$/i.test(name);
 };
 
+const isPdfFile = (val) => {
+  if (!val) return false;
+  if (typeof val === 'string') return /\.pdf$/i.test(val);
+  if (val.type) return val.type === 'application/pdf';
+  const name = val.name || '';
+  return /\.pdf$/i.test(name);
+};
+
 const getImageSrc = (val) => {
+  if (!val) return null;
+  if (typeof val === 'string') return toPublicUrl(val);
+  try {
+    return URL.createObjectURL(val);
+  } catch {
+    return null;
+  }
+};
+
+const getPdfSrc = (val) => {
   if (!val) return null;
   if (typeof val === 'string') return toPublicUrl(val);
   try {
@@ -1655,7 +1673,7 @@ const Profile = () => {
                           {(() => {
                             const selected =
                               (userRole === "customer"
-                                ? customerFormData.gender
+                                  ? customerFormData.gender
                                 : brokerFormData.gender) || "";
                             const isMale = selected === "male";
                             const isFemale = selected === "female";
@@ -2722,24 +2740,54 @@ const Profile = () => {
                           >
                             <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
                               {isImageFile(brokerFormData.aadharFile) && getImageSrc(brokerFormData.aadharFile) ? (
-                                <img src={getImageSrc(brokerFormData.aadharFile)} alt="Aadhar Preview" className="absolute inset-0 w-full h-full object-contain" />
+                                <div className="absolute inset-0">
+                                  <img src={getImageSrc(brokerFormData.aadharFile)} alt="Aadhar Preview" className="w-full h-full object-contain" />
+                                  <a
+                                    href={getImageSrc(brokerFormData.aadharFile)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors shadow-lg"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View
+                                  </a>
+                                </div>
+                              ) : isPdfFile(brokerFormData.aadharFile) && getPdfSrc(brokerFormData.aadharFile) ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
+                                  <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                  </svg>
+                                  <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
+                                  <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.aadharFile?.name || 'PDF File'}>
+                                    {brokerFormData.aadharFile?.name || 'PDF File'}
+                                  </div>
+                                  <a
+                                    href={getPdfSrc(brokerFormData.aadharFile)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View PDF
+                                  </a>
+                                </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <svg
                                     className="h-10 w-10 text-gray-400"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 48 48"
-                                  >
-                                    <path
-                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
                                 </div>
-                              )}
+                                )}
                             </div>
                             <div className="mt-2"></div>
                           </label>
@@ -2767,24 +2815,54 @@ const Profile = () => {
                           >
                             <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
                               {isImageFile(brokerFormData.panFile) && getImageSrc(brokerFormData.panFile) ? (
-                                <img src={getImageSrc(brokerFormData.panFile)} alt="PAN Preview" className="absolute inset-0 w-full h-full object-contain" />
+                                <div className="absolute inset-0">
+                                  <img src={getImageSrc(brokerFormData.panFile)} alt="PAN Preview" className="w-full h-full object-contain" />
+                                  <a
+                                    href={getImageSrc(brokerFormData.panFile)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors shadow-lg"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View
+                                  </a>
+                                </div>
+                              ) : isPdfFile(brokerFormData.panFile) && getPdfSrc(brokerFormData.panFile) ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
+                                  <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                  </svg>
+                                  <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
+                                  <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.panFile?.name || 'PDF File'}>
+                                    {brokerFormData.panFile?.name || 'PDF File'}
+                                  </div>
+                                  <a
+                                    href={getPdfSrc(brokerFormData.panFile)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View PDF
+                                  </a>
+                                </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <svg
                                     className="h-10 w-10 text-gray-400"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 48 48"
-                                  >
-                                    <path
-                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
                                 </div>
-                              )}
+                                )}
                             </div>
                             <div className="mt-2"></div>
                           </label>
@@ -2812,24 +2890,54 @@ const Profile = () => {
                           >
                             <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
                               {isImageFile(brokerFormData.gstFile) && getImageSrc(brokerFormData.gstFile) ? (
-                                <img src={getImageSrc(brokerFormData.gstFile)} alt="GST Preview" className="absolute inset-0 w-full h-full object-contain" />
+                                <div className="absolute inset-0">
+                                  <img src={getImageSrc(brokerFormData.gstFile)} alt="GST Preview" className="w-full h-full object-contain" />
+                                  <a
+                                    href={getImageSrc(brokerFormData.gstFile)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors shadow-lg"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View
+                                  </a>
+                                </div>
+                              ) : isPdfFile(brokerFormData.gstFile) && getPdfSrc(brokerFormData.gstFile) ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
+                                  <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                  </svg>
+                                  <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
+                                  <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.gstFile?.name || 'PDF File'}>
+                                    {brokerFormData.gstFile?.name || 'PDF File'}
+                                  </div>
+                                  <a
+                                    href={getPdfSrc(brokerFormData.gstFile)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View PDF
+                                  </a>
+                                </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <svg
                                     className="h-10 w-10 text-gray-400"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 48 48"
-                                  >
-                                    <path
-                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
                                 </div>
-                              )}
+                                )}
                             </div>
                             <div className="mt-2"></div>
                           </label>
@@ -2857,24 +2965,54 @@ const Profile = () => {
                           >
                             <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
                               {isImageFile(brokerFormData.brokerLicenseFile) && getImageSrc(brokerFormData.brokerLicenseFile) ? (
-                                <img src={getImageSrc(brokerFormData.brokerLicenseFile)} alt="License Preview" className="absolute inset-0 w-full h-full object-contain" />
+                                <div className="absolute inset-0">
+                                  <img src={getImageSrc(brokerFormData.brokerLicenseFile)} alt="License Preview" className="w-full h-full object-contain" />
+                                  <a
+                                    href={getImageSrc(brokerFormData.brokerLicenseFile)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors shadow-lg"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View
+                                  </a>
+                                </div>
+                              ) : isPdfFile(brokerFormData.brokerLicenseFile) && getPdfSrc(brokerFormData.brokerLicenseFile) ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
+                                  <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                  </svg>
+                                  <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
+                                  <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.brokerLicenseFile?.name || 'PDF File'}>
+                                    {brokerFormData.brokerLicenseFile?.name || 'PDF File'}
+                                  </div>
+                                  <a
+                                    href={getPdfSrc(brokerFormData.brokerLicenseFile)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View PDF
+                                  </a>
+                                </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <svg
                                     className="h-10 w-10 text-gray-400"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 48 48"
-                                  >
-                                    <path
-                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
                                 </div>
-                              )}
+                                )}
                             </div>
                             <div className="mt-2"></div>
                           </label>
@@ -2902,23 +3040,42 @@ const Profile = () => {
                             <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
                               {isImageFile(brokerFormData.companyIdFile) && getImageSrc(brokerFormData.companyIdFile) ? (
                                 <img src={getImageSrc(brokerFormData.companyIdFile)} alt="Company ID Preview" className="absolute inset-0 w-full h-full object-contain" />
+                              ) : isPdfFile(brokerFormData.companyIdFile) && getPdfSrc(brokerFormData.companyIdFile) ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
+                                  <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                  </svg>
+                                  <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
+                                  <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.companyIdFile?.name || 'PDF File'}>
+                                    {brokerFormData.companyIdFile?.name || 'PDF File'}
+                                  </div>
+                                  <a
+                                    href={getPdfSrc(brokerFormData.companyIdFile)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View PDF
+                                  </a>
+                                </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <svg
                                     className="h-10 w-10 text-gray-400"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 48 48"
-                                  >
-                                    <path
-                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
                                 </div>
-                              )}
+                                )}
                             </div>
                             <div className="mt-2"></div>
                           </label>
@@ -3351,7 +3508,7 @@ const Profile = () => {
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
+            </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="text-sm font-semibold text-gray-900">Create broker profile</h3>
                   <p className="text-sm text-gray-600 mt-1">Finish basic details and choose your nearest region to get started.</p>
@@ -3378,8 +3535,8 @@ const Profile = () => {
                                 </React.Fragment>
                               );
                             })}
-                          </div>
-                        </div>
+              </div>
+            </div>
                       );
                     })()}
                    
