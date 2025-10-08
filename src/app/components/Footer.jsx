@@ -18,7 +18,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
   return (
     <footer className="bg-green-900 text-white">
       <div className="px-14 py-12">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-4 ">
+        <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-5 gap-4 ">
           {/* Logo and Description */}
           <div className=" md:text-left md:col-span-1 ">
             <div className="flex items-center justify-center -mt-6">
