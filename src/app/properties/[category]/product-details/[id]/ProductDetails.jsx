@@ -209,248 +209,212 @@ const ProductDetails = () => {
   return (
     <>
       <HeaderFile data={displayProduct} />
-      {/* Main Product Content */}
-      <div className="bg-white  flex items-center justify-center py-8 px-2">
-        <div className="max-w-7xl w-full bg-white rounded-2xl  p-6 flex flex-col md:flex-row gap-10">
-          {/* Image & Arrows */}
-          <div className="flex flex-col items-center justify-center w-full md:w-1/2">
-            <div className="flex items-center gap-4">
-            
-              <div className="bg-gray-50 rounded-2xl p-6 flex items-center justify-center relative">
-                  <button className="bg-green-900 text-white w-8 h-8 rounded-md flex items-center justify-center text-sm hover:bg-green-800 transition-colors absolute left-2 z-10">
-                &#60;
-              </button>
-                <img
-                  src={selectedImage || displayProduct.image || '/images/chair2.png'}
-                  alt={displayProduct.title || 'Product Image'}
-                  className="w-[350px] h-[300px] object-contain"
-                  onError={(e) => {
-                    console.error('Image failed to load:', selectedImage);
-                    e.target.src = '/images/chair2.png'; // Fallback image
-                  }}
-                />
-                 <button className="bg-yellow-500 text-white w-8 h-8 rounded-md flex items-center justify-center text-sm hover:bg-yellow-600 transition-colors absolute right-2 z-10">
-                &#62;
-              </button>
+      {/* Property Details Layout - matches reference design */}
+      <div className="bg-white flex items-start justify-center py-8 px-4">
+        <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-6">
+          {/* Left Main Content */}
+          <section className="md:col-span-8 space-y-5">
+            {/* Header row: title/location + actions */}
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-3xl font-semibold text-gray-900">{displayProduct.producttitle || displayProduct.title}</h1>
+                <div className="text-xs text-gray-500 mt-1">Sheffield, UK · Grader Home</div>
               </div>
-             
-            </div>
-            {/* Gallery Thumbnails */}
-            <div className="flex gap-3 mt-6">
-              {displayProduct.images?.map((img, idx) => (
-                <button
-                  key={img}
-                  onClick={() => setSelectedImage(img)}
-                  className="
-                    rounded-lg p-1 transition-all
-                    border-2 border-transparent bg-gray-50 hover:border-green-900
-                  "
-                  style={{ outline: 'none' }}
-                >
-                  <img
-                    src={img || '/images/chair2.png'}
-                    alt={`Thumbnail ${idx + 1}`}
-                    className="w-14 h-14 object-contain rounded-lg"
-                    onError={(e) => {
-                      console.error('Thumbnail failed to load:', img);
-                      e.target.src = '/images/chair2.png'; // Fallback image
-                    }}
-                  />
+              <div className="flex items-center gap-2">
+                <button className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v7a2 2 0 002 2h12a2 2 0 002-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
+                  Share
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Details */}
-          <div className="flex-1 flex flex-col gap-2">
-            <span className="text-gray-900 text-xl mb-1">{displayProduct.type}</span>
-            <div className="flex items-center gap-2">
-              <h2 className="text-3xl font-medium text-gray-900">{displayProduct.producttitle}</h2>
-              {displayProduct.inStock && (
-               <span className="ml-2 bg-green-100 text-green-900 text-sm px-4 py-1 border border-green-300 rounded-full font-semibold">
-  In Stock
-</span>
-              )}
-            </div>
-
-            {/* Rating */}
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-yellow-500 text-2xl flex">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar key={i} />
-                ))}
-              </span>
-              <span className=" text-xl   text-gray-900">{displayProduct.rating}</span>
-              <span className="text-gray-900 text-xl">({displayProduct.reviewCount} Review)</span>
-            </div>
-
-            {/* Price */}
-            <div className="flex items-center gap-4 mt-2">
-              <span className="text-2xl font-bold text-gray-900">{formatCurrency(displayProduct.price)}</span>
-              <span className="text-gray-400 line-through text-lg">{formatCurrency(displayProduct.oldPrice)}</span>
-            </div>
-
-            {/* Description */}
-            <p className="text-gray-500 text-xl mt-2">{displayProduct.description}</p>
-
-            {/* Color */}
-            <div className="flex items-center gap-2 mt-4">
-              <span className="font-semibold text-gray-900">Color :</span>
-              {displayProduct.colors.map((color) => (
-                <button
-                  key={color}
-                  className={`w-6 h-6 rounded-full border-2 ${selectedColor === color ? 'border-green-700' : 'border-gray-300'} mx-1`}
-                  style={{ background: color }}
-                  onClick={() => setSelectedColor(color)}
-                />
-              ))}
-            </div>
-
-            {/* Quantity and Actions */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4">
-              {/* Quantity Selector */}
-              <div className="flex items-center border border-gray-300 rounded-full overflow-hidden h-12 min-w-[144px] bg-white w-full sm:w-auto">
-                <button
-                  className="w-12 h-12 flex items-center justify-center text-2xl text-gray-700 focus:outline-none"
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  aria-label="Decrease quantity"
-                  type="button"
-                >
-                  –
+                <button className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+                  Save
                 </button>
-                <div className="w-12 h-12 flex items-center justify-center text-lg font-medium border-l border-r border-gray-300 select-none">
-                  {quantity}
+              </div>
+            </div>
+
+            {/* Gallery - large left image with two stacked on right */}
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-8 bg-gray-50 rounded-xl overflow-hidden relative">
+                <img src={selectedImage || displayProduct.images?.[0] || displayProduct.image || ''} alt={displayProduct.title || 'Property image'} className="w-full h-[360px] md:h-[420px] object-cover" />
+              </div>
+              <div className="col-span-4 flex flex-col gap-3">
+                <div className="bg-gray-50 rounded-xl overflow-hidden">
+                  <img src={displayProduct.images?.[1] || displayProduct.image || ''} alt="secondary" className="w-full h-[175px] md:h-[204px] object-cover" />
                 </div>
-                <button
-                  className="w-12 h-12 flex items-center justify-center text-2xl text-gray-700 focus:outline-none"
-                  onClick={() => setQuantity(q => q + 1)}
-                  aria-label="Increase quantity"
-                  type="button"
-                >
-                  +
-                </button>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-                <button 
-                  className={`px-6 sm:px-8 py-3 rounded-full text-sm sm:text-base shadow transition flex-1 sm:flex-none ${
-                    cartSuccess 
-                      ? 'bg-green-600 text-white' 
-                      : 'bg-green-800 hover:bg-green-900 text-white'
-                  }`}
-                  onClick={() => handleAddCart(displayProduct)}
-                  disabled={cartSuccess}
-                >
-                  {cartSuccess ? 'Added to Cart!' : 'Add To Cart'}
-                </button>
-                <button className="px-6 sm:px-8 py-3 rounded-full text-sm sm:text-base shadow transition bg-yellow-500 hover:bg-yellow-600 text-gray-900 flex-1 sm:flex-none">
-                  Buy Now
-                </button>
-                <button 
-                  className="w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition flex-shrink-0"
-                  onClick={() => toggleHeart(displayProduct)}
-                >
-                  <i className={`${wishlist.some(item => item.id === displayProduct.id) ? "fas" : "far"} fa-heart text-lg transition-all duration-300 ${wishlist.some(item => item.id === displayProduct.id) ? 'text-red-500' : 'text-gray-600'}`}></i>
-                </button>
+                <div className="bg-gray-50 rounded-xl overflow-hidden relative">
+                  <img src={displayProduct.images?.[2] || displayProduct.image || ''} alt="secondary" className="w-full h-[175px] md:h-[204px] object-cover" />
+                  <button className="absolute bottom-3 right-3 bg-white/90 text-gray-700 text-xs px-3 py-1 rounded-md shadow">Show all</button>
+                </div>
               </div>
             </div>
 
-            {/* SKU, Tags, Share */}
-            <div className="mt-6 text-sm text-gray-700">
-              <div className="mb-1">SKU : <span className="font-semibold">{displayProduct.sku}</span></div>
-              <div className="mb-1">
-                Tags : {displayProduct.tags.map((tag, idx) => (
-                  <span key={tag} className="inline-block mr-1">{tag}{idx < displayProduct.tags.length - 1 ? ',' : ''}</span>
-                ))}
+            {/* Summary (no card) */}
+            <div>
+              <div className="text-sm font-semibold text-gray-900 mb-2">Summary</div>
+              <p className="text-sm text-gray-600 leading-6 mb-4">
+                {displayProduct.description}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+              <div>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="10" width="18" height="7" rx="1"/><path d="M7 10V7a2 2 0 012-2h6a2 2 0 012 2v3"/></svg>
+                  </span>
+                  <span>Median price</span>
+                </div>
+                <div className="font-semibold text-gray-900">5 beds</div>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <span>Share :</span>
-                
-                {/* Facebook */}
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(productTitle)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-green-800 text-white hover:bg-green-900 rounded-full w-7 h-7 flex items-center justify-center shadow transition"
-                  title="Share on Facebook"
-                  onClick={(e) => {
-                    // Optional: Add analytics tracking
-                    console.log('Sharing on Facebook:', shareUrl);
-                  }}
-                >
-                  <FaFacebookF />
-                </a>
+              <div>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                  </span>
+                  <span>Weekly median price</span>
+                </div>
+                <div className="font-semibold text-gray-900">$500</div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                  </span>
+                  <span>Vacancy rate</span>
+                </div>
+                <div className="font-semibold text-gray-900">0.6%</div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                  </span>
+                  <span>Listed</span>
+                </div>
+                <div className="font-semibold text-gray-900">0.7%</div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </span>
+                  <span>Minimum stay</span>
+                </div>
+                <div className="font-semibold text-gray-900">1 night</div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg>
+                  </span>
+                  <span>Property size</span>
+                </div>
+                <div className="font-semibold text-gray-900">2,500 sq. ft / 224 sq. meters</div>
+              </div>
+              </div>
+              <button className="text-green-700 text-xs font-semibold mt-4">Learn more about plan sets in our FAQs</button>
+            </div>
+          </section>
 
-                {/* Twitter/X */}
-                <a
-                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(productTitle)}&hashtags=furniture,home,algofurnish`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-green-800 text-white hover:bg-green-900 rounded-full w-7 h-7 flex items-center justify-center shadow transition"
-                  title="Share on Twitter"
-                  onClick={(e) => {
-                    console.log('Sharing on Twitter:', shareUrl);
-                  }}
-                >
-                  <FaTwitter />
-                </a>
-
-                {/* Pinterest */}
-                <a
-                  href={`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&media=${encodeURIComponent(productImage)}&description=${encodeURIComponent(productTitle)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-green-800 text-white hover:bg-green-900 rounded-full w-7 h-7 flex items-center justify-center shadow transition"
-                  title="Share on Pinterest"
-                  onClick={(e) => {
-                    console.log('Sharing on Pinterest:', shareUrl);
-                  }}
-                >
-                  <FaPinterestP />
-                </a>
-
-                {/* WhatsApp */}
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`${productTitle} - ${shareUrl}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-green-800 text-white hover:bg-green-900 rounded-full w-7 h-7 flex items-center justify-center shadow transition"
-                  title="Share on WhatsApp"
-                  onClick={(e) => {
-                    console.log('Sharing on WhatsApp:', shareUrl);
-                  }}
-                >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
-                  </svg>
-                </a>
-
-                {/* Copy Link */}
-                <button
-                  onClick={() => {
-                    if (typeof window !== 'undefined') {
-                      navigator.clipboard.writeText(shareUrl).then(() => {
-                        // Optional: Show a toast notification
-                        alert('Link copied to clipboard!');
-                      });
-                    }
-                  }}
-                  className="bg-green-800 text-white hover:bg-green-900 rounded-full w-7 h-7 flex items-center justify-center shadow transition"
-                  title="Copy Link"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </button>
+          {/* Right Sidebar - Rating + Agent + Inspection */}
+          <aside className="md:col-span-4 space-y-5">
+            {/* Rating and reviews */}
+            <div className="rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="bg-green-100 p-5">
+                <div className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                  <span className="inline-block w-5 h-5 rounded-full border border-gray-400"></span>
+                  Rating and reviews
+                </div>
+                <div className="mt-3">
+                  <div className="flex items-center gap-3">
+                    <div className="text-4xl font-semibold text-gray-900">4.0</div>
+                    <div className="flex items-center gap-1">
+                      {[...Array(4)].map((_, i) => (
+                        <FaStar key={i} className="text-gray-900" />
+                      ))}
+                      <FaStar className="text-gray-300" />
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-700 mt-1">Based on 100 reviewers</div>
+                </div>
+                {/* Three rating rows with values on the right */}
+                <div className="mt-5 space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between text-sm text-gray-900">
+                      <span>Comfortable</span>
+                      <span>4.7</span>
+                    </div>
+                    <div className="mt-1 h-2 bg-white/70 rounded-full">
+                      <div className="h-2 bg-green-600 rounded-full" style={{ width: '85%' }}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-sm text-gray-900">
+                      <span>Cleanliness</span>
+                      <span>4.8</span>
+                    </div>
+                    <div className="mt-1 h-2 bg-white/70 rounded-full">
+                      <div className="h-2 bg-green-600 rounded-full" style={{ width: '90%' }}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-sm text-gray-900">
+                      <span>Facilities</span>
+                      <span>4.5</span>
+                    </div>
+                    <div className="mt-1 h-2 bg-white/70 rounded-full">
+                      <div className="h-2 bg-green-600 rounded-full" style={{ width: '75%' }}></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+
+            {/* Agent Card */}
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="flex items-center gap-2 px-5 pt-5">
+                <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600">
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </span>
+                <div className="text-sm font-semibold text-gray-900">Agent details</div>
+              </div>
+              <div className="px-5 pb-5 pt-4 flex flex-col items-center text-center gap-2">
+                <img src="/images/user-1.webp" alt="Agent" className="w-14 h-14 rounded-full object-cover" />
+                <div className="font-semibold text-gray-900">Melissa Joyne Alle</div>
+                <div className="text-xs text-gray-500">2024 Royal In. Melissa, Sheffield, UK</div>
+                <button className="w-full mt-3 bg-green-200 hover:bg-green-300 text-gray-900 py-2 rounded-lg font-medium">Contact Agent</button>
+              </div>
+            </div>
+
+            {/* Inspection times */}
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="flex items-center gap-2 px-5 pt-5">
+                <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600">
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </span>
+                <div className="text-sm font-semibold text-gray-900">Inspection times</div>
+              </div>
+              <div className="px-5 pb-5 pt-4">
+                {/* Optional person/agent image like reference */}
+                <div className="flex flex-col items-center text-center">
+                  <img src="/images/user-1.webp" alt="Inspector" className="w-12 h-12 rounded-full object-cover" />
+                </div>
+                <ul className="mt-4 text-sm text-gray-700 space-y-2">
+                  <li className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                    <span>Sat</span>
+                    <span className="text-gray-500">10:00 AM - 11:00 AM</span>
+                  </li>
+                  <li className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                    <span>Sun</span>
+                    <span className="text-gray-500">02:00 PM - 03:00 PM</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
 
       {/* Product Tabs Section */}
-      <div className="max-w-7xl mx-auto  bg-white rounded-xl shadow-sm p-6">
+      <div className=" mx-auto  bg-white rounded-xl shadow-sm p-6">
         {/* Tabs */}
         <div className="flex border-b border-gray-200 justify-center">
           {TABS.map((tab, idx) => (

@@ -190,8 +190,7 @@ const Hero = ({ data = {
               {/* Use Next Link instead of <a href> for client navigation */}
               <Link
                 href="/properties"
-  onClick={(e) => e.preventDefault()}  // block navigation
-               className="text-gray-400 text-sm mt-2 font-semibold  decoration-black hover:opacity-80 cursor-not-allowed"
+                className="text-gray-600 text-sm mt-2 font-semibold hover:opacity-80"
               >
                 {buttons?.secondary ?? 'Explore'}
               </Link>
@@ -227,7 +226,8 @@ const Hero = ({ data = {
               {cards.slice(startIdx, startIdx + CARDS_VISIBLE).map((card, index) => (
                 <div
                   key={index}
-                  className="hero-card bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition relative group w-full max-w-xs md:min-w-[260px] mx-auto md:mx-2"
+                  onClick={() => openProductDetails(card)}
+                  className="hero-card bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition relative group w-full max-w-xs md:min-w-[260px] mx-auto md:mx-2 cursor-pointer"
                 >
                   <img
                     src={card.image}
@@ -251,14 +251,10 @@ const Hero = ({ data = {
                   <p className="text-gray-500 text-xs text-left">{card.items}</p>
 
                   <div
-                    className={`absolute bottom-3 cursor-not-allowed right-3 ${
-                      card.color === 'green'
-                        ? 'bg-gray-400'
-                        : 'bg-gray-400'
-                    } text-white p-2 rounded-full shadow-lg`}
+                    onClick={(e) => { e.stopPropagation(); openProductDetails(card); }}
+                    className={`absolute bottom-3 right-3 bg-green-900 hover:bg-green-800 text-white p-2 rounded-full shadow-lg`}
                   >
                     <svg
-                      // onClick={() => openProductDetails(card)}
                       className="w-4 h-4 -rotate-45"
                       fill="none"
                       stroke="currentColor"

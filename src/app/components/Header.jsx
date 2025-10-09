@@ -36,18 +36,20 @@ const Dots = ({ className, style }) => (
 );
 
 const HeaderFile = ({ data }) => (
-  <div className="bg-gray-50 py-10 overflow-hidden">
-    <div className="relative max-w-7xl mx-auto flex flex-col items-center text-center">
+  <div className="bg-gray-50 py-10 w-screen relative left-1/2 -translate-x-1/2 overflow-x-hidden">
+    <div className="relative  mx-auto flex flex-col items-center text-center">
       {/* Dots - top left */}
-      <div className="absolute left-20 top-12  ">
+      <div className="absolute left-30 top-12">
         <Dots />
       </div>
-      {/* Dots - top right */}
-      <div className="absolute right-10 bottom-12">
+      {/* Dots - bottom right */}
+      <div className="absolute right-30 bottom-12">
         <Dots />
       </div>
+
       <h1 className="text-3xl font-medium text-gray-900 mb-2">{data.title}</h1>
-      {data.breadcrumb && data.breadcrumb.length > 0 && (
+
+      {data.breadcrumb?.length > 0 && (
         <div className="flex justify-center items-center gap-2 text-gray-500 text-base">
           {data.breadcrumb.map((item, idx) => (
             <React.Fragment key={item.label}>
@@ -60,5 +62,6 @@ const HeaderFile = ({ data }) => (
     </div>
   </div>
 );
+
 
 export default HeaderFile;

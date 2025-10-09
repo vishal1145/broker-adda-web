@@ -30,6 +30,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Prevent horizontal scrollbar across the site (must come after imports) */
+html, body {
+  overflow-x: hidden;
+}
+
 /* Custom font classes for better typography */
 .font-display {
   font-family: 'Inter', sans-serif;
