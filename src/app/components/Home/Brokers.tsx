@@ -171,7 +171,7 @@ const Brokers = () => {
 {/* Advisory CTA */}
 <section className="pb-12">
   <div className="max-w-5xl mx-auto text-center rounded-2xl bg-white p-8 border border-gray-100">
-    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Join India's Premier Broker Network</h3>
+    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Join India&apos;s Premier Broker Network</h3>
     <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm text-gray-700">
       <div className="flex flex-col items-center gap-3">
         <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-14 w-14">
