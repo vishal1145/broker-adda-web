@@ -255,7 +255,7 @@ const enableSuggestions = false;
                 className="w-10 h-10 object-contain"
               />
             </div>
-            <h1 className="text-3xl font-semibold text-gray-700 pl-2">
+            <h1 className="text-2xl font-semibold text-gray-700 pl-2">
               {data?.logo?.text}
              
             </h1>

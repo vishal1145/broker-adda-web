@@ -30,7 +30,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
                     className="w-15 h-15 object-contain cursor-pointer"
                   />
                 </div>
-                <h1 className="text-3xl text-white font-medium mr-6 whitespace-nowrap -ml-4">
+                <h1 className="text-2xl text-white font-medium mr-6 whitespace-nowrap -ml-4">
                   {data.logo.text}
                 </h1>
               </div>
