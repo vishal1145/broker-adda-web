@@ -2,9 +2,12 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { FaMapMarkerAlt, FaBed, FaBath, FaRulerCombined, FaPhone, FaEnvelope } from 'react-icons/fa';
 
 type LeadStatus = 'New' | 'In Progress' | 'On Hold' | 'Closed' | string;
+
+interface Transfer {
+  toBroker?: string | { _id: string; name?: string; email?: string };
+}
 
 interface ApiLead {
   _id: string;
@@ -17,14 +20,13 @@ interface ApiLead {
   primaryRegion?: string;
   secondaryRegion?: string;
   status?: LeadStatus;
-  transfers?: any[];
+  transfers?: Transfer[];
   createdAt?: string;
 }
 
 const LatestLeads: React.FC = () => {
   const [leads, setLeads] = useState<ApiLead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Hardcoded demo leads (as requested)
   const sampleLeads: ApiLead[] = [
@@ -109,7 +111,7 @@ const LatestLeads: React.FC = () => {
     const sorted = [...sampleLeads].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     setLeads(sorted);
     setLoading(false);
-  }, []);
+  }, [sampleLeads]);
 
   const INR = useMemo(() => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }), []);
   const statusClass = (s?: LeadStatus) => ({
@@ -123,7 +125,12 @@ const LatestLeads: React.FC = () => {
     Sell: 'bg-sky-50 text-sky-700',
     Rent: 'bg-violet-50 text-violet-700',
   } as Record<string, string>)[r || ''] || 'bg-gray-50 text-gray-700';
-  const regionName = (id?: string) => (typeof window !== 'undefined' && (window as any).RegionMap?.[id as any]) || (id && id.slice?.(-6)) || '—';
+  const regionName = (id?: string) => {
+    if (typeof window !== 'undefined' && (window as unknown as { RegionMap?: Record<string, string> }).RegionMap?.[id || '']) {
+      return (window as unknown as { RegionMap: Record<string, string> }).RegionMap[id || ''];
+    }
+    return (id && id.slice?.(-6)) || '—';
+  };
   const ago = (d?: string) => {
     const t = d ? new Date(d).getTime() : NaN;
     if (!t) return '';
