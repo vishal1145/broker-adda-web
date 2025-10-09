@@ -105,12 +105,9 @@ const Hero = ({ data = {
   const handlePrev = () => canPrev && setStartIdx(startIdx - 1);
   const handleNext = () => canNext && setStartIdx(startIdx + 1);
 
-  // Go to properties page
-  const handleOpenPropertiesPage = () => {
-    router.push('/search');
-  };
+  // No-op placeholder removed (was unused)
 
-  const openProductDetails = (card: HeroCard) => {
+  const openProductDetails = (_card: HeroCard) => {
     // Navigate to broker detail page (hardcoded demo)
     router.push('/broker-details');
   };
@@ -149,7 +146,7 @@ onClick={() => {
     window.location.href = '/signup';
   }}                className="bg-green-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 cursor-pointer"
               >
-                {(buttons as any)?.primary || 'Brokers'}
+                {(buttons as { primary?: string; secondary?: string })?.primary || 'Brokers'}
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fillRule="evenodd"
@@ -164,7 +161,7 @@ onClick={() => {
                 href="/search"
                 className="text-green-600 text-sm mt-2 font-semibold hover:opacity-80"
               >
-                {(buttons as any)?.secondary ?? 'Explore'}
+                {(buttons as { primary?: string; secondary?: string })?.secondary ?? 'Explore'}
               </Link>
             </div>
 
