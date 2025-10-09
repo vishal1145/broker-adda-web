@@ -107,7 +107,7 @@ const Hero = ({ data = {
 
   // Go to properties page
   const handleOpenPropertiesPage = () => {
-    router.push('/properties');
+    router.push('/search');
   };
 
   const openProductDetails = (card: HeroCard) => {
@@ -174,8 +174,8 @@ const Hero = ({ data = {
 
             <div className="flex gap-6 flex-wrap items-center">
               <button
-                disabled
-                className="bg-gray-400 text-white px-6 py-2.5 rounded-full text-sm font-semibold cursor-not-allowed flex items-center gap-2"
+                onClick={handleOpenPropertiesPage}
+                className="bg-green-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 cursor-pointer"
               >
                 Properties
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -189,8 +189,8 @@ const Hero = ({ data = {
 
               {/* Use Next Link instead of <a href> for client navigation */}
               <Link
-                href="/properties"
-                className="text-gray-600 text-sm mt-2 font-semibold hover:opacity-80"
+                href="/search"
+                className="text-green-600 text-sm mt-2 font-semibold hover:opacity-80"
               >
                 {buttons?.secondary ?? 'Explore'}
               </Link>

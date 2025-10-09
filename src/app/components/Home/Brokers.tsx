@@ -25,10 +25,10 @@ const Brokers = () => {
         </h2>
         <p className="mt-3 text-sm sm:text-base text-gray-600">Meet trusted property experts across major Indian cities. Verified profiles, transparent ratings, and quick connect.</p>
       </div>
-      <a href="/brokers" className="whitespace-nowrap inline-flex items-center gap-2 rounded-full bg-green-900 px-5 py-2 text-white text-sm font-semibold shadow-sm ">
+      <Link href="/search" className="whitespace-nowrap inline-flex items-center gap-2 rounded-full bg-green-900 px-5 py-2 text-white text-sm font-semibold shadow-sm ">
         View All Brokers
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-      </a>
+      </Link>
     </div>
 
     <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -24,12 +24,8 @@ interface ApiLead {
   createdAt?: string;
 }
 
-const LatestLeads: React.FC = () => {
-  const [leads, setLeads] = useState<ApiLead[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  // Hardcoded demo leads (as requested)
-  const sampleLeads: ApiLead[] = [
+// Hardcoded demo leads (moved outside component to prevent re-creation)
+const sampleLeads: ApiLead[] = [
     {
       _id: 'ld_001',
       customerName: 'Neha Kapoor',
@@ -103,7 +99,9 @@ const LatestLeads: React.FC = () => {
     },
   ];
 
-// removed legacy duplicate sampleLeads definition
+const LatestLeads: React.FC = () => {
+  const [leads, setLeads] = useState<ApiLead[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Hardcoded data mode
@@ -111,7 +109,7 @@ const LatestLeads: React.FC = () => {
     const sorted = [...sampleLeads].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     setLeads(sorted);
     setLoading(false);
-  }, [sampleLeads]);
+  }, []);
 
   const INR = useMemo(() => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }), []);
   const statusClass = (s?: LeadStatus) => ({
@@ -156,7 +154,7 @@ const LatestLeads: React.FC = () => {
             </h2>
             <p className="mt-3 text-sm sm:text-base text-gray-600">Discover the newest property requirements posted by our network.</p>
           </div>
-          <Link href="/leads" className="whitespace-nowrap inline-flex items-center gap-2 rounded-full bg-green-900 px-5 py-2 text-white text-sm font-semibold shadow-sm">
+          <Link href="/search" className="whitespace-nowrap inline-flex items-center gap-2 rounded-full bg-green-900 px-5 py-2 text-white text-sm font-semibold shadow-sm">
             View All Leads
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </Link>
