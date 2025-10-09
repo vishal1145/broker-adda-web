@@ -17,7 +17,9 @@ import Blogs from './components/Home/Blogs';
 import Instagram from './components/Home/Instagram';
 import FAQ from './components/Home/FAQ';
 import Newsletter from './components/Home/Newsletter';
+import Leads from './components/Home/Brokers';
 import furnitureData from './data/furnitureData.json';
+import LatestLeads from '@/app/components/Home/LatestLeads';
 
 // Type assertion to help TypeScript understand the data structure
 const data = furnitureData as any;
@@ -31,6 +33,9 @@ export default function HomePage() {
       {/* Features section */}
       <Features data={data.features} />
 
+      {/* Leads section */}
+      <Leads />
+<LatestLeads />
       {/* Category tiles / collections */}
       <Categories data={data.categories} />
 
