@@ -111,37 +111,8 @@ const Hero = ({ data = {
   };
 
   const openProductDetails = (card: HeroCard) => {
-    // Build a lightweight product object
-    const productData = {
-      id: Math.floor(Math.random() * 1000) + 1,
-      name: card.title,
-      title: card.title,
-      producttitle: card.title,
-      type: card.type,
-      image: card.image,
-      images: [card.image],
-      price: parseFloat(String(card.price).replace('$', '')) || 199,
-      oldPrice: (parseFloat(String(card.price).replace('$', '')) || 199) * 1.5,
-      category: card.type,
-      description: `Explore our amazing ${card.title} collection with ${card.items} items available.`,
-      rating: 4.8,
-      reviewCount: 156,
-      inStock: true,
-      colors: ['#8B4513', '#A0522D', '#FFFFFF', '#008080', '#0000FF'],
-      sku: `FRNC${Math.floor(Math.random() * 10000)}`,
-      tags: ['Furniture', card.type, 'Home'],
-      discount: '20% OFF'
-    };
-
-    // Store in localStorage for persistence
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('currentProduct', JSON.stringify(productData));
-    }
-
-    // Use the correct Next.js App Router dynamic route
-    const category = (card.type || 'furniture').toLowerCase();
-    const productDataParam = encodeURIComponent(JSON.stringify(productData));
-    router.push(`/properties/${category}/product-details/${productData.id}?productData=${productDataParam}`);
+    // Navigate to broker detail page (hardcoded demo)
+    router.push('/broker-details');
   };
 
   return (
@@ -174,10 +145,11 @@ const Hero = ({ data = {
 
             <div className="flex gap-6 flex-wrap items-center">
               <button
-                onClick={handleOpenPropertiesPage}
-                className="bg-green-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 cursor-pointer"
+onClick={() => {
+    window.location.href = '/signup';
+  }}                className="bg-green-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 cursor-pointer"
               >
-                Properties
+                {(buttons as any)?.primary || 'Brokers'}
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fillRule="evenodd"
@@ -192,7 +164,7 @@ const Hero = ({ data = {
                 href="/search"
                 className="text-green-600 text-sm mt-2 font-semibold hover:opacity-80"
               >
-                {buttons?.secondary ?? 'Explore'}
+                {(buttons as any)?.secondary ?? 'Explore'}
               </Link>
             </div>
 
@@ -251,8 +223,7 @@ const Hero = ({ data = {
                   <p className="text-gray-500 text-xs text-left">{card.items}</p>
 
                   <div
-                    onClick={(e) => { e.stopPropagation(); openProductDetails(card); }}
-                    className={`absolute bottom-3 right-3 bg-green-900 hover:bg-green-800 text-white p-2 rounded-full shadow-lg`}
+                    className={`absolute bottom-3 right-3 bg-green-900 hover:bg-green-800 text-white p-2 rounded-full shadow-lg pointer-events-none`}
                   >
                     <svg
                       className="w-4 h-4 -rotate-45"
@@ -268,7 +239,7 @@ const Hero = ({ data = {
                   {index === 0 && (
                     <div className="absolute left-8 -bottom-16 flex gap-3">
                       <button
-                        onClick={handlePrev}
+                        onClick={(e)=>{ e.stopPropagation(); handlePrev(); }}
                         disabled={!canPrev}
                         className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-green-900 hover:bg-green-800 transition ${
                           !canPrev ? 'opacity-50 cursor-not-allowed' : ''
@@ -285,7 +256,7 @@ const Hero = ({ data = {
                         </svg>
                       </button>
                       <button
-                        onClick={handleNext}
+                        onClick={(e)=>{ e.stopPropagation(); handleNext(); }}
                         disabled={!canNext}
                         className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-yellow-500 hover:bg-yellow-600 transition ${
                           !canNext ? 'opacity-50 cursor-not-allowed' : ''

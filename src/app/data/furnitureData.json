@@ -16,18 +16,18 @@
   },
   "hero": {
     "badge": {
-      "text": "The Best Online Real Estate Marketplace",
+      "text": "India’s Most Trusted Broker Network",
       "icon": "star"
     },
     "title": {
-      "main": "Explore Our",
-      "accent": "Premium",
-      "subtitle": "Property Collection"
+      "main": "India’s Top",
+      "accent": "Verified",
+      "subtitle": "Real Estate Experts"
     },
-    "description": "Discover luxury homes, modern apartments, commercial spaces, and land—curated for smart living and sound investments.",
+    "description": "Connect with trusted real estate professionals across India to find, list, and close property deals with confidence.",
     "buttons": {
-      "primary": "Browse Properties",
-      "secondary": "View All Listings"
+      "primary": "Join",
+      "secondary": "View All Brokers"
     },
     "rating": {
       "score": "4.9",
@@ -42,51 +42,51 @@
     },
     "cards": [
       {
-        "type": "geust-room",
-        "title": "Residential Homes",
-        "image": "/images/pexels-binyaminmellish-106399.jpg",
-        "price": "From $499,000",
-        "items": "2,000+ Listings",
+        "type": "broker-residential",
+        "title": "Residential Expert",
+        "image": "https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=1200&auto=format&fit=crop",
+        "price": "",
+        "items": "Delhi NCR • 120+ deals",
         "color": "green"
       },
       {
-        "type": "living-room",
-        "title": "City Apartments",
-        "image": "/images/istockphoto-1165384568-612x612.jpg",
-        "price": "From $199,000",
-        "items": "1,200+ Listings",
+        "type": "broker-apartments",
+        "title": "Luxury Homes Advisor",
+        "image": "https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?q=80&w=1200&auto=format&fit=crop",
+        "price": "",
+        "items": "Mumbai • 95+ deals",
         "color": "yellow"
       },
       {
-        "type": "bed-room-3",
-        "title": "Luxury Villas",
-        "image": "/images/367980480.jpg",
-        "price": "From $299,000",
-        "items": "1,200+ Listings",
+        "type": "broker-commercial",
+        "title": "Commercial Specialist",
+        "image": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop",
+        "price": "",
+        "items": "Bengaluru • 110+ deals",
         "color": "green"
       },
       {
-        "type": "bed-room-4",
-        "title": "Commercial Offices",
-        "image": "/images/download (8).jpeg",
-        "price": "From $399,000",
-        "items": "1,200+ Listings",
+        "type": "broker-land",
+        "title": "Land & Plots Consultant",
+        "image": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1200&auto=format&fit=crop",
+        "price": "",
+        "items": "Pune • 70+ deals",
         "color": "yellow"
       },
       {
-        "type": "geust-room-5",
-        "title": "Land & Plots",
-        "image": "/images/download (9).jpeg",
-        "price": "From $599,000",
-        "items": "1,200+ Listings",
+        "type": "broker-rentals",
+        "title": "Rental Market Pro",
+        "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop",
+        "price": "",
+        "items": "Hyderabad • 85+ deals",
         "color": "green"
       },
       {
-        "type": "living-room-6",
-        "title": "Investment Deals",
-        "image": "/images/shutterstock_2081393545.jpg",
-        "price": "From $699,000",
-        "items": "1,200+ Listings",
+        "type": "broker-investments",
+        "title": "Investment Deals Expert",
+        "image": "https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=1200&auto=format&fit=crop",
+        "price": "",
+        "items": "Pan-India • 140+ deals",
         "color": "yellow"
       }
     ]

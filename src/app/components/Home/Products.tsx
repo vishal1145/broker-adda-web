@@ -170,8 +170,14 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
   };
 
   const filteredItems = (data.items || []).filter((product: ProductItem) => {
-    const selectedTab = (data.tabs?.[activeTab]?.name || "all products").toLowerCase().trim();
-    if (selectedTab === "all products") return true;
+    const selectedTab = (data.tabs?.[activeTab]?.name || "All Properties").toLowerCase().trim();
+    if (
+      selectedTab === "all properties" ||
+      selectedTab === "all products" ||
+      selectedTab === "all"
+    ) {
+      return true;
+    }
     return product.type?.toLowerCase().trim() === selectedTab;
   });
 
@@ -221,7 +227,6 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
           <p className="text-xl text-gray-900">
             <span className="text-yellow-500">—</span> Our Products
           </p>
-
           <h2 className="text-4xl font-medium text-gray-900 mt-2">
             Our <span className="text-green-900">Products Collections</span>
           </h2>
@@ -245,8 +250,10 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {filteredItems.map((product, index) => {
+        <div className="min-h-[200px] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-10">
+          {filteredItems.length === 0 ? (
+            <div className="col-span-full text-center text-sm text-gray-500">No properties found.</div>
+          ) : filteredItems.map((product, index) => {
             console.log('Home Products - Rendering product:', product);
             console.log('Home Products - Product image path:', product.image);
             return (
@@ -263,7 +270,7 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-52 "
+                      className="w-full h-52 object-cover"
                       onError={(e) => {
                         console.error('Image failed to load:', product.image);
                         (e.target as HTMLImageElement).src = '/images/chair2.png'; // Fallback image
