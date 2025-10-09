@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Select from 'react-select';
 
 const LeadsComponent = () => {
   const [leadFilters, setLeadFilters] = useState({
@@ -22,100 +23,122 @@ const LeadsComponent = () => {
   const leadTypeOptions = ['Buy', 'Rent', 'Sell', 'Commercial', 'Residential'];
   const priorityOptions = ['High', 'Medium', 'Low'];
 
+  const reactSelectStyles = {
+    control: (base) => ({
+      ...base,
+      borderColor: '#d1d5db',
+      boxShadow: 'none',
+      minHeight: 38,
+      ':hover': { borderColor: '#0A421E' }
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? '#0A421E'
+        : state.isFocused
+          ? '#ECFDF5'
+          : 'white',
+      color: state.isSelected ? 'white' : '#111827'
+    }),
+    singleValue: (base) => ({ ...base, color: '#111827' }),
+    placeholder: (base) => ({ ...base, color: '#6b7280' }),
+    indicatorSeparator: () => ({ display: 'none' })
+  };
+
   const leads = [
     {
       id: 1,
-      name: 'Jane Doe',
+      name: 'Neha Kapoor',
       profileImage: '/images/user-1.webp',
       status: 'Open',
       type: 'Buy',
       budget: '$5,500,000',
-      phone: '+1 (555) 123-4567',
-      email: 'jane.doe@email.com',
+      phone: '+91 98765 11001',
+      email: 'neha.kapoor@email.com',
       updated: '2024-07-20',
-      regions: ['Downtown', 'Riverside', 'Green Hills']
+      regions: ['Delhi NCR', 'Riverside', 'Green Hills']
     },
     {
       id: 2,
-      name: 'John Smith',
+      name: 'Rohan Desai',
       profileImage: '/images/user-2.jpeg',
       status: 'In Progress',
       type: 'Sell',
       budget: '$8,200,000',
-      phone: '+1 (555) 234-5678',
-      email: 'john.smith@email.com',
+      phone: '+91 98765 11002',
+      email: 'rohan.desai@email.com',
       updated: '2024-07-19',
       regions: ['Uptown', 'Industrial Park']
     },
     {
       id: 3,
-      name: 'Alice Brown',
+      name: 'Aarav Mehta',
       profileImage: '/images/user-3.jpeg',
       status: 'Open',
       type: 'Rent',
       budget: '$3,000/month',
-      phone: '+1 (555) 345-6789',
-      email: 'alice.brown@email.com',
+      phone: '+91 98765 11003',
+      email: 'aarav.mehta@email.com',
       updated: '2024-07-18',
       regions: ['Suburbia West', 'City Center']
     },
     {
       id: 4,
-      name: 'Robert White',
+      name: 'Isha Verma',
       profileImage: '/images/user-4.jpeg',
       status: 'Closed',
       type: 'Commercial',
       budget: '$15,000,000',
-      phone: '+1 (555) 456-7890',
-      email: 'robert.white@email.com',
+      phone: '+91 98765 11004',
+      email: 'isha.verma@email.com',
       updated: '2024-07-17',
       regions: ['Business District']
     },
     {
       id: 5,
-      name: 'Maria Garcia',
+      name: 'Sneha Nair',
       profileImage: '/images/user-5.jpeg',
       status: 'Open',
       type: 'Buy',
       budget: '$7,100,000',
-      phone: '+1 (555) 567-8901',
-      email: 'maria.garcia@email.com',
+      phone: '+91 98765 11005',
+      email: 'sneha.nair@email.com',
       updated: '2024-07-16',
       regions: ['Midtown', 'Parkside']
     },
     {
       id: 6,
-      name: 'Michael Kim',
+      name: 'Vikram Singh',
       profileImage: '/images/user-6.jpg',
       status: 'In Progress',
       type: 'Residential',
       budget: '$9,800,000',
-      phone: '+1 (555) 678-9012',
-      email: 'michael.kim@email.com',
+      phone: '+91 98765 11006',
+      email: 'vikram.singh@email.com',
       updated: '2024-07-15',
       regions: ['Lakeview', 'Mountain Crest']
     },
     {
       id: 7,
-      name: 'Sarah Johnson',
+      name: 'Ananya Iyer',
       profileImage: '/images/user-7.jpeg',
       status: 'Open',
       type: 'Rent',
       budget: '$2,500/month',
-      phone: '+1 (555) 789-0123',
-      email: 'sarah.johnson@email.com',
+      phone: '+91 98765 11007',
+      email: 'ananya.iyer@email.com',
       updated: '2024-07-14',
       regions: ['Westside', 'Downtown']
     },
     {
       id: 8,
-      name: 'David Wilson',
+      name: 'Karan Gupta',
       profileImage: '/images/user-1.webp',
       status: 'In Progress',
       type: 'Sell',
       budget: '$12,300,000',
-      phone: '+1 (555) 890-1234',
-      email: 'david.wilson@email.com',
+      phone: '+91 98765 11008',
+      email: 'karan.gupta@email.com',
       updated: '2024-07-13',
       regions: ['Eastside', 'Riverside']
     }
@@ -166,9 +189,9 @@ const LeadsComponent = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Open':
-        return 'bg-green-100 text-green-800';
+        return 'bg-emerald-50 text-[#0A421E]';
       case 'In Progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-[#ECFDF5] text-[#0A421E]';
       case 'Closed':
         return 'bg-gray-100 text-gray-800';
       default:
@@ -179,9 +202,14 @@ const LeadsComponent = () => {
   return (
     <div className="flex gap-8">
       {/* Filter Sidebar */}
-      <div className="w-80 flex-shrink-0">
-        <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filter Options</h2>
+      <div className="w-96 flex-shrink-0">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-6">
+          <div className="flex items-center mb-4">
+            <svg className="w-5 h-5 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <h2 className="text-lg font-bold text-gray-900">Filter Options</h2>
+          </div>
 
           {/* Lead Status Filter */}
           <div>
@@ -193,7 +221,7 @@ const LeadsComponent = () => {
                     type="checkbox"
                     checked={leadFilters.leadStatus.includes(status)}
                     onChange={() => handleLeadStatusChange(status)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
                   <span className="ml-3 text-sm text-gray-700">{status}</span>
                 </label>
@@ -211,7 +239,7 @@ const LeadsComponent = () => {
                     type="checkbox"
                     checked={leadFilters.leadType.includes(type)}
                     onChange={() => handleLeadTypeChange(type)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
                   <span className="ml-3 text-sm text-gray-700">{type}</span>
                 </label>
@@ -223,14 +251,14 @@ const LeadsComponent = () => {
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3">Budget Range</h3>
             <div className="mb-3">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-700">
                 {formatPrice(leadFilters.budgetRange[0])} - {formatPrice(leadFilters.budgetRange[1])}
               </div>
             </div>
             <div className="relative">
               <div className="w-full h-2 bg-gray-200 rounded-lg relative">
                 <div 
-                  className="h-2 bg-blue-600 rounded-lg absolute top-0"
+                  className="h-2 bg-[#0A421E] rounded-lg absolute top-0"
                   style={{
                     left: `${((leadFilters.budgetRange[0] - 1000000) / (20000000 - 1000000)) * 100}%`,
                     width: `${100 - ((leadFilters.budgetRange[0] - 1000000) / (20000000 - 1000000)) * 100}%`
@@ -246,7 +274,7 @@ const LeadsComponent = () => {
                   className="w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 slider-single"
                 />
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-gray-700 mt-1">
                 <span>$1M</span>
                 <span>$20M</span>
               </div>
@@ -262,7 +290,7 @@ const LeadsComponent = () => {
                 placeholder="Search locations..."
                 value={leadFilters.location}
                 onChange={(e) => setLeadFilters(prev => ({ ...prev, location: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0A421E]"
               />
               <svg className="w-4 h-4 text-gray-400 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -283,7 +311,7 @@ const LeadsComponent = () => {
                     ...prev, 
                     dateAdded: { ...prev.dateAdded, start: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0A421E]"
                 />
                 <svg className="w-4 h-4 text-gray-400 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -298,7 +326,7 @@ const LeadsComponent = () => {
                     dateAdded: { ...prev.dateAdded, end: e.target.value }
                   }))}
                   placeholder="End date"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0A421E]"
                 />
                 <svg className="w-4 h-4 text-gray-400 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -307,19 +335,27 @@ const LeadsComponent = () => {
             </div>
           </div>
 
-          {/* Broker/Agent Filter */}
+          {/* Broker/Agent Filter (react-select) */}
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3">Broker/Agent</h3>
-            <select
-              value={leadFilters.brokerAgent}
-              onChange={(e) => setLeadFilters(prev => ({ ...prev, brokerAgent: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select an Agent</option>
-              <option value="agent1">Agent 1</option>
-              <option value="agent2">Agent 2</option>
-              <option value="agent3">Agent 3</option>
-            </select>
+            <Select
+              instanceId="leads-agent-select"
+              styles={reactSelectStyles}
+              options={[
+                { value: '', label: 'Select an Agent' },
+                { value: 'agent1', label: 'Agent 1' },
+                { value: 'agent2', label: 'Agent 2' },
+                { value: 'agent3', label: 'Agent 3' }
+              ]}
+              value={[
+                { value: '', label: 'Select an Agent' },
+                { value: 'agent1', label: 'Agent 1' },
+                { value: 'agent2', label: 'Agent 2' },
+                { value: 'agent3', label: 'Agent 3' }
+              ].find(o => o.value === leadFilters.brokerAgent) || { value: '', label: 'Select an Agent' }}
+              onChange={(opt) => setLeadFilters(prev => ({ ...prev, brokerAgent: (opt?.value || '') }))}
+              isSearchable
+            />
           </div>
 
           {/* Priority Filter */}
@@ -332,7 +368,7 @@ const LeadsComponent = () => {
                     type="checkbox"
                     checked={leadFilters.priority.includes(priority)}
                     onChange={() => handlePriorityChange(priority)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
                   <span className="ml-3 text-sm text-gray-700">{priority}</span>
                 </label>
@@ -352,18 +388,30 @@ const LeadsComponent = () => {
               <span className="text-gray-600">Showing {leads.length} of {leads.length} results</span>
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">Sort by:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="date-added-newest">Date Added (Newest)</option>
-                  <option value="date-added-oldest">Date Added (Oldest)</option>
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                  <option value="budget-high">Budget (High to Low)</option>
-                  <option value="budget-low">Budget (Low to High)</option>
-                </select>
+                <div className="min-w-[220px]">
+                  <Select
+                    instanceId="leads-sort-select"
+                    styles={reactSelectStyles}
+                    options={[
+                      { value: 'date-added-newest', label: 'Date Added (Newest)' },
+                      { value: 'date-added-oldest', label: 'Date Added (Oldest)' },
+                      { value: 'name-asc', label: 'Name (A-Z)' },
+                      { value: 'name-desc', label: 'Name (Z-A)' },
+                      { value: 'budget-high', label: 'Budget (High to Low)' },
+                      { value: 'budget-low', label: 'Budget (Low to High)' }
+                    ]}
+                    value={[
+                      { value: 'date-added-newest', label: 'Date Added (Newest)' },
+                      { value: 'date-added-oldest', label: 'Date Added (Oldest)' },
+                      { value: 'name-asc', label: 'Name (A-Z)' },
+                      { value: 'name-desc', label: 'Name (Z-A)' },
+                      { value: 'budget-high', label: 'Budget (High to Low)' },
+                      { value: 'budget-low', label: 'Budget (Low to High)' }
+                    ].find(o => o.value === sortBy)}
+                    onChange={(opt) => setSortBy(opt?.value || 'date-added-newest')}
+                    isSearchable={false}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -430,7 +478,7 @@ const LeadsComponent = () => {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors">
+                <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md font-medium hover:bg-[#0b4f24] transition-colors">
                   View Details
                 </button>
                 <div className="flex justify-end gap-4">
@@ -473,7 +521,7 @@ const LeadsComponent = () => {
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          border: 2px solid #3b82f6;
+          border: 2px solid #0A421E;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .slider-single::-moz-range-thumb {
@@ -482,7 +530,7 @@ const LeadsComponent = () => {
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          border: 2px solid #3b82f6;
+          border: 2px solid #0A421E;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .slider-single::-webkit-slider-track {

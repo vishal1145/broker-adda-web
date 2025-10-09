@@ -32,7 +32,7 @@ const Search = () => {
                 onClick={() => setActiveTab('properties')}
                 className={`py-2 px-1 border-b-2 font-medium ${
                   activeTab === 'properties' 
-                    ? 'border-blue-600 text-blue-600' 
+                    ? 'border-green-900 text-green-900' 
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -42,7 +42,7 @@ const Search = () => {
                 onClick={() => setActiveTab('leads')}
                 className={`py-2 px-1 border-b-2 font-medium ${
                   activeTab === 'leads' 
-                    ? 'border-blue-600 text-blue-600' 
+                    ? 'border-green-900 text-green-900' 
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -52,7 +52,7 @@ const Search = () => {
                 onClick={() => setActiveTab('brokers')}
                 className={`py-2 px-1 border-b-2 font-medium ${
                   activeTab === 'brokers' 
-                    ? 'border-blue-600 text-blue-600' 
+                    ? 'border-green-900 text-green-900' 
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >

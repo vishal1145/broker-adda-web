@@ -1,6 +1,8 @@
+
 'use client';
 
 import React, { useState } from 'react';
+import Select from 'react-select';
 
 const PropertiesComponent = () => {
   const [filters, setFilters] = useState({
@@ -11,6 +13,24 @@ const PropertiesComponent = () => {
   });
 
   const [sortBy, setSortBy] = useState('default');
+
+  const reactSelectStyles = {
+    control: (base) => ({
+      ...base,
+      borderColor: '#d1d5db',
+      boxShadow: 'none',
+      minHeight: 38,
+      ':hover': { borderColor: '#0A421E' }
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected ? '#0A421E' : state.isFocused ? '#ECFDF5' : 'white',
+      color: state.isSelected ? 'white' : '#111827'
+    }),
+    singleValue: (base) => ({ ...base, color: '#111827' }),
+    placeholder: (base) => ({ ...base, color: '#6b7280' }),
+    indicatorSeparator: () => ({ display: 'none' })
+  };
 
   const categories = ['Apartment', 'Villa', 'Plot/Land', 'Studio', 'Penthouse'];
   const bedroomOptions = ['1 BHK', '2 BHK', '3 BHK', '4+ BHK'];
@@ -126,11 +146,17 @@ const PropertiesComponent = () => {
   return (
     <div className="flex gap-8">
       {/* Filter Sidebar */}
-      <div className="w-80 flex-shrink-0">
-        <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
+      <div className="w-96 flex-shrink-0">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-6">
+          <div className="flex items-center mb-4">
+            <svg className="w-5 h-5 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <h2 className="text-lg font-bold text-gray-900">Filter Options</h2>
+          </div>
           {/* Category Filter */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Category</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-4">Category</h3>
             <div className="space-y-3">
               {categories.map((category) => (
                 <label key={category} className="flex items-center">
@@ -138,9 +164,9 @@ const PropertiesComponent = () => {
                     type="checkbox"
                     checked={filters.categories.includes(category)}
                     onChange={() => handleCategoryChange(category)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
-                  <span className="ml-3 text-gray-700">{category}</span>
+                  <span className="ml-3 text-sm text-gray-700">{category}</span>
                 </label>
               ))}
             </div>
@@ -148,7 +174,7 @@ const PropertiesComponent = () => {
 
           {/* Price Filter */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-4">Price</h3>
             <div className="mb-4">
               <div className="text-sm text-gray-600">
                 {formatPrice(filters.priceRange[0])} - {formatPrice(filters.priceRange[1])}
@@ -157,7 +183,7 @@ const PropertiesComponent = () => {
             <div className="relative">
               <div className="w-full h-2 bg-gray-200 rounded-lg relative">
                 <div 
-                  className="h-2 bg-blue-600 rounded-lg absolute top-0"
+                  className="h-2 bg-[#0A421E] rounded-lg absolute top-0"
                   style={{
                     left: `${((filters.priceRange[0] - 1000000) / (20000000 - 1000000)) * 100}%`,
                     width: `${100 - ((filters.priceRange[0] - 1000000) / (20000000 - 1000000)) * 100}%`
@@ -178,7 +204,7 @@ const PropertiesComponent = () => {
 
           {/* Bedrooms Filter */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Bedrooms</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-4">Bedrooms</h3>
             <div className="space-y-3">
               {bedroomOptions.map((bedroom) => (
                 <label key={bedroom} className="flex items-center">
@@ -186,9 +212,9 @@ const PropertiesComponent = () => {
                     type="checkbox"
                     checked={filters.bedrooms.includes(bedroom)}
                     onChange={() => handleBedroomChange(bedroom)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
-                  <span className="ml-3 text-gray-700">{bedroom}</span>
+                  <span className="ml-3 text-sm text-gray-700">{bedroom}</span>
                 </label>
               ))}
             </div>
@@ -196,7 +222,7 @@ const PropertiesComponent = () => {
 
           {/* Amenities Filter */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Amenities</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-4">Amenities</h3>
             <div className="space-y-3">
               {amenitiesOptions.map((amenity) => (
                 <label key={amenity} className="flex items-center">
@@ -204,9 +230,9 @@ const PropertiesComponent = () => {
                     type="checkbox"
                     checked={filters.amenities.includes(amenity)}
                     onChange={() => handleAmenityChange(amenity)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
-                  <span className="ml-3 text-gray-700">{amenity}</span>
+                  <span className="ml-3 text-sm text-gray-700">{amenity}</span>
                 </label>
               ))}
             </div>
@@ -222,19 +248,29 @@ const PropertiesComponent = () => {
             <h1 className="text-2xl font-bold text-gray-900">Properties</h1>
             <div className="flex items-center gap-4">
               <span className="text-gray-600">Showing {properties.length} of {properties.length} results</span>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-600">Sort by:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="default">Default Sorting</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Rating</option>
-                </select>
-              </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600">Sort by:</span>
+                    <div className="min-w-[220px]">
+                      <Select
+                        instanceId="properties-sort-select"
+                        styles={reactSelectStyles}
+                        options={[
+                          { value: 'default', label: 'Default Sorting' },
+                          { value: 'price-low', label: 'Price: Low to High' },
+                          { value: 'price-high', label: 'Price: High to Low' },
+                          { value: 'rating', label: 'Rating' }
+                        ]}
+                        value={[
+                          { value: 'default', label: 'Default Sorting' },
+                          { value: 'price-low', label: 'Price: Low to High' },
+                          { value: 'price-high', label: 'Price: High to Low' },
+                          { value: 'rating', label: 'Rating' }
+                        ].find(o => o.value === sortBy)}
+                        onChange={(opt) => setSortBy(opt?.value || 'default')}
+                        isSearchable={false}
+                      />
+                    </div>
+                  </div>
             </div>
           </div>
         </div>
@@ -250,7 +286,7 @@ const PropertiesComponent = () => {
                   className="w-full h-48 object-cover"
                 />
                 <div className="absolute top-3 left-3">
-                  <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  <span className="bg-[#0A421E] text-white px-3 py-1 rounded-full text-sm font-medium">
                     {property.type}
                   </span>
                 </div>
@@ -271,7 +307,7 @@ const PropertiesComponent = () => {
                   <div className="text-sm text-gray-500 line-through">{property.originalPrice}</div>
                 </div>
                 
-                <button className="w-full bg-white border-2 border-blue-600 text-blue-600 py-2 px-4 rounded-md font-medium hover:bg-blue-50 transition-colors">
+                <button className="w-full bg-white border-2 border-[#0A421E] text-[#0A421E] py-2 px-4 rounded-md font-medium hover:bg-green-50 transition-colors">
                   View Details
                 </button>
               </div>
@@ -291,7 +327,7 @@ const PropertiesComponent = () => {
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          border: 2px solid #3b82f6;
+          border: 2px solid #0A421E;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .slider-single::-moz-range-thumb {
@@ -300,7 +336,7 @@ const PropertiesComponent = () => {
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          border: 2px solid #3b82f6;
+          border: 2px solid #0A421E;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .slider-single::-webkit-slider-track {

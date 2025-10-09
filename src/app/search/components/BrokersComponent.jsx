@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Select from 'react-select';
 
 const BrokersComponent = () => {
   const [brokerFilters, setBrokerFilters] = useState({
@@ -19,6 +20,24 @@ const BrokersComponent = () => {
   const agencies = ['Sharma Realty', 'Verma Associates', 'Mehta Properties', 'Kapoor Estates', 'Singh & Co.', 'Iyer Homes'];
   const brokerTypes = ['Residential Specialist', 'Commercial Expert', 'Investment Broker', 'Luxury Properties'];
   const languages = ['English', 'Hindi', 'Tamil', 'Telugu', 'Bengali', 'Marathi'];
+
+  const reactSelectStyles = {
+    control: (base) => ({
+      ...base,
+      borderColor: '#d1d5db',
+      boxShadow: 'none',
+      minHeight: 38,
+      ':hover': { borderColor: '#0A421E' }
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected ? '#0A421E' : state.isFocused ? '#ECFDF5' : 'white',
+      color: state.isSelected ? 'white' : '#111827'
+    }),
+    singleValue: (base) => ({ ...base, color: '#111827' }),
+    placeholder: (base) => ({ ...base, color: '#6b7280' }),
+    indicatorSeparator: () => ({ display: 'none' })
+  };
 
   const brokers = [
     {
@@ -146,7 +165,7 @@ const BrokersComponent = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Verified':
-        return 'bg-green-100 text-green-800';
+        return 'bg-[#ECFDF5] text-[#0A421E]';
       case 'Active':
         return 'bg-blue-100 text-blue-800';
       case 'Inactive':
@@ -185,16 +204,14 @@ const BrokersComponent = () => {
           {/* Location/Region Filter */}
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3">Location/Region</h3>
-            <select
-              value={brokerFilters.region}
-              onChange={(e) => setBrokerFilters(prev => ({ ...prev, region: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value="">Select Region</option>
-              {regions.map((region) => (
-                <option key={region} value={region}>{region}</option>
-              ))}
-            </select>
+            <Select
+              instanceId="brokers-region-select"
+              styles={reactSelectStyles}
+              options={[{ value: '', label: 'Select Region' }, ...regions.map(r => ({ value: r, label: r }))]}
+              value={[{ value: '', label: 'Select Region' }, ...regions.map(r => ({ value: r, label: r }))].find(o => o.value === brokerFilters.region) || { value: '', label: 'Select Region' }}
+              onChange={(opt) => setBrokerFilters(prev => ({ ...prev, region: (opt?.value || '') }))}
+              isSearchable
+            />
           </div>
 
           {/* Experience Years Filter */}
@@ -203,7 +220,7 @@ const BrokersComponent = () => {
             <div className="relative">
               <div className="w-full h-2 bg-gray-200 rounded-lg relative">
                 <div 
-                  className="h-2 bg-blue-600 rounded-lg absolute top-0"
+                  className="h-2 bg-[#0A421E] rounded-lg absolute top-0"
                   style={{
                     left: `${(brokerFilters.experienceRange[0] / 20) * 100}%`,
                     width: `${((brokerFilters.experienceRange[1] - brokerFilters.experienceRange[0]) / 20) * 100}%`
@@ -228,7 +245,7 @@ const BrokersComponent = () => {
                   className="w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 slider-single"
                 />
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-gray-500 mt-4">
                 <span>0 years</span>
                 <span>20 years</span>
               </div>
@@ -238,16 +255,14 @@ const BrokersComponent = () => {
           {/* Agency/Company Filter */}
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3">Agency/Company</h3>
-            <select
-              value={brokerFilters.agency}
-              onChange={(e) => setBrokerFilters(prev => ({ ...prev, agency: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value="">Select Agency</option>
-              {agencies.map((agency) => (
-                <option key={agency} value={agency}>{agency}</option>
-              ))}
-            </select>
+            <Select
+              instanceId="brokers-agency-select"
+              styles={reactSelectStyles}
+              options={[{ value: '', label: 'Select Agency' }, ...agencies.map(a => ({ value: a, label: a }))]}
+              value={[{ value: '', label: 'Select Agency' }, ...agencies.map(a => ({ value: a, label: a }))].find(o => o.value === brokerFilters.agency) || { value: '', label: 'Select Agency' }}
+              onChange={(opt) => setBrokerFilters(prev => ({ ...prev, agency: (opt?.value || '') }))}
+              isSearchable
+            />
           </div>
 
           {/* Broker Type Filter */}
@@ -260,7 +275,7 @@ const BrokersComponent = () => {
                     type="checkbox"
                     checked={brokerFilters.brokerType.includes(type)}
                     onChange={() => handleBrokerTypeChange(type)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
                   <span className="ml-3 text-sm text-gray-700">{type}</span>
                 </label>
@@ -270,7 +285,7 @@ const BrokersComponent = () => {
                   type="checkbox"
                   checked={brokerFilters.showVerifiedOnly}
                   onChange={(e) => setBrokerFilters(prev => ({ ...prev, showVerifiedOnly: e.target.checked }))}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                 />
                 <span className="ml-3 text-sm text-gray-700 font-medium">Show Verified Only</span>
               </label>
@@ -283,7 +298,7 @@ const BrokersComponent = () => {
             <div className="relative">
               <div className="w-full h-2 bg-gray-200 rounded-lg relative">
                 <div 
-                  className="h-2 bg-blue-600 rounded-lg absolute top-0"
+                  className="h-2 bg-[#0A421E] rounded-lg absolute top-0"
                   style={{
                     left: `${((brokerFilters.ratingRange[0] - 1) / 4) * 100}%`,
                     width: `${((brokerFilters.ratingRange[1] - brokerFilters.ratingRange[0]) / 4) * 100}%`
@@ -318,7 +333,7 @@ const BrokersComponent = () => {
                 </div>
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg key={i} className="w-3 h-3 text-[#0A421E]" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
@@ -337,7 +352,7 @@ const BrokersComponent = () => {
                     type="checkbox"
                     checked={brokerFilters.languages.includes(language)}
                     onChange={() => handleLanguageChange(language)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
                   <span className="ml-3 text-sm text-gray-700">{language}</span>
                 </label>
@@ -357,18 +372,30 @@ const BrokersComponent = () => {
               <span className="text-gray-600">Showing {brokers.length} of {brokers.length} results</span>
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">Sort by:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="rating-high">Rating (High to Low)</option>
-                  <option value="rating-low">Rating (Low to High)</option>
-                  <option value="experience-high">Experience (High to Low)</option>
-                  <option value="experience-low">Experience (Low to High)</option>
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                </select>
+                <div className="min-w-[220px]">
+                  <Select
+                    instanceId="brokers-sort-select"
+                    styles={reactSelectStyles}
+                    options={[
+                      { value: 'rating-high', label: 'Rating (High to Low)' },
+                      { value: 'rating-low', label: 'Rating (Low to High)' },
+                      { value: 'experience-high', label: 'Experience (High to Low)' },
+                      { value: 'experience-low', label: 'Experience (Low to High)' },
+                      { value: 'name-asc', label: 'Name (A-Z)' },
+                      { value: 'name-desc', label: 'Name (Z-A)' }
+                    ]}
+                    value={[
+                      { value: 'rating-high', label: 'Rating (High to Low)' },
+                      { value: 'rating-low', label: 'Rating (Low to High)' },
+                      { value: 'experience-high', label: 'Experience (High to Low)' },
+                      { value: 'experience-low', label: 'Experience (Low to High)' },
+                      { value: 'name-asc', label: 'Name (A-Z)' },
+                      { value: 'name-desc', label: 'Name (Z-A)' }
+                    ].find(o => o.value === sortBy)}
+                    onChange={(opt) => setSortBy(opt?.value || 'rating-high')}
+                    isSearchable={false}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -395,7 +422,7 @@ const BrokersComponent = () => {
               {/* Contact Information */}
               <div className="space-y-2 mb-4 text-center">
                 <div className="flex items-center justify-center text-sm text-gray-600">
-                  <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[#0A421E] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   {broker.email}
@@ -428,7 +455,7 @@ const BrokersComponent = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
                 <div>
-                  <div className="text-sm font-medium text-gray-900">{broker.agency}</div>
+                    <div className="text-sm font-medium text-gray-900">{broker.agency}</div>
                   <div className="text-xs text-gray-600">{broker.experience} years experience</div>
                 </div>
               </div>
@@ -446,10 +473,10 @@ const BrokersComponent = () => {
 
               {/* Action Buttons */}
               <div className="flex items-center justify-between">
-                <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors mr-2">
+                <button className="flex-1 bg-[#0A421E] border-2 border-[#0A421E] text-white py-2 px-4 rounded-md font-medium hover:bg-[#0b4f24] transition-colors mr-2">
                   View Details
                 </button>
-                <button className="flex-1 bg-white border-2 border-blue-600 text-blue-600 py-2 px-4 rounded-md font-medium hover:bg-blue-50 transition-colors mr-2">
+                <button className="flex-1 bg-white border-2 border-[#0A421E] text-[#0A421E] py-2 px-4 rounded-md font-medium hover:bg-green-50 transition-colors mr-2">
                   Contact
                 </button>
                 <button className="p-2 text-gray-500 hover:text-gray-700 transition-colors">
@@ -474,7 +501,7 @@ const BrokersComponent = () => {
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          border: 2px solid #3b82f6;
+          border: 2px solid #0A421E;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .slider-single::-moz-range-thumb {
@@ -483,7 +510,7 @@ const BrokersComponent = () => {
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          border: 2px solid #3b82f6;
+          border: 2px solid #0A421E;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .slider-single::-webkit-slider-track {

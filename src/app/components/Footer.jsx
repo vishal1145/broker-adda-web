@@ -21,7 +21,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
         <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-5 gap-4 ">
           {/* Logo and Description */}
           <div className=" md:text-left md:col-span-1 ">
-            <div className="flex items-center justify-center -mt-6">
+            <div className="flex items-center  -mt-6">
               <div className="flex items-center cursor-pointer" onClick={() => router.push('/')}>
                 <div className="w-20 h-20 rounded-full flex  overflow-hidden mt-6">
                   <img
@@ -125,7 +125,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
       
       {/* Bottom Bar */}
       <div className="bg-yellow-400 text-sm text-gray-900 mt-12 py-4 px-12">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center">
+        <div className=" mx-auto flex flex-col sm:flex-row justify-between items-center">
           <p className="mb-2 sm:mb-0">{data.copyright}</p>
           
         </div>
