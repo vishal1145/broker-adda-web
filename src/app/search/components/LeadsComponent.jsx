@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import Select from 'react-select';
+import React, { useState, useEffect } from 'react';
+import Select, { components } from 'react-select';
 
-const LeadsComponent = () => {
+const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [leadFilters, setLeadFilters] = useState({
     leadStatus: ['Open', 'In Progress'],
     leadType: ['Buy', 'Rent'],
@@ -13,15 +13,35 @@ const LeadsComponent = () => {
       start: '2024-06-01',
       end: ''
     },
-    brokerAgent: '',
+    brokerAgent: [],
     priority: ['High']
   });
 
   const [sortBy, setSortBy] = useState('date-added-newest');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Trigger skeleton loader when switching between tabs from header
+  useEffect(() => {
+    setIsLoading(true);
+    const t = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(t);
+  }, [activeTab]);
 
   const leadStatusOptions = ['Open', 'In Progress', 'Closed'];
   const leadTypeOptions = ['Buy', 'Rent', 'Sell', 'Commercial', 'Residential'];
   const priorityOptions = ['High', 'Medium', 'Low'];
+
+  const resetFilters = () => {
+    setLeadFilters({
+      leadStatus: [],
+      leadType: [],
+      budgetRange: [5000000, 15000000],
+      location: '',
+      dateAdded: { start: '', end: '' },
+      brokerAgent: [],
+      priority: []
+    });
+  };
 
   const reactSelectStyles = {
     control: (base) => ({
@@ -29,6 +49,7 @@ const LeadsComponent = () => {
       borderColor: '#d1d5db',
       boxShadow: 'none',
       minHeight: 38,
+      cursor: 'pointer',
       ':hover': { borderColor: '#0A421E' }
     }),
     option: (base, state) => ({
@@ -38,7 +59,8 @@ const LeadsComponent = () => {
         : state.isFocused
           ? '#ECFDF5'
           : 'white',
-      color: state.isSelected ? 'white' : '#111827'
+      color: state.isSelected ? 'white' : '#111827',
+      cursor: 'pointer'
     }),
     singleValue: (base) => ({ ...base, color: '#111827' }),
     placeholder: (base) => ({ ...base, color: '#6b7280' }),
@@ -199,24 +221,135 @@ const LeadsComponent = () => {
     }
   };
 
+  // Gradient ribbon styles for status to match provided images
+  const getStatusRibbonStyle = (status) => {
+    switch (status) {
+      case 'Open': // New
+        return {
+          background: 'linear-gradient(90deg, #F59E0B 0%, #EF4444 100%)',
+        };
+      case 'In Progress':
+        return {
+          background: 'linear-gradient(90deg, #8B5CF6 0%, #7C3AED 100%)',
+        };
+      case 'Closed':
+        return {
+          background: 'linear-gradient(90deg, #10B981 0%, #059669 100%)',
+        };
+      default:
+        return { background: '#e5e7eb' };
+    }
+  };
+
   return (
     <div className="flex gap-8">
       {/* Filter Sidebar */}
       <div className="w-96 flex-shrink-0">
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-6">
-          <div className="flex items-center mb-4">
-            <svg className="w-5 h-5 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            <h2 className="text-lg font-bold text-gray-900">Filter Options</h2>
+        {isLoading ? (
+          <div className="bg-white rounded-lg p-6">
+            <div className="space-y-6">
+              {/* Filter Header Skeleton */}
+              <div className="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <div className="w-5 h-5 bg-gray-200 rounded mr-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-32"></div>
+              </div>
+              
+              {/* Lead Status Filter Skeleton */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <div className="h-4 bg-gray-200 rounded w-20 mb-4"></div>
+                <div className="space-y-3">
+                  {[1,2,3].map((i) => (
+                    <div key={i} className="flex items-center">
+                      <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                      <div className="ml-3 h-4 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Lead Type Filter Skeleton */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <div className="h-4 bg-gray-200 rounded w-16 mb-4"></div>
+                <div className="space-y-3">
+                  {[1,2,3,4,5].map((i) => (
+                    <div key={i} className="flex items-center">
+                      <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                      <div className="ml-3 h-4 bg-gray-200 rounded w-20"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Budget Range Filter Skeleton */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <div className="h-4 bg-gray-200 rounded w-24 mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-32 mb-4"></div>
+                <div className="h-2 bg-gray-200 rounded"></div>
+              </div>
+              
+              {/* Location Filter Skeleton */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <div className="h-4 bg-gray-200 rounded w-16 mb-4"></div>
+                <div className="h-8 bg-gray-200 rounded w-full"></div>
+              </div>
+              
+              {/* Date Added Filter Skeleton */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <div className="h-4 bg-gray-200 rounded w-20 mb-4"></div>
+                <div className="space-y-2">
+                  <div className="h-8 bg-gray-200 rounded w-full"></div>
+                  <div className="h-8 bg-gray-200 rounded w-full"></div>
+                </div>
+              </div>
+              
+              {/* Broker/Agent Filter Skeleton */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <div className="h-4 bg-gray-200 rounded w-24 mb-4"></div>
+                <div className="h-8 bg-gray-200 rounded w-full"></div>
+              </div>
+              
+              {/* Priority Filter Skeleton */}
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-16 mb-4"></div>
+                <div className="space-y-3">
+                  {[1,2,3].map((i) => (
+                    <div key={i} className="flex items-center">
+                      <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                      <div className="ml-3 h-4 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg p-6">
+          {/* Filter Header */}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              <h2 className="text-lg font-bold text-gray-900">Filter Options</h2>
+            </div>
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="text-[#0A421E] hover:text-green-700 cursor-pointer flex items-center"
+              aria-label="Reset filters"
+              title="Reset filters"
+            >
+              <i className="fa-solid fa-arrows-rotate text-sm" aria-hidden="true"></i>
+              <span className="sr-only">Reset</span>
+            </button>
           </div>
 
           {/* Lead Status Filter */}
-          <div>
+          <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Lead Status</h3>
             <div className="space-y-2">
               {leadStatusOptions.map((status) => (
-                <label key={status} className="flex items-center">
+                <label key={status} className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={leadFilters.leadStatus.includes(status)}
@@ -230,11 +363,11 @@ const LeadsComponent = () => {
           </div>
 
           {/* Lead Type Filter */}
-          <div>
+          <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Lead Type</h3>
             <div className="space-y-2">
               {leadTypeOptions.map((type) => (
-                <label key={type} className="flex items-center">
+                <label key={type} className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={leadFilters.leadType.includes(type)}
@@ -248,7 +381,7 @@ const LeadsComponent = () => {
           </div>
 
           {/* Budget Range Filter */}
-          <div>
+          <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Budget Range</h3>
             <div className="mb-3">
               <div className="text-sm text-gray-700">
@@ -260,8 +393,8 @@ const LeadsComponent = () => {
                 <div 
                   className="h-2 bg-[#0A421E] rounded-lg absolute top-0"
                   style={{
-                    left: `${((leadFilters.budgetRange[0] - 1000000) / (20000000 - 1000000)) * 100}%`,
-                    width: `${100 - ((leadFilters.budgetRange[0] - 1000000) / (20000000 - 1000000)) * 100}%`
+                    left: '0%',
+                    width: `${((leadFilters.budgetRange[0] - 1000000) / (20000000 - 1000000)) * 100}%`
                   }}
                 ></div>
                 <input
@@ -282,7 +415,7 @@ const LeadsComponent = () => {
           </div>
 
           {/* Location Filter */}
-          <div>
+          <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Location</h3>
             <div className="relative">
               <input
@@ -300,7 +433,7 @@ const LeadsComponent = () => {
           </div>
 
           {/* Date Added Filter */}
-          <div>
+          <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Date Added</h3>
             <div className="space-y-2">
               <div className="relative">
@@ -335,27 +468,38 @@ const LeadsComponent = () => {
             </div>
           </div>
 
-          {/* Broker/Agent Filter (react-select) */}
-          <div>
+          {/* Broker/Agent Filter (multi-select with checkboxes) */}
+          <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Broker/Agent</h3>
-            <Select
-              instanceId="leads-agent-select"
-              styles={reactSelectStyles}
-              options={[
-                { value: '', label: 'Select an Agent' },
+            {(() => {
+              const agentOptions = [
                 { value: 'agent1', label: 'Agent 1' },
                 { value: 'agent2', label: 'Agent 2' },
                 { value: 'agent3', label: 'Agent 3' }
-              ]}
-              value={[
-                { value: '', label: 'Select an Agent' },
-                { value: 'agent1', label: 'Agent 1' },
-                { value: 'agent2', label: 'Agent 2' },
-                { value: 'agent3', label: 'Agent 3' }
-              ].find(o => o.value === leadFilters.brokerAgent) || { value: '', label: 'Select an Agent' }}
-              onChange={(opt) => setLeadFilters(prev => ({ ...prev, brokerAgent: (opt?.value || '') }))}
-              isSearchable
-            />
+              ];
+              const CheckboxOption = (props) => (
+                <components.Option {...props}>
+                  <input type="checkbox" checked={props.isSelected} readOnly className="mr-2" />
+                  <span>{props.label}</span>
+                </components.Option>
+              );
+              return (
+                <Select
+                  instanceId="leads-agent-select"
+                  styles={reactSelectStyles}
+                  className="cursor-pointer"
+                  options={agentOptions}
+                  value={agentOptions.filter(o => (leadFilters.brokerAgent || []).includes(o.value))}
+                  onChange={(opts) => setLeadFilters(prev => ({ ...prev, brokerAgent: (opts || []).map(o => o.value) }))}
+                  isSearchable
+                  isMulti
+                  closeMenuOnSelect={false}
+                  hideSelectedOptions={false}
+                  components={{ Option: CheckboxOption }}
+                  placeholder="Select Agents"
+                />
+              );
+            })()}
           </div>
 
           {/* Priority Filter */}
@@ -363,7 +507,7 @@ const LeadsComponent = () => {
             <h3 className="text-sm font-medium text-gray-900 mb-3">Priority</h3>
             <div className="space-y-2">
               {priorityOptions.map((priority) => (
-                <label key={priority} className="flex items-center">
+                <label key={priority} className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={leadFilters.priority.includes(priority)}
@@ -375,7 +519,8 @@ const LeadsComponent = () => {
               ))}
             </div>
           </div>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Leads Grid */}
@@ -383,9 +528,10 @@ const LeadsComponent = () => {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Properties Leads</h1>
             <div className="flex items-center gap-4">
-              <span className="text-gray-600">Showing {leads.length} of {leads.length} results</span>
+              <span className="text-gray-600 text-sm">Showing 1–{leads.length} of {leads.length} results</span>
+            </div>
+            <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">Sort by:</span>
                 <div className="min-w-[220px]">
@@ -418,8 +564,70 @@ const LeadsComponent = () => {
         </div>
 
         {/* Leads Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {leads.map((lead) => (
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1,2,3,4,5,6,7,8].map((i) => (
+              <div key={i} className="bg-white border border-gray-200 rounded-lg p-6">
+                {/* Profile and Status Skeleton */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className="w-18 h-18 bg-gray-200 rounded-full"></div>
+                    <div className="ml-3">
+                      <div className="h-5 bg-gray-200 rounded w-24"></div>
+                    </div>
+                  </div>
+                  <div className="h-6 bg-gray-200 rounded w-16"></div>
+                </div>
+
+                {/* Lead Details Skeleton */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between">
+                    <div className="h-3 bg-gray-200 rounded w-8"></div>
+                    <div className="h-3 bg-gray-200 rounded w-12"></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="h-3 bg-gray-200 rounded w-16"></div>
+                    <div className="h-3 bg-gray-200 rounded w-20"></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="h-3 bg-gray-200 rounded w-12"></div>
+                    <div className="h-3 bg-gray-200 rounded w-24"></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="h-3 bg-gray-200 rounded w-10"></div>
+                    <div className="h-3 bg-gray-200 rounded w-32"></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="h-3 bg-gray-200 rounded w-14"></div>
+                    <div className="h-3 bg-gray-200 rounded w-16"></div>
+                  </div>
+                </div>
+
+                {/* Interested Regions Skeleton */}
+                <div className="mb-4">
+                  <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                  <div className="flex flex-wrap gap-1">
+                    <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                    <div className="h-6 bg-gray-200 rounded-full w-20"></div>
+                    <div className="h-6 bg-gray-200 rounded-full w-18"></div>
+                  </div>
+                </div>
+
+                {/* Action Buttons Skeleton */}
+                <div className="space-y-3">
+                  <div className="h-8 bg-gray-200 rounded w-full"></div>
+                  <div className="flex justify-end gap-4">
+                    <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                    <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                    <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {leads.map((lead) => (
             <div key={lead.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
               {/* Profile and Status */}
               <div className="flex items-center justify-between mb-4">
@@ -427,41 +635,41 @@ const LeadsComponent = () => {
                   <img
                     src={lead.profileImage}
                     alt={lead.name}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-18 h-18 rounded-full object-cover"
                   />
                   <div className="ml-3">
                     <h3 className="text-lg font-semibold text-gray-900">{lead.name}</h3>
                   </div>
                 </div>
-                {lead.status !== 'Open' && (
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(lead.status)}`}>
-                    {lead.status}
+                <div className="relative">
+                  <span
+                    className="text-[11px] font-semibold text-white px-3 py-1 rounded-tr-md rounded-bl-md inline-block"
+                    style={getStatusRibbonStyle(lead.status)}
+                  >
+                    {lead.status === 'Open' ? 'NEW' : lead.status.toUpperCase()}
                   </span>
-                )}
+                </div>
               </div>
 
               {/* Lead Details */}
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between">
+              <div className="space-y-0 mb-4">
+                <div className="flex justify-between py-2 border-b border-gray-200">
                   <span className="text-sm text-gray-600">Type:</span>
                   <span className="text-sm font-medium text-gray-900">{lead.type}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between py-2 border-b border-gray-200">
                   <span className="text-sm text-gray-600">Budget/Price:</span>
                   <span className="text-sm font-medium text-gray-900">{lead.budget}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between py-2 border-b border-gray-200">
                   <span className="text-sm text-gray-600">Phone:</span>
                   <span className="text-sm font-medium text-gray-900">{lead.phone}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between py-2 border-b border-gray-200">
                   <span className="text-sm text-gray-600">Email:</span>
                   <span className="text-sm font-medium text-gray-900">{lead.email}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Updated:</span>
-                  <span className="text-sm font-medium text-gray-900">{lead.updated}</span>
-                </div>
+                {/* Updated section removed as requested */}
               </div>
 
               {/* Interested Regions */}
@@ -478,36 +686,14 @@ const LeadsComponent = () => {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md font-medium hover:bg-[#0b4f24] transition-colors">
+                <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
                   View Details
                 </button>
-                <div className="flex justify-end gap-4">
-                  {/* Share */}
-                  <button aria-label="Share" className="p-2 text-gray-500 hover:text-gray-700 transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                    </svg>
-                  </button>
-                  {/* Assign/User Plus */}
-                  <button aria-label="Assign" className="p-2 text-gray-500 hover:text-gray-700 transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 8v6" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 11h-6" />
-                    </svg>
-                  </button>
-                  {/* Delete */}
-                  <button aria-label="Delete" className="p-2 text-gray-500 hover:text-red-600 transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
       </div>
 
       <style jsx>{`
