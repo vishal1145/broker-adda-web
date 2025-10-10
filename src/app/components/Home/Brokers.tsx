@@ -212,7 +212,7 @@ const Brokers = () => {
       </div>
     </div>
     <div className="mt-6 flex items-center justify-center gap-3">
-      <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-green-700 px-6 py-2 text-white text-sm font-semibold shadow-sm">Become a Broker
+      <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-green-900 px-6 py-2 text-white text-sm font-semibold shadow-sm">Become a Broker
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
       </Link>
       <Link href="/search" className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">View All Brokers

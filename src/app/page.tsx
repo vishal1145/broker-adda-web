@@ -40,7 +40,7 @@ export default function HomePage() {
       <Categories data={data.categories} />
 
       {/* Deals strip / badges */}
-      <Deals data={data.deals} />
+      {/* <Deals data={data.deals} /> */}
 
       {/* Flash sale / limited-time offers */}
       <FlashSale data={data.flashSale} />

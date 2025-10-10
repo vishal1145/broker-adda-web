@@ -176,7 +176,8 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
       selectedTab === "all products" ||
       selectedTab === "all"
     ) {
-      return true;
+   
+      return (data.items || []).indexOf(product) < 4;
     }
     return product.type?.toLowerCase().trim() === selectedTab;
   });
