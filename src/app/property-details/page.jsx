@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from 'react';
+import React, { Suspense, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import data from '../data/furnitureData.json';
@@ -10,7 +10,7 @@ const TABS = [
   { label: 'Review' },
 ];
 
-export default function PropertyDetailsPage() {
+function PropertyDetailsPageInner() {
   const searchParams = useSearchParams();
   const product = useMemo(() => {
     const items = data?.products?.items || [];
@@ -338,6 +338,14 @@ export default function PropertyDetailsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PropertyDetailsPage() {
+  return (
+    <Suspense fallback={<div />}> 
+      <PropertyDetailsPageInner />
+    </Suspense>
   );
 }
 
