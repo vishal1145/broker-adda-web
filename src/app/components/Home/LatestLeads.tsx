@@ -3,6 +3,46 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
+interface DotsProps {
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+const Dots = ({ className, style }: DotsProps) => (
+  <svg
+    width="120"
+    height="60"
+    viewBox="0 0 120 60"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={style}
+  >
+    {/* Manually placed circles for a scattered look */}
+    <circle cx="10" cy="20" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="25" cy="10" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="40" cy="25" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="60" cy="15" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="80" cy="30" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="100" cy="20" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="20" cy="40" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="35" cy="50" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="55" cy="40" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="75" cy="50" r="4" fill="#E5E7EB" opacity="1.5" />
+    {/* More dots for a denser scatter */}
+    <circle cx="15" cy="30" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="30" cy="20" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="50" cy="10" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="65" cy="35" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="90" cy="40" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="110" cy="30" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="5" cy="50" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="45" cy="55" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="70" cy="45" r="4" fill="#E5E7EB" opacity="1.5" />
+    <circle cx="100" cy="55" r="4" fill="#E5E7EB" opacity="1.5" />
+  </svg>
+);
+
 type LeadStatus = 'New' | 'In Progress' | 'On Hold' | 'Closed' | string;
 
 interface Transfer {
@@ -35,6 +75,7 @@ const sampleLeads: ApiLead[] = [
       propertyType: 'Residential',
       budget: 9500000,
       primaryRegion: 'delhi-ncr',
+      secondaryRegion:'noida',
       status: 'New',
       createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     },
@@ -47,6 +88,7 @@ const sampleLeads: ApiLead[] = [
       propertyType: 'Commercial',
       budget: '₹1,20,000 / month',
       primaryRegion: 'bengaluru',
+      secondaryRegion:'delhi',
       status: 'In Progress',
       createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
     },
@@ -124,10 +166,19 @@ const LatestLeads: React.FC = () => {
     Rent: 'bg-violet-50 text-violet-700',
   } as Record<string, string>)[r || ''] || 'bg-gray-50 text-gray-700';
   const regionName = (id?: string) => {
-    if (typeof window !== 'undefined' && (window as unknown as { RegionMap?: Record<string, string> }).RegionMap?.[id || '']) {
-      return (window as unknown as { RegionMap: Record<string, string> }).RegionMap[id || ''];
-    }
-    return (id && id.slice?.(-6)) || '—';
+    if (!id) return '—';
+    // Prefer a global mapping if provided at runtime
+    const globalMap = (typeof window !== 'undefined'
+      ? (window as unknown as { RegionMap?: Record<string, string> }).RegionMap
+      : undefined) || {};
+    if (globalMap[id]) return globalMap[id];
+
+    // Fallback: prettify the slug e.g. "delhi-ncr" -> "Delhi NCR"
+    const pretty = id
+      .replace(/[-_]+/g, ' ')
+      .replace(/\b\w/g, (m) => m.toUpperCase())
+      .replace(/Ncr\b/i, 'NCR');
+    return pretty;
   };
   const ago = (d?: string) => {
     const t = d ? new Date(d).getTime() : NaN;
@@ -169,9 +220,14 @@ const LatestLeads: React.FC = () => {
             <p className="mt-1 text-sm text-gray-600">New enquiries will appear here as they arrive.</p>
           </div>
         ) : (
-          <div id="latest-leads-grid" className="grid gap-6 md:grid-cols-12 items-start">
+          <div id="latest-leads-grid" className="grid gap-6 md:grid-cols-12 items-center">
             {/* Left 6-col content */}
-            <div className="md:col-span-6 space-y-4">
+            <div className="md:col-span-6 space-y-4 bg-gray-50 p-8 rounded-2xl relative overflow-hidden">
+             
+              {/* Dots - top right */}
+              <div className="absolute right-20 top-0">
+                <Dots />
+              </div>
               <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                 <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
                 <span>Recent</span>
@@ -186,49 +242,59 @@ const LatestLeads: React.FC = () => {
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </Link>
             </div>
-            <div className="md:col-span-6 grid gap-6 md:grid-cols-2">
+            <div className="md:col-span-6 grid gap-6 md:grid-cols-2 self-center">
             {leads.slice(0,2).map((lead) => (
-              <article key={lead._id} className="group relative rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-xl">
+              <article key={lead._id} className="group relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg">
                 <div className="p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className={`inline-flex items-center gap-1 rounded-full ${reqClass(lead.requirement)} px-2.5 py-1`}>{lead.requirement || ''}</span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 text-gray-700 px-2.5 py-1">{lead.propertyType || ''}</span>
+                  {/* Top Section - Tags and Icon */}
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center rounded-full ${reqClass(lead.requirement)} px-3 py-1.5 text-xs font-medium`}>
+                        {lead.requirement || ''}
+                      </span>
+                      <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 px-3 py-1.5 text-xs font-medium">
+                        {lead.propertyType || ''}
+                      </span>
                     </div>
-                    {/* status removed per request */}
+                    <div className="w-5 h-5 text-gray-600">
+                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                      </svg>
+                    </div>
                   </div>
 
-                  <div className="mt-3 flex items-start gap-3">
-                  
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 capitalize truncate">
-                        {regionName(lead.primaryRegion)}
-                      </h3>
-                      {lead.primaryRegion && (
-                        <p className="mt-0.5 text-sm text-gray-600 truncate">
-                          {regionName(lead.primaryRegion)}
-                        </p>
+                  {/* Middle Section - Location */}
+                  <div className="mb-4">
+                    <h3 className="text-lg font-bold text-gray-900 capitalize mb-1">
+                      {regionName(lead.primaryRegion)}
+                    </h3>
+                    {lead.secondaryRegion && (
+                      <p className="text-sm text-gray-600 capitalize">
+                        {regionName(lead.secondaryRegion)}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Price Section with Background */}
+                  <div className=" rounded-xl py-2 mb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="inline-flex items-center rounded-full bg-green-900 text-white px-3 py-2 font-semibold text-sm">
+                        ₹{typeof lead.budget === 'number' ? INR.format(lead.budget).replace('₹', '') : (lead.budget || '—')}
+                      </div>
+                      {lead.createdAt && (
+                        <span className="text-xs text-gray-500">{ago(lead.createdAt)}</span>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 text-white px-2.5 py-1 font-semibold">
-                      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
-                      {typeof lead.budget === 'number' ? INR.format(lead.budget) : (lead.budget || '—')}
-                    </span>
-                     {lead.createdAt && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 text-gray-700 px-2.5 py-1">{ago(lead.createdAt)}</span>
-                    )}
-                    {lead.secondaryRegion && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 text-gray-700 px-2.5 py-1">{regionName(lead.secondaryRegion)}</span>
-                    )}
-                   
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-between text-xs text-gray-600">
-                    <div>posted by <span className="font-medium text-gray-900">Broker Name</span></div>
-                    <Link href="/lead-details" className="inline-flex items-center justify-center rounded-full bg-[#0A421E] px-4 py-2 text-white text-sm font-semibold shadow-sm hover:shadow-md">View</Link>
+                  {/* Bottom Section - Broker and View Button */}
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-500">
+                      posted by <span className="font-medium text-gray-900">Broker Name</span>
+                    </div>
+                    <Link href="/lead-details" className="inline-flex items-center rounded-full bg-green-900 px-4 py-2 text-white text-sm font-semibold hover:bg-green-800 transition-colors duration-200">
+                      View
+                    </Link>
                   </div>
                 </div>
               </article>

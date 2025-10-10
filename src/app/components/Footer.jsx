@@ -18,19 +18,19 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
   return (
     <footer className="bg-green-900 text-white">
       <div className="px-14 py-12">
-        <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-5 gap-4 ">
+        <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Logo and Description */}
-          <div className=" md:text-left md:col-span-1 ">
-            <div className="flex items-center  -mt-6">
+          <div className="md:text-left">
+            <div className="flex items-center -mt-6">
               <div className="flex items-center cursor-pointer" onClick={() => router.push('/')}>
-                <div className="w-20 h-20 rounded-full flex  overflow-hidden mt-6">
+                <div className="w-20 h-20 rounded-full flex overflow-hidden mt-6">
                   <img
                     src="/House and Handshake Logo (1).png"
                     alt="Logo"
                     className="w-15 h-15 object-contain cursor-pointer"
                   />
                 </div>
-                <h1 className="text-2xl text-white font-medium mr-6 whitespace-nowrap -ml-4">
+                <h1 className="text-xl text-white font-medium mr-6 whitespace-nowrap -ml-4">
                   {data.logo.text}
                 </h1>
               </div>
@@ -40,9 +40,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
               {[
                 { name: 'Facebook', icon: 'fab fa-facebook-f', url: 'https://facebook.com/yourpage' },
                 { name: 'Twitter', icon: 'fab fa-twitter', url: 'https://twitter.com/yourhandle' },
-                // { name: 'Pinterest', icon: 'fab fa-pinterest-p', url: 'https://pinterest.com/yourpage' },
                 { name: 'Instagram', icon: 'fab fa-instagram', url: 'https://instagram.com/yourprofile' },
-                // { name: 'YouTube', icon: 'fab fa-youtube', url: 'https://youtube.com/yourchannel' }
               ].map((item, index) => (
                 <a key={index} href={item.url} target="_blank" rel="noopener noreferrer">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white/10 backdrop-blur-sm">
@@ -57,23 +55,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
             </div>
           </div>
 
-          {/* Company */}
-          <div className="text-left">
-            <h3 className="text-lg mb-4 mt-4">Company</h3>
-            <ul className="space-y-2 text-sm text-gray-300">
-              {data.links.Company.map((link, index) => (
-                <li key={index}>
-                  {link.href.startsWith('http') || link.href.startsWith('mailto:') || link.href.startsWith('tel:') ? (
-                    <a href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}>{link.name}</a>
-                  ) : (
-                    <Link href={link.href} className="hover:text-white transition-colors">{link.name}</Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Customer Services */}
+          {/* Customer Services + About Us */}
           <div className="text-left">
             <h3 className="text-lg mb-4 mt-4">Customer Services</h3>
             <ul className="space-y-2 text-sm text-gray-300">
@@ -86,10 +68,22 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
                   )}
                 </li>
               ))}
+              {/* Add About Us link from Company */}
+              {data.links.Company && data.links.Company.find(link => link.name === 'About Us') && (
+                data.links.Company.filter(link => link.name === 'About Us').map((link, index) => (
+                  <li key={`about-${index}`}>
+                    {link.href.startsWith('http') || link.href.startsWith('mailto:') || link.href.startsWith('tel:') ? (
+                      <a href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}>{link.name}</a>
+                    ) : (
+                      <Link href={link.href} className="hover:text-white transition-colors">{link.name}</Link>
+                    )}
+                  </li>
+                ))
+              )}
             </ul>
           </div>
 
-          {/* Our Information */}
+          {/* Our Information + Blog + Contact Us */}
           <div className="text-left">
             <h3 className="text-lg mb-4 mt-4">Our Information</h3>
             <ul className="space-y-2 text-sm text-gray-300">
@@ -102,6 +96,13 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
                   )}
                 </li>
               ))}
+              {/* Add Blog and Contact Us links */}
+              <li>
+                <Link href="/blog" className="hover:text-white transition-colors">Blogs</Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link>
+              </li>
             </ul>
           </div>
 

@@ -44,7 +44,7 @@
       {
         "type": "broker-residential",
         "title": "Residential Expert",
-        "image": "https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=1200&auto=format&fit=crop",
+        "image": "/images/broker2.webp",
         "price": "",
         "items": "Delhi NCR • 120+ deals",
         "color": "green"
@@ -52,7 +52,7 @@
       {
         "type": "broker-apartments",
         "title": "Luxury Homes Advisor",
-        "image": "https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?q=80&w=1200&auto=format&fit=crop",
+        "image": "/images/broker5.webp",
         "price": "",
         "items": "Mumbai • 95+ deals",
         "color": "yellow"
@@ -60,7 +60,7 @@
       {
         "type": "broker-commercial",
         "title": "Commercial Specialist",
-        "image": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop",
+        "image": "/images/broker7.webp",
         "price": "",
         "items": "Bengaluru • 110+ deals",
         "color": "green"
@@ -68,7 +68,7 @@
       {
         "type": "broker-land",
         "title": "Land & Plots Consultant",
-        "image": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1200&auto=format&fit=crop",
+        "image": "/images/broker8.jpg",
         "price": "",
         "items": "Pune • 70+ deals",
         "color": "yellow"
@@ -76,7 +76,7 @@
       {
         "type": "broker-rentals",
         "title": "Rental Market Pro",
-        "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop",
+        "image": "/images/broker8.jpg",
         "price": "",
         "items": "Hyderabad • 85+ deals",
         "color": "green"

@@ -34,7 +34,7 @@ const Brokers = () => {
     <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <article className="group relative rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition duration-300 overflow-hidden hover:bg-yellow-400 hover:ring-1 hover:ring-yellow-500/60 hover:-translate-y-0.5">
         <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=1200&auto=format&fit=crop" alt="Broker portrait - Residential Expert" className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+          <img src="/images/broker2.webp" alt="Broker portrait - Residential Expert" className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
         </div>
         <div className="p-6">
           <div className="flex items-center justify-between ">
@@ -68,7 +68,7 @@ const Brokers = () => {
 
       <article className="group relative rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition duration-300 overflow-hidden hover:bg-yellow-400 hover:ring-1 hover:ring-yellow-500/60 hover:-translate-y-0.5">
         <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?q=80&w=1200&auto=format&fit=crop" alt="Broker portrait - Luxury Homes Advisor" className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+          <img src="/images/broker7.webp" alt="Broker portrait - Luxury Homes Advisor" className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
         </div>
         <div className="p-6">
           <div className="flex items-center justify-between ">
@@ -99,7 +99,7 @@ const Brokers = () => {
 
       <article className="group relative rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition duration-300 overflow-hidden hover:bg-yellow-400 hover:ring-1 hover:ring-yellow-500/60 hover:-translate-y-0.5">
         <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop" alt="Broker portrait - Commercial Specialist" className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300 opacity-95" />
+          <img src="/images/broker8.jpg" alt="Broker portrait - Commercial Specialist" className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300 opacity-95" />
         </div>
         <div className="p-6">
           <div className="flex items-center justify-between ">
@@ -130,7 +130,7 @@ const Brokers = () => {
 
       <article className="group relative rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition duration-300 overflow-hidden hover:bg-yellow-400 hover:ring-1 hover:ring-yellow-500/60 hover:-translate-y-0.5">
         <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1200&auto=format&fit=crop" alt="Broker portrait - Land & Plots Consultant" className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300 opacity-95" />
+          <img src="/images/broker5.webp" alt="Broker portrait - Land & Plots Consultant" className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300 opacity-95" />
         </div>
         <div className="p-6">
           <div className="flex items-center justify-between ">
@@ -170,9 +170,9 @@ const Brokers = () => {
 
 {/* Advisory CTA */}
 <section className="pb-12">
-  <div className="max-w-5xl mx-auto text-center rounded-2xl bg-white p-8 border border-gray-100">
-    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Join India&apos;s Premier Broker Network</h3>
-    <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm text-gray-700">
+  <div className="max-w-5xl mx-auto text-center  p-8 ">
+    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 ">Join India&apos;s Premier Broker Network</h3>
+    <div className="my-10 grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm text-gray-700">
       <div className="flex flex-col items-center gap-3">
         <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-14 w-14">
           <svg className="h-10 w-10 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -211,7 +211,7 @@ const Brokers = () => {
         <span>Higher commissions</span>
       </div>
     </div>
-    <div className="mt-6 flex items-center justify-center gap-3">
+    <div className=" flex items-center justify-center gap-3">
       <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-green-900 px-6 py-2 text-white text-sm font-semibold shadow-sm">Become a Broker
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
       </Link>
