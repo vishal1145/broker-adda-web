@@ -284,7 +284,6 @@ const LatestLeads: React.FC = () => {
                   <div className="mb-4">
                     <div className="flex items-center justify-between">
                       <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 px-3 py-1.5 text-sm font-semibold">
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 6c-2.5 0-4 1.5-4 3s1.5 3 4 3 4 1.5 4 3-1.5 3-4 3"/><path d="M12 3v18"/></svg>
                         ₹{typeof lead.budget === 'number' ? INR.format(lead.budget).replace('₹', '') : (lead.budget || '—')}
                       </div>
                       {lead.createdAt && (
