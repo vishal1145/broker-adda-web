@@ -76,7 +76,7 @@
       {
         "type": "broker-rentals",
         "title": "Rental Market Pro",
-        "image": "/images/broker8.jpg",
+        "image": "/images/broker5.webp",
         "price": "",
         "items": "Hyderabad • 85+ deals",
         "color": "green"
@@ -84,7 +84,7 @@
       {
         "type": "broker-investments",
         "title": "Investment Deals Expert",
-        "image": "https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=1200&auto=format&fit=crop",
+        "image": "/images/broker7.webp",
         "price": "",
         "items": "Pan-India • 140+ deals",
         "color": "yellow"

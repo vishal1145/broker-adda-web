@@ -276,7 +276,7 @@ const enableSuggestions = false;
             {/* List Property — NEW */}
             <Link
               href="/list-property"
-              className="hidden sm:inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#0d542b] text-white text-sm font-medium hover:shadow-md hover:brightness-110 active:brightness-95 transition"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
             >
               <svg
                 className="w-4 h-4"
@@ -295,15 +295,29 @@ const enableSuggestions = false;
               <span>List Property</span>
             </Link>
 
-            {/* Chat — NEW */}
+            {/* Chat - keep button, change icon to property */}
             <a
               href={CHAT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
               aria-label="Chat with support"
             >
-              💬&nbsp;Chat
+         <svg
+    className="w-4 h-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 11.5a8.38 8.38 0 0 1-1.9 5.4A8.5 8.5 0 0 1 12 20a8.38 8.38 0 0 1-3.1-.6L3 21l1.6-4.5A8.5 8.5 0 0 1 3 11.5a8.5 8.5 0 0 1 8.5-8.5h1A8.5 8.5 0 0 1 21 11.5z" />
+    <circle cx="8" cy="11" r="1" />
+    <circle cx="12" cy="11" r="1" />
+    <circle cx="16" cy="11" r="1" />
+  </svg>
+              <span>Chat</span>
             </a>
 
             {/* Wishlist */}
@@ -445,9 +459,10 @@ const enableSuggestions = false;
                 ) : (
                     <Link
                       href="/signup"
-                    className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-gray-300 text-sm font-semibold text-gray-700 hover:text-[#0d542b] hover:border-[#0d542b] hover:shadow-sm transition-all duration-200 active:scale-[0.98]"
-                    >
-                    Join
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#0d542b] text-white text-sm font-medium hover:shadow-md hover:brightness-110 active:brightness-95 transition"
+                  >
+                  
+                    <span>Join</span>
                     </Link>
                 )}
               </>

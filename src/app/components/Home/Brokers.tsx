@@ -38,13 +38,11 @@ const Brokers = () => {
         </div>
         <div className="p-6">
           <div className="flex items-center justify-between ">
-            <Link href="/broker-details" className="flex items-center gap-2 group/name" title="View details">
+            <Link href="/broker-details" className="flex items-center gap-1 group/name" title="View details">
               <h3 className="text-lg font-semibold text-gray-900 group-hover/name:text-gray-900" style={{display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden'}}>Ravi Kumar</h3>
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 text-gray-700 group-hover/name:bg-gray-50">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </span>
+              <svg className="h-7 w-7 -rotate-45 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </Link>
-            <button className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-700" title="Chat">
+            <button className="inline-flex h-7 w-7 items-center justify-center text-emerald-700" title="Chat">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
             </button>
           </div>
@@ -72,13 +70,11 @@ const Brokers = () => {
         </div>
         <div className="p-6">
           <div className="flex items-center justify-between ">
-            <Link href="/broker-details" className="flex items-center gap-2 group/name" title="View details">
+            <Link href="/broker-details" className="flex items-center gap-1 group/name" title="View details">
               <h3 className="text-lg font-semibold text-gray-900 group-hover/name:text-gray-900" style={{display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden'}}>Priya Shah</h3>
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 text-gray-700 group-hover/name:bg-gray-50">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </span>
+              <svg className="h-7 w-7 -rotate-45 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </Link>
-            <button className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-700" title="Chat">
+            <button className="inline-flex h-7 w-7 items-center justify-center text-emerald-700" title="Chat">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
             </button>
           </div>
@@ -103,13 +99,11 @@ const Brokers = () => {
         </div>
         <div className="p-6">
           <div className="flex items-center justify-between ">
-            <Link href="/broker-details" className="flex items-center gap-2 group/name" title="View details">
+            <Link href="/broker-details" className="flex items-center gap-1 group/name" title="View details">
               <h3 className="text-lg font-semibold  text-gray-900 group-hover/name:text-gray-900" style={{display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden'}}>Aditi Verma</h3>
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 text-gray-700 group-hover/name:bg-gray-50">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </span>
+              <svg className="h-7 w-7 -rotate-45 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </Link>
-            <button className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-700" title="Chat">
+            <button className="inline-flex h-7 w-7 items-center justify-center text-emerald-700" title="Chat">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
             </button>
           </div>
@@ -134,13 +128,11 @@ const Brokers = () => {
         </div>
         <div className="p-6">
           <div className="flex items-center justify-between ">
-            <Link href="/broker-details" className="flex items-center gap-2 group/name" title="View details">
+            <Link href="/broker-details" className="flex items-center gap-1 group/name" title="View details">
               <h3 className="text-lg font-semibold text-gray-900 group-hover/name:text-gray-900" style={{display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden'}}>Sandeep Mehra</h3>
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 text-gray-700 group-hover/name:bg-gray-50">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </span>
+              <svg className="h-7 w-7 -rotate-45 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </Link>
-            <button className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-700" title="Chat">
+            <button className="inline-flex h-7 w-7 items-center justify-center text-emerald-700" title="Chat">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
             </button>
           </div>

@@ -263,22 +263,28 @@ const LatestLeads: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Middle Section - Location */}
+                  {/* Middle Section - Location with right arrow */}
                   <div className="mb-4">
-                    <h3 className="text-lg font-bold text-gray-900 capitalize mb-1">
-                      {regionName(lead.primaryRegion)}
-                    </h3>
+                    <div className="flex items-center ">
+                      <h3 className="text-lg font-bold text-gray-900 capitalize">
+                        {regionName(lead.primaryRegion)}
+                      </h3>
+                      <Link href="/lead-details" aria-label="Open lead details" className="ml-2 align-middle">
+                        <svg className="h-7 w-7 -rotate-45 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      </Link>
+                    </div>
                     {lead.secondaryRegion && (
-                      <p className="text-sm text-gray-600 capitalize">
+                      <p className="text-sm text-gray-600 capitalize mt-1">
                         {regionName(lead.secondaryRegion)}
                       </p>
                     )}
                   </div>
 
-                  {/* Price Section with Background */}
-                  <div className=" rounded-xl py-2 mb-4">
+                  {/* Price Chip */}
+                  <div className="mb-4">
                     <div className="flex items-center justify-between">
-                      <div className="inline-flex items-center rounded-full bg-green-900 text-white px-3 py-2 font-semibold text-sm">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 px-3 py-1.5 text-sm font-semibold">
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 6c-2.5 0-4 1.5-4 3s1.5 3 4 3 4 1.5 4 3-1.5 3-4 3"/><path d="M12 3v18"/></svg>
                         ₹{typeof lead.budget === 'number' ? INR.format(lead.budget).replace('₹', '') : (lead.budget || '—')}
                       </div>
                       {lead.createdAt && (
@@ -287,14 +293,11 @@ const LatestLeads: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Bottom Section - Broker and View Button */}
+                  {/* Bottom Section - Broker */}
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-gray-500">
-                      posted by <span className="font-medium text-gray-900">Broker Name</span>
+                      posted by <span className="font-medium text-gray-900">Ravi Sharma</span>
                     </div>
-                    <Link href="/lead-details" className="inline-flex items-center rounded-full bg-green-900 px-4 py-2 text-white text-sm font-semibold hover:bg-green-800 transition-colors duration-200">
-                      View
-                    </Link>
                   </div>
                 </div>
               </article>
