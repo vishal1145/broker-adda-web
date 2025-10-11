@@ -70,7 +70,7 @@ export default function LeadDetailsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="inline-block h-0.5 w-8 rounded bg-yellow-400"></span>
-                  <h2 className="text-lg font-semibold text-green-900">Lead Overview</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">Lead Overview</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">Active</span>
@@ -147,7 +147,7 @@ export default function LeadDetailsPage() {
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                  <h3 className="text-base font-semibold text-green-900">Requirements</h3>
+                  <h3 className="text-base font-semibold text-gray-900">Requirements</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
@@ -226,7 +226,7 @@ export default function LeadDetailsPage() {
               <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                  <h3 className="text-base font-semibold text-green-900">Notes</h3>
+                  <h3 className="text-base font-semibold text-gray-900">Notes</h3>
                   <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">Important</span>
                 </div>
                 <div className="bg-white rounded-lg p-4 border border-amber-100">
@@ -258,7 +258,7 @@ export default function LeadDetailsPage() {
             <div className="rounded-2xl border border-gray-200 p-5 shadow-sm bg-white">
               <div className="flex items-center gap-2 mb-3">
                 <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-sm font-semibold text-green-900">Similar Leads</h3>
+                <h3 className="text-sm font-semibold text-gray-900">Similar Leads</h3>
               </div>
               <div className="divide-y divide-gray-100 text-sm">
                 {[
@@ -283,7 +283,7 @@ export default function LeadDetailsPage() {
             <div className="rounded-2xl border border-gray-200 p-5 shadow-sm bg-white">
               <div className="flex items-center gap-2 mb-3">
                 <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-sm font-semibold text-green-900">Helpful Info</h3>
+                <h3 className="text-sm font-semibold text-gray-900">Helpful Info</h3>
               </div>
               <ul className="list-disc pl-5 text-sm text-gray-700 space-y-2">
                 <li>Response quickly to increase conversion chances.</li>
