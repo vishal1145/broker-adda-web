@@ -19,6 +19,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
   const [sortBy, setSortBy] = useState('date-added-newest');
   const [isLoading, setIsLoading] = useState(false);
+  const [leads, setLeads] = useState([]);
+  const [leadsError, setLeadsError] = useState('');
+  const [totalLeads, setTotalLeads] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [leadsPerPage] = useState(9);
 
   // Trigger skeleton loader when switching between tabs from header
   useEffect(() => {
@@ -26,6 +31,92 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     const t = setTimeout(() => setIsLoading(false), 500);
     return () => clearTimeout(t);
   }, [activeTab]);
+
+  // Fetch leads from API
+  const fetchLeads = async () => {
+    try {
+      setIsLoading(true);
+      setLeadsError('');
+      
+      // Get token from localStorage following app pattern
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : null;
+      
+      // Use environment variable for API URL following app pattern
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      
+      if (!token) {
+        console.log('No token found, using fallback leads');
+        setLeadsError('No authentication token found');
+        return;
+      }
+
+      // Build query parameters
+      const params = new URLSearchParams();
+      params.set('limit', leadsPerPage);
+      params.set('page', currentPage);
+      
+      // Add filters if needed
+      if (leadFilters.leadStatus.length > 0) {
+        leadFilters.leadStatus.forEach(status => {
+          params.append('status', status.toLowerCase());
+        });
+      }
+
+      const response = await fetch(`${apiUrl}/leads?${params.toString()}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        let items = [];
+        let totalCount = 0;
+        
+        // Handle different response structures
+        if (Array.isArray(data?.data?.items)) {
+          items = data.data.items;
+          totalCount = data.data.total ?? data.total ?? items.length;
+        } else if (Array.isArray(data?.data?.leads)) {
+          items = data.data.leads;
+          totalCount = data.data.total ?? data.total ?? items.length;
+        } else if (Array.isArray(data?.data)) {
+          items = data.data;
+          totalCount = data.total ?? items.length;
+        } else if (Array.isArray(data?.leads)) {
+          items = data.leads;
+          totalCount = data.total ?? items.length;
+        } else if (Array.isArray(data)) {
+          items = data;
+          totalCount = items.length;
+        }
+
+        console.log('Leads data:', items);
+        console.log('Sample lead statuses:', items.map(lead => ({ id: lead._id || lead.id, status: lead.status })));
+        setLeads(items);
+        setTotalLeads(totalCount);
+      } else {
+        setLeadsError('Failed to load leads');
+        setLeads([]);
+        setTotalLeads(0);
+      }
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+      setLeadsError('Error loading leads');
+      setLeads([]);
+      setTotalLeads(0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch leads when component mounts or filters change
+  useEffect(() => {
+    fetchLeads();
+  }, [leadFilters, sortBy, currentPage]);
 
   const leadStatusOptions = ['Open', 'In Progress', 'Closed'];
   const leadTypeOptions = ['Buy', 'Rent', 'Sell', 'Commercial', 'Residential'];
@@ -41,6 +132,29 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       brokerAgent: [],
       priority: []
     });
+    setCurrentPage(1);
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(totalLeads / leadsPerPage);
+  const startIndex = (currentPage - 1) * leadsPerPage;
+  const endIndex = Math.min(startIndex + leadsPerPage, totalLeads);
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   const reactSelectStyles = {
@@ -67,104 +181,51 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     indicatorSeparator: () => ({ display: 'none' })
   };
 
-  const leads = [
-    {
-      id: 1,
-      name: 'Neha Kapoor',
-      profileImage: '/images/user-1.webp',
-      status: 'Open',
-      type: 'Buy',
-      budget: '$5,500,000',
-      phone: '+91 98765 11001',
-      email: 'neha.kapoor@email.com',
-      updated: '2024-07-20',
-      regions: ['Delhi NCR', 'Riverside', 'Green Hills']
-    },
-    {
-      id: 2,
-      name: 'Rohan Desai',
-      profileImage: '/images/user-2.jpeg',
-      status: 'In Progress',
-      type: 'Sell',
-      budget: '$8,200,000',
-      phone: '+91 98765 11002',
-      email: 'rohan.desai@email.com',
-      updated: '2024-07-19',
-      regions: ['Uptown', 'Industrial Park']
-    },
-    {
-      id: 3,
-      name: 'Aarav Mehta',
-      profileImage: '/images/user-3.jpeg',
-      status: 'Open',
-      type: 'Rent',
-      budget: '$3,000/month',
-      phone: '+91 98765 11003',
-      email: 'aarav.mehta@email.com',
-      updated: '2024-07-18',
-      regions: ['Suburbia West', 'City Center']
-    },
-    {
-      id: 4,
-      name: 'Isha Verma',
-      profileImage: '/images/user-4.jpeg',
-      status: 'Closed',
-      type: 'Commercial',
-      budget: '$15,000,000',
-      phone: '+91 98765 11004',
-      email: 'isha.verma@email.com',
-      updated: '2024-07-17',
-      regions: ['Business District']
-    },
-    {
-      id: 5,
-      name: 'Sneha Nair',
-      profileImage: '/images/user-5.jpeg',
-      status: 'Open',
-      type: 'Buy',
-      budget: '$7,100,000',
-      phone: '+91 98765 11005',
-      email: 'sneha.nair@email.com',
-      updated: '2024-07-16',
-      regions: ['Midtown', 'Parkside']
-    },
-    {
-      id: 6,
-      name: 'Vikram Singh',
-      profileImage: '/images/user-6.jpg',
-      status: 'In Progress',
-      type: 'Residential',
-      budget: '$9,800,000',
-      phone: '+91 98765 11006',
-      email: 'vikram.singh@email.com',
-      updated: '2024-07-15',
-      regions: ['Lakeview', 'Mountain Crest']
-    },
-    {
-      id: 7,
-      name: 'Ananya Iyer',
-      profileImage: '/images/user-7.jpeg',
-      status: 'Open',
-      type: 'Rent',
-      budget: '$2,500/month',
-      phone: '+91 98765 11007',
-      email: 'ananya.iyer@email.com',
-      updated: '2024-07-14',
-      regions: ['Westside', 'Downtown']
-    },
-    {
-      id: 8,
-      name: 'Karan Gupta',
-      profileImage: '/images/user-1.webp',
-      status: 'In Progress',
-      type: 'Sell',
-      budget: '$12,300,000',
-      phone: '+91 98765 11008',
-      email: 'karan.gupta@email.com',
-      updated: '2024-07-13',
-      regions: ['Eastside', 'Riverside']
+  // Helper function to get region names from lead data
+  const getRegionNames = (lead) => {
+    let primary = '';
+    let secondary = '';
+    
+    // Handle different possible region field structures
+    if (lead.primaryRegion) {
+      primary = typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion.name;
+    } else if (lead.region) {
+      primary = typeof lead.region === 'string' ? lead.region : lead.region.name;
+    } else if (lead.regions && Array.isArray(lead.regions) && lead.regions.length > 0) {
+      primary = lead.regions[0];
     }
-  ];
+    
+    if (lead.secondaryRegion) {
+      secondary = typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion.name;
+    } else if (lead.regions && Array.isArray(lead.regions) && lead.regions.length > 1) {
+      secondary = lead.regions[1];
+    }
+    
+    return { primary, secondary };
+  };
+
+  // Helper function to get avatar color
+  const getAvatarColor = (seed) => {
+    if (!seed) return { bg: 'bg-gray-200', text: 'text-gray-600' };
+    
+    const colors = [
+      { bg: 'bg-red-100', text: 'text-red-600' },
+      { bg: 'bg-blue-100', text: 'text-blue-600' },
+      { bg: 'bg-green-100', text: 'text-green-600' },
+      { bg: 'bg-yellow-100', text: 'text-yellow-600' },
+      { bg: 'bg-purple-100', text: 'text-purple-600' },
+      { bg: 'bg-pink-100', text: 'text-pink-600' },
+      { bg: 'bg-indigo-100', text: 'text-indigo-600' },
+      { bg: 'bg-orange-100', text: 'text-orange-600' }
+    ];
+    
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
 
   const handleLeadStatusChange = (status) => {
     setLeadFilters(prev => ({
@@ -223,21 +284,45 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
   // Gradient ribbon styles for status to match provided images
   const getStatusRibbonStyle = (status) => {
-    switch (status) {
-      case 'Open': // New
+    if (!status) {
+      return { background: 'linear-gradient(90deg, #F59E0B 0%, #EF4444 100%)' };
+    }
+    
+    const statusLower = status.toLowerCase().trim();
+    
+    switch (statusLower) {
+      case 'open':
+      case 'new':
         return {
           background: 'linear-gradient(90deg, #F59E0B 0%, #EF4444 100%)',
         };
-      case 'In Progress':
+      case 'in progress':
+      case 'inprogress':
+      case 'assigned':
         return {
           background: 'linear-gradient(90deg, #8B5CF6 0%, #7C3AED 100%)',
         };
-      case 'Closed':
+      case 'closed':
+      case 'completed':
         return {
           background: 'linear-gradient(90deg, #10B981 0%, #059669 100%)',
         };
+      case 'rejected':
+      case 'cancelled':
+        return {
+          background: 'linear-gradient(90deg, #EF4444 0%, #DC2626 100%)',
+        };
+      case 'transferred':
+        return {
+          background: 'linear-gradient(90deg, #F97316 0%, #EA580C 100%)',
+        };
+      case 'active':
+        return {
+          background: 'linear-gradient(90deg, #10B981 0%, #047857 100%)',
+        };
       default:
-        return { background: '#e5e7eb' };
+        console.log('Unknown status:', status);
+        return { background: 'linear-gradient(90deg, #F59E0B 0%, #EF4444 100%)' };
     }
   };
 
@@ -529,7 +614,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <span className="text-gray-600 text-sm">Showing 1–{leads.length} of {leads.length} results</span>
+              <span className="text-gray-600 text-sm">
+                {leadsError ? 'Error loading leads' : `Showing ${startIndex + 1}–${endIndex} of ${totalLeads} results`}
+              </span>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
@@ -566,7 +653,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         {/* Leads Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1,2,3,4,5,6,7,8].map((i) => (
+            {[1,2,3,4,5,6,7,8,9].map((i) => (
               <div key={i} className="bg-white border border-gray-200 rounded-lg p-6">
                 {/* Profile and Status Skeleton */}
                 <div className="flex items-center justify-between mb-4">
@@ -625,73 +712,257 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               </div>
             ))}
           </div>
+        ) : leadsError ? (
+          <div className="text-center py-12">
+            <div className="text-red-600 mb-4">
+              <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <p className="text-lg font-medium">{leadsError}</p>
+              <button 
+                onClick={fetchLeads}
+                className="mt-4 bg-[#0A421E] text-white px-4 py-2 rounded-md hover:bg-[#0b4f24] transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        ) : leads.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-500 mb-4">
+              <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-lg font-medium">No leads found</p>
+              <p className="text-sm text-gray-400">Try adjusting your filters or search criteria</p>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {leads.map((lead) => (
-            <div key={lead.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-              {/* Profile and Status */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <img
-                    src={lead.profileImage}
-                    alt={lead.name}
-                    className="w-18 h-18 rounded-full object-cover"
-                  />
-                  <div className="ml-3">
-                    <h3 className="text-lg font-semibold text-gray-900">{lead.name}</h3>
+            {leads.map((lead, index) => {
+              const { primary, secondary } = getRegionNames(lead);
+              const seed = lead.customerName || lead.name || lead.customerEmail || lead.customerPhone || '';
+              const avatarColor = getAvatarColor(seed);
+              
+              return (
+                <div key={lead._id || lead.id || index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                  {/* Profile and Status */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className={`w-18 h-18 rounded-full flex items-center justify-center text-sm font-semibold ${avatarColor.bg} ${avatarColor.text}`}>
+                        {(lead.customerName || lead.name || '-')
+                          .split(' ')
+                          .map(s => s[0])
+                          .filter(Boolean)
+                          .join('')
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                      <div className="ml-3">
+                        <h3 className="text-lg font-semibold text-gray-900">{lead.customerName || lead.name || '-'}</h3>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <span
+                        className="text-[11px] font-semibold text-white px-3 py-1 rounded-tr-md rounded-bl-md inline-block"
+                        style={getStatusRibbonStyle(lead.status)}
+                      >
+                        {(() => {
+                          if (!lead.status) return 'NEW';
+                          const statusLower = lead.status.toLowerCase().trim();
+                          switch (statusLower) {
+                            case 'open':
+                            case 'new':
+                              return 'NEW';
+                            case 'in progress':
+                            case 'inprogress':
+                            case 'assigned':
+                              return 'IN PROGRESS';
+                            case 'closed':
+                            case 'completed':
+                              return 'CLOSED';
+                            case 'rejected':
+                            case 'cancelled':
+                              return 'REJECTED';
+                            case 'transferred':
+                              return 'TRANSFERRED';
+                            case 'active':
+                              return 'ACTIVE';
+                            default:
+                              console.log('Unknown status text:', lead.status);
+                              return lead.status.toUpperCase();
+                          }
+                        })()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Lead Details */}
+                  <div className="space-y-0 mb-4">
+                    <div className="flex justify-between py-2 border-b border-gray-200">
+                      <span className="text-sm text-gray-600">Type:</span>
+                      <span className="text-sm font-medium text-gray-900">{lead.propertyType || lead.requirement || lead.req || '-'}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-gray-200">
+                      <span className="text-sm text-gray-600">Budget/Price:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {typeof lead.budget === 'number' 
+                          ? `$${lead.budget.toLocaleString()}` 
+                          : lead.budget || '-'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-gray-200">
+                      <span className="text-sm text-gray-600">Phone:</span>
+                      <span className="text-sm font-medium text-gray-900">{lead.customerPhone || lead.contact || '-'}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-gray-200">
+                      <span className="text-sm text-gray-600">Email:</span>
+                      <span className="text-sm font-medium text-gray-900">{lead.customerEmail || '-'}</span>
+                    </div>
+                  </div>
+
+                  {/* Interested Regions */}
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">Interested Regions:</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {primary && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                          {primary}
+                        </span>
+                      )}
+                      {secondary && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                          {secondary}
+                        </span>
+                      )}
+                      {!primary && !secondary && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                          Not specified
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-3">
+                    <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
+                      View Details
+                    </button>
                   </div>
                 </div>
-                <div className="relative">
-                  <span
-                    className="text-[11px] font-semibold text-white px-3 py-1 rounded-tr-md rounded-bl-md inline-block"
-                    style={getStatusRibbonStyle(lead.status)}
-                  >
-                    {lead.status === 'Open' ? 'NEW' : lead.status.toUpperCase()}
-                  </span>
-                </div>
-              </div>
+              );
+            })}
+          </div>
+        )}
 
-              {/* Lead Details */}
-              <div className="space-y-0 mb-4">
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Type:</span>
-                  <span className="text-sm font-medium text-gray-900">{lead.type}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Budget/Price:</span>
-                  <span className="text-sm font-medium text-gray-900">{lead.budget}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Phone:</span>
-                  <span className="text-sm font-medium text-gray-900">{lead.phone}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Email:</span>
-                  <span className="text-sm font-medium text-gray-900">{lead.email}</span>
-                </div>
-                {/* Updated section removed as requested */}
-              </div>
-
-              {/* Interested Regions */}
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Interested Regions:</h4>
-                <div className="flex flex-wrap gap-1">
-                  {lead.regions.map((region, index) => (
-                    <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                      {region}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
-                  View Details
-                </button>
-              </div>
+        {/* Pagination */}
+        {!isLoading && !leadsError && leads.length > 0 && totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between">
+            <div className="text-sm text-gray-700">
+              Page {currentPage} of {totalPages}
             </div>
-          ))}
+            
+            <div className="flex items-center space-x-2">
+              {/* Previous Button */}
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                className={`px-3 py-2 text-sm font-medium rounded-md ${
+                  currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Previous
+              </button>
+
+              {/* Page Numbers */}
+              <div className="flex items-center space-x-1">
+                {(() => {
+                  const pages = [];
+                  const maxVisiblePages = 5;
+                  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                  
+                  // Adjust start page if we're near the end
+                  if (endPage - startPage + 1 < maxVisiblePages) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                  }
+
+                  // Add first page and ellipsis if needed
+                  if (startPage > 1) {
+                    pages.push(
+                      <button
+                        key={1}
+                        onClick={() => handlePageChange(1)}
+                        className="px-3 py-2 text-sm font-medium rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                      >
+                        1
+                      </button>
+                    );
+                    if (startPage > 2) {
+                      pages.push(
+                        <span key="ellipsis1" className="px-2 text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                  }
+
+                  // Add visible page numbers
+                  for (let i = startPage; i <= endPage; i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        onClick={() => handlePageChange(i)}
+                        className={`px-3 py-2 text-sm font-medium rounded-md ${
+                          i === currentPage
+                            ? 'bg-[#0A421E] text-white'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {i}
+                      </button>
+                    );
+                  }
+
+                  // Add last page and ellipsis if needed
+                  if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                      pages.push(
+                        <span key="ellipsis2" className="px-2 text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    pages.push(
+                      <button
+                        key={totalPages}
+                        onClick={() => handlePageChange(totalPages)}
+                        className="px-3 py-2 text-sm font-medium rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                      >
+                        {totalPages}
+                      </button>
+                    );
+                  }
+
+                  return pages;
+                })()}
+              </div>
+
+              {/* Next Button */}
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-2 text-sm font-medium rounded-md ${
+                  currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
