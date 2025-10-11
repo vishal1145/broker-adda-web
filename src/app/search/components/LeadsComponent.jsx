@@ -5,8 +5,8 @@ import Select, { components } from 'react-select';
 
 const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [leadFilters, setLeadFilters] = useState({
-    leadStatus: ['Open', 'In Progress'],
-    leadType: ['Buy', 'Rent'],
+    leadStatus: [],
+    leadType: [],
     budgetRange: [5000000, 15000000],
     location: '',
     dateAdded: {
@@ -14,7 +14,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       end: ''
     },
     brokerAgent: [],
-    priority: ['High']
+    priority: []
   });
 
   const [sortBy, setSortBy] = useState('date-added-newest');
@@ -57,12 +57,25 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       params.set('limit', leadsPerPage);
       params.set('page', currentPage);
       
-      // Add filters if needed
+      // Add status filters to API call
       if (leadFilters.leadStatus.length > 0) {
         leadFilters.leadStatus.forEach(status => {
-          params.append('status', status.toLowerCase());
+          // API expects exact UI status names (case-sensitive)
+          params.append('status', status);
         });
       }
+
+      // Add property type filters to API call
+      if (leadFilters.leadType.length > 0) {
+        leadFilters.leadType.forEach(type => {
+          // API expects exact UI type names (case-sensitive)
+          params.append('propertyType', type);
+        });
+      }
+
+      console.log('API URL:', `${apiUrl}/leads?${params.toString()}`);
+      console.log('Status filters:', leadFilters.leadStatus);
+      console.log('Property Type filters:', leadFilters.leadType);
 
       const response = await fetch(`${apiUrl}/leads?${params.toString()}`, {
         headers: {
@@ -77,29 +90,139 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         let totalCount = 0;
         
         // Handle different response structures
+        console.log('Raw API response:', data);
+        
         if (Array.isArray(data?.data?.items)) {
           items = data.data.items;
           totalCount = data.data.total ?? data.total ?? items.length;
+          console.log('Using data.data.items structure');
         } else if (Array.isArray(data?.data?.leads)) {
           items = data.data.leads;
           totalCount = data.data.total ?? data.total ?? items.length;
+          console.log('Using data.data.leads structure');
         } else if (Array.isArray(data?.data)) {
           items = data.data;
           totalCount = data.total ?? items.length;
+          console.log('Using data.data structure');
         } else if (Array.isArray(data?.leads)) {
           items = data.leads;
           totalCount = data.total ?? items.length;
+          console.log('Using data.leads structure');
         } else if (Array.isArray(data)) {
           items = data;
           totalCount = items.length;
+          console.log('Using direct data array structure');
+        } else {
+          console.log('No valid data structure found, checking for other possibilities...');
+          // Check for other possible structures
+          if (data?.data && typeof data.data === 'object') {
+            console.log('data.data is object:', data.data);
+            // Try to find array in the object
+            const possibleArrays = Object.values(data.data).filter(Array.isArray);
+            if (possibleArrays.length > 0) {
+              items = possibleArrays[0];
+              totalCount = items.length;
+              console.log('Found array in data.data object:', items);
+            }
+          }
         }
 
-        console.log('Leads data:', items);
+        // Final fallback - if no items found, try to extract from any array in the response
+        if (items.length === 0) {
+          console.log('No items found, trying final fallback...');
+          const findArraysInObject = (obj) => {
+            const arrays = [];
+            for (const key in obj) {
+              if (Array.isArray(obj[key])) {
+                arrays.push(obj[key]);
+              } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                arrays.push(...findArraysInObject(obj[key]));
+              }
+            }
+            return arrays;
+          };
+          
+          const allArrays = findArraysInObject(data);
+          if (allArrays.length > 0) {
+            // Use the largest array found
+            const largestArray = allArrays.reduce((a, b) => a.length > b.length ? a : b);
+            items = largestArray;
+            totalCount = items.length;
+            console.log('Found array in fallback:', items);
+          }
+        }
+
+        console.log('Final leads data:', items);
+        console.log('Total leads from API:', items.length);
+        console.log('Total count from API:', totalCount);
         console.log('Sample lead statuses:', items.map(lead => ({ id: lead._id || lead.id, status: lead.status })));
-        setLeads(items);
-        setTotalLeads(totalCount);
+        console.log('Sample lead types:', items.map(lead => ({ id: lead._id || lead.id, propertyType: lead.propertyType, requirement: lead.requirement, req: lead.req })));
+        console.log('Active filters:', leadFilters);
+        console.log('API Response structure:', data);
+        
+        // Apply client-side filtering
+        let filteredItems = items;
+        
+        // Filter by Lead Status (client-side fallback if API filtering doesn't work properly)
+        if (leadFilters.leadStatus.length > 0) {
+          filteredItems = filteredItems.filter(lead => {
+            const leadStatus = lead.status || '';
+            return leadFilters.leadStatus.some(filterStatus => {
+              // Match exact status names (case-insensitive)
+              return leadStatus.toLowerCase() === filterStatus.toLowerCase();
+            });
+          });
+        }
+        
+        // Note: Lead Type filtering is now handled by API-side filtering
+        // No client-side filtering needed for leadType
+        
+        // Filter by Priority
+        if (leadFilters.priority.length > 0) {
+          filteredItems = filteredItems.filter(lead => {
+            const leadPriority = lead.priority || lead.priorityLevel || '';
+            const priorityLower = leadPriority.toLowerCase();
+            return leadFilters.priority.some(filterPriority => {
+              const filterPriorityLower = filterPriority.toLowerCase();
+              return priorityLower.includes(filterPriorityLower);
+            });
+          });
+        }
+        
+        // Filter by Location
+        if (leadFilters.location) {
+          const locationLower = leadFilters.location.toLowerCase();
+          filteredItems = filteredItems.filter(lead => {
+            const primaryRegion = lead.primaryRegion || '';
+            const secondaryRegion = lead.secondaryRegion || '';
+            const regions = lead.regions || [];
+            const location = lead.location || '';
+            
+            return (primaryRegion.toLowerCase().includes(locationLower)) ||
+                   (secondaryRegion.toLowerCase().includes(locationLower)) ||
+                   (location.toLowerCase().includes(locationLower)) ||
+                   (Array.isArray(regions) && regions.some(region => 
+                     region.toLowerCase().includes(locationLower)
+                   ));
+          });
+        }
+        
+        console.log('Filtered leads:', filteredItems);
+        console.log('Filter results - Status filter:', leadFilters.leadStatus.length > 0 ? 'Applied (API-side)' : 'Not applied');
+        console.log('Filter results - Property Type filter:', leadFilters.leadType.length > 0 ? 'Applied (API-side)' : 'Not applied');
+        console.log('Filter results - Priority filter:', leadFilters.priority.length > 0 ? 'Applied (Client-side)' : 'Not applied');
+        console.log('Filter results - Location filter:', leadFilters.location ? 'Applied (Client-side)' : 'Not applied');
+        
+        // For pagination, use totalCount from API if available, otherwise use filtered items length
+        const finalTotalCount = totalCount > 0 ? totalCount : filteredItems.length;
+        console.log('Final total count for pagination:', finalTotalCount);
+        
+        setLeads(filteredItems);
+        setTotalLeads(finalTotalCount);
       } else {
-        setLeadsError('Failed to load leads');
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error('API Error:', response.status, errorData);
+        setLeadsError(`Failed to load leads: ${errorData.message || 'Server error'}`);
         setLeads([]);
         setTotalLeads(0);
       }
@@ -118,8 +241,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     fetchLeads();
   }, [leadFilters, sortBy, currentPage]);
 
-  const leadStatusOptions = ['Open', 'In Progress', 'Closed'];
-  const leadTypeOptions = ['Buy', 'Rent', 'Sell', 'Commercial', 'Residential'];
+  const leadStatusOptions = [
+    'New', 
+    'Assigned', 
+    'In Progress', 
+    'Closed', 
+    'Rejected'
+  ];
+  const leadTypeOptions = ['Residential', 'Commercial', 'Plot', 'Other'];
   const priorityOptions = ['High', 'Medium', 'Low'];
 
   const resetFilters = () => {
@@ -296,9 +425,12 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         return {
           background: 'linear-gradient(90deg, #F59E0B 0%, #EF4444 100%)',
         };
+      case 'assigned':
+        return {
+          background: 'linear-gradient(90deg, #3B82F6 0%, #1D4ED8 100%)',
+        };
       case 'in progress':
       case 'inprogress':
-      case 'assigned':
         return {
           background: 'linear-gradient(90deg, #8B5CF6 0%, #7C3AED 100%)',
         };
@@ -433,15 +565,17 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Lead Status</h3>
             <div className="space-y-2">
-              {leadStatusOptions.map((status) => (
-                <label key={status} className="flex items-center cursor-pointer">
+              {leadStatusOptions.map((status, index) => (
+                <label key={`${status}-${index}`} className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={leadFilters.leadStatus.includes(status)}
                     onChange={() => handleLeadStatusChange(status)}
                     className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
-                  <span className="ml-3 text-sm text-gray-700">{status}</span>
+                  <span className="ml-3 text-sm text-gray-700">
+                    {status}
+                  </span>
                 </label>
               ))}
             </div>
@@ -734,7 +868,20 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <p className="text-lg font-medium">No leads found</p>
-              <p className="text-sm text-gray-400">Try adjusting your filters or search criteria</p>
+              <p className="text-sm text-gray-400">
+                {leadFilters.leadStatus.length > 0 
+                  ? `No leads found with status: ${leadFilters.leadStatus.join(', ')}`
+                  : 'Try adjusting your filters or search criteria'
+                }
+              </p>
+              {leadFilters.leadStatus.length > 0 && (
+                <button 
+                  onClick={resetFilters}
+                  className="mt-4 bg-[#0A421E] text-white px-4 py-2 rounded-md hover:bg-[#0b4f24] transition-colors"
+                >
+                  Clear Filters
+                </button>
+              )}
             </div>
           </div>
         ) : (
@@ -746,9 +893,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               
               return (
                 <div key={lead._id || lead.id || index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                  {/* Profile and Status */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
+              {/* Profile and Status */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
                       <div className={`w-18 h-18 rounded-full flex items-center justify-center text-sm font-semibold ${avatarColor.bg} ${avatarColor.text}`}>
                         {(lead.customerName || lead.name || '-')
                           .split(' ')
@@ -758,15 +905,15 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           .slice(0, 2)
                           .toUpperCase()}
                       </div>
-                      <div className="ml-3">
+                  <div className="ml-3">
                         <h3 className="text-lg font-semibold text-gray-900">{lead.customerName || lead.name || '-'}</h3>
-                      </div>
-                    </div>
-                    <div className="relative">
-                      <span
-                        className="text-[11px] font-semibold text-white px-3 py-1 rounded-tr-md rounded-bl-md inline-block"
-                        style={getStatusRibbonStyle(lead.status)}
-                      >
+                  </div>
+                </div>
+                <div className="relative">
+                  <span
+                    className="text-[11px] font-semibold text-white px-3 py-1 rounded-tr-md rounded-bl-md inline-block"
+                    style={getStatusRibbonStyle(lead.status)}
+                  >
                         {(() => {
                           if (!lead.status) return 'NEW';
                           const statusLower = lead.status.toLowerCase().trim();
@@ -774,9 +921,10 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                             case 'open':
                             case 'new':
                               return 'NEW';
+                            case 'assigned':
+                              return 'ASSIGNED';
                             case 'in progress':
                             case 'inprogress':
-                            case 'assigned':
                               return 'IN PROGRESS';
                             case 'closed':
                             case 'completed':
@@ -793,42 +941,42 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                               return lead.status.toUpperCase();
                           }
                         })()}
-                      </span>
-                    </div>
-                  </div>
+                  </span>
+                </div>
+              </div>
 
-                  {/* Lead Details */}
-                  <div className="space-y-0 mb-4">
-                    <div className="flex justify-between py-2 border-b border-gray-200">
-                      <span className="text-sm text-gray-600">Type:</span>
-                      <span className="text-sm font-medium text-gray-900">{lead.propertyType || lead.requirement || lead.req || '-'}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-gray-200">
-                      <span className="text-sm text-gray-600">Budget/Price:</span>
+              {/* Lead Details */}
+              <div className="space-y-0 mb-4">
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-sm text-gray-600">Type:</span>
+                      <span className="text-sm font-medium text-gray-900">{lead.propertyType || '-'}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-sm text-gray-600">Budget/Price:</span>
                       <span className="text-sm font-medium text-gray-900">
                         {typeof lead.budget === 'number' 
                           ? `$${lead.budget.toLocaleString()}` 
                           : lead.budget || '-'}
                       </span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-gray-200">
-                      <span className="text-sm text-gray-600">Phone:</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-sm text-gray-600">Phone:</span>
                       <span className="text-sm font-medium text-gray-900">{lead.customerPhone || lead.contact || '-'}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-gray-200">
-                      <span className="text-sm text-gray-600">Email:</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="text-sm text-gray-600">Email:</span>
                       <span className="text-sm font-medium text-gray-900">{lead.customerEmail || '-'}</span>
-                    </div>
-                  </div>
+                </div>
+              </div>
 
-                  {/* Interested Regions */}
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Interested Regions:</h4>
-                    <div className="flex flex-wrap gap-1">
+              {/* Interested Regions */}
+              <div className="mb-4">
+                <h4 className="text-sm font-medium text-gray-900 mb-2">Interested Regions:</h4>
+                <div className="flex flex-wrap gap-1">
                       {primary && (
                         <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
                           {primary}
-                        </span>
+                    </span>
                       )}
                       {secondary && (
                         <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
@@ -840,16 +988,16 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           Not specified
                         </span>
                       )}
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="space-y-3">
-                    <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
-                      View Details
-                    </button>
-                  </div>
                 </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
+                  View Details
+                </button>
+              </div>
+            </div>
               );
             })}
           </div>

@@ -149,81 +149,68 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         console.log('Using region ID:', validRegionId);
       }
       
-      // Fetch all brokers by making multiple API calls if needed
+      // Fetch brokers with a single API call first, then paginate if needed
       let allBrokers = [];
-      let currentPage = 1;
-      let hasMorePages = true;
       const limit = 100; // Server's maximum allowed limit
       
       console.log('Fetching brokers with region IDs:', regionIds);
       console.log('Base query params:', baseQueryParams.toString());
       
-      while (hasMorePages) {
-        const queryParams = new URLSearchParams(baseQueryParams);
-        queryParams.append('page', currentPage);
-        queryParams.append('limit', limit);
-        
-        const queryString = queryParams.toString();
-        const apiUrlWithParams = queryString ? `${apiUrl}/brokers?${queryString}` : `${apiUrl}/brokers`;
-        
-        console.log(`Fetching page ${currentPage}, URL:`, apiUrlWithParams);
-        
-        const response = await fetch(apiUrlWithParams, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch brokers: ${response.status}`);
+      // First, try to get all brokers in one call
+      const queryParams = new URLSearchParams(baseQueryParams);
+      queryParams.append('page', 1);
+      queryParams.append('limit', limit);
+      
+      const queryString = queryParams.toString();
+      const apiUrlWithParams = queryString ? `${apiUrl}/brokers?${queryString}` : `${apiUrl}/brokers`;
+      
+      console.log('Fetching brokers, URL:', apiUrlWithParams);
+      
+      const response = await fetch(apiUrlWithParams, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
         }
-        
-        const data = await response.json();
-        console.log(`Page ${currentPage} response:`, data);
-        console.log(`Page ${currentPage} response structure:`, {
-          hasData: !!data?.data,
-          dataIsArray: Array.isArray(data?.data),
-          hasBrokers: !!data?.brokers,
-          brokersIsArray: Array.isArray(data?.brokers),
-          isArray: Array.isArray(data),
-          hasDataBrokers: !!data?.data?.brokers,
-          dataBrokersIsArray: Array.isArray(data?.data?.brokers)
-        });
-        
-        // Extract brokers data following app pattern
-        let brokersData = [];
-        
-        if (Array.isArray(data?.data)) {
-          brokersData = data.data;
-          console.log(`Using data.data, found ${brokersData.length} brokers`);
-        } else if (Array.isArray(data?.brokers)) {
-          brokersData = data.brokers;
-          console.log(`Using data.brokers, found ${brokersData.length} brokers`);
-        } else if (Array.isArray(data)) {
-          brokersData = data;
-          console.log(`Using data directly, found ${brokersData.length} brokers`);
-        } else if (data?.data?.brokers && Array.isArray(data.data.brokers)) {
-          brokersData = data.data.brokers;
-          console.log(`Using data.data.brokers, found ${brokersData.length} brokers`);
-        }
-        
-        if (brokersData.length > 0) {
-          console.log(`Sample broker data from page ${currentPage}:`, brokersData[0]);
-        }
-        
-        if (Array.isArray(brokersData) && brokersData.length > 0) {
-          allBrokers = [...allBrokers, ...brokersData];
-          
-          // Check if there are more pages
-          // If we got less than the limit, we've reached the end
-          hasMorePages = brokersData.length === limit;
-          currentPage++;
-        } else {
-          hasMorePages = false;
-        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch brokers: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Brokers response:', data);
+      console.log('Response structure:', {
+        hasData: !!data?.data,
+        dataIsArray: Array.isArray(data?.data),
+        hasBrokers: !!data?.brokers,
+        brokersIsArray: Array.isArray(data?.brokers),
+        isArray: Array.isArray(data),
+        hasDataBrokers: !!data?.data?.brokers,
+        dataBrokersIsArray: Array.isArray(data?.data?.brokers)
+      });
+      
+      // Extract brokers data following app pattern
+      let brokersData = [];
+      
+      if (Array.isArray(data?.data)) {
+        brokersData = data.data;
+        console.log(`Using data.data, found ${brokersData.length} brokers`);
+      } else if (Array.isArray(data?.brokers)) {
+        brokersData = data.brokers;
+        console.log(`Using data.brokers, found ${brokersData.length} brokers`);
+      } else if (Array.isArray(data)) {
+        brokersData = data;
+        console.log(`Using data directly, found ${brokersData.length} brokers`);
+      } else if (data?.data?.brokers && Array.isArray(data.data.brokers)) {
+        brokersData = data.data.brokers;
+        console.log(`Using data.data.brokers, found ${brokersData.length} brokers`);
+      }
+      
+      if (brokersData.length > 0) {
+        console.log(`Sample broker data:`, brokersData[0]);
+        allBrokers = brokersData;
       }
       
       if (allBrokers.length > 0) {
@@ -309,28 +296,40 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     }
   };
 
-  // Fetch brokers when region filter changes or on initial mount
+  // Fetch brokers when region filter changes or on initial mount (with debouncing)
   useEffect(() => {
-    // Convert region names to region IDs for API filtering
-    const regionIds = brokerFilters.region.map(regionName => {
-      const region = regionsData.find(r => {
-        if (typeof r === 'object' && r !== null) {
-          const regionNameFromData = r.name || r.city || r.state || r._id || String(r);
-          return regionNameFromData === regionName;
+    // Only fetch if regionsData is loaded
+    if (regionsData.length === 0) {
+      console.log('Regions data not loaded yet, skipping broker fetch');
+      return;
+    }
+
+    // Debounce the API call to prevent multiple rapid calls
+    const timeoutId = setTimeout(() => {
+      // Convert region names to region IDs for API filtering
+      const regionIds = brokerFilters.region.map(regionName => {
+        const region = regionsData.find(r => {
+          if (typeof r === 'object' && r !== null) {
+            const regionNameFromData = r.name || r.city || r.state || r._id || String(r);
+            return regionNameFromData === regionName;
+          }
+          return String(r) === regionName;
+        });
+        
+        if (region && region._id && /^[0-9a-fA-F]{24}$/.test(region._id)) {
+          return region._id;
         }
-        return String(r) === regionName;
-      });
+        return null;
+      }).filter(Boolean);
       
-      if (region && region._id && /^[0-9a-fA-F]{24}$/.test(region._id)) {
-        return region._id;
-      }
-      return null;
-    }).filter(Boolean);
-    
-    console.log('Region names:', brokerFilters.region);
-    console.log('Mapped region IDs:', regionIds);
-    fetchBrokers(regionIds);
-  }, [brokerFilters.region, regionsData]);
+      console.log('Region names:', brokerFilters.region);
+      console.log('Mapped region IDs:', regionIds);
+      fetchBrokers(regionIds);
+    }, 300); // 300ms debounce delay
+
+    // Cleanup timeout on unmount or dependency change
+    return () => clearTimeout(timeoutId);
+  }, [brokerFilters.region, regionsData.length]); // Only depend on regionsData.length instead of the whole array
 
   const brokerTypes = [
     'Commercial Leasing',
