@@ -37,7 +37,10 @@ export default function HomePage() {
       <Leads />
 <LatestLeads />
       {/* Category tiles / collections */}
-      <Categories data={data.categories} />
+      {/* <Categories data={data.categories} /> */}
+
+      {/* Choose ONE of the product sections you actually use */}
+      <Products data={data.products} />
 
       {/* Deals strip / badges */}
       {/* <Deals data={data.deals} /> */}
@@ -45,8 +48,7 @@ export default function HomePage() {
       {/* Flash sale / limited-time offers */}
       <FlashSale data={data.flashSale} />
 
-      {/* Choose ONE of the product sections you actually use */}
-      <Products data={data.products} />
+      
       {/* <ProductGrid /> */}
 
       {/* Promo banners / CTAs */}
