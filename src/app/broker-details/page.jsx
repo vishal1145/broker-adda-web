@@ -8,21 +8,31 @@ export default function BrokerDetailsPage() {
   return (
     <div className="min-h-screen py-10">
       <div className="w-full mx-auto">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden rounded-3xl bg-white shadow-sm mb-8 border border-gray-200">
-          <div className="absolute inset-0 bg-gradient-to-r from-yellow-50 via-white to-transparent" />
-          <div className="relative p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <img src="/images/user-1.webp" alt="Broker" className="w-16 h-16 rounded-full object-cover ring-4 ring-white shadow" />
-              <div>
-                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-yellow-100 text-green-900 text-xs font-medium">Top Rated Broker</div>
-                <h1 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">Neha Mehta</h1>
-                <p className="text-sm text-gray-500">Independent Real Estate Broker · Sheffield, UK</p>
+        {/* Hero Section - Simple & Clean */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8 p-6">
+          <div className="flex items-center gap-4">
+          <div className="relative">
+                <img src="/images/user-1.webp" alt="Broker" className="w-16 h-16 rounded-full object-cover ring-4 ring-white shadow" />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                </div>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <button className="px-4 py-2.5 rounded-full bg-green-900 hover:bg-green-800 text-white shadow-sm">Contact Broker</button>
-              <button className="px-4 py-2.5 rounded-full border border-yellow-500 text-green-900 bg-white hover:bg-yellow-50">Schedule Meeting</button>
+            
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-2 py-1 rounded-full bg-yellow-100 text-green-900 text-xs font-medium">Top Rated Broker</span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Neha Mehta</h1>
+              <p className="text-sm text-gray-500">Independent Real Estate Broker · Sheffield, UK</p>
+              <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                <span>8+ Years Experience</span>
+                <span>•</span>
+                <span>156 Properties Sold</span>
+                <span>•</span>
+                <span>Available Today</span>
+              </div>
             </div>
           </div>
         </div>
@@ -70,9 +80,9 @@ export default function BrokerDetailsPage() {
                 <div className="flex items-start gap-3">
                   <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
                     <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                      </svg>
                   </span>
-                  <div>
+                <div>
                     <div className="text-gray-500">Full Name</div>
                     <div className="font-medium text-gray-900">Neha Mehta</div>
                   </div>
@@ -81,7 +91,7 @@ export default function BrokerDetailsPage() {
                   <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
                     <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92V21a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.07 12 19.79 19.79 0 0 1 0 3.18 2 2 0 0 1 2 1h4.09a2 2 0 0 1 2 1.72c.12.9.3 1.78.54 2.63a2 2 0 0 1-.45 2.11L7 8a16 16 0 0 0 6 6l.54-.62a2 2 0 0 1 2.11-.45c.85.24 1.73.42 2.63.54A2 2 0 0 1 22 16.92z"/></svg>
                   </span>
-                  <div>
+                <div>
                     <div className="text-gray-500">Phone</div>
                     <div className="font-medium text-gray-900">+1 544 000 123</div>
                   </div>
@@ -90,7 +100,7 @@ export default function BrokerDetailsPage() {
                   <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
                     <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 8l7.89 4.26a2 2 0 0 0 2.22 0L21 8"/><path d="M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>
                   </span>
-                  <div>
+                <div>
                     <div className="text-gray-500">Email</div>
                     <div className="font-medium text-gray-900">neha.mehta@example.com</div>
                   </div>
@@ -99,7 +109,7 @@ export default function BrokerDetailsPage() {
                   <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
                     <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                   </span>
-                  <div>
+                    <div>
                     <div className="text-gray-500">Firm Name</div>
                     <div className="font-medium text-gray-900">Prime Homes Realty</div>
                   </div>
@@ -109,7 +119,7 @@ export default function BrokerDetailsPage() {
                     <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                   </span>
-                  <div>
+                <div>
                     <div className="text-gray-500">Office Address</div>
                     <div className="font-medium text-gray-900">221B High St, Sheffield</div>
                   </div>
@@ -118,7 +128,7 @@ export default function BrokerDetailsPage() {
                   <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
                     <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" /></svg>
                   </span>
-                  <div>
+                <div>
                     <div className="text-gray-500">Website</div>
                     <div className="font-medium text-green-700">examplebroker.com</div>
                   </div>
@@ -139,8 +149,8 @@ export default function BrokerDetailsPage() {
     <div className="flex items-start gap-3">
       <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
         <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 2l4 4-4 4-4-4 4-4z" />
-        </svg>
+        <path d="M12 2l4 4-4 4-4-4 4-4z" />
+      </svg>
       </span>
       <div>
         <div className="text-gray-500">License Number</div>
@@ -157,8 +167,8 @@ export default function BrokerDetailsPage() {
     <div className="flex items-start gap-3">
       <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
         <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M22 16.92V21a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 12 19.79 19.79 0 010 3.18 2 2 0 012 1h4.09a2 2 0 012 1.72c.12.9.3 1.78.54 2.63a2 2 0 01-.45 2.11L7 8a16 16 0 006 6l.54-.62a2 2 0 012.11-.45c.85.24 1.73.42 2.63.54A2 2 0 0122 16.92z" />
-        </svg>
+        <path d="M22 16.92V21a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 12 19.79 19.79 0 010 3.18 2 2 0 012 1h4.09a2 2 0 012 1.72c.12.9.3 1.78.54 2.63a2 2 0 01-.45 2.11L7 8a16 16 0 006 6l.54-.62a2 2 0 012.11-.45c.85.24 1.73.42 2.63.54A2 2 0 0122 16.92z" />
+      </svg>
       </span>
       <div>
         <div className="text-gray-500">WhatsApp Number</div>
@@ -170,8 +180,8 @@ export default function BrokerDetailsPage() {
     <div className="flex items-start gap-3">
       <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
         <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 1116 0" />
-        </svg>
+        <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 1116 0" />
+      </svg>
       </span>
       <div>
         <div className="text-gray-500">Gender</div>
@@ -193,7 +203,7 @@ export default function BrokerDetailsPage() {
         </svg>
       </span>
       <div>
-        <div className="text-gray-500">Preferred Regions</div>
+        <div className="text-gray-500 mb-2">Preferred Regions</div>
         <span className="px-3 py-1.5 rounded-full bg-green-50 text-green-800 text-xs border border-green-200">
           Sheffield Central, Hillsborough, Crookes
         </span>
@@ -209,17 +219,17 @@ export default function BrokerDetailsPage() {
       </span>
       <div className="flex-1">
         <div className="text-gray-500 mb-2">Specializations</div>
-        <div className="flex flex-wrap gap-2">
-          {['Luxury Homes', 'Investment Properties', 'Commercial Real Estate', 'Property Management'].map(
-            (tag) => (
-              <span
-                key={tag}
+      <div className="flex flex-wrap gap-2">
+        {['Luxury Homes', 'Investment Properties', 'Commercial Real Estate', 'Property Management'].map(
+          (tag) => (
+            <span
+              key={tag}
                 className="px-3 py-1.5 rounded-full bg-gray-50 text-gray-800 text-xs border border-gray-200"
-              >
-                {tag}
-              </span>
-            )
-          )}
+            >
+              {tag}
+            </span>
+          )
+        )}
         </div>
       </div>
     </div>

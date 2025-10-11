@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function LeadDetailsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-10 px-4 flex justify-center">
+    <div className="min-h-screen  py-10  flex justify-center">
       <div className="w-full  space-y-6">
         {/* Header */}
         <div className="rounded-3xl border border-gray-200 bg-white shadow-sm p-6 md:p-8">
@@ -33,20 +33,20 @@ export default function LeadDetailsPage() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button className="px-4 py-2.5 rounded-full bg-green-700 hover:bg-green-800 text-white flex items-center gap-2 transition-all duration-200 shadow-sm">
+            {/* <div className="flex gap-2">
+              <button className="px-4 py-2.5 rounded-full bg-green-700 text-sm hover:bg-green-800 text-white flex items-center gap-2 transition-all duration-200 shadow-sm">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 Schedule Visit
               </button>
-              <button className="px-4 py-2.5 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-all duration-200">
+              <button className="px-4 py-2.5 rounded-full text-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-all duration-200">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
                 Add Note
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -114,8 +114,8 @@ export default function LeadDetailsPage() {
                     <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5z"/><path d="M4 22a8 8 0 1 1 16 0"/></svg>
                   </span>
                   <div>
-                    <div className="text-gray-500">Preferred Contact</div>
-                    <div className="font-medium text-gray-900">WhatsApp</div>
+                    <div className="text-gray-500">WhatsApp Number</div>
+                    <div className="font-medium text-gray-900">+1 555 010 7789</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -124,7 +124,7 @@ export default function LeadDetailsPage() {
                   </span>
                   <div>
                     <div className="text-gray-500">Lead Source</div>
-                    <div className="font-medium text-gray-900">Website Form</div>
+                    <div className="font-medium text-gray-900">Google Ads</div>
                   </div>
                 </div>
               </div>
