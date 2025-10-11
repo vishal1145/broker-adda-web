@@ -18,6 +18,12 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
   const [sortBy, setSortBy] = useState('rating-high');
   const [isLoading, setIsLoading] = useState(false);
+  const [regions, setRegions] = useState([]);
+  const [regionsLoading, setRegionsLoading] = useState(true);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Enable skeleton loader on Brokers page when switching tabs
   useEffect(() => {
@@ -26,9 +32,92 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     return () => clearTimeout(t);
   }, [activeTab]);
 
-  const regions = ['Mumbai', 'Delhi', 'Bengaluru', 'Gurugram', 'Pune', 'Noida', 'Chennai', 'Hyderabad', 'Kolkata'];
+  // Fetch regions from API
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        setRegionsLoading(true);
+        
+        // Get token from localStorage following app pattern
+        const token = typeof window !== 'undefined' 
+          ? localStorage.getItem('token') || localStorage.getItem('authToken')
+          : null;
+        
+        // Use environment variable for API URL following app pattern
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        
+        if (!token) {
+          console.log('No token found, using fallback regions');
+          throw new Error('No authentication token found');
+        }
+        
+        const response = await fetch(`${apiUrl}/regions`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch regions: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Regions API response:', data);
+        
+        // Extract regions data following app pattern
+        let regionsData = [];
+        
+        if (Array.isArray(data?.data)) {
+          regionsData = data.data;
+        } else if (Array.isArray(data?.regions)) {
+          regionsData = data.regions;
+        } else if (Array.isArray(data)) {
+          regionsData = data;
+        } else if (data?.data?.regions && Array.isArray(data.data.regions)) {
+          regionsData = data.data.regions;
+        }
+        
+        if (Array.isArray(regionsData) && regionsData.length > 0) {
+          // Extract region names from objects if they are objects
+          const regionNames = regionsData.map(region => {
+            if (typeof region === 'string') {
+              return region;
+            } else if (typeof region === 'object' && region !== null) {
+              return region.name || region.city || region.state || region._id || String(region);
+            }
+            return String(region);
+          });
+          console.log('Processed region names:', regionNames);
+          setRegions(regionNames);
+        } else {
+          throw new Error('No valid regions data received');
+        }
+      } catch (error) {
+        console.error('Error fetching regions:', error);
+        // Fallback to hardcoded regions if API fails
+        const fallbackRegions = ['Mumbai', 'Delhi', 'Bengaluru', 'Gurugram', 'Pune', 'Noida ', 'Chennai', 'Hyderabad', 'Kolkata'];
+        setRegions(fallbackRegions);
+      } finally {
+        setRegionsLoading(false);
+      }
+    };
+
+    fetchRegions();
+  }, []);
+
   const agencies = ['Sharma Realty', 'Verma Associates', 'Mehta Properties', 'Kapoor Estates', 'Singh & Co.', 'Iyer Homes'];
-  const brokerTypes = ['Residential Specialist', 'Commercial Expert', 'Investment Broker', 'Luxury Properties'];
+  const brokerTypes = [
+    'Commercial Leasing',
+    'Luxury Homes', 
+    'Investment Properties',
+    'Rental Properties',
+    'Land Development',
+    'Property Management',
+    'Real Estate Consulting'
+  ];
   // Languages filter removed
 
   const resetFilters = () => {
@@ -76,7 +165,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       agency: 'Sharma Realty',
       experience: 8,
       languages: ['English', 'Hindi', 'Marathi'],
-      address: 'Bandra West, Mumbai, India'
+      address: 'Bandra West, Mumbai, India',
+      brokerTypes: ['Luxury Homes', 'Investment Properties']
     },
     {
       id: 2,
@@ -86,11 +176,12 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       email: 'priya.verma@brokeradda.com',
       phone: '+91 99887 66554',
       status: 'Active',
-      locations: ['Delhi', 'Noida'],
+      locations: ['Delhi', 'Noida Sector 62'],
       agency: 'Verma Associates',
       experience: 12,
       languages: ['English', 'Hindi'],
-      address: 'South Extension, New Delhi, India'
+      address: 'South Extension, New Delhi, India',
+      brokerTypes: ['Commercial Leasing', 'Rental Properties']
     },
     {
       id: 3,
@@ -104,7 +195,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       agency: 'Mehta Properties',
       experience: 15,
       languages: ['English', 'Hindi'],
-      address: 'Electronic City Phase 1, Bengaluru, India'
+      address: 'Electronic City Phase 1, Bengaluru, India',
+      brokerTypes: ['Investment Properties', 'Land Development']
     },
     {
       id: 4,
@@ -118,7 +210,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       agency: 'Kapoor Estates',
       experience: 6,
       languages: ['English', 'Hindi'],
-      address: 'Sector 62, Gurugram, India'
+      address: 'Sector 62, Gurugram, India',
+      brokerTypes: ['Luxury Homes', 'Property Management']
     },
     {
       id: 5,
@@ -132,7 +225,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       agency: 'Singh & Co.',
       experience: 10,
       languages: ['English', 'Hindi'],
-      address: 'C-Scheme, Jaipur, India'
+      address: 'C-Scheme, Jaipur, India',
+      brokerTypes: ['Real Estate Consulting', 'Rental Properties']
     },
     {
       id: 6,
@@ -146,7 +240,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       agency: 'Iyer Homes',
       experience: 9,
       languages: ['English', 'Tamil'],
-      address: 'Adyar, Chennai, India'
+      address: 'Adyar, Chennai, India',
+      brokerTypes: ['Commercial Leasing', 'Real Estate Consulting']
     }
   ];
 
@@ -216,6 +311,132 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     // Use a consistent amber color scheme for all ratings
     return 'bg-amber-50 text-amber-700 border-amber-100';
   };
+
+  // Filter brokers based on selected filters
+  const filteredBrokers = brokers.filter(broker => {
+    // Region filter
+    if (brokerFilters.region.length > 0) {
+      console.log('Filtering by regions:', brokerFilters.region);
+      console.log('Broker locations:', broker.locations);
+      const hasMatchingRegion = brokerFilters.region.some(selectedRegion => 
+        broker.locations.some(brokerLocation => {
+          const brokerLoc = brokerLocation.toLowerCase().trim();
+          const selectedLoc = selectedRegion.toLowerCase().trim();
+          
+          // Exact match
+          if (brokerLoc === selectedLoc) {
+            return true;
+          }
+          
+          // Check if broker location contains the selected region as a complete word
+          // This handles cases like "Sector 62" matching "Noida Sector 62"
+          const brokerWords = brokerLoc.split(/\s+/);
+          const selectedWords = selectedLoc.split(/\s+/);
+          
+          // If selected region has multiple words, check if all words are in broker location
+          if (selectedWords.length > 1) {
+            return selectedWords.every(word => brokerWords.includes(word));
+          }
+          
+          // If selected region is a single word, check if it's a complete word in broker location
+          if (selectedWords.length === 1) {
+            return brokerWords.includes(selectedWords[0]);
+          }
+          
+          return false;
+        })
+      );
+      console.log('Has matching region:', hasMatchingRegion);
+      if (!hasMatchingRegion) return false;
+    }
+
+    // Experience filter
+    if (broker.experience < brokerFilters.experienceRange[0] || 
+        broker.experience > brokerFilters.experienceRange[1]) {
+      return false;
+    }
+
+    // Agency filter
+    if (brokerFilters.agency && broker.agency !== brokerFilters.agency) {
+      return false;
+    }
+
+    // Broker type filter
+    if (brokerFilters.brokerType.length > 0) {
+      const hasMatchingBrokerType = brokerFilters.brokerType.some(selectedType => 
+        broker.brokerTypes && broker.brokerTypes.includes(selectedType)
+      );
+      if (!hasMatchingBrokerType) return false;
+    }
+
+    // Rating filter
+    if (broker.rating < brokerFilters.ratingRange[0] || 
+        broker.rating > brokerFilters.ratingRange[1]) {
+      return false;
+    }
+
+    // Verified only filter
+    if (brokerFilters.showVerifiedOnly && broker.status !== 'Verified') {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Sort brokers based on selected sort option
+  const sortedBrokers = [...filteredBrokers].sort((a, b) => {
+    switch (sortBy) {
+      case 'rating-high':
+        return b.rating - a.rating;
+      case 'rating-low':
+        return a.rating - b.rating;
+      case 'experience-high':
+        return b.experience - a.experience;
+      case 'experience-low':
+        return a.experience - b.experience;
+      case 'name-asc':
+        return a.name.localeCompare(b.name);
+      case 'name-desc':
+        return b.name.localeCompare(a.name);
+      default:
+        return b.rating - a.rating;
+    }
+  });
+
+  // Pagination calculations
+  const totalItems = sortedBrokers.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedBrokers = sortedBrokers.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [brokerFilters, sortBy]);
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  console.log('Total brokers:', brokers.length);
+  console.log('Filtered brokers:', filteredBrokers.length);
+  console.log('Sorted brokers:', sortedBrokers.length);
+  console.log('Current filters:', brokerFilters);
+  console.log('Pagination - Current page:', currentPage, 'Total pages:', totalPages, 'Items per page:', itemsPerPage);
 
   return (
     <div className="flex gap-8">
@@ -299,31 +520,40 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           {/* Location/Region Filter (multi-select with checkboxes) */}
           <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Location/Region</h3>
-            {(() => {
-              const regionOptions = regions.map(r => ({ value: r, label: r }));
-              const CheckboxOption = (props) => (
-                <components.Option {...props}>
-                  <input type="checkbox" checked={props.isSelected} readOnly className="mr-2" />
-                  <span>{props.label}</span>
-                </components.Option>
-              );
-              return (
-                <Select
-                  instanceId="brokers-region-select"
-                  styles={reactSelectStyles}
-                  className="cursor-pointer"
-                  options={regionOptions}
-                  value={regionOptions.filter(o => brokerFilters.region.includes(o.value))}
-                  onChange={(opts) => setBrokerFilters(prev => ({ ...prev, region: (opts || []).map(o => o.value) }))}
-                  isSearchable
-                  isMulti
-                  closeMenuOnSelect={false}
-                  hideSelectedOptions={false}
-                  components={{ Option: CheckboxOption }}
-                  placeholder="Select Regions"
-                />
-              );
-            })()}
+            {regionsLoading ? (
+              <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+            ) : regions.length === 0 ? (
+              <div className="text-sm text-gray-500">
+                No regions available
+              </div>
+            ) : (
+              <Select
+                instanceId="brokers-region-select"
+                styles={reactSelectStyles}
+                className="cursor-pointer"
+                options={regions.map(r => ({ value: r, label: r }))}
+                value={regions
+                  .map(r => ({ value: r, label: r }))
+                  .filter(o => brokerFilters.region.includes(o.value))}
+                onChange={(opts) => setBrokerFilters(prev => ({ 
+                  ...prev, 
+                  region: (opts || []).map(o => o.value) 
+                }))}
+                isSearchable
+                isMulti
+                closeMenuOnSelect={false}
+                hideSelectedOptions={false}
+                components={{
+                  Option: (props) => (
+                    <components.Option {...props}>
+                      <input type="checkbox" checked={props.isSelected} readOnly className="mr-2" />
+                      <span>{props.label}</span>
+                    </components.Option>
+                  )
+                }}
+                placeholder="Select Regions"
+              />
+            )}
           </div>
 
           {/* Experience Years Filter */}
@@ -434,37 +664,44 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <span className="text-gray-600 text-sm">Showing 1–{brokers.length} of {brokers.length} results</span>
+              <span className="text-gray-600 text-sm">
+                {totalItems === 0 
+                  ? 'No results found' 
+                  : `Showing ${startIndex + 1} to ${Math.min(endIndex, totalItems)} of ${totalItems} results`
+                }
+              </span>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-gray-600">Sort by:</span>
-                <div className="min-w-[220px]">
-                  <Select
-                    instanceId="brokers-sort-select"
-                    styles={reactSelectStyles}
-                    options={[
-                      { value: 'rating-high', label: 'Rating (High to Low)' },
-                      { value: 'rating-low', label: 'Rating (Low to High)' },
-                      { value: 'experience-high', label: 'Experience (High to Low)' },
-                      { value: 'experience-low', label: 'Experience (Low to High)' },
-                      { value: 'name-asc', label: 'Name (A-Z)' },
-                      { value: 'name-desc', label: 'Name (Z-A)' }
-                    ]}
-                    value={[
-                      { value: 'rating-high', label: 'Rating (High to Low)' },
-                      { value: 'rating-low', label: 'Rating (Low to High)' },
-                      { value: 'experience-high', label: 'Experience (High to Low)' },
-                      { value: 'experience-low', label: 'Experience (Low to High)' },
-                      { value: 'name-asc', label: 'Name (A-Z)' },
-                      { value: 'name-desc', label: 'Name (Z-A)' }
-                    ].find(o => o.value === sortBy)}
-                    onChange={(opt) => setSortBy(opt?.value || 'rating-high')}
-                    isSearchable={false}
-                  />
+            {sortedBrokers.length > 0 && (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">Sort by:</span>
+                  <div className="min-w-[220px]">
+                    <Select
+                      instanceId="brokers-sort-select"
+                      styles={reactSelectStyles}
+                      options={[
+                        { value: 'rating-high', label: 'Rating (High to Low)' },
+                        { value: 'rating-low', label: 'Rating (Low to High)' },
+                        { value: 'experience-high', label: 'Experience (High to Low)' },
+                        { value: 'experience-low', label: 'Experience (Low to High)' },
+                        { value: 'name-asc', label: 'Name (A-Z)' },
+                        { value: 'name-desc', label: 'Name (Z-A)' }
+                      ]}
+                      value={[
+                        { value: 'rating-high', label: 'Rating (High to Low)' },
+                        { value: 'rating-low', label: 'Rating (Low to High)' },
+                        { value: 'experience-high', label: 'Experience (High to Low)' },
+                        { value: 'experience-low', label: 'Experience (Low to High)' },
+                        { value: 'name-asc', label: 'Name (A-Z)' },
+                        { value: 'name-desc', label: 'Name (Z-A)' }
+                      ].find(o => o.value === sortBy)}
+                      onChange={(opt) => setSortBy(opt?.value || 'rating-high')}
+                      isSearchable={false}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -536,9 +773,32 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
               </div>
             ))}
           </div>
+        ) : totalItems === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-gray-100 mb-6">
+                <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Brokers Found</h3>
+              <p className="text-gray-500 mb-6 max-w-sm">
+                We couldn't find any brokers matching your current filters. Try adjusting your search criteria.
+              </p>
+              <button
+                onClick={resetFilters}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#0A421E] hover:bg-[#0b4f24] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0A421E] transition-colors"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Reset Filters
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {brokers.map((broker) => (
+            {paginatedBrokers.map((broker) => (
             <div key={broker.id} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all border border-gray-100">
               {/* Header: Avatar, name, rating */}
               <div className="flex items-start gap-3 mb-4">
@@ -632,6 +892,70 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
               </div>
             </div>
           ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalItems > 0 && totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Items per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A421E] focus:border-transparent"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePrevious}
+                disabled={currentPage === 1}
+                className={`px-3 py-2 text-sm font-medium rounded-md ${
+                  currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Previous
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-2 text-sm font-medium rounded-md ${
+                      currentPage === page
+                        ? 'bg-[#0A421E] text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-2 text-sm font-medium rounded-md ${
+                  currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
