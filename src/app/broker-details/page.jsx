@@ -237,25 +237,36 @@ export default function BrokerDetailsPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {[
-                  { name: 'Aadhar Card', verified: true },
-                  { name: 'PAN Card', verified: true },
-                  { name: 'GST Certificate', verified: true },
-                  { name: 'Broker License', verified: true },
-                  { name: 'Company Identification', verified: true },
+                  { name: 'Broker License', verified: true, type: 'license' },
+                  { name: 'Company Identification', verified: true, type: 'business' },
                 ].map((doc) => (
                   <div key={doc.name} className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                        {doc.type === 'license' && (
+                          <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 2l4 4-4 4-4-4 4-4z" />
+                          </svg>
+                        )}
+                        {doc.type === 'business' && (
+                          <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" />
+                          </svg>
+                        )}
+                      </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{doc.name}</div>
+                        <div className="text-sm font-medium text-gray-900">{doc.name}</div>
                       {doc.verified && (
-                        <div className="mt-1 inline-flex items-center gap-2 text-xs text-emerald-600">
-                          <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-50">
-                            <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <div className="mt-1 inline-flex items-center gap-2 text-xs text-emerald-600">
+                            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-50">
+                              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                               <path d="M20 6 9 17l-5-5" />
                             </svg>
                           </span>
                           Verified
                         </div>
                       )}
+                    </div>
                     </div>
                     <button className="inline-flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700 px-3 py-1.5 text-xs font-medium hover:bg-emerald-200">
                       View
