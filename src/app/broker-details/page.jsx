@@ -11,18 +11,18 @@ export default function BrokerDetailsPage() {
         {/* Hero Section */}
         <div className="relative overflow-hidden rounded-3xl bg-white shadow-sm mb-8 border border-gray-200">
           <div className="absolute inset-0 bg-gradient-to-r from-yellow-50 via-white to-transparent" />
-          <div className="relative p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="relative p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <img src="/images/user-1.webp" alt="Broker" className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover ring-4 ring-white shadow" />
+              <img src="/images/user-1.webp" alt="Broker" className="w-16 h-16 rounded-full object-cover ring-4 ring-white shadow" />
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-100 text-green-900 text-xs font-semibold">Top Rated Broker</div>
-                <h1 className="mt-2 text-3xl md:text-4xl font-semibold text-gray-900">Neha Mehta</h1>
+                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-yellow-100 text-green-900 text-xs font-medium">Top Rated Broker</div>
+                <h1 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">Neha Mehta</h1>
                 <p className="text-sm text-gray-500">Independent Real Estate Broker · Sheffield, UK</p>
               </div>
             </div>
-            <div className="flex gap-3">
-              <button className="px-5 py-2.5 rounded-full bg-green-900 hover:bg-green-800 text-white shadow">Contact Broker</button>
-              <button className="px-5 py-2.5 rounded-full border border-yellow-500 text-green-900 bg-white hover:bg-yellow-50">Schedule Meeting</button>
+            <div className="flex gap-2">
+              <button className="px-4 py-2.5 rounded-full bg-green-900 hover:bg-green-800 text-white shadow-sm">Contact Broker</button>
+              <button className="px-4 py-2.5 rounded-full border border-yellow-500 text-green-900 bg-white hover:bg-yellow-50">Schedule Meeting</button>
             </div>
           </div>
         </div>
@@ -35,7 +35,7 @@ export default function BrokerDetailsPage() {
             <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <span className="inline-block h-0.5 w-8 rounded bg-yellow-400"></span>
-                <h2 className="text-2xl font-bold text-green-900">About Neha Mehta</h2>
+                <h2 className="text-lg font-semibold text-green-900">About Neha Mehta</h2>
               </div>
               <p className="text-sm text-gray-600 leading-7 mb-6">
                 With over 8 years of experience in residential and commercial real estate, Neha specializes in matching clients with the right properties and maximizing returns for investors. Her consultative approach focuses on long-term relationships and market insight, making her one of the most trusted brokers in Sheffield.
@@ -64,78 +64,63 @@ export default function BrokerDetailsPage() {
             <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-xl font-semibold text-green-900">Contact Information</h3>
+                <h3 className="text-base font-semibold text-green-900">Contact Information</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                </div>
-                <div>
-                      <div className="text-sm text-gray-500">Full Name</div>
-                      <div className="font-semibold text-gray-900">Neha Mehta</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
-                </div>
-                <div>
-                      <div className="text-sm text-gray-500">Phone</div>
-                      <div className="font-semibold text-gray-900">+1 544 000 123</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                </div>
-                <div>
-                      <div className="text-sm text-gray-500">Email</div>
-                      <div className="font-semibold text-gray-900">neha.mehta@example.com</div>
-                    </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
+                <div className="flex items-start gap-3">
+                  <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </span>
+                  <div>
+                    <div className="text-gray-500">Full Name</div>
+                    <div className="font-medium text-gray-900">Neha Mehta</div>
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-500">Firm Name</div>
-                      <div className="font-semibold text-gray-900">Prime Homes Realty</div>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92V21a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.07 12 19.79 19.79 0 0 1 0 3.18 2 2 0 0 1 2 1h4.09a2 2 0 0 1 2 1.72c.12.9.3 1.78.54 2.63a2 2 0 0 1-.45 2.11L7 8a16 16 0 0 0 6 6l.54-.62a2 2 0 0 1 2.11-.45c.85.24 1.73.42 2.63.54A2 2 0 0 1 22 16.92z"/></svg>
+                  </span>
+                  <div>
+                    <div className="text-gray-500">Phone</div>
+                    <div className="font-medium text-gray-900">+1 544 000 123</div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
                 </div>
-                <div>
-                      <div className="text-sm text-gray-500">Office Address</div>
-                      <div className="font-semibold text-gray-900">221B High St, Sheffield</div>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 8l7.89 4.26a2 2 0 0 0 2.22 0L21 8"/><path d="M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>
+                  </span>
+                  <div>
+                    <div className="text-gray-500">Email</div>
+                    <div className="font-medium text-gray-900">neha.mehta@example.com</div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
-                      </svg>
                 </div>
-                <div>
-                      <div className="text-sm text-gray-500">Website</div>
-                      <div className="font-semibold text-green-700">examplebroker.com</div>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                  </span>
+                  <div>
+                    <div className="text-gray-500">Firm Name</div>
+                    <div className="font-medium text-gray-900">Prime Homes Realty</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  </span>
+                  <div>
+                    <div className="text-gray-500">Office Address</div>
+                    <div className="font-medium text-gray-900">221B High St, Sheffield</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" /></svg>
+                  </span>
+                  <div>
+                    <div className="text-gray-500">Website</div>
+                    <div className="font-medium text-green-700">examplebroker.com</div>
                   </div>
                 </div>
               </div>
@@ -143,28 +128,24 @@ export default function BrokerDetailsPage() {
 
    <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
   {/* Heading with yellow bar */}
-  <div className="flex items-center gap-2 mb-6">
+  <div className="flex items-center gap-2 mb-4">
     <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-    <h3 className="text-xl font-semibold text-green-900">Professional Details</h3>
+    <h3 className="text-base font-semibold text-green-900">Professional Details</h3>
   </div>
 
   {/* Grid layout (rows of 2) */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
     {/* License Number */}
     <div className="flex items-start gap-3">
-      <svg
-        className="w-5 h-5 text-gray-500 mt-1"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path d="M12 2l4 4-4 4-4-4 4-4z" />
-      </svg>
+      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 2l4 4-4 4-4-4 4-4z" />
+        </svg>
+      </span>
       <div>
-        <div className="text-sm text-gray-500">License Number</div>
+        <div className="text-gray-500">License Number</div>
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-gray-900">UK-BRK-2025-00123</span>
+          <span className="font-medium text-gray-900">UK-BRK-2025-00123</span>
           <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 font-medium">
             Verified
           </span>
@@ -174,36 +155,28 @@ export default function BrokerDetailsPage() {
 
     {/* WhatsApp Number */}
     <div className="flex items-start gap-3">
-      <svg
-        className="w-5 h-5 text-gray-500 mt-1"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path d="M22 16.92V21a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 12 19.79 19.79 0 010 3.18 2 2 0 012 1h4.09a2 2 0 012 1.72c.12.9.3 1.78.54 2.63a2 2 0 01-.45 2.11L7 8a16 16 0 006 6l.54-.62a2 2 0 012.11-.45c.85.24 1.73.42 2.63.54A2 2 0 0122 16.92z" />
-      </svg>
+      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M22 16.92V21a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 12 19.79 19.79 0 010 3.18 2 2 0 012 1h4.09a2 2 0 012 1.72c.12.9.3 1.78.54 2.63a2 2 0 01-.45 2.11L7 8a16 16 0 006 6l.54-.62a2 2 0 012.11-.45c.85.24 1.73.42 2.63.54A2 2 0 0122 16.92z" />
+        </svg>
+      </span>
       <div>
-        <div className="text-sm text-gray-500">WhatsApp Number</div>
-        <div className="font-semibold text-gray-900">+1 544 000 123</div>
+        <div className="text-gray-500">WhatsApp Number</div>
+        <div className="font-medium text-gray-900">+1 544 000 123</div>
       </div>
     </div>
 
     {/* Gender */}
     <div className="flex items-start gap-3">
-      <svg
-        className="w-5 h-5 text-gray-500 mt-1"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 1116 0" />
-      </svg>
+      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 1116 0" />
+        </svg>
+      </span>
       <div>
-        <div className="text-sm text-gray-500">Gender</div>
+        <div className="text-gray-500">Gender</div>
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-gray-900">Female</span>
+          <span className="font-medium text-gray-900">Female</span>
           <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800 font-medium">
             Verified ID
           </span>
@@ -212,50 +185,42 @@ export default function BrokerDetailsPage() {
     </div>
 
     {/* Preferred Regions */}
-    <div>
-      <div className="flex items-center gap-2 text-sm font-medium text-gray-900 mb-2">
-        <svg
-          className="w-4 h-4 text-gray-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
+    <div className="flex items-start gap-3">
+      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 10c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
           <path d="M12 10v10M7 22h10" />
         </svg>
-        <span>Preferred Regions</span>
-      </div>
-      <span className="px-3 py-1.5 rounded-full bg-green-50 text-green-800 text-sm border border-green-200">
-        Sheffield Central, Hillsborough, Crookes
       </span>
+      <div>
+        <div className="text-gray-500">Preferred Regions</div>
+        <span className="px-3 py-1.5 rounded-full bg-green-50 text-green-800 text-xs border border-green-200">
+          Sheffield Central, Hillsborough, Crookes
+        </span>
+      </div>
     </div>
 
     {/* Specializations (Full Width Row) */}
-    <div className="md:col-span-2">
-      <div className="flex items-center gap-2 text-sm font-medium text-gray-900 mb-2">
-        <svg
-          className="w-4 h-4 text-gray-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
+    <div className="sm:col-span-2 flex items-start gap-3">
+      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 6v12m6-6H6" />
         </svg>
-        <span>Specializations</span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {['Luxury Homes', 'Investment Properties', 'Commercial Real Estate', 'Property Management'].map(
-          (tag) => (
-            <span
-              key={tag}
-              className="px-3 py-1.5 rounded-full bg-gray-50 text-gray-800 text-sm border border-gray-200"
-            >
-              {tag}
-            </span>
-          )
-        )}
+      </span>
+      <div className="flex-1">
+        <div className="text-gray-500 mb-2">Specializations</div>
+        <div className="flex flex-wrap gap-2">
+          {['Luxury Homes', 'Investment Properties', 'Commercial Real Estate', 'Property Management'].map(
+            (tag) => (
+              <span
+                key={tag}
+                className="px-3 py-1.5 rounded-full bg-gray-50 text-gray-800 text-xs border border-gray-200"
+              >
+                {tag}
+              </span>
+            )
+          )}
+        </div>
       </div>
     </div>
   </div>
@@ -268,7 +233,7 @@ export default function BrokerDetailsPage() {
             <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-xl font-semibold text-green-900">Documents</h3>
+                <h3 className="text-base font-semibold text-green-900">Documents</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {[
@@ -304,7 +269,7 @@ export default function BrokerDetailsPage() {
             <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
              <div className="flex items-center gap-2 mb-3">
                 <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-xl font-semibold text-green-900">Social Media & Online Presence</h3>
+                <h3 className="text-base font-semibold text-green-900">Social Media & Online Presence</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3 p-3 rounded-lg border border-gray-200">
@@ -348,7 +313,7 @@ export default function BrokerDetailsPage() {
           <div className="lg:col-span-3 space-y-6">
             {/* Lead Generation Support */}
             <div className="bg-gradient-to-br from-green-900 to-green-900 rounded-2xl p-6 text-white border border-yellow-500">
-              <h3 className="text-xl font-bold mb-4">Lead Generation Support</h3>
+              <h3 className="text-lg font-semibold mb-4">Lead Generation Support</h3>
               <p className="text-green-100 mb-6 text-sm">
                 Join our exclusive broker network and get access to premium lead generation tools and support.
               </p>
@@ -400,7 +365,7 @@ export default function BrokerDetailsPage() {
 
             {/* Additional Benefits */}
             <div className="bg-white rounded-2xl border border-yellow-500/40 p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-green-900 mb-4">Additional Benefits</h3>
+              <h3 className="text-base font-semibold text-green-900 mb-4">Additional Benefits</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
@@ -447,7 +412,7 @@ export default function BrokerDetailsPage() {
 
             {/* Quick Contact */}
             <div className="bg-white rounded-2xl border border-yellow-500/40 p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-green-900 mb-4">Quick Contact</h3>
+              <h3 className="text-base font-semibold text-green-900 mb-4">Quick Contact</h3>
               <div className="space-y-3">
                 <button className="w-full px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg text-sm font-medium">
                   Send Message
@@ -463,7 +428,7 @@ export default function BrokerDetailsPage() {
 
             {/* Performance Summary */}
             <div className="bg-white rounded-2xl border border-yellow-500/40 p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-green-900 mb-4">Performance Summary</h3>
+              <h3 className="text-base font-semibold text-green-900 mb-4">Performance Summary</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Overall Rating</span>
