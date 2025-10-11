@@ -1,12 +1,23 @@
 import React from 'react';
+import HeaderFile from '../components/Header';
 
 export const metadata = {
   title: 'Lead Details',
 };
 
+const headerData = {
+  title: 'Lead Details',
+  breadcrumb: [
+    { label: 'Home', href: '/' },
+    { label: 'Lead Details', href: '/lead-details' }
+  ]
+};
+
 export default function LeadDetailsPage() {
   return (
-    <div className="min-h-screen  py-10  flex justify-center">
+    <div className="min-h-screen">
+      <HeaderFile data={headerData} />
+      <div className="py-10 flex justify-center">
       <div className="w-full  space-y-6">
         {/* Header */}
         <div className="rounded-3xl border border-gray-200 bg-white shadow-sm p-6 md:p-8">
@@ -282,7 +293,9 @@ export default function LeadDetailsPage() {
               </ul>
             </div>
           </aside>
-        </div>
+        
+      </div>
+      </div>
       </div>
     </div>
   );

@@ -1,12 +1,23 @@
 import React from 'react';
+import HeaderFile from '../components/Header';
 
 export const metadata = {
   title: 'Broker Details',
 };
 
+const headerData = {
+  title: 'Broker Details',
+  breadcrumb: [
+    { label: 'Home', href: '/' },
+    { label: 'Broker Details', href: '/broker-details' }
+  ]
+};
+
 export default function BrokerDetailsPage() {
   return (
-    <div className="min-h-screen py-10">
+    <div className="min-h-screen">
+      <HeaderFile data={headerData} />
+      <div className="py-10">
       <div className="w-full mx-auto">
         {/* Hero Section - Simple & Clean */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8 p-6">
@@ -480,6 +491,7 @@ export default function BrokerDetailsPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

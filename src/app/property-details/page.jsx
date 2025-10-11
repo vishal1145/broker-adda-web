@@ -3,6 +3,7 @@ import React, { Suspense, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import data from '../data/furnitureData.json';
+import HeaderFile from '../components/Header';
 
 const TABS = [
   { label: 'Description' },
@@ -37,9 +38,20 @@ function PropertyDetailsPageInner() {
   const originalPrice = product?.originalPrice || 0;
   const discount = product?.discount || '';
 
+  const headerData = {
+    title: 'Property Details',
+    breadcrumb: [
+      { label: 'Home', href: '/' },
+      { label: 'Properties', href: '/properties' },
+      { label: 'Property Details', href: '/property-details' }
+    ]
+  };
+
   return (
-    <div className="min-h-screen py-10">
-      <div className="w-full mx-auto">
+    <div className="min-h-screen">
+      <HeaderFile data={headerData} />
+      <div className="py-10">
+        <div className="w-full mx-auto">
         {/* Property Header - Lead Detail Style */}
         <div className="rounded-3xl border border-gray-200 bg-white shadow-sm p-6 md:p-8 mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -729,8 +741,8 @@ function PropertyDetailsPageInner() {
             ))}
           </div>
         </div>
-              </div>  
-
+        </div>  
+        </div>
       </div>
     </div>
   );
