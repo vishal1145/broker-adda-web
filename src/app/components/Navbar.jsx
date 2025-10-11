@@ -179,7 +179,7 @@ const Navbar = ({ data }) => {
 const enableSuggestions = false; 
 
   return (
-    <nav className="bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-gray-100 shadow-sm fixed top-0 left-0 right-0 z-50">
+    <nav className="bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-gray-100 shadow-sm fixed top-0 left-0 right-0 z-80">
       <div className=" mx-auto px-14">
         <div className="flex items-center justify-between py-4 gap-4">
           {/* Logo */}
