@@ -20,6 +20,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
   const [sortBy, setSortBy] = useState('date-added-newest');
   const [isLoading, setIsLoading] = useState(false);
+  const [uiLoading, setUiLoading] = useState(false);
   const [leads, setLeads] = useState([]);
   const [leadsError, setLeadsError] = useState('');
   const [totalLeads, setTotalLeads] = useState(0);
@@ -30,8 +31,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
   // Trigger skeleton loader when switching between tabs from header
   useEffect(() => {
-    setIsLoading(true);
-    const t = setTimeout(() => setIsLoading(false), 500);
+    setUiLoading(true);
+    const t = setTimeout(() => setUiLoading(false), 500);
     return () => clearTimeout(t);
   }, [activeTab]);
 
@@ -52,13 +53,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       if (!token) {
         console.log('No token found, using fallback leads');
         setLeadsError('No authentication token found');
+        setIsLoading(false);
         return;
       }
 
-      // Build query parameters
+      // Build query parameters (use only server-supported keys)
       const params = new URLSearchParams();
-      params.set('limit', leadsPerPage);
-      params.set('page', currentPage);
+      params.set('limit', String(leadsPerPage));
+      params.set('page', String(currentPage));
       
       // Add status filters to API call
       if (leadFilters.leadStatus.length > 0) {
@@ -68,13 +70,19 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         });
       }
 
-      // Add property type filters to API call
-      if (leadFilters.leadType.length > 0) {
-        leadFilters.leadType.forEach(type => {
-          // API expects exact UI type names (case-sensitive)
-          params.append('propertyType', type);
-        });
+      // Add property type (single-select) to API call
+      if (leadFilters.leadType.length === 1) {
+        params.set('propertyType', leadFilters.leadType[0]);
       }
+
+      // Requirement (single-select) - ask backend to filter
+      if (leadFilters.requirement.length === 1) {
+        params.set('requirement', leadFilters.requirement[0]);
+      }
+
+      // Region/location: do NOT send to API if backend rejects it, apply client-side below
+      // If your backend supports it, uncomment next line
+      // if (leadFilters.location) params.set('region', leadFilters.location);
 
       console.log('API URL:', `${apiUrl}/leads?${params.toString()}`);
       console.log('Status filters:', leadFilters.leadStatus);
@@ -95,25 +103,27 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         // Handle different response structures
         console.log('Raw API response:', data);
         
+        const paginationTotal = data?.data?.pagination?.totalItems || data?.pagination?.totalItems || 0;
+
         if (Array.isArray(data?.data?.items)) {
           items = data.data.items;
-          totalCount = data.data.total ?? data.total ?? items.length;
+          totalCount = paginationTotal || data.data.total || data.total || items.length;
           console.log('Using data.data.items structure');
         } else if (Array.isArray(data?.data?.leads)) {
           items = data.data.leads;
-          totalCount = data.data.total ?? data.total ?? items.length;
+          totalCount = paginationTotal || data.data.total || data.total || items.length;
           console.log('Using data.data.leads structure');
         } else if (Array.isArray(data?.data)) {
           items = data.data;
-          totalCount = data.total ?? items.length;
+          totalCount = paginationTotal || data.total || items.length;
           console.log('Using data.data structure');
         } else if (Array.isArray(data?.leads)) {
           items = data.leads;
-          totalCount = data.total ?? items.length;
+          totalCount = paginationTotal || data.total || items.length;
           console.log('Using data.leads structure');
         } else if (Array.isArray(data)) {
           items = data;
-          totalCount = items.length;
+          totalCount = paginationTotal || items.length;
           console.log('Using direct data array structure');
         } else {
           console.log('No valid data structure found, checking for other possibilities...');
@@ -177,8 +187,22 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           });
         }
         
-        // Note: Lead Type filtering is now handled by API-side filtering
-        // No client-side filtering needed for leadType
+        // Client-side backup: filter by property type (single-select)
+        if (leadFilters.leadType.length === 1) {
+          const selectedType = leadFilters.leadType[0].toLowerCase();
+          filteredItems = filteredItems.filter(lead => (lead.propertyType || '').toLowerCase() === selectedType);
+        }
+
+        // Client-side backup if backend didn't apply requirement
+        if (leadFilters.requirement.length === 1) {
+          const selectedReq = leadFilters.requirement[0].toLowerCase();
+          const beforeCount = filteredItems.length;
+          const filtered = filteredItems.filter(lead => (lead.requirement || lead.req || '').toLowerCase() === selectedReq);
+          // Only override if backend didn't filter (sizes equal)
+          if (beforeCount === filteredItems.length) {
+            filteredItems = filtered;
+          }
+        }
         
         // Filter by Priority
         if (leadFilters.priority.length > 0) {
@@ -192,7 +216,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           });
         }
         
-        // Filter by Location
+        // Filter by Location (Region) - client-side robust matching
         if (leadFilters.location) {
           const locationLower = leadFilters.location.toLowerCase();
           filteredItems = filteredItems.filter(lead => {
@@ -200,13 +224,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             const secondaryRegion = lead.secondaryRegion || '';
             const regions = lead.regions || [];
             const location = lead.location || '';
-            
-            return (primaryRegion.toLowerCase().includes(locationLower)) ||
-                   (secondaryRegion.toLowerCase().includes(locationLower)) ||
-                   (location.toLowerCase().includes(locationLower)) ||
-                   (Array.isArray(regions) && regions.some(region => 
-                     region.toLowerCase().includes(locationLower)
-                   ));
+
+            const tokens = (val) => String(val).toLowerCase().split(/[,\s]+/).filter(Boolean);
+            const match = (val) => tokens(val).includes(locationLower) || String(val).toLowerCase() === locationLower || String(val).toLowerCase().includes(locationLower);
+
+            return match(primaryRegion) ||
+                   match(secondaryRegion) ||
+                   match(location) ||
+                   (Array.isArray(regions) && regions.some(region => match(region?.name || region)));
           });
         }
         
@@ -216,10 +241,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         console.log('Filter results - Priority filter:', leadFilters.priority.length > 0 ? 'Applied (Client-side)' : 'Not applied');
         console.log('Filter results - Location filter:', leadFilters.location ? 'Applied (Client-side)' : 'Not applied');
         
-        // For pagination, use totalCount from API if available, otherwise use filtered items length
+        // Use server pagination count when available; do NOT slice so we show one API page (9 items)
         const finalTotalCount = totalCount > 0 ? totalCount : filteredItems.length;
-        console.log('Final total count for pagination:', finalTotalCount);
-        
         setLeads(filteredItems);
         setTotalLeads(finalTotalCount);
       } else {
@@ -402,21 +425,21 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   };
 
   const handleLeadTypeChange = (type) => {
+    // Single-select behavior
     setLeadFilters(prev => ({
       ...prev,
-      leadType: prev.leadType.includes(type)
-        ? prev.leadType.filter(t => t !== type)
-        : [...prev.leadType, type]
+      leadType: (prev.leadType[0] === type) ? [] : [type]
     }));
+    setCurrentPage(1);
   };
 
   const handleRequirementChange = (req) => {
+    // Single-select behavior
     setLeadFilters(prev => ({
       ...prev,
-      requirement: prev.requirement.includes(req)
-        ? prev.requirement.filter(r => r !== req)
-        : [...prev.requirement, req]
+      requirement: (prev.requirement[0] === req) ? [] : [req]
     }));
+    setCurrentPage(1);
   };
 
   const handlePriorityChange = (priority) => {
@@ -517,7 +540,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     <div className="grid grid-cols-12 gap-8">
       {/* Filter Sidebar - 3 columns */}
       <div className="col-span-3">
-        {isLoading ? (
+        {uiLoading || isLoading ? (
           <div className="bg-white rounded-lg p-6">
             <div className="space-y-6">
               {/* Filter Header Skeleton */}
@@ -883,7 +906,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               </button>
             </div>
           </div>
-        ) : leads.length === 0 ? (
+        ) : (leads.length === 0 && !isLoading) ? (
           <div className="text-center py-12">
             <div className="text-gray-500 mb-4">
               <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

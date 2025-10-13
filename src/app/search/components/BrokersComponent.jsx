@@ -256,6 +256,20 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         console.log('Raw broker data sample:', allBrokers[0]);
         console.log('Available fields in broker:', Object.keys(allBrokers[0]));
         
+        // Helper to compute a stable rating based on available broker data
+        const computeRating = (raw) => {
+          const leadsCount = raw?.leadsCreated?.count || 0;
+          const hasSpecializations = Array.isArray(raw?.specializations) && raw.specializations.length > 0;
+          const hasFirmName = typeof raw?.firmName === 'string' && raw.firmName.trim() !== '';
+          const isVerified = raw?.approvedByAdmin === 'unblocked';
+          let rating = 3.0;
+          if (leadsCount > 0) rating += 0.5;
+          if (hasSpecializations) rating += 0.3;
+          if (hasFirmName) rating += 0.2;
+          if (isVerified) rating += 0.5;
+          return Math.min(rating, 5.0);
+        };
+        
         // Transform API data to match our component structure
         const transformedBrokers = allBrokers.map((broker, index) => {
           console.log(`Raw broker data for ${index}:`, broker);
@@ -264,22 +278,31 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           console.log(`Broker firmName:`, broker.firmName);
           console.log(`Broker leadsCreated:`, broker.leadsCreated);
           
+          const computedRating = computeRating(broker);
           return {
+            _id: broker._id || undefined,
+            userIdRaw: (broker?.userId && typeof broker.userId === 'object') ? broker.userId._id : broker.userId,
             id: broker._id || broker.id,
             name: broker.name || 'Unknown Broker',
             profileImage: broker.brokerImage || '/images/user-1.webp',
-            rating: 4.5, // Default rating since not in API
+            rating: computedRating,
             email: broker.email || '',
             phone: broker.phone || broker.whatsappNumber || '',
             status: broker.approvedByAdmin === 'unblocked' ? 'Verified' : 'Active',
             locations: broker.region ? broker.region.map(r => r.name) : [broker.city || 'Unknown'],
             agency: broker.firmName || 'Unknown Agency',
             experience: (() => {
+              if (typeof broker?.experience === 'number') return Math.max(0, Math.floor(broker.experience));
+              if (broker?.experience && typeof broker.experience === 'object' && typeof broker.experience.years === 'number') {
+                return Math.max(0, Math.floor(broker.experience.years));
+              }
               if (!broker.createdAt) return 0;
               const createdDate = new Date(broker.createdAt);
               const currentDate = new Date();
-              const years = Math.abs(currentDate - createdDate) / (1000 * 60 * 60 * 24 * 365);
-              return Math.floor(years);
+              const diffMs = currentDate - createdDate;
+              if (isNaN(diffMs) || diffMs <= 0) return 0;
+              const years = diffMs / (1000 * 60 * 60 * 24 * 365);
+              return Math.max(0, Math.floor(years));
             })(),
             languages: ['English', 'Hindi'], // Default languages
             address: broker.address || broker.centerLocation || 'Unknown Address',
@@ -388,6 +411,13 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   // Languages filter removed
 
   const resetFilters = () => {
+    // Reset all filters to defaults (align with Leads reset behavior)
+    setNameSearchTerm('');
+    setRegionSearchTerm('');
+    setSortBy('rating-high');
+    setCurrentPage(1);
+    setItemsPerPage(9);
+
     setBrokerFilters({
       region: [],
       experienceRange: [0, 20],
@@ -396,6 +426,11 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       languages: [],
       showVerifiedOnly: false,
     });
+
+    // Trigger fresh fetch without any region filter
+    if (regionsData.length > 0) {
+      fetchBrokers([]);
+    }
   };
 
   const reactSelectStyles = {
@@ -1037,7 +1072,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
               key={broker.id}
               className="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 cursor-pointer"
               onClick={() => {
-                const brokerId = broker._id || broker.id;
+                const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id;
                 router.push(`/broker-details/${brokerId}`);
               }}
               role="button"
@@ -1138,15 +1173,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                     <div className="text-xs font-semibold text-gray-800">{actualFirmName || 'Independent Broker'}</div>
                   </div>
                   <div className="text-xs text-gray-600 font-medium ml-7 mb-3">
-                    {(() => {
-                      if (!broker.createdAt) return '0 years experience';
-                      const createdDate = new Date(broker.createdAt);
-                      const currentDate = new Date();
-                      const diffTime = Math.abs(currentDate - createdDate);
-                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                      const years = Math.floor(diffDays / 365);
-                      return `${years} years experience`;
-                    })()}
+                    {`${Math.max(0, parseInt(broker.experience ?? 0))} years experience`}
                   </div>
                 </div>
               </div>
@@ -1196,8 +1223,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Top-right icon actions */}
               <div className="absolute top-4 right-4 flex items-center gap-2">
-                <button
-                  onClick={(e) => { e.stopPropagation(); const brokerId = broker._id || broker.id; router.push(`/broker-details/${brokerId}`); }}
+                  <button 
+                  onClick={(e) => { e.stopPropagation(); const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id; router.push(`/broker-details/${brokerId}`); }}
                   className="w-9 h-9 rounded-full bg-green-900 text-white flex items-center justify-center shadow hover:bg-green-800"
                   title="View Details"
                   aria-label="View Details"
@@ -1206,10 +1233,10 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+                    </svg>
                   </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); const brokerId = broker._id || broker.id; router.push(`/broker-details/${brokerId}?chat=1`); }}
+                  onClick={(e) => { e.stopPropagation(); const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id; router.push(`/broker-details/${brokerId}?chat=1`); }}
                   className="w-9 h-9 rounded-full bg-gray-100 text-gray-600 border border-gray-300 flex items-center justify-center shadow hover:bg-gray-200"
                   title="Chat"
                   aria-label="Chat"
@@ -1217,8 +1244,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                   {/* Simple chat bubble outline (gray) */}
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10a2 2 0 012 2v5a2 2 0 01-2 2H11l-3 3v-3H7a2 2 0 01-2-2v-5a2 2 0 012-2z" />
-                  </svg>
-                </button>
+                    </svg>
+                  </button>
                 </div>
               </div>
             );
