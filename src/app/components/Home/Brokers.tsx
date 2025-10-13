@@ -305,11 +305,19 @@ const Brokers = () => {
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] font-medium">
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 group-hover:bg-white group-hover:text-gray-900">
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>
-                  {Array.isArray(broker.region) && broker.region.length > 0 ? broker.region[0] :
-                   typeof broker.region === 'string' ? broker.region : 
-                   typeof broker.location === 'string' ? broker.location : 
-                   typeof broker.city === 'string' ? broker.city : 
-                   broker.state || broker.city || 'Location'}
+                  {(() => {
+                    // Normalise region to a displayable string
+                    const r = broker.region as any;
+                    if (Array.isArray(r) && r.length > 0) {
+                      const first = r[0];
+                      return typeof first === 'string' ? first : first?.name || '-';
+                    }
+                    if (typeof r === 'string') return r;
+                    if (r && typeof r === 'object') return r.name || '-';
+                    if (typeof broker.location === 'string') return broker.location;
+                    if (typeof broker.city === 'string') return broker.city;
+                    return broker.state || broker.city || 'Location';
+                  })()}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 text-gray-700 px-3 py-1 group-hover:bg-white group-hover:text-gray-900">
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/></svg>

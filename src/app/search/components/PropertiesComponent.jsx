@@ -249,9 +249,9 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   };
 
   return (
-    <div className="flex gap-8">
-      {/* Filter Sidebar */}
-      <div className="w-96 flex-shrink-0">
+    <div className="grid grid-cols-12 gap-8">
+      {/* Filter Sidebar - 3 columns */}
+      <div className="col-span-3">
         {isLoading ? (
           <div className="bg-white rounded-lg p-6">
             <div className="space-y-6">
@@ -417,41 +417,9 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         )}
       </div>
 
-      {/* Properties Grid */}
-      <div className="flex-1">
-        {/* Header with sorting */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <span className="text-gray-600 text-sm">Showing 1–{properties.length} of {properties.length} results</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 cursor-pointer">
-                <span className="text-gray-600">Sort by:</span>
-                <div className="min-w-[220px]">
-                  <Select
-                    instanceId="properties-sort-select"
-                    styles={reactSelectStyles}
-                    options={[
-                      { value: 'default', label: 'Default Sorting' },
-                      { value: 'price-low', label: 'Price: Low to High' },
-                      { value: 'price-high', label: 'Price: High to Low' },
-                      { value: 'rating', label: 'Rating' }
-                    ]}
-                    value={[
-                      { value: 'default', label: 'Default Sorting' },
-                      { value: 'price-low', label: 'Price: Low to High' },
-                      { value: 'price-high', label: 'Price: High to Low' },
-                      { value: 'rating', label: 'Rating' }
-                    ].find(o => o.value === sortBy)}
-                    onChange={(opt) => setSortBy(opt?.value || 'default')}
-                    isSearchable={false}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Properties Grid - 9 columns */}
+      <div className="col-span-9">
+        
 
         {/* Properties Grid */}
         {isLoading ? (
@@ -485,7 +453,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             {properties.map((property) => (
             <div key={property.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow transition-transform duration-200 hover:-translate-y-1">
               <div className="relative p-3">
-                {/* Flowbite-like Carousel wrapper */}
+                {/* Image carousel */}
                 <div className="relative h-56 overflow-hidden rounded-xl">
                   {(() => {
                     const imgs = Array.isArray(property.images) ? property.images : [property.image];
@@ -501,20 +469,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     );
                   })()}
                 </div>
-                {/* Slider indicators */}
-                {Array.isArray(property.images) && property.images.length > 1 && (
-                  <div className="absolute z-30 flex -translate-x-1/2 bottom-3 left-1/2 space-x-2">
-                    {property.images.map((_, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        className={`w-2.5 h-2.5 rounded-full cursor-pointer ${ (imageIndexById[property.id] ?? 0) === i ? 'bg-white' : 'bg-gray-300' }`}
-                        aria-label={`Slide ${i+1}`}
-                        onClick={() => setImageIndexById((prev) => ({ ...prev, [property.id]: i }))}
-                      />
-                    ))}
-                  </div>
-                )}
+               
                 {/* Slider controls removed as requested */}
                 <div className="absolute top-6 left-6">
                   <span className="bg-[#0A421E] text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -549,10 +504,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                 
                 <div className="mt-2 flex items-center gap-1">
                   <h3 className="text-base font-semibold text-gray-900">{property.name}</h3>
-                  <i className="fa-solid fa-arrow-right text-[14px] text-[#0A421E] px-2 mt-2 cursor-pointer" style={{ transform: 'rotate(320deg)' }} />
+                  <i className="fa-solid fa-arrow-right text-[12px] text-[#0A421E] px-2 mt-1 cursor-pointer" style={{ transform: 'rotate(320deg)' }} />
                 </div>
                 <p className="text-xs text-gray-900">Luxurious {property.type.toLowerCase()} retreat in prime location.</p>
-
+<div className='flex gap-7'>
                 {/* City */}
                 <div className="mt-2 flex items-center text-xs text-gray-600">
                   <i className="fa-regular fa-building mr-1 text-[12px]" aria-hidden="true"></i>
@@ -564,26 +519,29 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
                     <circle cx="12" cy="10" r="3" strokeWidth="2" />
                   </svg>
-                  {property.region}
+                  {Array.isArray(property.region)
+                    ? property.region.map(r => (typeof r === 'string' ? r : r?.name)).filter(Boolean).join(', ')
+                    : (typeof property.region === 'string' ? property.region : property.region?.name) || '-'}
+                </div>
                 </div>
 
                 <div className="mt-3 text-xs font-medium text-gray-900">Features</div>
-                <div className="mt-2 flex items-center gap-2 text-[12px]">
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px]">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
                     {/* Bed icon */}
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 12V9a2 2 0 012-2h7a3 3 0 013 3v2m0 0h4a2 2 0 012 2v3M4 12h14M4 19v-4m16 4v-4" />
                     </svg>
                     {property.bedrooms} bd
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
                     {/* Bath icon */}
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 10V7a3 3 0 016 0v3m-8 0h12a2 2 0 012 2v2a5 5 0 01-5 5H8a5 5 0 01-5-5v-2a2 2 0 012-2z" />
                     </svg>
                     {property.bathrooms} bt
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 ">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 ">
                     {/* Area icon (square with diagonal) */}
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <rect x="4" y="4" width="16" height="16" rx="2" ry="2" strokeWidth="2" />

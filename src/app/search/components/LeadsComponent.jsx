@@ -804,44 +804,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       {/* Leads Grid - 9 columns */}
       <div className="col-span-9">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <span className="text-gray-600 text-sm">
-                {leadsError ? 'Error loading leads' : `Showing ${startIndex + 1}–${endIndex} of ${totalLeads} results`}
-              </span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-gray-600">Sort by:</span>
-                <div className="min-w-[220px]">
-                  <Select
-                    instanceId="leads-sort-select"
-                    styles={reactSelectStyles}
-                    options={[
-                      { value: 'date-added-newest', label: 'Date Added (Newest)' },
-                      { value: 'date-added-oldest', label: 'Date Added (Oldest)' },
-                      { value: 'name-asc', label: 'Name (A-Z)' },
-                      { value: 'name-desc', label: 'Name (Z-A)' },
-                      { value: 'budget-high', label: 'Budget (High to Low)' },
-                      { value: 'budget-low', label: 'Budget (Low to High)' }
-                    ]}
-                    value={[
-                      { value: 'date-added-newest', label: 'Date Added (Newest)' },
-                      { value: 'date-added-oldest', label: 'Date Added (Oldest)' },
-                      { value: 'name-asc', label: 'Name (A-Z)' },
-                      { value: 'name-desc', label: 'Name (Z-A)' },
-                      { value: 'budget-high', label: 'Budget (High to Low)' },
-                      { value: 'budget-low', label: 'Budget (Low to High)' }
-                    ].find(o => o.value === sortBy)}
-                    onChange={(opt) => setSortBy(opt?.value || 'date-added-newest')}
-                    isSearchable={false}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      
 
         {/* Leads Grid */}
         {isLoading ? (

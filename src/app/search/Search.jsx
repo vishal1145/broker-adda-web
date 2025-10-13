@@ -114,7 +114,7 @@ const Search = () => {
         </div>
       </div>
 
-      <div className="mx-auto px-4 py-8">
+      <div className="mx-auto  py-8">
         {/* Render Active Component */}
         {renderContent()}
       </div>

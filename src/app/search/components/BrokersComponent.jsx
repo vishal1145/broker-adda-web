@@ -1033,7 +1033,16 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
               });
               
               return (
-            <div key={broker.id} className="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200">
+            <div
+              key={broker.id}
+              className="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 cursor-pointer"
+              onClick={() => {
+                const brokerId = broker._id || broker.id;
+                router.push(`/broker-details/${brokerId}`);
+              }}
+              role="button"
+              aria-label={`Open details for ${broker.name || 'broker'}`}
+            >
               {/* Header: Avatar, name, rating */}
               <div className="flex items-start gap-4 mb-5">
                 <div className="flex flex-col items-center">
@@ -1187,8 +1196,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Top-right icon actions */}
               <div className="absolute top-4 right-4 flex items-center gap-2">
-                  <button 
-                    onClick={() => router.push('/broker-details')} 
+                <button
+                  onClick={(e) => { e.stopPropagation(); const brokerId = broker._id || broker.id; router.push(`/broker-details/${brokerId}`); }}
                   className="w-9 h-9 rounded-full bg-green-900 text-white flex items-center justify-center shadow hover:bg-green-800"
                   title="View Details"
                   aria-label="View Details"
@@ -1200,7 +1209,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                   </svg>
                   </button>
                 <button
-                  onClick={() => router.push(`/broker-details?chat=1`)}
+                  onClick={(e) => { e.stopPropagation(); const brokerId = broker._id || broker.id; router.push(`/broker-details/${brokerId}?chat=1`); }}
                   className="w-9 h-9 rounded-full bg-gray-100 text-gray-600 border border-gray-300 flex items-center justify-center shadow hover:bg-gray-200"
                   title="Chat"
                   aria-label="Chat"
