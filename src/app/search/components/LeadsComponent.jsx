@@ -7,6 +7,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [leadFilters, setLeadFilters] = useState({
     leadStatus: [],
     leadType: [],
+    requirement: [],
     budgetRange: [5000000, 15000000],
     location: '',
     dateAdded: {
@@ -24,6 +25,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [totalLeads, setTotalLeads] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [leadsPerPage] = useState(9);
+  const [regions, setRegions] = useState([]);
+  const [regionsLoading, setRegionsLoading] = useState(false);
 
   // Trigger skeleton loader when switching between tabs from header
   useEffect(() => {
@@ -241,6 +244,35 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     fetchLeads();
   }, [leadFilters, sortBy, currentPage]);
 
+  // Fetch regions for dropdown (API-sourced)
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        setRegionsLoading(true);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetch(`${apiUrl}/regions`);
+        const data = await res.json().catch(() => ({}));
+        let list = [];
+        if (Array.isArray(data?.data?.regions)) list = data.data.regions;
+        else if (Array.isArray(data?.regions)) list = data.regions;
+        else if (Array.isArray(data?.data)) list = data.data;
+        else if (Array.isArray(data)) list = data;
+        const mapped = list
+          .map(r => ({
+            id: r._id || r.id || r.value || r.name || String(r),
+            name: r.name || r.label || String(r)
+          }))
+          .filter(r => r.name && r.name !== '');
+        setRegions(mapped);
+      } catch {
+        setRegions([]);
+      } finally {
+        setRegionsLoading(false);
+      }
+    };
+    fetchRegions();
+  }, []);
+
   const leadStatusOptions = [
     'New', 
     'Assigned', 
@@ -249,12 +281,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     'Rejected'
   ];
   const leadTypeOptions = ['Residential', 'Commercial', 'Plot', 'Other'];
+  const requirementOptions = ['Buy', 'Rent', 'Sell'];
   const priorityOptions = ['High', 'Medium', 'Low'];
 
   const resetFilters = () => {
     setLeadFilters({
       leadStatus: [],
       leadType: [],
+      requirement: [],
       budgetRange: [5000000, 15000000],
       location: '',
       dateAdded: { start: '', end: '' },
@@ -287,26 +321,29 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   };
 
   const reactSelectStyles = {
-    control: (base) => ({
+    control: (base, state) => ({
       ...base,
-      borderColor: '#d1d5db',
-      boxShadow: 'none',
       minHeight: 38,
+      fontSize: 14,
+      borderColor: state.isFocused ? '#eab308' : '#d1d5db', // yellow-500 focus
+      boxShadow: 'none',
       cursor: 'pointer',
-      ':hover': { borderColor: '#0A421E' }
+      ':hover': { borderColor: state.isFocused ? '#eab308' : '#cbd5e1' }
     }),
     option: (base, state) => ({
       ...base,
+      fontSize: 14,
       backgroundColor: state.isSelected
-        ? '#0A421E'
+        ? '#14532d' // green-900
         : state.isFocused
-          ? '#ECFDF5'
+          ? '#fffbeb' // yellow-50
           : 'white',
       color: state.isSelected ? 'white' : '#111827',
       cursor: 'pointer'
     }),
-    singleValue: (base) => ({ ...base, color: '#111827' }),
-    placeholder: (base) => ({ ...base, color: '#6b7280' }),
+    singleValue: (base) => ({ ...base, color: '#111827', fontSize: 14 }),
+    placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 14 }),
+    input: (base) => ({ ...base, fontSize: 14 }),
     indicatorSeparator: () => ({ display: 'none' })
   };
 
@@ -357,11 +394,10 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
 
   const handleLeadStatusChange = (status) => {
+    // Single-select behavior: either the clicked status or none
     setLeadFilters(prev => ({
       ...prev,
-      leadStatus: prev.leadStatus.includes(status)
-        ? prev.leadStatus.filter(s => s !== status)
-        : [...prev.leadStatus, status]
+      leadStatus: (prev.leadStatus[0] === status) ? [] : [status]
     }));
   };
 
@@ -371,6 +407,15 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       leadType: prev.leadType.includes(type)
         ? prev.leadType.filter(t => t !== type)
         : [...prev.leadType, type]
+    }));
+  };
+
+  const handleRequirementChange = (req) => {
+    setLeadFilters(prev => ({
+      ...prev,
+      requirement: prev.requirement.includes(req)
+        ? prev.requirement.filter(r => r !== req)
+        : [...prev.requirement, req]
     }));
   };
 
@@ -388,6 +433,16 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       ...prev,
       budgetRange: [parseInt(value), 20000000]
     }));
+  };
+
+  const handleBudgetMinInput = (value) => {
+    const min = Math.max(1000000, Math.min(parseInt(value || 0), leadFilters.budgetRange[1]));
+    setLeadFilters(prev => ({ ...prev, budgetRange: [min, prev.budgetRange[1]] }));
+  };
+
+  const handleBudgetMaxInput = (value) => {
+    const max = Math.min(20000000, Math.max(parseInt(value || 0), leadFilters.budgetRange[0]));
+    setLeadFilters(prev => ({ ...prev, budgetRange: [prev.budgetRange[0], max] }));
   };
 
   const formatPrice = (price) => {
@@ -459,9 +514,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   };
 
   return (
-    <div className="flex gap-8">
-      {/* Filter Sidebar */}
-      <div className="w-96 flex-shrink-0">
+    <div className="grid grid-cols-12 gap-8">
+      {/* Filter Sidebar - 3 columns */}
+      <div className="col-span-3">
         {isLoading ? (
           <div className="bg-white rounded-lg p-6">
             <div className="space-y-6">
@@ -538,27 +593,29 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 </div>
               </div>
             </div>
+            <div className="pt-5">
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="w-full text-white bg-green-900 cursor-pointer flex items-center justify-center px-4 py-2 rounded-lg transition-all duration-200 shadow"
+                aria-label="Reset filters"
+              >
+                <i className="fa-solid fa-arrows-rotate text-sm mr-2 text-white" aria-hidden="true"></i>
+                Reset Filters
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg p-6">
-          {/* Filter Header */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100 space-y-6">
+
+          {/* Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-              <h2 className="text-lg font-bold text-gray-900">Filter Options</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
             </div>
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="text-[#0A421E] hover:text-green-700 cursor-pointer flex items-center"
-              aria-label="Reset filters"
-              title="Reset filters"
-            >
-              <i className="fa-solid fa-arrows-rotate text-sm" aria-hidden="true"></i>
-              <span className="sr-only">Reset</span>
-            </button>
           </div>
 
           {/* Lead Status Filter */}
@@ -568,10 +625,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               {leadStatusOptions.map((status, index) => (
                 <label key={`${status}-${index}`} className="flex items-center cursor-pointer">
                   <input
-                    type="checkbox"
-                    checked={leadFilters.leadStatus.includes(status)}
+                    type="radio"
+                    name="lead-status"
+                    checked={leadFilters.leadStatus[0] === status}
                     onChange={() => handleLeadStatusChange(status)}
-                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
+                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 focus:ring-green-900"
                   />
                   <span className="ml-3 text-sm text-gray-700">
                     {status}
@@ -581,36 +639,73 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
 
-          {/* Lead Type Filter */}
+          {/* Lead Type Filter (chips) */}
           <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Lead Type</h3>
-            <div className="space-y-2">
-              {leadTypeOptions.map((type) => (
-                <label key={type} className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={leadFilters.leadType.includes(type)}
-                    onChange={() => handleLeadTypeChange(type)}
-                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
-                  />
-                  <span className="ml-3 text-sm text-gray-700">{type}</span>
-                </label>
-              ))}
+            <h3 className="text-sm font-medium text-gray-900 mb-2">Property Type</h3>
+            <div className="flex flex-wrap gap-2">
+              {leadTypeOptions.map((type) => {
+                const selected = (leadFilters.leadType || []).includes(type);
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => handleLeadTypeChange(type)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors shadow-sm ${selected ? 'bg-green-900 text-white border-green-900' : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200'}`}
+                  >
+                    {type}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Requirement Filter (chips) */}
+          <div className="mb-6 pb-6 border-b border-gray-200">
+            <h3 className="text-sm font-medium text-gray-900 mb-2">Requirement</h3>
+            <div className="flex flex-wrap gap-2">
+              {requirementOptions.map((req) => {
+                const selected = (leadFilters.requirement || []).includes(req);
+                return (
+                  <button
+                    key={req}
+                    type="button"
+                    onClick={() => handleRequirementChange(req)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors shadow-sm ${selected ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200'}`}
+                  >
+                    {req}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Budget Range Filter */}
           <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Budget Range</h3>
-            <div className="mb-3">
-              <div className="text-sm text-gray-700">
-                {formatPrice(leadFilters.budgetRange[0])} - {formatPrice(leadFilters.budgetRange[1])}
+            <div className="mb-3 grid grid-cols-2 gap-2">
+              <div className="relative">
+                <span className="absolute left-3 top-2 text-xs text-gray-500">Min</span>
+                <input
+                  type="number"
+                  value={leadFilters.budgetRange[0]}
+                  onChange={(e) => handleBudgetMinInput(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                />
+              </div>
+              <div className="relative">
+                <span className="absolute left-3 top-2 text-xs text-gray-500">Max</span>
+                <input
+                  type="number"
+                  value={leadFilters.budgetRange[1]}
+                  onChange={(e) => handleBudgetMaxInput(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                />
               </div>
             </div>
             <div className="relative">
               <div className="w-full h-2 bg-gray-200 rounded-lg relative">
                 <div 
-                  className="h-2 bg-[#0A421E] rounded-lg absolute top-0"
+                  className="h-2 bg-green-900 rounded-lg absolute top-0"
                   style={{
                     left: '0%',
                     width: `${((leadFilters.budgetRange[0] - 1000000) / (20000000 - 1000000)) * 100}%`
@@ -633,59 +728,27 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
 
-          {/* Location Filter */}
+          {/* Region Filter (from API) */}
           <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Location</h3>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search locations..."
-                value={leadFilters.location}
-                onChange={(e) => setLeadFilters(prev => ({ ...prev, location: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0A421E]"
+            <h3 className="text-sm font-medium text-gray-900 mb-2">Region</h3>
+            {regionsLoading ? (
+              <div className="h-8 bg-gray-200 rounded animate-pulse" />
+            ) : (
+              <Select
+                instanceId="leads-region-select"
+                styles={reactSelectStyles}
+                className="cursor-pointer"
+                options={regions.map(r => ({ value: r.name, label: r.name }))}
+                value={leadFilters.location ? { value: leadFilters.location, label: leadFilters.location } : null}
+                onChange={(opt) => setLeadFilters(prev => ({ ...prev, location: opt?.value || '' }))}
+                isSearchable
+                isClearable
+                placeholder="Select Region"
               />
-              <svg className="w-4 h-4 text-gray-400 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
+            )}
           </div>
 
-          {/* Date Added Filter */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Date Added</h3>
-            <div className="space-y-2">
-              <div className="relative">
-                <input
-                  type="date"
-                  value={leadFilters.dateAdded.start}
-                  onChange={(e) => setLeadFilters(prev => ({ 
-                    ...prev, 
-                    dateAdded: { ...prev.dateAdded, start: e.target.value }
-                  }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0A421E]"
-                />
-                <svg className="w-4 h-4 text-gray-400 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={leadFilters.dateAdded.end}
-                  onChange={(e) => setLeadFilters(prev => ({ 
-                    ...prev, 
-                    dateAdded: { ...prev.dateAdded, end: e.target.value }
-                  }))}
-                  placeholder="End date"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0A421E]"
-                />
-                <svg className="w-4 h-4 text-gray-400 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          {/* Date filter removed as requested */}
 
           {/* Broker/Agent Filter (multi-select with checkboxes) */}
           <div className="mb-6 pb-6 border-b border-gray-200">
@@ -721,29 +784,25 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             })()}
           </div>
 
-          {/* Priority Filter */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Priority</h3>
-            <div className="space-y-2">
-              {priorityOptions.map((priority) => (
-                <label key={priority} className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={leadFilters.priority.includes(priority)}
-                    onChange={() => handlePriorityChange(priority)}
-                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
-                  />
-                  <span className="ml-3 text-sm text-gray-700">{priority}</span>
-                </label>
-              ))}
+          <div className="pt-5">
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="w-full text-white bg-green-900 cursor-pointer flex items-center justify-center px-4 py-2 rounded-lg transition-all duration-200 shadow"
+                aria-label="Reset filters"
+              >
+                <i className="fa-solid fa-arrows-rotate text-sm mr-2 text-white" aria-hidden="true"></i>
+                Reset Filters
+              </button>
             </div>
           </div>
-          </div>
+
+          
         )}
       </div>
 
-      {/* Leads Grid */}
-      <div className="flex-1">
+      {/* Leads Grid - 9 columns */}
+      <div className="col-span-9">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
@@ -892,11 +951,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               const avatarColor = getAvatarColor(seed);
               
               return (
-                <div key={lead._id || lead.id || index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div key={lead._id || lead.id || index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow text-sm">
               {/* Profile and Status */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
-                      <div className={`w-18 h-18 rounded-full flex items-center justify-center text-sm font-semibold ${avatarColor.bg} ${avatarColor.text}`}>
+                    <div className={`w-18 h-18 rounded-full flex items-center justify-center text-xs font-semibold ${avatarColor.bg} ${avatarColor.text}`}>
                         {(lead.customerName || lead.name || '-')
                           .split(' ')
                           .map(s => s[0])
@@ -906,7 +965,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           .toUpperCase()}
                       </div>
                   <div className="ml-3">
-                        <h3 className="text-lg font-semibold text-gray-900">{lead.customerName || lead.name || '-'}</h3>
+                        <h3 className="text-base font-semibold text-gray-900">{lead.customerName || lead.name || '-'}</h3>
                   </div>
                 </div>
                 <div className="relative">
@@ -974,17 +1033,17 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 <h4 className="text-sm font-medium text-gray-900 mb-2">Interested Regions:</h4>
                 <div className="flex flex-wrap gap-1">
                       {primary && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
                           {primary}
                     </span>
                       )}
                       {secondary && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
                           {secondary}
                         </span>
                       )}
                       {!primary && !secondary && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
                           Not specified
                         </span>
                       )}
@@ -993,7 +1052,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
+                <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
                   View Details
                 </button>
               </div>

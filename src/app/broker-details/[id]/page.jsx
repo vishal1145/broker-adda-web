@@ -56,6 +56,30 @@ export default function BrokerDetailsPage() {
                     (Array.isArray(data) ? data[0] : undefined);
           if (b) { setBroker(b); break; }
         }
+
+        // Fallback: lookup by scanning brokers list if direct lookup failed
+        if (!broker) {
+          let page = 1;
+          let found = null;
+          // Iterate pages without forcing a limit; stop when API indicates no more (safety ceiling 1000)
+          while (!found && page <= 1000) {
+            const res = await fetch(`${base}/brokers?page=${page}`, { headers, cache: 'no-store' });
+            if (!res.ok) break;
+            const data = await res.json();
+            const list = Array.isArray(data?.data?.brokers) ? data.data.brokers
+              : Array.isArray(data?.brokers) ? data.brokers
+              : Array.isArray(data?.data) ? data.data
+              : Array.isArray(data) ? data : [];
+            found = list.find(b => (b?._id === brokerId) || (b?.id === brokerId) || (b?.userId === brokerId) || (b?.userId?._id === brokerId));
+
+            const totalPages = data?.data?.pagination?.totalPages || data?.pagination?.totalPages;
+            const hasNextPage = data?.data?.pagination?.hasNextPage || data?.pagination?.hasNextPage;
+            const reachedEnd = (typeof hasNextPage === 'boolean' && !hasNextPage) || (typeof totalPages === 'number' && page >= totalPages) || list.length === 0;
+            if (reachedEnd) break; // no more pages
+            page += 1;
+          }
+          if (found) setBroker(found);
+        }
       } catch (e) {
         setError('Failed to load broker details');
       } finally {
