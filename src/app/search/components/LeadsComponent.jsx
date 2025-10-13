@@ -42,20 +42,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       setIsLoading(true);
       setLeadsError('');
       
-      // Get token from localStorage following app pattern
-      const token = typeof window !== 'undefined' 
-        ? localStorage.getItem('token') || localStorage.getItem('authToken')
-        : null;
-      
       // Use environment variable for API URL following app pattern
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      
-      if (!token) {
-        console.log('No token found, using fallback leads');
-        setLeadsError('No authentication token found');
-        setIsLoading(false);
-        return;
-      }
 
       // Build query parameters (use only server-supported keys)
       const params = new URLSearchParams();
@@ -88,12 +76,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       console.log('Status filters:', leadFilters.leadStatus);
       console.log('Property Type filters:', leadFilters.leadType);
 
-      const response = await fetch(`${apiUrl}/leads?${params.toString()}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(`${apiUrl}/leads?${params.toString()}`);
 
       if (response.ok) {
         const data = await response.json();

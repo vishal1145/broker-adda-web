@@ -48,27 +48,10 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       try {
         setRegionsLoading(true);
         
-        // Get token from localStorage following app pattern
-        const token = typeof window !== 'undefined' 
-          ? localStorage.getItem('token') || localStorage.getItem('authToken')
-          : null;
-        
         // Use environment variable for API URL following app pattern
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
         
-        if (!token) {
-          console.log('No token found, using fallback regions');
-          throw new Error('No authentication token found');
-        }
-        
-        const response = await fetch(`${apiUrl}/regions`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        });
+        const response = await fetch(`${apiUrl}/regions`, { method: 'GET' });
         
         if (!response.ok) {
           throw new Error(`Failed to fetch regions: ${response.status}`);
@@ -127,18 +110,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     try {
       setBrokersLoading(true);
       
-      // Get token from localStorage following app pattern
-      const token = typeof window !== 'undefined' 
-        ? localStorage.getItem('token') || localStorage.getItem('authToken')
-        : null;
-      
       // Use environment variable for API URL following app pattern
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      
-      if (!token) {
-        console.log('No token found, using fallback brokers');
-        throw new Error('No authentication token found');
-      }
       
       // Build base query parameters
       const baseQueryParams = new URLSearchParams();
@@ -174,14 +147,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       
         console.log(`Fetching brokers page ${currentPage}, URL:`, apiUrlWithParams);
       
-      const response = await fetch(apiUrlWithParams, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
-      });
+      const response = await fetch(apiUrlWithParams, { method: 'GET' });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch brokers: ${response.status}`);
