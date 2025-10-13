@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useParams } from "next/navigation";
+export const dynamic = 'force-dynamic';
 import blogData from "../../data/blog.json";
 import furnitureData from "../../data/furnitureData.json";
 import HeaderFile from '../../components/Header';
