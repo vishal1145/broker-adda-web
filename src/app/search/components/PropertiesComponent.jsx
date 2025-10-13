@@ -15,6 +15,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const [sortBy, setSortBy] = useState('default');
   const [isLoading, setIsLoading] = useState(false);
   const [imageIndexById, setImageIndexById] = useState({});
+  const [propertyItems, setPropertyItems] = useState([]);
   const timersRef = useRef({});
 
   // Trigger skeleton loader when switching between tabs from header
@@ -24,7 +25,95 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     return () => clearTimeout(t);
   }, [activeTab]);
 
-  // Auto-rotate property images per card (effect moved below properties definition)
+  // Fetch properties from API and map to UI shape
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetch(`${apiUrl}/properties`);
+        if (!res.ok) throw new Error('Failed to fetch properties');
+        const data = await res.json().catch(() => ({}));
+
+        let list = [];
+        if (Array.isArray(data?.data?.items)) list = data.data.items;
+        else if (Array.isArray(data?.data?.properties)) list = data.data.properties;
+        else if (Array.isArray(data?.data)) list = data.data;
+        else if (Array.isArray(data?.properties)) list = data.properties;
+        else if (Array.isArray(data)) list = data;
+
+        const mapped = list.map((p, idx) => {
+          const id = p._id || p.id || `${idx}`;
+          const title = p.title || p.name || 'Property';
+          const propertyType = p.propertyType || p.type || '';
+          const subType = p.subType || '';
+          const city = p.city || '';
+          const regionRaw = p.region;
+          const region = Array.isArray(regionRaw)
+            ? regionRaw.map(r => (typeof r === 'string' ? r : r?.name)).filter(Boolean)
+            : (typeof regionRaw === 'string' ? regionRaw : regionRaw?.name);
+          const bedrooms = typeof p.bedrooms === 'number' ? p.bedrooms : undefined;
+          const bathrooms = typeof p.bathrooms === 'number' ? p.bathrooms : undefined;
+          const areaSqft = p.areaSqft || p.area || undefined;
+          const amenities = Array.isArray(p.amenities) ? p.amenities : [];
+          const images = Array.isArray(p.images) && p.images.length > 0 ? p.images : [];
+          const image = images[0] || '/images/pexels-binyaminmellish-106399.jpg';
+          const rating = p.rating || '4.7';
+          const price = typeof p.price === 'number' ? p.price : undefined;
+          const currentPrice = price ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price) : '-';
+          const status = p.status || '';
+          const address = p.address || '';
+
+          return {
+            id,
+            name: title,
+            type: propertyType || subType || 'Property',
+            details: subType || propertyType || '',
+            bedrooms,
+            bathrooms,
+            areaSqft,
+            city,
+            region,
+            currentPrice,
+            originalPrice: undefined,
+            rating,
+            image,
+            images,
+            amenities,
+            status,
+            address,
+          };
+        });
+
+        setPropertyItems(mapped);
+      } catch (err) {
+        setPropertyItems([]);
+      }
+    };
+    fetchProperties();
+  }, []);
+
+  // Auto-rotate property images per card (independent timers per card)
+  useEffect(() => {
+    // clear old timers
+    Object.values(timersRef.current).forEach((t) => clearInterval(t));
+    timersRef.current = {};
+    // create timers per property with random stagger to avoid sync
+    (propertyItems || []).forEach((p, idx) => {
+      const imgs = Array.isArray(p.images) ? p.images : [p.image];
+      if (!imgs || imgs.length <= 1) return;
+      const delay = 2800 + Math.floor(Math.random() * 1700); // 2.8s - 4.5s
+      timersRef.current[p.id] = setInterval(() => {
+        setImageIndexById((prev) => ({
+          ...prev,
+          [p.id]: ((prev[p.id] ?? 0) + 1) % imgs.length,
+        }));
+      }, delay);
+    });
+    return () => {
+      Object.values(timersRef.current).forEach((t) => clearInterval(t));
+      timersRef.current = {};
+    };
+  }, [propertyItems]);
 
   const reactSelectStyles = {
     control: (base) => ({
@@ -44,155 +133,11 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     indicatorSeparator: () => ({ display: 'none' })
   };
 
-  const categories = ['Apartment', 'Villa', 'Plot/Land', 'Studio', 'Penthouse'];
+  const categories = ['Apartment', 'Villa', 'Plot', 'Studio', 'Penthouse'];
   const bedroomOptions = ['1 BHK', '2 BHK', '3 BHK', '4+ BHK'];
   const amenitiesOptions = ['Gym', 'Swimming Pool', 'Parking', 'Security', 'Balcony'];
 
-  const properties = [
-    {
-      id: 1,
-      name: 'Skyline Heights',
-      type: 'Apartment',
-      details: '2 BHK',
-      bedrooms: 2,
-      bathrooms: 2,
-      areaSqft: 1250,
-      city: 'Mumbai',
-      region: 'Bandra West',
-      currentPrice: '₹8,50,00,000',
-      originalPrice: '₹9,00,00,000',
-      rating: '4.8',
-      image: '/images/pexels-binyaminmellish-106399.jpg',
-      images: [
-        '/images/pexels-binyaminmellish-106399.jpg',
-        '/images/istockphoto-1165384568-612x612.jpg',
-        '/images/livingroom.jpg'
-      ]
-    },
-    {
-      id: 2,
-      name: 'Green Meadows',
-      type: 'Apartment',
-      details: '3 BHK',
-      bedrooms: 3,
-      bathrooms: 3,
-      areaSqft: 1650,
-      city: 'Delhi',
-      region: 'South Extension',
-      currentPrice: '₹12,50,00,000',
-      originalPrice: '₹13,50,00,000',
-      rating: '4.9',
-      image: '/images/pexels-davidmcbee-1546168.jpg',
-      images: [
-        '/images/pexels-davidmcbee-1546168.jpg',
-        '/images/pexels-binyaminmellish-106399.jpg',
-        '/images/livingroom.jpg'
-      ]
-    },
-    {
-      id: 3,
-      name: 'Lakeview Residences',
-      type: 'Apartment',
-      details: '1 BHK',
-      bedrooms: 1,
-      bathrooms: 1,
-      areaSqft: 780,
-      city: 'Pune',
-      region: 'Kharadi',
-      currentPrice: '₹5,20,00,000',
-      originalPrice: '₹5,60,00,000',
-      rating: '4.6',
-      image: '/images/istockphoto-1165384568-612x612.jpg',
-      images: [
-        '/images/istockphoto-1165384568-612x612.jpg',
-        '/images/pexels-binyaminmellish-106399.jpg',
-        '/images/pexels-davidmcbee-1546168.jpg'
-      ]
-    },
-    {
-      id: 4,
-      name: 'Palm Grove Villas',
-      type: 'Villa',
-      details: '4 BHK',
-      bedrooms: 4,
-      bathrooms: 4,
-      areaSqft: 2850,
-      city: 'Bengaluru',
-      region: 'Whitefield',
-      currentPrice: '₹12,00,00,000',
-      originalPrice: '₹14,00,00,000',
-      rating: '4.7',
-      image: '/images/istockphoto-1465618017-612x612.jpg',
-      images: [
-        '/images/istockphoto-1465618017-612x612.jpg',
-        '/images/livingroom.jpg',
-        '/images/pexels-binyaminmellish-106399.jpg'
-      ]
-    },
-    {
-      id: 5,
-      name: 'Cityscape Studios',
-      type: 'Studio',
-      details: 'Studio',
-      bedrooms: 1,
-      bathrooms: 1,
-      areaSqft: 520,
-      city: 'Chennai',
-      region: 'Adyar',
-      currentPrice: '₹3,50,00,000',
-      originalPrice: '₹3,80,00,000',
-      rating: '4.4',
-      image: '/images/cocolapinescandinavianlivingroom-c602a303414341fb932f2d31e8769699.jpeg',
-      images: [
-        '/images/cocolapinescandinavianlivingroom-c602a303414341fb932f2d31e8769699.jpeg',
-        '/images/livingroom.jpg',
-        '/images/istockphoto-1165384568-612x612.jpg'
-      ]
-    },
-    {
-      id: 6,
-      name: 'Oakwood Enclave',
-      type: 'Apartment',
-      details: '2 BHK',
-      bedrooms: 2,
-      bathrooms: 2,
-      areaSqft: 1350,
-      city: 'Hyderabad',
-      region: 'Gachibowli',
-      currentPrice: '₹7,80,00,000',
-      originalPrice: '₹8,20,00,000',
-      rating: '4.5',
-      image: '/images/livingroom.jpg',
-      images: [
-        '/images/livingroom.jpg',
-        '/images/pexels-davidmcbee-1546168.jpg',
-        '/images/istockphoto-1465618017-612x612.jpg'
-      ]
-    }
-  ];
-
-  // Auto-rotate property images per card (independent timers per card)
-  useEffect(() => {
-    // clear old timers
-    Object.values(timersRef.current).forEach((t) => clearInterval(t));
-    timersRef.current = {};
-    // create timers per property with random stagger to avoid sync
-    properties.forEach((p, idx) => {
-      const imgs = Array.isArray(p.images) ? p.images : [p.image];
-      if (!imgs || imgs.length <= 1) return;
-      const delay = 2800 + Math.floor(Math.random() * 1700); // 2.8s - 4.5s
-      timersRef.current[p.id] = setInterval(() => {
-        setImageIndexById((prev) => ({
-          ...prev,
-          [p.id]: ((prev[p.id] ?? 0) + 1) % imgs.length,
-        }));
-      }, delay);
-    });
-    return () => {
-      Object.values(timersRef.current).forEach((t) => clearInterval(t));
-      timersRef.current = {};
-    };
-  }, [properties]);
+  // Using API-backed propertyItems state instead of hardcoded list
 
   const handleCategoryChange = (category) => {
     setFilters(prev => ({
@@ -450,7 +395,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
+            {propertyItems.map((property) => (
             <div key={property.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow transition-transform duration-200 hover:-translate-y-1">
               <div className="relative p-3">
                 {/* Image carousel */}
@@ -541,23 +486,25 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     </svg>
                     {property.bathrooms} bt
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 ">
-                    {/* Area icon (square with diagonal) */}
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <rect x="4" y="4" width="16" height="16" rx="2" ry="2" strokeWidth="2" />
-                      <path d="M6 18L18 6" strokeWidth="2" />
-                    </svg>
-                    {property.areaSqft.toLocaleString()} sq ft
-                  </span>
+                  {typeof property.areaSqft === 'number' && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 ">
+                      {/* Area icon (square with diagonal) */}
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2" strokeWidth="2" />
+                        <path d="M6 18L18 6" strokeWidth="2" />
+                      </svg>
+                      {property.areaSqft.toLocaleString()} sq ft
+                    </span>
+                  )}
                 </div>
 
                 {/* Amenities under features */}
                 <div className="mt-3">
                   <div className="text-xs font-medium text-gray-900 mb-2">Amenities</div>
                   <div className="flex flex-wrap gap-2 text-[11px]">
-                    {['Gym', 'Parking', 'Security'].map((amenity) => (
+                    {(Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities.slice(0, 3) : ['Gym', 'Parking', 'Security']).map((amenity, idx) => (
                       <span
-                        key={amenity}
+                        key={idx}
                         className="inline-flex items-center px-2 py-1 rounded-full border bg-gray-100 text-gray-700 border-gray-200"
                       >
                         {amenity}
