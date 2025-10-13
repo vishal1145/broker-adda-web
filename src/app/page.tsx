@@ -7,8 +7,8 @@
 
 import Hero from './components/Home/Hero';
 import Features from './components/Features';
-import Categories from './components/Home/Categories';
-import Deals from './components/Home/Deals';
+// import Categories from './components/Home/Categories';
+// import Deals from './components/Home/Deals';
 import FlashSale from './components/Home/FlashSale';
 import Products from './components/Home/Products';
 import Promotions from './components/Home/Promotions';
@@ -22,7 +22,18 @@ import furnitureData from './data/furnitureData.json';
 import LatestLeads from '@/app/components/Home/LatestLeads';
 
 // Type assertion to help TypeScript understand the data structure
-const data = furnitureData as any;
+const data = furnitureData as unknown as {
+  hero: any;
+  features: any;
+  products: any;
+  flashSale: any;
+  promotions: any;
+  testimonials: any;
+  blogs: any;
+  instagram: any;
+  faq: any;
+  newsletter: any;
+};
 
 export default function HomePage() {
   return (
