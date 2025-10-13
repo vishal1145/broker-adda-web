@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -55,6 +55,16 @@ interface HeroCard {
   color: string;
 }
 
+interface BrokerApiItem {
+  brokerImage?: string;
+  image?: string;
+  profileImage?: string;
+  avatar?: string;
+  region?: Array<string | { name?: string; city?: string; state?: string }>;
+  city?: string;
+  state?: string;
+}
+
 interface HeroData {
   badge: {
     text: string;
@@ -89,6 +99,8 @@ const Hero = ({ data = {
 } }: { data: HeroData }) => {
   const router = useRouter(); // ✅ Next.js router
   const [startIdx, setStartIdx] = useState(0);
+  const [apiCards, setApiCards] = useState<HeroCard[]>([]);
+  const [intendApi, setIntendApi] = useState<boolean>(false);
 
   const {
     badge = { text: '' },
@@ -99,18 +111,108 @@ const Hero = ({ data = {
     cards = [],
   } = data || {};
 
+  // Prefer API cards when we intend to fetch (token present). Avoid initial hardcoded flash.
+  const displayCards: HeroCard[] = intendApi
+    ? (apiCards.length > 0 ? apiCards : cards)
+    : cards;
+
   const canPrev = startIdx > 0;
-  const canNext = startIdx + CARDS_VISIBLE < cards.length;
+  const canNext = startIdx + CARDS_VISIBLE < displayCards.length;
 
   const handlePrev = () => canPrev && setStartIdx(startIdx - 1);
   const handleNext = () => canNext && setStartIdx(startIdx + 1);
 
   // No-op placeholder removed (was unused)
 
-  const openProductDetails = (_card: HeroCard) => {
+  const openProductDetails = () => {
     // Navigate to broker detail page (hardcoded demo)
     router.push('/broker-details');
   };
+
+  // Fetch brokers for hero cards (follow existing app pattern)
+  useEffect(() => {
+    const fetchBrokersForHero = async () => {
+      try {
+        const token = typeof window !== 'undefined'
+          ? localStorage.getItem('token') || localStorage.getItem('authToken')
+          : null;
+
+        // If token exists, we will prefer API cards and wait for them
+        if (token) {
+          setIntendApi(true);
+        } else {
+          setIntendApi(false);
+        }
+
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+        if (!token) {
+          return; // fallback to provided data.cards (intendApi will be false)
+        }
+
+        const response = await fetch(`${apiUrl}/brokers`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          setIntendApi(false);
+          return;
+        }
+
+         const data: unknown = await response.json();
+
+        // Normalize brokers array (match other components' pattern)
+         type APIData = { data?: { brokers?: BrokerApiItem[] } | BrokerApiItem[]; brokers?: BrokerApiItem[]; result?: BrokerApiItem[]; items?: BrokerApiItem[] } | BrokerApiItem[];
+         const d = data as APIData;
+         let brokers: BrokerApiItem[] = [];
+         if (Array.isArray((d as { data?: { brokers?: BrokerApiItem[] } })?.data?.brokers)) brokers = (d as { data?: { brokers?: BrokerApiItem[] } }).data!.brokers!;
+         else if (Array.isArray((d as { data?: BrokerApiItem[] })?.data)) brokers = (d as { data?: BrokerApiItem[] }).data!;
+         else if (Array.isArray((d as { brokers?: BrokerApiItem[] })?.brokers)) brokers = (d as { brokers?: BrokerApiItem[] }).brokers!;
+         else if (Array.isArray((d as { result?: BrokerApiItem[] })?.result)) brokers = (d as { result?: BrokerApiItem[] }).result!;
+         else if (Array.isArray((d as { items?: BrokerApiItem[] })?.items)) brokers = (d as { items?: BrokerApiItem[] }).items!;
+         else if (Array.isArray(d)) brokers = d as BrokerApiItem[];
+
+        if (!Array.isArray(brokers) || brokers.length === 0) {
+          setIntendApi(false);
+          return;
+        }
+
+         const mapped: HeroCard[] = brokers.slice(0, 6).map((b) => {
+           const img: string = b?.brokerImage || b?.image || b?.profileImage || b?.avatar || '';
+          // Resolve region/city text
+          let regionName = '';
+           if (Array.isArray(b?.region) && b.region.length > 0) {
+             const firstRegion = b.region[0];
+             regionName = typeof firstRegion === 'string' ? firstRegion : (firstRegion?.name || firstRegion?.city || firstRegion?.state || '');
+          }
+          if (!regionName) {
+             regionName = (b?.city as string) || (b?.state as string) || '';
+          }
+          return {
+            type: '',
+            title: '', // keep title hardcoded
+            image: img,
+            price: '',
+            items: regionName && regionName.trim().length > 0 ? `${regionName}` : '-',
+            color: '#0A421E'
+          };
+        });
+
+        setApiCards(mapped);
+      } catch {
+        // fallback to hardcoded cards
+        setIntendApi(false);
+      } finally {
+        // no-op
+      }
+    };
+
+    fetchBrokersForHero();
+  }, []);
 
   return (
     <section className=" py-24">
@@ -192,10 +294,10 @@ onClick={() => {
           {/* Cards Section */}
           <div className="flex flex-col items-center w-full">
             <div className="relative w-full flex flex-col md:flex-row justify-center items-center gap-4 py-2">
-              {cards.slice(startIdx, startIdx + CARDS_VISIBLE).map((card, index) => (
+              {displayCards.slice(startIdx, startIdx + CARDS_VISIBLE).map((card, index) => (
                 <div
                   key={index}
-                  onClick={() => openProductDetails(card)}
+                  onClick={() => openProductDetails()}
                   className="hero-card bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition relative group w-full max-w-xs md:min-w-[260px] mx-auto md:mx-2 cursor-pointer"
                 >
                   <img

@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+
+interface RegionObject { name?: string; city?: string; state?: string }
 
 interface Broker {
   _id?: string;
@@ -13,7 +15,7 @@ interface Broker {
   specializations?: string[];
   expertise?: string | { name?: string };
   role?: string | { name?: string };
-  region?: string[] | { name?: string };
+  region?: string[] | { name?: string } | RegionObject[];
   location?: { type: string };
   city?: string;
   state?: string;
@@ -45,7 +47,7 @@ const Brokers = () => {
   const [error, setError] = useState('');
 
   // Fetch brokers from API
-  const fetchBrokers = async () => {
+  const fetchBrokers = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -111,11 +113,6 @@ const Brokers = () => {
         console.log('Final brokers data:', brokersData);
         console.log('Setting brokers state with', brokersData.length, 'items');
         setBrokers(brokersData);
-        
-        // Verify the state was set
-        setTimeout(() => {
-          console.log('State after setting:', brokers);
-        }, 100);
       } else {
         const errorText = await response.text();
         console.error('Failed to fetch brokers:', response.status, errorText);
@@ -127,12 +124,12 @@ const Brokers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Fetch brokers on component mount
   useEffect(() => {
     fetchBrokers();
-  }, []);
+  }, [fetchBrokers]);
 
   // Monitor brokers state changes
   useEffect(() => {
@@ -258,7 +255,23 @@ const Brokers = () => {
             '/images/broker5.webp'
           ];
           
-          const imageUrl = broker.brokerImage || broker.image || broker.profileImage || broker.avatar || broker.photo || broker.picture || broker.profilePicture || broker.defaultImage || fallbackImages[index];
+          // Pick the first valid, non-empty image string from API
+          const pickValidImage = (...cands: (string | undefined)[]) => {
+            const valid = cands.find((s) => typeof s === 'string' && s.trim() && s !== 'null' && s !== 'undefined');
+            return valid || '';
+          };
+
+          const imageUrl = pickValidImage(
+            broker.brokerImage,
+            broker.image,
+            broker.profileImage,
+            broker.avatar,
+            broker.photo,
+            broker.picture,
+            broker.profilePicture,
+            broker.defaultImage,
+            fallbackImages[index]
+          );
           console.log('Final image URL being used:', imageUrl);
           
           const brokerId = (
@@ -275,7 +288,7 @@ const Brokers = () => {
                 className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" 
                 onError={(e) => {
                   // Fallback to default image if API image fails to load
-                  e.currentTarget.src = broker.defaultImage || fallbackImages[index];
+                  e.currentTarget.src = pickValidImage(broker.defaultImage, fallbackImages[index]);
                 }}
               />
             </div>
@@ -306,14 +319,17 @@ const Brokers = () => {
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 group-hover:bg-white group-hover:text-gray-900">
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>
                   {(() => {
-                    // Normalise region to a displayable string
-                    const r = broker.region as any;
+                    // Normalise region to a displayable string without using any
+                    const r = broker.region;
                     if (Array.isArray(r) && r.length > 0) {
-                      const first = r[0];
-                      return typeof first === 'string' ? first : first?.name || '-';
+                      const first = r[0] as string | RegionObject;
+                      return typeof first === 'string' ? first : (first.name || first.city || first.state || '-');
                     }
                     if (typeof r === 'string') return r;
-                    if (r && typeof r === 'object') return r.name || '-';
+                    if (r && typeof r === 'object') {
+                      const ro = r as RegionObject;
+                      return ro.name || ro.city || ro.state || '-';
+                    }
                     if (typeof broker.location === 'string') return broker.location;
                     if (typeof broker.city === 'string') return broker.city;
                     return broker.state || broker.city || 'Location';

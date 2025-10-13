@@ -37,49 +37,12 @@ export default function BrokerDetailsPage() {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         };
 
-        const attempts = [
-          `${base}/brokers/${brokerId}`,
-          `${base}/brokers?userId=${encodeURIComponent(brokerId)}`,
-          `${base}/brokers?id=${encodeURIComponent(brokerId)}`
-        ];
-
-        for (const url of attempts) {
-          const res = await fetch(url, { headers });
-          if (!res.ok) continue;
-          const data = await res.json();
-          // Normalize API response shape to one broker object
-          const b = data?.data?.broker ||
-                    data?.broker ||
-                    (Array.isArray(data?.data?.brokers) ? data.data.brokers[0] : undefined) ||
-                    (Array.isArray(data?.brokers) ? data.brokers[0] : undefined) ||
-                    data?.data ||
-                    (Array.isArray(data) ? data[0] : undefined);
-          if (b) { setBroker(b); break; }
-        }
-
-        // Fallback: lookup by scanning brokers list if direct lookup failed
-        if (!broker) {
-          let page = 1;
-          let found = null;
-          // Iterate pages without forcing a limit; stop when API indicates no more (safety ceiling 1000)
-          while (!found && page <= 1000) {
-            const res = await fetch(`${base}/brokers?page=${page}`, { headers, cache: 'no-store' });
-            if (!res.ok) break;
-            const data = await res.json();
-            const list = Array.isArray(data?.data?.brokers) ? data.data.brokers
-              : Array.isArray(data?.brokers) ? data.brokers
-              : Array.isArray(data?.data) ? data.data
-              : Array.isArray(data) ? data : [];
-            found = list.find(b => (b?._id === brokerId) || (b?.id === brokerId) || (b?.userId === brokerId) || (b?.userId?._id === brokerId));
-
-            const totalPages = data?.data?.pagination?.totalPages || data?.pagination?.totalPages;
-            const hasNextPage = data?.data?.pagination?.hasNextPage || data?.pagination?.hasNextPage;
-            const reachedEnd = (typeof hasNextPage === 'boolean' && !hasNextPage) || (typeof totalPages === 'number' && page >= totalPages) || list.length === 0;
-            if (reachedEnd) break; // no more pages
-            page += 1;
-          }
-          if (found) setBroker(found);
-        }
+        // Canonical: fetch by path id only
+        const res = await fetch(`${base}/brokers/${encodeURIComponent(String(brokerId))}`, { headers });
+        if (!res.ok) throw new Error('Failed details fetch');
+        const data = await res.json();
+        const b = data?.data?.broker || data?.broker || data?.data;
+        if (b) setBroker(b);
       } catch (e) {
         setError('Failed to load broker details');
       } finally {
@@ -90,9 +53,10 @@ export default function BrokerDetailsPage() {
     fetchBroker();
   }, [brokerId]);
 
-  const nonEmpty = (v) => typeof v === 'string' && v.trim().length > 0;
+  const nonEmpty = (v) => typeof v === 'string' && v.trim().length > 0 && v !== 'null' && v !== 'undefined';
+  const pickImage = (...cands) => (cands.find(nonEmpty) || '');
   const displayName = nonEmpty(broker?.name) ? broker.name : nonEmpty(broker?.fullName) ? broker.fullName : 'Unknown Broker';
-  const profileImage = broker?.brokerImage || broker?.profileImage || broker?.image || '/images/user-1.webp';
+  const profileImage = pickImage(broker?.brokerImage, broker?.profileImage, broker?.image);
   const firmName = nonEmpty(broker?.firmName) ? broker.firmName : '';
   const firmDisplay = nonEmpty(firmName) ? firmName : '-';
   const website = nonEmpty(broker?.website) ? broker.website : '';
@@ -101,14 +65,13 @@ export default function BrokerDetailsPage() {
   const licenseDisplay = nonEmpty(licenseNumber) ? licenseNumber : '-';
   const city = nonEmpty(broker?.city) ? broker.city : '';
   const regionsArr = Array.isArray(broker?.region) ? broker.region : [];
-  const regions = regionsArr.length > 0 ? regionsArr.map(r => (typeof r === 'string' ? r : (r?.name || ''))).filter(nonEmpty).join(', ') : '';
-  const regionsDisplay = nonEmpty(regions) ? regions : '-';
-  const specializations = [
-    'Luxury Homes',
-    'Investment Properties',
-    'Commercial Real Estate',
-    'Property Management'
-  ];
+  const regionsText = regionsArr.length > 0
+    ? regionsArr.map(r => (typeof r === 'string' ? r : (r?.name || ''))).filter(nonEmpty).join(', ')
+    : '';
+  const regionsDisplay = nonEmpty(regionsText) ? regionsText : '-';
+  const specializations = Array.isArray(broker?.specializations) && broker.specializations.length > 0
+    ? broker.specializations
+    : [];
   const years = (typeof broker?.experience === 'object' ? broker?.experience?.years : broker?.experience) || '';
   const leads = broker?.leadsCreated?.count ?? broker?.closedDeals ?? 0;
   const status = nonEmpty(broker?.status) ? broker.status : '';
@@ -314,7 +277,7 @@ export default function BrokerDetailsPage() {
       </span>
       <div>
         <div className="text-gray-500">Firm Name</div>
-        <div className="font-medium text-gray-900">{firmDisplay}</div>
+        <div className="font-medium text-gray-900">{firmName}</div>
       </div>
     </div>
 
@@ -327,7 +290,13 @@ export default function BrokerDetailsPage() {
       </span>
       <div>
         <div className="text-gray-500">Website</div>
-        <div className="font-medium text-green-700">{websiteDisplay}</div>
+        <div className="font-medium text-green-700">
+          {nonEmpty(websiteDisplay) ? (
+            <a href={websiteDisplay} target="_blank" rel="noreferrer" className="underline">
+              {websiteDisplay}
+            </a>
+          ) : '-'}
+        </div>
       </div>
     </div>
 
@@ -341,7 +310,7 @@ export default function BrokerDetailsPage() {
       <div>
         <div className="text-gray-500">License Number</div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-gray-900">{licenseDisplay}</span>
+          <span className="font-medium text-gray-900">{licenseNumber}</span>
           {nonEmpty(licenseNumber) && (
             <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 font-medium">
               Verified
@@ -480,7 +449,11 @@ export default function BrokerDetailsPage() {
                   </div>
                   <div>
                     <div className="text-sm font-medium text-gray-900">LinkedIn</div>
-                    <div className="text-xs text-gray-500">linkedin.com/in/nehamehta</div>
+                    <div className="text-xs text-gray-500">
+                      {nonEmpty(broker?.socialMedia?.linkedin) ? (
+                        <a href={broker.socialMedia.linkedin} target="_blank" rel="noreferrer" className="text-green-700 underline break-all">{broker.socialMedia.linkedin}</a>
+                      ) : '-'}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg border border-gray-200">
@@ -491,7 +464,11 @@ export default function BrokerDetailsPage() {
                   </div>
                 <div>
                     <div className="text-sm font-medium text-gray-900">Twitter</div>
-                    <div className="text-xs text-gray-500">@neha.mehta</div>
+                    <div className="text-xs text-gray-500">
+                      {nonEmpty(broker?.socialMedia?.twitter) ? (
+                        <a href={broker.socialMedia.twitter} target="_blank" rel="noreferrer" className="text-green-700 underline break-all">{broker.socialMedia.twitter}</a>
+                      ) : '-'}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg border border-gray-200">
@@ -502,7 +479,11 @@ export default function BrokerDetailsPage() {
                 </div>
                 <div>
                     <div className="text-sm font-medium text-gray-900">Instagram</div>
-                    <div className="text-xs text-gray-500">@neha.mehta</div>
+                    <div className="text-xs text-gray-500">
+                      {nonEmpty(broker?.socialMedia?.instagram) ? (
+                        <a href={broker.socialMedia.instagram} target="_blank" rel="noreferrer" className="text-green-700 underline break-all">{broker.socialMedia.instagram}</a>
+                      ) : '-'}
+                    </div>
                   </div>
                 </div>
               </div>
