@@ -60,20 +60,17 @@ const Brokers = () => {
       // Use environment variable for API URL following app pattern
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       
-      if (!token) {
-        console.log('No token found, using fallback brokers');
-        setError('No authentication token found');
-        return;
-      }
+      // Proceed even without token; add Authorization only if available
+      console.log('Fetching brokers from:', `${apiUrl}/brokers`, 'with token:', !!token);
 
-      console.log('Fetching brokers from:', `${apiUrl}/brokers`);
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      };
 
       const response = await fetch(`${apiUrl}/brokers`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
+        headers
       });
 
       if (response.ok) {

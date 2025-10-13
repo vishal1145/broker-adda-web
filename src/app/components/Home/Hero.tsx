@@ -47,6 +47,7 @@ const Dots = ({ className, style }: DotsProps) => (
 const CARDS_VISIBLE = 2;
 
 interface HeroCard {
+  id?: string;
   type: string;
   title: string;
   image: string;
@@ -63,6 +64,12 @@ interface BrokerApiItem {
   region?: Array<string | { name?: string; city?: string; state?: string }>;
   city?: string;
   state?: string;
+  specializations?: string[];
+  specialization?: string;
+  leadsCreated?: { count?: number };
+  leadCount?: number;
+  totalLeads?: number;
+  leads?: number;
 }
 
 interface HeroData {
@@ -99,8 +106,15 @@ const Hero = ({ data = {
 } }: { data: HeroData }) => {
   const router = useRouter(); // ✅ Next.js router
   const [startIdx, setStartIdx] = useState(0);
+  // Read token synchronously to avoid a first paint with hardcoded cards
+  const initialToken = typeof window !== 'undefined'
+    ? (localStorage.getItem('token') || localStorage.getItem('authToken'))
+    : null;
   const [apiCards, setApiCards] = useState<HeroCard[]>([]);
-  const [intendApi, setIntendApi] = useState<boolean>(false);
+  // Always intend to use API; we will gracefully fallback if it fails
+  const [intendApi, setIntendApi] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [hydrated, setHydrated] = useState<boolean>(false);
 
   const {
     badge = { text: '' },
@@ -111,10 +125,8 @@ const Hero = ({ data = {
     cards = [],
   } = data || {};
 
-  // Prefer API cards when we intend to fetch (token present). Avoid initial hardcoded flash.
-  const displayCards: HeroCard[] = intendApi
-    ? (apiCards.length > 0 ? apiCards : cards)
-    : cards;
+  // During SSR (not hydrated) or when intending API, don't use hardcoded cards
+  const displayCards: HeroCard[] = (intendApi || !hydrated) ? apiCards : cards;
 
   const canPrev = startIdx > 0;
   const canNext = startIdx + CARDS_VISIBLE < displayCards.length;
@@ -124,38 +136,39 @@ const Hero = ({ data = {
 
   // No-op placeholder removed (was unused)
 
-  const openProductDetails = () => {
-    // Navigate to broker detail page (hardcoded demo)
+  const openProductDetails = (id?: string) => {
+    if (id) {
+      router.push(`/broker-details/${id}`);
+      return;
+    }
     router.push('/broker-details');
   };
 
   // Fetch brokers for hero cards (follow existing app pattern)
   useEffect(() => {
+    // mark hydration so SSR doesn't flash hardcoded content
+    setHydrated(true);
+
     const fetchBrokersForHero = async () => {
       try {
+        setIsLoading(true);
         const token = typeof window !== 'undefined'
           ? localStorage.getItem('token') || localStorage.getItem('authToken')
           : null;
 
-        // If token exists, we will prefer API cards and wait for them
-        if (token) {
-          setIntendApi(true);
-        } else {
-          setIntendApi(false);
-        }
+        // We always prefer API; token only affects headers
+        setIntendApi(true);
 
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
-        if (!token) {
-          return; // fallback to provided data.cards (intendApi will be false)
-        }
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        };
 
         const response = await fetch(`${apiUrl}/brokers`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+          headers
         });
 
         if (!response.ok) {
@@ -192,12 +205,34 @@ const Hero = ({ data = {
           if (!regionName) {
              regionName = (b?.city as string) || (b?.state as string) || '';
           }
+          const spec = Array.isArray(b?.specializations) && b.specializations.length > 0
+            ? b.specializations[0]
+            : (typeof b?.specialization === 'string' && b.specialization.trim() ? b.specialization : '');
+
+          const rawLeads = (typeof b?.leadsCreated?.count === 'number' ? b.leadsCreated.count : undefined)
+            ?? (typeof b?.leadCount === 'number' ? b.leadCount : undefined)
+            ?? (typeof b?.totalLeads === 'number' ? b.totalLeads : undefined)
+            ?? (typeof b?.leads === 'number' ? b.leads : undefined);
+          const leadsText = `${Math.max(1, Number(rawLeads ?? 1))}+ leads`;
+
+          // Match Brokers.tsx logic: prefer userId (object/string), then _id, then id
+          const id = (
+            (typeof (b as unknown as { userId?: unknown }).userId === 'object' && (b as unknown as { userId?: { _id?: string } }).userId
+              ? (b as unknown as { userId?: { _id?: string } }).userId?._id
+              : undefined) ||
+            (typeof (b as unknown as { userId?: unknown }).userId === 'string'
+              ? (b as unknown as { userId?: string }).userId
+              : undefined) ||
+            (b as unknown as { _id?: string })._id ||
+            (b as unknown as { id?: string }).id
+          );
           return {
+            id,
             type: '',
-            title: '', // keep title hardcoded
+            title: spec,
             image: img,
             price: '',
-            items: regionName && regionName.trim().length > 0 ? `${regionName}` : '-',
+            items: regionName && regionName.trim().length > 0 ? `${regionName} • ${leadsText}` : `- • ${leadsText}`,
             color: '#0A421E'
           };
         });
@@ -207,7 +242,7 @@ const Hero = ({ data = {
         // fallback to hardcoded cards
         setIntendApi(false);
       } finally {
-        // no-op
+        setIsLoading(false);
       }
     };
 
@@ -294,17 +329,27 @@ onClick={() => {
           {/* Cards Section */}
           <div className="flex flex-col items-center w-full">
             <div className="relative w-full flex flex-col md:flex-row justify-center items-center gap-4 py-2">
-              {displayCards.slice(startIdx, startIdx + CARDS_VISIBLE).map((card, index) => (
+              {intendApi && isLoading && (
+                <>
+                  <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:min-w-[260px] h-60 animate-pulse" />
+                  <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:min-w-[260px] h-60 animate-pulse" />
+                </>
+              )}
+              {!isLoading && displayCards.slice(startIdx, startIdx + CARDS_VISIBLE).map((card, index) => (
                 <div
                   key={index}
-                  onClick={() => openProductDetails()}
+                  onClick={() => openProductDetails(card.id)}
                   className="hero-card bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition relative group w-full max-w-xs md:min-w-[260px] mx-auto md:mx-2 cursor-pointer"
                 >
-                  <img
-                    src={card.image}
-                    className="rounded-lg object-cover h-48 w-full"
-                    alt={card.title}
-                  />
+                  {card.image && card.image.trim().length > 0 ? (
+                    <img
+                      src={card.image}
+                      className="rounded-lg object-cover h-48 w-full"
+                      alt={card.title}
+                    />
+                  ) : (
+                    <div className="rounded-lg h-48 w-full bg-gray-200 animate-pulse" />
+                  )}
 
                   <div className="absolute" style={{ top: '18px', left: '60px' }}>
                     <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center bg-transparent shadow-lg">
