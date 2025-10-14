@@ -196,32 +196,50 @@ export default function BrokerDetailsPage() {
       <HeaderFile data={headerData} />
       <div className="py-10">
       <div className="w-full mx-auto">
-        {/* Hero Section - Simple & Clean */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8 p-6">
-          <div className="flex items-center gap-4">
-          <div className="relative">
-                <img src={profileImage} alt="Broker" className="w-16 h-16 rounded-full object-cover ring-4 ring-white shadow" />
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+        {/* Hero Section - Professional Split Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-md mb-8">
+          <div className="absolute inset-x-0 top-0 h-1 bg-green-200"></div>
+          <div className="p-6 md:p-8 bg-white">
+            <div className="grid grid-cols-[auto_1fr] items-center gap-5 md:gap-6">
+              {/* Avatar */}
+              <div className="relative">
+                <div className="p-0.5 rounded-full bg-gradient-to-br from-green-200 to-yellow-200">
+                  <img src={profileImage} alt="Broker" className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover bg-white" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center shadow">
                   <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
                 </div>
               </div>
-            
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-1 rounded-full bg-yellow-100 text-green-900 text-xs font-medium">Top Rated Broker</span>
-              </div>
-              <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">{displayName}</h1>
-              {(nonEmpty(firmName) || nonEmpty(city)) && (
-                <p className="text-sm text-gray-500">{nonEmpty(firmName) ? firmName : ''}{nonEmpty(firmName) && nonEmpty(city) ? ' · ' : ''}{nonEmpty(city) ? city : ''}</p>
-              )}
-              <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
-                {years !== '' && <span>{typeof years === 'number' ? `${years}+ Years Experience` : `${years} Years Experience`}</span>}
-                {years !== '' && <span>•</span>}
-                <span>{leads} Properties Sold</span>
-                {nonEmpty(status) && <span>•</span>}
-                {nonEmpty(status) && <span>{status}</span>}
+
+              {/* Info */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2.5 py-1 rounded-full bg-yellow-100 text-green-900 text-xs font-medium border border-gray-300">Top Rated Broker</span>
+                </div>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">{displayName}</h1>
+                {(nonEmpty(firmName) || nonEmpty(city)) && (
+                  <p className="text-sm text-gray-600">{nonEmpty(firmName) ? firmName : ''}{nonEmpty(firmName) && nonEmpty(city) ? ' · ' : ''}{nonEmpty(city) ? city : ''}</p>
+                )}
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                  {years !== '' && (
+                    <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-50 text-gray-700 border border-gray-200">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                      {typeof years === 'number' ? `${years}+ Years Experience` : `${years} Years Experience`}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-50 text-gray-700 border border-gray-200">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                    {leads} Properties Sold
+                  </span>
+                  {nonEmpty(status) && (
+                    <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-50 text-gray-700 border border-gray-200">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-600"></span>
+                      {status}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -232,28 +250,42 @@ export default function BrokerDetailsPage() {
           {/* Left - All Broker Information (9 columns) */}
           <div className="lg:col-span-9 space-y-10">
             {/* About & Overview */}
-            <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="inline-block h-0.5 w-8 rounded bg-yellow-400"></span>
-                <h2 className="text-lg font-semibold text-gray-900">About {displayName}</h2>
+            <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-0.5 w-10 rounded bg-yellow-400"></span>
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900 tracking-tight">About {displayName}</h2>
               </div>
-              {nonEmpty(about) && <p className="text-sm text-gray-600 leading-7 mb-6">{about}</p>}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 rounded-xl bg-white shadow-sm">
-                  <div className="text-2xl font-bold text-green-700">{leads}</div>
-                  <div className="text-sm text-gray-600">Properties Sold</div>
+              <div className="h-px bg-gray-100 mt-3 mb-6" />
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+                {/* Left: Narrative */}
+                <div className="lg:col-span-7">
+                  {nonEmpty(about) && (
+                    <p className="text-sm md:text-base text-gray-700 leading-7 md:leading-8">
+                      {about}
+                    </p>
+                  )}
                 </div>
-                <div className="text-center p-4 rounded-xl bg-white shadow-sm">
-                  <div className="text-2xl font-bold text-blue-700">4.8</div>
-                  <div className="text-sm text-gray-600">Client Rating</div>
-                </div>
-                <div className="text-center p-4 rounded-xl bg-white shadow-sm">
-                  <div className="text-2xl font-bold text-purple-700">{years === '' ? '-' : (typeof years === 'number' ? `${years}+` : years)}</div>
-                  <div className="text-sm text-gray-600">Years Experience</div>
-                </div>
-                <div className="text-center p-4 rounded-xl bg-white shadow-sm">
-                  <div className="text-2xl font-bold text-orange-700">98%</div>
-                  <div className="text-sm text-gray-600">Satisfaction</div>
+
+                {/* Right: Key metrics */}
+                <div className="lg:col-span-5 lg:border-l lg:border-gray-200 lg:pl-8">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-green-100 bg-green-50 p-4 text-center">
+                      <div className="text-2xl font-extrabold tracking-tight text-green-700">{leads}</div>
+                      <div className="text-xs text-green-700/80 mt-1">Properties Sold</div>
+                    </div>
+                    <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-center">
+                      <div className="text-2xl font-extrabold tracking-tight text-blue-700">4.8</div>
+                      <div className="text-xs text-blue-700/80 mt-1">Client Rating</div>
+                    </div>
+                    <div className="rounded-xl border border-purple-100 bg-purple-50 p-4 text-center">
+                      <div className="text-2xl font-extrabold tracking-tight text-purple-700">{years === '' ? '-' : (typeof years === 'number' ? `${years}+` : years)}</div>
+                      <div className="text-xs text-purple-700/80 mt-1">Years Experience</div>
+                    </div>
+                    <div className="rounded-xl border border-orange-100 bg-orange-50 p-4 text-center">
+                      <div className="text-2xl font-extrabold tracking-tight text-orange-700">98%</div>
+                      <div className="text-xs text-orange-700/80 mt-1">Satisfaction</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -269,8 +301,8 @@ export default function BrokerDetailsPage() {
   {/* Grid layout (rows of 2) */}
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
     {/* Firm Name */}
-    <div className="flex items-start gap-3">
-      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+    <div className="flex items-start gap-3 p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-green-50 hover:border-green-200 hover:shadow-sm transition-colors">
+      <span className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
         <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
@@ -282,8 +314,8 @@ export default function BrokerDetailsPage() {
     </div>
 
     {/* Website */}
-    <div className="flex items-start gap-3">
-      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+    <div className="flex items-start gap-3 p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-green-50 hover:border-green-200 hover:shadow-sm transition-colors">
+      <span className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
         <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
         </svg>
@@ -301,8 +333,8 @@ export default function BrokerDetailsPage() {
     </div>
 
     {/* License Number */}
-    <div className="flex items-start gap-3">
-      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+    <div className="flex items-start gap-3 p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-green-50 hover:border-green-200 hover:shadow-sm transition-colors">
+      <span className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
         <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M12 2l4 4-4 4-4-4 4-4z" />
       </svg>
@@ -322,8 +354,8 @@ export default function BrokerDetailsPage() {
 
 
     {/* Preferred Regions */}
-    <div className="flex items-start gap-3">
-      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+    <div className="flex items-start gap-3 p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-green-50 hover:border-green-200 hover:shadow-sm transition-colors">
+      <span className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
         <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 10c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
           <path d="M12 10v10M7 22h10" />
@@ -338,8 +370,8 @@ export default function BrokerDetailsPage() {
     </div>
 
     {/* Specializations (Full Width Row) */}
-    <div className="sm:col-span-2 flex items-start gap-3">
-      <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+    <div className="sm:col-span-2 flex items-start gap-3 p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-green-50 hover:border-green-200 hover:shadow-sm transition-colors">
+      <span className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
         <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 6v12m6-6H6" />
         </svg>
@@ -416,14 +448,14 @@ export default function BrokerDetailsPage() {
                           <p className="text-sm text-gray-600 mb-2">{firm}{firm && expYears ? ' • ' : ''}{expYears ? `${expYears}+ Years` : ''}</p>
                           <div className="flex flex-wrap gap-1">
                             {specs.slice(0, 3).map((spec, specIndex) => (
-                              <span key={specIndex} className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
+                              <span key={specIndex} className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs border border-gray-200">
                                 {spec}
                               </span>
                             ))}
                           </div>
                         </div>
                         {id && (
-                          <Link href={`/broker-details/${id}`} className="px-4 py-2 rounded-lg bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200 transition-colors">
+                          <Link href={`/broker-details/${id}`} className="px-4 py-2 rounded-lg bg-green-100 text-green-700 text-sm font-medium border border-green-500 hover:bg-green-200 transition-colors">
                             View Profile
                           </Link>
                         )}
@@ -494,7 +526,7 @@ export default function BrokerDetailsPage() {
           {/* Right - Lead Generation Support (3 columns) */}
           <div className="lg:col-span-3 space-y-6">
             {/* Lead Generation Support */}
-            <div className="bg-gradient-to-br from-green-900 to-green-900 rounded-2xl p-6 text-white border border-yellow-500">
+            <div className="bg-gradient-to-br from-green-900 to-green-900 rounded-2xl p-6 text-white border border-gray-200">
               <h3 className="text-lg font-semibold mb-4">Lead Generation Support</h3>
               <p className="text-green-100 mb-6 text-sm">
                 Join our exclusive broker network and get access to premium lead generation tools and support.
@@ -546,7 +578,7 @@ export default function BrokerDetailsPage() {
             
 
             {/* Additional Benefits */}
-            <div className="bg-white rounded-2xl border border-yellow-500/40 p-5 shadow-sm">
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
               <h3 className="text-base font-semibold text-black mb-4">Additional Benefits</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -593,7 +625,7 @@ export default function BrokerDetailsPage() {
             </div>
 
             {/* Quick Contact */}
-            <div className="bg-white rounded-2xl border border-yellow-500/40 p-5 shadow-sm">
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
               <h3 className="text-base font-semibold text-black mb-4">Quick Contact</h3>
               <div className="space-y-3">
                 <button className="w-full px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg text-sm font-medium">
@@ -609,10 +641,10 @@ export default function BrokerDetailsPage() {
             </div>
 
             {/* Performance Summary */}
-            <div className="bg-white rounded-2xl border border-yellow-500/40 p-5 shadow-sm">
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
               <h3 className="text-base font-semibold text-black mb-4">Performance Summary</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
+              <div className="divide-y divide-gray-200">
+                <div className="flex justify-between items-center py-3">
                   <span className="text-sm text-gray-600">Overall Rating</span>
                   <div className="flex items-center gap-1">
                     <span className="font-semibold text-gray-900">4.8</span>
@@ -625,15 +657,15 @@ export default function BrokerDetailsPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center py-3">
                   <span className="text-sm text-gray-600">Closed Deals</span>
                   <span className="font-semibold text-gray-900">126</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center py-3">
                   <span className="text-sm text-gray-600">Avg. Response Time</span>
                   <span className="font-semibold text-gray-900">&lt; 2 hours</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center py-3">
                   <span className="text-sm text-gray-600">Client Retention</span>
                   <span className="font-semibold text-gray-900">95%</span>
                 </div>
