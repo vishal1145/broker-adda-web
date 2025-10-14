@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import axios from "axios"; // ✅ Added axios import
 
 interface DotsProps {
   className?: string;
@@ -43,7 +44,7 @@ const Dots = ({ className, style }: DotsProps) => (
   </svg>
 );
 
-type LeadStatus = 'New' | 'In Progress' | 'On Hold' | 'Closed' | string;
+type LeadStatus = "New" | "In Progress" | "On Hold" | "Closed" | string;
 
 interface Transfer {
   toBroker?: string | { _id: string; name?: string; email?: string };
@@ -65,128 +66,93 @@ interface ApiLead {
 }
 
 // Hardcoded demo leads (moved outside component to prevent re-creation)
-const sampleLeads: ApiLead[] = [
-    {
-      _id: 'ld_001',
-      customerName: 'Neha Kapoor',
-      customerPhone: '+91 98765 11001',
-      customerEmail: 'neha.kapoor@email.com',
-      requirement: 'Buy',
-      propertyType: 'Residential',
-      budget: 9500000,
-      primaryRegion: 'delhi-ncr',
-      secondaryRegion:'noida',
-      status: 'New',
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      _id: 'ld_002',
-      customerName: 'Rohan Desai',
-      customerPhone: '+91 98765 11002',
-      customerEmail: 'rohan.desai@email.com',
-      requirement: 'Rent',
-      propertyType: 'Commercial',
-      budget: '₹1,20,000 / month',
-      primaryRegion: 'bengaluru',
-      secondaryRegion:'delhi',
-      status: 'In Progress',
-      createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      _id: 'ld_003',
-      customerName: 'Aarav Mehta',
-      customerPhone: '+91 98765 11003',
-      customerEmail: 'aarav.mehta@email.com',
-      requirement: 'Buy',
-      propertyType: 'Plot',
-      budget: 7500000,
-      primaryRegion: 'mumbai',
-      secondaryRegion: 'navi-mumbai',
-      status: 'New',
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      _id: 'ld_004',
-      customerName: 'Isha Verma',
-      customerPhone: '+91 98765 11004',
-      customerEmail: 'isha.verma@email.com',
-      requirement: 'Buy',
-      propertyType: 'Residential',
-      budget: 6200000,
-      primaryRegion: 'pune',
-      status: 'On Hold',
-      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      _id: 'ld_005',
-      customerName: 'Sneha Nair',
-      customerPhone: '+91 98765 11005',
-      requirement: 'Sell',
-      propertyType: 'Residential',
-      budget: 15000000,
-      primaryRegion: 'kochi',
-      status: 'Closed',
-      createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      _id: 'ld_006',
-      customerName: 'Vikram Singh',
-      customerPhone: '+91 98765 11006',
-      requirement: 'Buy',
-      propertyType: 'Industrial',
-      budget: '₹85,000 / month',
-      primaryRegion: 'chennai',
-      status: 'New',
-      createdAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ];
+// Removed sampleLeads fetching, now using API
 
 const LatestLeads: React.FC = () => {
   const [leads, setLeads] = useState<ApiLead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Hardcoded data mode
-    setLoading(true);
-    const sorted = [...sampleLeads].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-    setLeads(sorted);
-    setLoading(false);
+    // Fetch data from API
+    const fetchLeads = async () => {
+      setLoading(true);
+
+      try {
+        const token = localStorage.getItem("token"); // ✅ Get token from local storage
+        const res = await axios.get("http://localhost:5000/api/leads", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+          },
+        });
+        // Sort by createdAt descending
+        const sorted = [...res.data.data.items].sort(
+          (a, b) =>
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+        );
+        setLeads(sorted);
+      } catch (error) {
+        console.error("Error fetching leads:", error);
+        setLeads([]); // fallback to empty
+      }
+      setLoading(false);
+    };
+
+   
+    fetchLeads();
   }, []);
 
-  const INR = useMemo(() => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }), []);
-  const statusClass = (s?: LeadStatus) => ({
-    New: 'bg-emerald-50 text-emerald-700',
-    'In Progress': 'bg-amber-50 text-amber-700',
-    'On Hold': 'bg-gray-100 text-gray-700',
-    Closed: 'bg-rose-50 text-rose-700',
-  } as Record<string, string>)[s || ''] || 'bg-gray-100 text-gray-700';
-  const reqClass = (r?: string) => ({
-    Buy: 'bg-emerald-50 text-emerald-700',
-    Sell: 'bg-sky-50 text-sky-700',
-    Rent: 'bg-violet-50 text-violet-700',
-  } as Record<string, string>)[r || ''] || 'bg-gray-50 text-gray-700';
-  const regionName = (id?: string) => {
-    if (!id) return '—';
-    // Prefer a global mapping if provided at runtime
-    const globalMap = (typeof window !== 'undefined'
-      ? (window as unknown as { RegionMap?: Record<string, string> }).RegionMap
-      : undefined) || {};
-    if (globalMap[id]) return globalMap[id];
-
-    // Fallback: prettify the slug e.g. "delhi-ncr" -> "Delhi NCR"
-    const pretty = id
-      .replace(/[-_]+/g, ' ')
+  const INR = useMemo(
+    () =>
+      new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }),
+    []
+  );
+  const statusClass = (s?: LeadStatus) =>
+    ((
+      {
+        New: "bg-emerald-50 text-emerald-700",
+        "In Progress": "bg-amber-50 text-amber-700",
+        "On Hold": "bg-gray-100 text-gray-700",
+        Closed: "bg-rose-50 text-rose-700",
+      } as Record<string, string>
+    )[s || ""] || "bg-gray-100 text-gray-700");
+  const reqClass = (r?: string) =>
+    ((
+      {
+        Buy: "bg-emerald-50 text-emerald-700",
+        Sell: "bg-sky-50 text-sky-700",
+        Rent: "bg-violet-50 text-violet-700",
+      } as Record<string, string>
+    )[r || ""] || "bg-gray-50 text-gray-700");
+  const regionName = (region: { name?: string } | string | undefined) => {
+    if (!region) return "";
+    const str = typeof region === "string" ? region : region.name || "";
+    return str
+      .replace(/[-_]+/g, " ")
       .replace(/\b\w/g, (m) => m.toUpperCase())
-      .replace(/Ncr\b/i, 'NCR');
-    return pretty;
+      .replace(/Ncr\b/i, "NCR");
   };
   const ago = (d?: string) => {
     const t = d ? new Date(d).getTime() : NaN;
-    if (!t) return '';
+    if (!t) return "";
     const s = Math.floor((Date.now() - t) / 1000);
-    const units: [number, string][] = [[31536000,'y'],[2592000,'mo'],[604800,'w'],[86400,'d'],[3600,'h'],[60,'m']];
-    for (const [sec, label] of units) { if (s >= sec) return Math.floor(s/sec) + label + ' ago'; }
-    return s + 's ago';
+    const units: [number, string][] = [
+      [31536000, "y"],
+      [2592000, "mo"],
+      [604800, "w"],
+      [86400, "d"],
+      [3600, "h"],
+      [60, "m"],
+    ];
+    for (const [sec, label] of units) {
+      if (s >= sec) return Math.floor(s / sec) + label + " ago";
+    }
+    return s + "s ago";
   };
 
   return (
@@ -214,16 +180,30 @@ const LatestLeads: React.FC = () => {
         ) : leads.length === 0 ? (
           <div id="latest-leads-empty" className="mt-12 text-center">
             <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-emerald-50 text-emerald-700">
-              <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path name="M3 7h18M3 12h18M3 17h18"/></svg>
+              <svg
+                className="h-7 w-7"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path name="M3 7h18M3 12h18M3 17h18" />
+              </svg>
             </div>
-            <h3 className="mt-3 text-base font-semibold text-gray-900">No recent leads</h3>
-            <p className="mt-1 text-sm text-gray-600">New enquiries will appear here as they arrive.</p>
+            <h3 className="mt-3 text-base font-semibold text-gray-900">
+              No recent leads
+            </h3>
+            <p className="mt-1 text-sm text-gray-600">
+              New enquiries will appear here as they arrive.
+            </p>
           </div>
         ) : (
-          <div id="latest-leads-grid" className="grid gap-6 md:grid-cols-12 items-center">
+          <div
+            id="latest-leads-grid"
+            className="grid gap-6 md:grid-cols-12 items-center"
+          >
             {/* Left 6-col content */}
             <div className="md:col-span-6 space-y-4 bg-gray-50 p-8 rounded-2xl relative overflow-hidden">
-             
               {/* Dots - top right */}
               <div className="absolute right-20 top-0">
                 <Dots />
@@ -236,71 +216,128 @@ const LatestLeads: React.FC = () => {
                 <span className="">Latest</span>
                 <span className="pl-2 text-green-900">Leads</span>
               </h2>
-              <p className="text-sm sm:text-base text-gray-600">Explore the latest property requirements posted by verified brokers to stay ahead, connect instantly, and turn new opportunities into closed deals.</p>
-              <Link href="/search" className="inline-flex items-center gap-2 rounded-full bg-green-900 px-5 py-2 text-white text-sm font-semibold shadow-sm w-max">
+              <p className="text-sm sm:text-base text-gray-600">
+                Explore the latest property requirements posted by verified
+                brokers to stay ahead, connect instantly, and turn new
+                opportunities into closed deals.
+              </p>
+              <Link
+                href="/search"
+                className="inline-flex items-center gap-2 rounded-full bg-green-900 px-5 py-2 text-white text-sm font-semibold shadow-sm w-max"
+              >
                 View All Leads
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <svg
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
               </Link>
             </div>
-            <div className="md:col-span-6 grid gap-6 md:grid-cols-2 self-center">
-            {leads.slice(0,2).map((lead) => (
-              <article key={lead._id} className="group relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg">
-                <div className="p-5">
-                  {/* Top Section - Tags and Icon */}
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center rounded-full ${reqClass(lead.requirement)} px-3 py-1.5 text-xs font-medium`}>
-                        {lead.requirement || ''}
-                      </span>
-                      <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 px-3 py-1.5 text-xs font-medium">
-                        {lead.propertyType || ''}
-                      </span>
-                    </div>
-                    <div className="w-5 h-5 text-gray-600">
-                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Middle Section - Location with right arrow */}
-                  <div className="mb-4">
-                    <div className="flex items-center ">
-                      <h3 className="text-lg font-bold text-gray-900 capitalize">
-                        {regionName(lead.primaryRegion)}
-                      </h3>
-                      <Link href="/lead-details" aria-label="Open lead details" className="ml-2 align-middle">
-                        <svg className="h-7 w-7 -rotate-45 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                      </Link>
-                    </div>
-                    {lead.secondaryRegion && (
-                      <p className="text-sm text-gray-600 capitalize mt-1">
-                        {regionName(lead.secondaryRegion)}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Price Chip */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 px-3 py-1.5 text-sm font-semibold">
-                        ₹{typeof lead.budget === 'number' ? INR.format(lead.budget).replace('₹', '') : (lead.budget || '—')}
+            <div className="md:col-span-6 grid gap-6 md:grid-cols-2 self-center cursor-pointer">
+              {leads.slice(0, 2).map((lead) => (
+                <Link
+                  key={lead._id}
+                  href={`/leads/${lead.propertyType}/leads-details/${lead._id}`}
+                  // href={`/lead-details`}
+                  className="cursor-pointer"
+                >
+                  <article
+                    key={lead._id}
+                    className="group relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg"
+                  >
+                    <div className="p-5">
+                      {/* Top Section - Tags and Icon */}
+                      <div className="flex items-center justify-between gap-2 mb-4">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-flex items-center rounded-full ${reqClass(
+                              lead.requirement
+                            )} px-3 py-1.5 text-xs font-medium`}
+                          >
+                            {lead.requirement || ""}
+                          </span>
+                          <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 px-3 py-1.5 text-xs font-medium">
+                            {lead.propertyType || ""}
+                          </span>
+                        </div>
+                        <div className="w-5 h-5 text-gray-600">
+                          <svg
+                            className="w-full h-full"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                          </svg>
+                        </div>
                       </div>
-                      {lead.createdAt && (
-                        <span className="text-xs text-gray-500">{ago(lead.createdAt)}</span>
-                      )}
-                    </div>
-                  </div>
 
-                  {/* Bottom Section - Broker */}
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-gray-500">
-                      posted by <span className="font-medium text-gray-900">Ravi Sharma</span>
+                      {/* Middle Section - Location with right arrow */}
+                      <div className="mb-4">
+                        <div className="flex items-center ">
+                          <h3 className="text-lg font-bold text-gray-900 capitalize">
+                            {regionName(lead.primaryRegion)}
+                          </h3>
+                          <Link
+                            href="/lead-details"
+                            aria-label="Open lead details"
+                            className="ml-2 align-middle"
+                          >
+                            <svg
+                              className="h-7 w-7 -rotate-45 text-gray-700"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M5 12h14" />
+                              <path d="m12 5 7 7-7 7" />
+                            </svg>
+                          </Link>
+                        </div>
+                        {lead.secondaryRegion && (
+                          <p className="text-sm text-gray-600 capitalize mt-1">
+                            {regionName(lead.secondaryRegion)}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Price Chip */}
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between">
+                          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 px-3 py-1.5 text-sm font-semibold">
+                            ₹
+                            {typeof lead.budget === "number"
+                              ? INR.format(lead.budget).replace("₹", "")
+                              : lead.budget || "—"}
+                          </div>
+                          {lead.createdAt && (
+                            <span className="text-xs text-gray-500">
+                              {ago(lead.createdAt)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Bottom Section - Broker */}
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-gray-500">
+                          posted by{" "}
+                          <span className="font-medium text-gray-900">
+                            Ravi Sharma
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </article>
-            ))}
+                  </article>
+                </Link>
+              ))}
             </div>
           </div>
         )}
@@ -310,5 +347,3 @@ const LatestLeads: React.FC = () => {
 };
 
 export default LatestLeads;
-
-
