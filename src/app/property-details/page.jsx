@@ -7,7 +7,6 @@ import HeaderFile from '../components/Header';
 
 const TABS = [
   { label: 'Description' },
-  { label: 'Additional Information' },
   { label: 'Review' },
 ];
 
@@ -72,13 +71,17 @@ function PropertyDetailsPageInner() {
             reviewCount: propertyData.reviewCount || 245,
             image: propertyData.images?.[0] || propertyData.image || '/images/pexels-binyaminmellish-106399.jpg',
             images: propertyData.images || [propertyData.image || '/images/pexels-binyaminmellish-106399.jpg'],
-            description: propertyData.description || 'Modern property with excellent connectivity and amenities.',
+            propertyDescription: propertyData.propertyDescription || propertyData.description || '',
+            description: propertyData.description || propertyData.propertyDescription || 'Modern property with excellent connectivity and amenities.',
             bedrooms: propertyData.bedrooms || 3,
             bathrooms: propertyData.bathrooms || 2,
-            areaSqft: propertyData.areaSqft || propertyData.area || 1450,
+            areaSqft: propertyData.propertySize || propertyData.areaSqft || propertyData.area || 1450,
             city: propertyData.city || 'Delhi NCR',
             region: propertyData.region || 'Prime Location',
             amenities: propertyData.amenities || [],
+            nearbyAmenities: propertyData.nearbyAmenities || [],
+            features: propertyData.features || [],
+            locationBenefits: propertyData.locationBenefits || [],
             status: propertyData.status || 'Available',
             address: propertyData.address || '',
             propertyType: propertyData.propertyType || propertyData.type || 'Apartment',
@@ -163,9 +166,9 @@ function PropertyDetailsPageInner() {
         console.error('Error fetching property details:', err);
         setError('Failed to load property details');
         // Fallback to static data if API fails
-        const items = data?.products?.items || [];
+    const items = data?.products?.items || [];
         const idNum = Number(idParam);
-        const found = items.find((p) => p.id === idNum);
+    const found = items.find((p) => p.id === idNum);
         if (found) {
           setProduct(found);
           setError('');
@@ -438,73 +441,25 @@ function PropertyDetailsPageInner() {
                 <h3 className="text-lg font-semibold text-gray-900">Nearby Amenities</h3>
               </div>
               
-              {/* Compact List Layout */}
+              {/* Bind from API nearbyAmenities if available */}
               <div className="space-y-2">
-                {[
-                  { 
-                    name: 'Schools', 
-                    distance: '0.5 km', 
-                    rating: '4.8',
-                    icon: (
-                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                      </svg>
-                    )
-                  },
-                  { 
-                    name: 'Hospital', 
-                    distance: '1.2 km', 
-                    rating: '4.6',
-                    icon: (
-                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                      </svg>
-                    )
-                  },
-                  { 
-                    name: 'Shopping', 
-                    distance: '0.8 km', 
-                    rating: '4.7',
-                    icon: (
-                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
-                      </svg>
-                    )
-                  },
-                  { 
-                    name: 'Metro', 
-                    distance: '0.3 km', 
-                    rating: '4.9',
-                    icon: (
-                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                        <circle cx="6" cy="6" r="2"/>
-                        <circle cx="18" cy="6" r="2"/>
-                        <circle cx="6" cy="18" r="2"/>
-                        <circle cx="18" cy="18" r="2"/>
-                      </svg>
-                    )
-                  }
-                ].map((item, index) => (
+                {(product?.nearbyAmenities && product.nearbyAmenities.length > 0 ? product.nearbyAmenities : []).map((name, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                        {item.icon}
+                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                        </svg>
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900 text-sm">{item.name}</div>
-                        <div className="text-xs text-gray-500">{item.distance}</div>
-                  </div>
-                </div>
-                    <div className="flex items-center gap-1">
-                      <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                      </svg>
-                      <span className="text-xs font-medium text-gray-600">{item.rating}</span>
+                        <div className="font-medium text-gray-900 text-sm">{name}</div>
+                      </div>
                     </div>
                   </div>
                 ))}
+                {(!product?.nearbyAmenities || product.nearbyAmenities.length === 0) && (
+                  <div className="text-sm text-gray-500">No nearby amenities listed.</div>
+                )}
               </div>
             </div>
           </section>
@@ -546,7 +501,7 @@ function PropertyDetailsPageInner() {
                 <h3 className="text-base font-semibold text-gray-900">Agent Details</h3>
               </div>
               {agentLoading ? (
-                <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" />
                   <div className="space-y-2">
                     <div className="h-4 w-40 bg-gray-200 rounded animate-pulse" />
@@ -556,13 +511,13 @@ function PropertyDetailsPageInner() {
               ) : agent ? (
                 <div className="flex items-center gap-3">
                   <img src={agent.image} alt="Agent" className="w-12 h-12 rounded-full object-cover" />
-                  <div>
+                <div>
                     <div className="font-medium text-gray-900">{agent.name}</div>
                     {agent.phone && (<div className="text-sm text-gray-500">{agent.phone}</div>)}
                     {agent.firm && (<div className="text-sm text-gray-500">{agent.firm}</div>)}
                     <div className="text-xs text-gray-400">Expert Broker {agent.region ? `• ${agent.region}` : ''}</div>
-                  </div>
-                </div>
+                    </div>
+                    </div>
               ) : (
                 <div className="text-sm text-gray-500">Agent details not available.</div>
               )}
@@ -668,10 +623,9 @@ function PropertyDetailsPageInner() {
                   <h3 className="text-xl font-bold text-gray-900">Property Description</h3>
                 </div>
                 <div className="prose prose-gray max-w-none">
-                  <p className="text-sm text-gray-700 leading-6 mb-4">
-                    Modern 3BHK apartment with excellent connectivity. Located in Delhi NCR with metro access, 
-                    schools, and shopping nearby. Ideal for both end-use and investment purposes.
-                  </p>
+                  {(product?.propertyDescription || product?.description) && (
+                    <p className="text-sm text-gray-700 leading-6 mb-4">{product.propertyDescription || product.description}</p>
+                  )}
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -683,7 +637,7 @@ function PropertyDetailsPageInner() {
                       Key Features
                     </h4>
                     <ul className="space-y-3">
-                      {['Prime location with strong connectivity', 'Ample natural light and ventilation', 'Gated community with 24x7 security', 'Great rental yield potential', 'Modern kitchen with premium appliances', 'Spacious balconies with city views'].map((item) => (
+                      {(product?.features && product.features.length > 0 ? product.features : ['Corner Unit','Park Facing']).map((item) => (
                         <li key={item} className="flex items-center gap-3 text-sm text-green-800">
                           <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
                           {item}
@@ -701,7 +655,7 @@ function PropertyDetailsPageInner() {
                       Location Benefits
                     </h4>
                     <ul className="space-y-3">
-                      {['5 minutes to metro station', 'Walking distance to shopping mall', 'Nearby top-rated schools', 'Close to major hospitals', 'Easy access to airport', 'Surrounded by parks and greenery'].map((item) => (
+                      {(product?.locationBenefits && product.locationBenefits.length > 0 ? product.locationBenefits : ['Near IT Park','Easy Highway Access']).map((item) => (
                         <li key={item} className="flex items-center gap-3 text-sm text-blue-800">
                           <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
                     {item}
@@ -714,144 +668,9 @@ function PropertyDetailsPageInner() {
             </div>
           )}
 
-          {activeTab === 1 && (
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                  <h3 className="text-lg font-semibold text-gray-900">Additional Information</h3>
-                </div>
-                
-                {/* Property Specifications */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-5a1 1 0 011-1h2a1 1 0 011 1v5h3a1 1 0 001-1V10"/>
-                      </svg>
-                      Property Details
-                    </h4>
-                    <div className="space-y-3">
-                      {[
-                        { label: 'Property Type', value: product?.propertyType || product?.category || 'Apartment', icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-5a1 1 0 011-1h2a1 1 0 011 1v5h3a1 1 0 001-1V10"/>
-                          </svg>
-                        )},
-                        { label: 'Bedrooms', value: `${product?.bedrooms || 3} BHK`, icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <rect x="3" y="10" width="18" height="7" rx="1"/>
-                            <path d="M7 10V7a2 2 0 012-2h6a2 2 0 012 2v3"/>
-                          </svg>
-                        )},
-                        { label: 'Bathrooms', value: `${product?.bathrooms || 2}`, icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21H6.737a2 2 0 01-1.789-2.894l3.5-7A2 2 0 019.237 10H14zm0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v5m7 0H7"/>
-                          </svg>
-                        )},
-                        { label: 'Built-up Area', value: `${product?.areaSqft?.toLocaleString('en-IN') || '1,450'} sq.ft`, icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <rect x="3" y="6" width="18" height="12" rx="2"/>
-                          </svg>
-                        )},
-                        { label: 'Floor', value: product?.floor || '5th of 12 floors', icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                          </svg>
-                        )},
-                        { label: 'Facing', value: product?.facing || 'East', icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-                          </svg>
-                        )}
-                      ].map((item, index) => (
-                        <div key={index} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0">
-                          {item.icon}
-                          <span className="text-sm text-gray-600">{item.label}</span>
-                          <span className="text-sm font-medium text-gray-900 ml-auto">{item.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
-                      </svg>
-                      Pricing & Financials
-                    </h4>
-                    <div className="space-y-3">
-                      {[
-                        { label: 'Current Price', value: `₹${Math.round(price).toLocaleString('en-IN')}`, icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
-                          </svg>
-                        )},
-                        { label: 'Price per sq.ft', value: `₹${product?.pricePerSqft?.toLocaleString('en-IN') || Math.round(price/(product?.areaSqft || 1450)).toLocaleString('en-IN')}`, icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 002 2h2a2 2 0 002-2z"/>
-                          </svg>
-                        )},
-                        { label: 'Maintenance', value: product?.maintenance || '₹3,000/month', icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                          </svg>
-                        )},
-                        { label: 'Property Tax', value: product?.propertyTax || '₹1,200/month', icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                          </svg>
-                        )},
-                        { label: 'Registration Cost', value: product?.registrationCost || '₹50,000 (approx)', icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                          </svg>
-                        )},
-                        { label: 'Loan Available', value: product?.loanAvailable ? 'Yes' : 'No', icon: (
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                          </svg>
-                        )}
-                      ].map((item, index) => (
-                        <div key={index} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0">
-                          {item.icon}
-                          <span className="text-sm text-gray-600">{item.label}</span>
-                          <span className="text-sm font-medium text-gray-900 ml-auto">{item.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Amenities */}
-                <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                  <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                    </svg>
-                    Amenities & Features
-                  </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {(product?.amenities && product.amenities.length > 0 ? product.amenities : [
-                      '24/7 Security', 'Power Backup', 'Lift', 'Parking',
-                      'Swimming Pool', 'Gym', 'Garden', 'Club House',
-                      'Children Play Area', 'CCTV', 'Water Supply', 'Power Supply'
-                    ]).map((amenity, index) => (
-                      <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        <span className="text-sm font-medium text-gray-900">{amenity}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {activeTab === 1 && (<></>)}
 
-          {activeTab === 2 && (
+          {activeTab === 1 && (
             <div className="space-y-8">
               <div>
                 <div className="flex items-center gap-2 mb-6">

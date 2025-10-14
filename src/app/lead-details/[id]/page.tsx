@@ -5,7 +5,35 @@ import HeaderFile from "../../components/Header";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
-import { div } from "framer-motion/client";
+
+// Minimal types for API data to satisfy TypeScript without using `any`
+type RegionRef = { name?: string; state?: string } | null | undefined;
+type ApiLead = {
+  _id?: string;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  requirement?: string;
+  status?: string;
+  createdAt?: string;
+  budget?: string | number;
+  budgetNegotiable?: boolean;
+  propertyType?: string;
+  propertyCategory?: string;
+  notes?: string;
+  source?: string;
+  // optional UI fields that may be present from API
+  brokerImage?: string;
+  qualification?: string;
+  addedAgo?: string;
+  priority?: string;
+  lastContact?: string;
+  noteAddedAgo?: string;
+  noteAddedBy?: string;
+  region?: string;
+  primaryRegion?: RegionRef extends infer R ? (R extends object ? { name?: string; state?: string } : RegionRef) : RegionRef;
+  secondaryRegion?: RegionRef extends infer R ? (R extends object ? { name?: string; state?: string } : RegionRef) : RegionRef;
+};
 
 const headerData = {
   title: "Lead Details",
@@ -16,11 +44,11 @@ const headerData = {
 };
 
 export default function LeadDetails() {
-  const params = useParams();
-  const id = params.id;
-  const [lead, setLead] = useState(null);
+  const params = useParams<{ id: string }>();
+  const id = params?.id;
+  const [lead, setLead] = useState<ApiLead | null>(null);
   const [loading, setLoading] = useState(true);
-  const [sameLeads, setSameLeads] = useState([]);
+  const [sameLeads, setSameLeads] = useState<ApiLead[]>([]);
   useEffect(() => {
     if (!id) return;
 
@@ -77,17 +105,17 @@ export default function LeadDetails() {
       const res = await axios.get(`${apiUrl}/leads`, { headers });
 
       // Handle different response structures
-      let items: any[] = [];
+      let items: ApiLead[] = [];
       if (Array.isArray(res.data?.data?.items)) {
-        items = res.data.data.items;
+        items = res.data.data.items as ApiLead[];
       } else if (Array.isArray(res.data?.data?.leads)) {
-        items = res.data.data.leads;
+        items = res.data.data.leads as ApiLead[];
       } else if (Array.isArray(res.data?.data)) {
-        items = res.data.data;
+        items = res.data.data as ApiLead[];
       } else if (Array.isArray(res.data?.leads)) {
-        items = res.data.leads;
+        items = res.data.leads as ApiLead[];
       } else if (Array.isArray(res.data)) {
-        items = res.data;
+        items = res.data as ApiLead[];
       }
 
       // Set state without sorting
