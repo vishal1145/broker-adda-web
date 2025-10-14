@@ -76,17 +76,37 @@ const LatestLeads: React.FC = () => {
     // Fetch data from API
     const fetchLeads = async () => {
       setLoading(true);
-
       try {
-        const token = localStorage.getItem("token"); // ✅ Get token from local storage
-        const res = await axios.get("http://localhost:5000/api/leads", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-          },
-        });
+        // Get token from local storage
+        const token = typeof window !== 'undefined'
+          ? localStorage.getItem("token") || localStorage.getItem("authToken")
+          : null;
+        // Use environment variable for API URL (same pattern as other components)
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        // Prepare headers
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json"
+        };
+        // Only add Authorization header if token exists
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+        const res = await axios.get(`${apiUrl}/leads`, { headers });
+        // Handle different response structures
+        let items = [];
+        if (Array.isArray(res.data?.data?.items)) {
+          items = res.data.data.items;
+        } else if (Array.isArray(res.data?.data?.leads)) {
+          items = res.data.data.leads;
+        } else if (Array.isArray(res.data?.data)) {
+          items = res.data.data;
+        } else if (Array.isArray(res.data?.leads)) {
+          items = res.data.leads;
+        } else if (Array.isArray(res.data)) {
+          items = res.data;
+        }
         // Sort by createdAt descending
-        const sorted = [...res.data.data.items].sort(
+        const sorted = [...items].sort(
           (a, b) =>
             new Date(b.createdAt || 0).getTime() -
             new Date(a.createdAt || 0).getTime()
@@ -99,7 +119,7 @@ const LatestLeads: React.FC = () => {
       setLoading(false);
     };
 
-   
+
     fetchLeads();
   }, []);
 
@@ -242,7 +262,7 @@ const LatestLeads: React.FC = () => {
               {leads.slice(0, 2).map((lead) => (
                 <Link
                   key={lead._id}
-                  href={`/leads/${lead.propertyType}/leads-details/${lead._id}`}
+                  href={`/leads/${lead._id}`}
                   // href={`/lead-details`}
                   className="cursor-pointer"
                 >
@@ -330,7 +350,7 @@ const LatestLeads: React.FC = () => {
                         <div className="text-xs text-gray-500">
                           posted by{" "}
                           <span className="font-medium text-gray-900">
-                            Ravi Sharma
+                          {lead.createdBy.name ||"Ravi Sharma" }  
                           </span>
                         </div>
                       </div>
