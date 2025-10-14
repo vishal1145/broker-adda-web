@@ -78,14 +78,15 @@ const LatestLeads: React.FC = () => {
       setLoading(true);
       try {
         // Get token from local storage
-        const token = typeof window !== 'undefined'
-          ? localStorage.getItem("token") || localStorage.getItem("authToken")
-          : null;
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("token") || localStorage.getItem("authToken")
+            : null;
         // Use environment variable for API URL (same pattern as other components)
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
         // Prepare headers
         const headers: Record<string, string> = {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         };
         // Only add Authorization header if token exists
         if (token) {
@@ -118,7 +119,6 @@ const LatestLeads: React.FC = () => {
       }
       setLoading(false);
     };
-
 
     fetchLeads();
   }, []);
@@ -263,11 +263,11 @@ const LatestLeads: React.FC = () => {
             <div className="md:col-span-6 grid gap-6 md:grid-cols-2 self-center cursor-pointer">
               {leads.slice(0, 2).map((lead) => (
                 <Link
-                  key={lead._id}
                   href={`/lead-details/${lead._id}`}
-                  // href={`/lead-details`}
-                  className="cursor-pointer"
+                  className="cursor-pointer ml-2 align-middle"
+                  aria-label="Open lead details"
                 >
+
                   <article
                     key={lead._id}
                     className="group relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg"
@@ -353,11 +353,21 @@ const LatestLeads: React.FC = () => {
                           posted by{" "}
                           <span className="font-medium text-gray-900">
                             {(() => {
-                              const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
-                              if (!createdBy) return '—';
-                              if (typeof createdBy === 'string') return createdBy;
-                              const obj = createdBy as { [key: string]: unknown };
-                              return (obj['name'] as string) || (obj['fullName'] as string) || (obj['email'] as string) || '—';
+                              const createdBy = (
+                                lead as unknown as { createdBy?: unknown }
+                              )?.createdBy as unknown;
+                              if (!createdBy) return "—";
+                              if (typeof createdBy === "string")
+                                return createdBy;
+                              const obj = createdBy as {
+                                [key: string]: unknown;
+                              };
+                              return (
+                                (obj["name"] as string) ||
+                                (obj["fullName"] as string) ||
+                                (obj["email"] as string) ||
+                                "—"
+                              );
                             })()}
                           </span>
                         </div>

@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import HeaderFile from "../../components/Header";
 import { useParams } from "next/navigation";
 import axios from "axios";
+import CircularProgress from "@mui/material/CircularProgress";
+import { div } from "framer-motion/client";
 
 const headerData = {
   title: "Lead Details",
@@ -13,24 +15,12 @@ const headerData = {
   ],
 };
 
-// Light Lead type for safe optional access
-interface RegionRef { name?: string; city?: string; state?: string }
-interface Lead {
-  _id?: string; id?: string;
-  customerName?: string; customerEmail?: string; customerPhone?: string;
-  status?: string; qualification?: string; addedAgo?: string; priority?: string; lastContact?: string;
-  brokerImage?: string; requirement?: string; propertyType?: string; propertyCategory?: string;
-  budget?: number | string; budgetNegotiable?: boolean; createdAt?: string;
-  primaryRegion?: RegionRef | string; secondaryRegion?: RegionRef | string; region?: RegionRef | string;
-  notes?: string; noteAddedAgo?: string; noteAddedBy?: string;
-}
-
 export default function LeadDetails() {
   const params = useParams();
-  const id = (params as { id?: string })?.id;
-  const [lead, setLead] = useState<Lead | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [sameLeads, setSameLeads] = useState<Lead[]>([]);
+  const id = params.id;
+  const [lead, setLead] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [sameLeads, setSameLeads] = useState([]);
   useEffect(() => {
     if (!id) return;
 
@@ -84,10 +74,10 @@ export default function LeadDetails() {
       };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-        const res = await axios.get(`${apiUrl}/leads`, { headers });
+      const res = await axios.get(`${apiUrl}/leads`, { headers });
 
       // Handle different response structures
-      let items: Lead[] = [];
+      let items: any[] = [];
       if (Array.isArray(res.data?.data?.items)) {
         items = res.data.data.items;
       } else if (Array.isArray(res.data?.data?.leads)) {
@@ -101,7 +91,7 @@ export default function LeadDetails() {
       }
 
       // Set state without sorting
-      setSameLeads(items as Lead[]);
+      setSameLeads(items);
     } catch (error) {
       console.error("Error fetching similar leads:", error);
       setSameLeads([]); // fallback
@@ -115,32 +105,50 @@ export default function LeadDetails() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">loading...</div>
-    );
-  }
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <CircularProgress />
+    </div>
+  );
+}
 
   if (!lead) {
     return (
-      <div className="min-h-screen flex items-center justify-center">Lead not found</div>
+      <div className="min-h-screen flex items-center justify-center">
+        No lead data found.
+      </div>
     );
   }
 
-function getDaysAgo(dateString: string): string {
+
+  function getTimeAgo(dateString: string): string {
+  if (!dateString) return "N/A";
+
   const createdDate = new Date(dateString);
   const now = new Date();
-  const diffTime = now.getTime() - createdDate.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const diffMs = now.getTime() - createdDate.getTime();
 
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "1 day ago";
-  return `${diffDays} days ago`;
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 0) {
+    return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
+  } else if (diffHours > 0) {
+    return diffHours === 1 ? "1 hour ago" : `${diffHours} hours ago`;
+  } else if (diffMinutes > 0) {
+    return diffMinutes === 1 ? "1 minute ago" : `${diffMinutes} minutes ago`;
+  } else {
+    return "Just now";
+  }
 }
+
 
 
   return (
     <div className="min-h-screen">
       <HeaderFile data={headerData} />
+    
       <div className="py-10 flex justify-center">
         <div className="w-full space-y-6">
           {/* Header */}
@@ -268,7 +276,7 @@ function getDaysAgo(dateString: string): string {
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                  {lead?.createdAt ? getDaysAgo(lead.createdAt) : "N/A"}
+                    {lead?.createdAt ? getTimeAgo(lead.createdAt) : "N/A"}
                   </span>
                 </div>
 
@@ -348,7 +356,7 @@ function getDaysAgo(dateString: string): string {
                     <div>
                       <div className="text-gray-500">Lead Source</div>
                       <div className="font-medium text-gray-900">
-                        {(lead as Lead & { source?: string })?.source || "Google Ads"}
+                        {lead?.source || "Google Ads"}
                       </div>
                     </div>
                   </div>
@@ -454,9 +462,9 @@ function getDaysAgo(dateString: string): string {
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {[
-                              (typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion?.name),
-                              (typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion?.name),
-                            ].filter((r): r is string => Boolean(r)).map((region, index) => (
+                              lead.primaryRegion?.name,
+                              lead.secondaryRegion?.name,
+                            ].map((region, index) => (
                               <span
                                 key={index}
                                 className="px-3 py-1.5 rounded-full bg-white border border-gray-200 text-gray-700 text-xs font-medium flex items-center gap-1 shadow-sm"
@@ -558,31 +566,26 @@ function getDaysAgo(dateString: string): string {
                   ) : (
                     sameLeads
                       // ✅ exclude the current lead from similar list
-                      .filter((s) => (s as Lead)._id !== lead._id)
+                      .filter((s) => s._id !== lead._id)
                       .slice(0, 5) // show only the first 5 leads
                       .map((s) => (
                         <a
-                          key={(s as Lead)._id}
-                          href={`/lead-details/${(s as Lead)._id}`} // dynamic link
+                          key={s._id}
+                          href={`/lead-details/${s._id}`} // dynamic link
                           className="flex items-center justify-between py-3 hover:bg-gray-50 rounded-lg px-2 transition"
                         >
                           <div>
                             <div className="font-medium text-gray-900">
-                              {(s as Lead).customerName}
+                              {s.customerName}
                             </div>
                             <div className="text-gray-500">
-                              {(() => {
-                                const sl = s as Lead;
-                                const r = sl.region;
-                                if (typeof r === 'string') return r;
-                                const primaryName = typeof sl.primaryRegion === 'string' ? sl.primaryRegion : sl.primaryRegion?.name;
-                                const primaryState = typeof sl.primaryRegion === 'string' ? '' : sl.primaryRegion?.state;
-                                return r?.name || r?.city || r?.state || [primaryName, primaryState].filter(Boolean).join(', ') || sl.customerEmail || '';
-                              })()}
+                              {s.region
+                                ? `${s.primaryRegion?.name}, ${s.primaryRegion?.state}`
+                                : s.customerEmail}
                             </div>
                           </div>
                           <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 px-2 py-1">
-                            {String((s as Lead).budget ?? '')}
+                            {s.budget}
                           </span>
                         </a>
                       ))
