@@ -582,7 +582,7 @@ function getDaysAgo(dateString: string): string {
                             </div>
                           </div>
                           <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 px-2 py-1">
-                            {(s as Lead).budget as any}
+                            {String((s as Lead).budget ?? '')}
                           </span>
                         </a>
                       ))
