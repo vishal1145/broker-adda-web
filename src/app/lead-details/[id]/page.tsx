@@ -13,12 +13,24 @@ const headerData = {
   ],
 };
 
+// Light Lead type for safe optional access
+interface RegionRef { name?: string; city?: string; state?: string }
+interface Lead {
+  _id?: string; id?: string;
+  customerName?: string; customerEmail?: string; customerPhone?: string;
+  status?: string; qualification?: string; addedAgo?: string; priority?: string; lastContact?: string;
+  brokerImage?: string; requirement?: string; propertyType?: string; propertyCategory?: string;
+  budget?: number | string; budgetNegotiable?: boolean; createdAt?: string;
+  primaryRegion?: RegionRef | string; secondaryRegion?: RegionRef | string; region?: RegionRef | string;
+  notes?: string; noteAddedAgo?: string; noteAddedBy?: string;
+}
+
 export default function LeadDetails() {
   const params = useParams();
-  const id = params.id;
-  const [lead, setLead] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [sameLeads, setSameLeads] = useState([]);
+  const id = (params as { id?: string })?.id;
+  const [lead, setLead] = useState<Lead | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [sameLeads, setSameLeads] = useState<Lead[]>([]);
   useEffect(() => {
     if (!id) return;
 
@@ -72,10 +84,10 @@ export default function LeadDetails() {
       };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const res = await axios.get(`${apiUrl}/leads`, { headers });
+        const res = await axios.get(`${apiUrl}/leads`, { headers });
 
       // Handle different response structures
-      let items: any[] = [];
+      let items: Lead[] = [];
       if (Array.isArray(res.data?.data?.items)) {
         items = res.data.data.items;
       } else if (Array.isArray(res.data?.data?.leads)) {
@@ -89,7 +101,7 @@ export default function LeadDetails() {
       }
 
       // Set state without sorting
-      setSameLeads(items);
+      setSameLeads(items as Lead[]);
     } catch (error) {
       console.error("Error fetching similar leads:", error);
       setSameLeads([]); // fallback
@@ -102,11 +114,15 @@ export default function LeadDetails() {
     similarLeads();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">loading...</div>
+    );
+  }
+
   if (!lead) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        loading...
-      </div>
+      <div className="min-h-screen flex items-center justify-center">Lead not found</div>
     );
   }
 
@@ -332,7 +348,7 @@ function getDaysAgo(dateString: string): string {
                     <div>
                       <div className="text-gray-500">Lead Source</div>
                       <div className="font-medium text-gray-900">
-                        {lead?.source || "Google Ads"}
+                        {(lead as Lead & { source?: string })?.source || "Google Ads"}
                       </div>
                     </div>
                   </div>
@@ -438,9 +454,9 @@ function getDaysAgo(dateString: string): string {
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {[
-                              lead.primaryRegion?.name,
-                              lead.secondaryRegion?.name,
-                            ].map((region, index) => (
+                              (typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion?.name),
+                              (typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion?.name),
+                            ].filter((r): r is string => Boolean(r)).map((region, index) => (
                               <span
                                 key={index}
                                 className="px-3 py-1.5 rounded-full bg-white border border-gray-200 text-gray-700 text-xs font-medium flex items-center gap-1 shadow-sm"
@@ -542,26 +558,31 @@ function getDaysAgo(dateString: string): string {
                   ) : (
                     sameLeads
                       // ✅ exclude the current lead from similar list
-                      .filter((s) => s._id !== lead._id)
+                      .filter((s) => (s as Lead)._id !== lead._id)
                       .slice(0, 5) // show only the first 5 leads
                       .map((s) => (
                         <a
-                          key={s._id}
-                          href={`/lead-details/${s._id}`} // dynamic link
+                          key={(s as Lead)._id}
+                          href={`/lead-details/${(s as Lead)._id}`} // dynamic link
                           className="flex items-center justify-between py-3 hover:bg-gray-50 rounded-lg px-2 transition"
                         >
                           <div>
                             <div className="font-medium text-gray-900">
-                              {s.customerName}
+                              {(s as Lead).customerName}
                             </div>
                             <div className="text-gray-500">
-                              {s.region
-                                ? `${s.primaryRegion?.name}, ${s.primaryRegion?.state}`
-                                : s.customerEmail}
+                              {(() => {
+                                const sl = s as Lead;
+                                const r = sl.region;
+                                if (typeof r === 'string') return r;
+                                const primaryName = typeof sl.primaryRegion === 'string' ? sl.primaryRegion : sl.primaryRegion?.name;
+                                const primaryState = typeof sl.primaryRegion === 'string' ? '' : sl.primaryRegion?.state;
+                                return r?.name || r?.city || r?.state || [primaryName, primaryState].filter(Boolean).join(', ') || sl.customerEmail || '';
+                              })()}
                             </div>
                           </div>
                           <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 px-2 py-1">
-                            {s.budget}
+                            {(s as Lead).budget as any}
                           </span>
                         </a>
                       ))
