@@ -13,12 +13,36 @@ const headerData = {
   ],
 };
 
+// Minimal Lead type used for rendering on this page
+interface Region { name?: string; city?: string; state?: string }
+interface Lead {
+  _id?: string;
+  id?: string;
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  status?: string;
+  qualification?: string;
+  addedAgo?: string;
+  priority?: string;
+  lastContact?: string;
+  brokerImage?: string;
+  requirement?: string;
+  propertyType?: string;
+  propertyCategory?: string;
+  budget?: string | number;
+  budgetNegotiable?: boolean;
+  primaryRegion?: Region;
+  secondaryRegion?: Region;
+  region?: Region;
+}
+
 export default function LeadDetails() {
   const params = useParams();
   const id = params?.id as string | undefined;
-  const [lead, setLead] = useState<any>(null);
+  const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [sameLeads, setSameLeads] = useState<any[]>([]);
+  const [sameLeads, setSameLeads] = useState<Lead[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -36,10 +60,15 @@ export default function LeadDetails() {
         if (token) headers.Authorization = `Bearer ${token}`;
 
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-        const res = await axios.get(`${apiUrl}/leads/${id}`, { headers });
+        const res = await axios.get<unknown>(`${apiUrl}/leads/${id}`, { headers });
 
-        const leadData = res.data?.data?.lead || res.data?.lead || res.data?.data || res.data || null;
-        setLead(leadData);
+        // Accept multiple possible shapes and coerce to Lead
+        const raw = (res as { data?: unknown }).data as unknown as { data?: { lead?: unknown } } | { lead?: unknown } | unknown;
+        const candidate = (raw as { data?: { lead?: unknown } })?.data?.lead
+          ?? (raw as { lead?: unknown })?.lead
+          ?? (raw as { data?: unknown })?.data
+          ?? raw;
+        setLead((candidate || null) as Lead | null);
       } catch (error) {
         console.error("Error fetching lead:", error);
         setLead(null);
@@ -64,14 +93,19 @@ export default function LeadDetails() {
         };
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const res = await axios.get(`${apiUrl}/leads?limit=10&page=1`, { headers });
+        const res = await axios.get<unknown>(`${apiUrl}/leads?limit=10&page=1`, { headers });
 
-        let items: any[] = [];
-        if (Array.isArray(res.data?.data?.items)) items = res.data.data.items;
-        else if (Array.isArray(res.data?.data?.leads)) items = res.data.data.leads;
-        else if (Array.isArray(res.data?.data)) items = res.data.data;
-        else if (Array.isArray(res.data?.leads)) items = res.data.leads;
-        else if (Array.isArray(res.data)) items = res.data;
+        let items: Lead[] = [];
+        const dataAny = (res as { data?: unknown }).data as
+          | { data?: { items?: unknown; leads?: unknown } }
+          | { leads?: unknown }
+          | unknown[]
+          | unknown;
+        if (Array.isArray((dataAny as { data?: { items?: unknown } })?.data?.items)) items = ((dataAny as { data?: { items?: unknown[] } })?.data?.items as unknown[] as Lead[]);
+        else if (Array.isArray((dataAny as { data?: { leads?: unknown } })?.data?.leads)) items = ((dataAny as { data?: { leads?: unknown[] } })?.data?.leads as unknown[] as Lead[]);
+        else if (Array.isArray((dataAny as { data?: unknown[] })?.data)) items = ((dataAny as { data?: unknown[] })?.data as unknown[] as Lead[]);
+        else if (Array.isArray((dataAny as { leads?: unknown[] })?.leads)) items = ((dataAny as { leads?: unknown[] })?.leads as unknown[] as Lead[]);
+        else if (Array.isArray(dataAny)) items = (dataAny as unknown[] as Lead[]);
 
         setSameLeads(items);
       } catch (e) {
@@ -185,7 +219,9 @@ export default function LeadDetails() {
                   <div className="sm:col-span-2 bg-gray-50 rounded-xl p-4 border border-gray-100">
                     <div className="text-gray-500 mb-2">Preferred Locations</div>
                     <div className="flex flex-wrap gap-2">
-                      {[lead?.primaryRegion?.name, lead?.secondaryRegion?.name].filter(Boolean).map((r: string) => (
+                      {[lead?.primaryRegion?.name, lead?.secondaryRegion?.name]
+                        .filter((r): r is string => Boolean(r))
+                        .map((r) => (
                         <span key={r} className="px-3 py-1.5 rounded-full bg-white border border-gray-200 text-gray-700 text-xs font-medium shadow-sm">{r}</span>
                       ))}
                     </div>
