@@ -132,6 +132,8 @@ const LatestLeads: React.FC = () => {
       }),
     []
   );
+  // Keep for potential future UI use; disable lint for now as it's not used
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const statusClass = (s?: LeadStatus) =>
     ((
       {
@@ -262,7 +264,7 @@ const LatestLeads: React.FC = () => {
               {leads.slice(0, 2).map((lead) => (
                 <Link
                   key={lead._id}
-                  href={`/leads/${lead._id}`}
+                  href={`/lead-details/${lead._id}`}
                   // href={`/lead-details`}
                   className="cursor-pointer"
                 >
@@ -305,7 +307,7 @@ const LatestLeads: React.FC = () => {
                             {regionName(lead.primaryRegion)}
                           </h3>
                           <Link
-                            href="/lead-details"
+                            href={`/lead-details/${lead._id}`}
                             aria-label="Open lead details"
                             className="ml-2 align-middle"
                           >
@@ -350,7 +352,13 @@ const LatestLeads: React.FC = () => {
                         <div className="text-xs text-gray-500">
                           posted by{" "}
                           <span className="font-medium text-gray-900">
-                          {lead.createdBy.name ||"Ravi Sharma" }  
+                            {(() => {
+                              const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
+                              if (!createdBy) return '—';
+                              if (typeof createdBy === 'string') return createdBy;
+                              const obj = createdBy as { [key: string]: unknown };
+                              return (obj['name'] as string) || (obj['fullName'] as string) || (obj['email'] as string) || '—';
+                            })()}
                           </span>
                         </div>
                       </div>

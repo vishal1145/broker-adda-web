@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Select, { components } from 'react-select';
 
 const LeadsComponent = ({ activeTab, setActiveTab }) => {
@@ -9,6 +10,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     leadType: [],
     requirement: [],
     budgetRange: [5000000, 15000000],
+    city: '',
     location: '',
     dateAdded: {
       start: '2024-06-01',
@@ -22,12 +24,21 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [uiLoading, setUiLoading] = useState(false);
   const [leads, setLeads] = useState([]);
+  const [allLeads, setAllLeads] = useState([]);
   const [leadsError, setLeadsError] = useState('');
   const [totalLeads, setTotalLeads] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [leadsPerPage] = useState(9);
   const [regions, setRegions] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
+  const [cities, setCities] = useState([
+    { value: 'Agra', label: 'Agra' },
+    { value: 'Noida', label: 'Noida' }
+  ]);
+  const [brokersOptions, setBrokersOptions] = useState([]);
+  const [brokersLoading, setBrokersLoading] = useState(false);
+
+  const searchParams = useSearchParams();
 
   // Trigger skeleton loader when switching between tabs from header
   useEffect(() => {
@@ -35,6 +46,18 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     const t = setTimeout(() => setUiLoading(false), 500);
     return () => clearTimeout(t);
   }, [activeTab]);
+
+  // Initialize city from URL param ?regionCity=...
+  useEffect(() => {
+    try {
+      const regionCity = searchParams?.get('regionCity');
+      if (regionCity) {
+        setLeadFilters(prev => ({ ...prev, city: regionCity, location: '' }));
+        setCurrentPage(1);
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch leads from API
   const fetchLeads = async () => {
@@ -45,10 +68,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       // Use environment variable for API URL following app pattern
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
-      // Build query parameters (use only server-supported keys)
+      // Build base query parameters; fetch large pages to aggregate client-side
       const params = new URLSearchParams();
-      params.set('limit', String(leadsPerPage));
-      params.set('page', String(currentPage));
+      const aggLimit = 100;
+      params.set('limit', String(aggLimit));
+      params.set('page', '1');
       
       // Add status filters to API call
       if (leadFilters.leadStatus.length > 0) {
@@ -76,7 +100,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       console.log('Status filters:', leadFilters.leadStatus);
       console.log('Property Type filters:', leadFilters.leadType);
 
-      const response = await fetch(`${apiUrl}/leads?${params.toString()}`);
+      // Add createdBy if a broker is selected (single-select)
+      if ((leadFilters.brokerAgent || []).length > 0) {
+        params.set('createdBy', String((leadFilters.brokerAgent || [])[0]));
+      }
+      // Prepare headers with Authorization if token exists
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || localStorage.getItem('authToken') || '') : '';
+      const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+      const response = await fetch(`${apiUrl}/leads?${params.toString()}`, { headers });
 
       if (response.ok) {
         const data = await response.json();
@@ -148,13 +179,43 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           }
         }
 
-        console.log('Final leads data:', items);
-        console.log('Total leads from API:', items.length);
-        console.log('Total count from API:', totalCount);
+        // If API has more pages, aggregate them all so we can filter across the full dataset
+        try {
+          const grandTotal = totalCount || items.length;
+          const currentCount = items.length;
+          const totalPages = Math.max(1, Math.ceil(grandTotal / aggLimit));
+          const aggregated = [...items];
+          for (let p = 2; p <= totalPages; p++) {
+            const moreParams = new URLSearchParams(params);
+            moreParams.set('page', String(p));
+            const moreRes = await fetch(`${apiUrl}/leads?${moreParams.toString()}`, { headers });
+            if (!moreRes.ok) break;
+            const moreData = await moreRes.json();
+            let pageItems = [];
+            if (Array.isArray(moreData?.data?.items)) pageItems = moreData.data.items;
+            else if (Array.isArray(moreData?.data?.leads)) pageItems = moreData.data.leads;
+            else if (Array.isArray(moreData?.data)) pageItems = moreData.data;
+            else if (Array.isArray(moreData?.leads)) pageItems = moreData.leads;
+            else if (Array.isArray(moreData)) pageItems = moreData;
+            else if (moreData?.data && typeof moreData.data === 'object') {
+              const poss = Object.values(moreData.data).filter(Array.isArray);
+              if (poss.length > 0) pageItems = poss[0];
+            }
+            if (Array.isArray(pageItems) && pageItems.length > 0) aggregated.push(...pageItems);
+          }
+          items = aggregated;
+          totalCount = Math.max(grandTotal, items.length);
+        } catch {}
+
+        console.log('Final leads data (aggregated):', items.length);
+        console.log('Total count from API (reported):', totalCount);
         console.log('Sample lead statuses:', items.map(lead => ({ id: lead._id || lead.id, status: lead.status })));
         console.log('Sample lead types:', items.map(lead => ({ id: lead._id || lead.id, propertyType: lead.propertyType, requirement: lead.requirement, req: lead.req })));
         console.log('Active filters:', leadFilters);
         console.log('API Response structure:', data);
+        // Store full dataset for dependent dropdowns (city -> region)
+        setAllLeads(items);
+        
         
         // Apply client-side filtering
         let filteredItems = items;
@@ -199,22 +260,42 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           });
         }
         
-        // Filter by Location (Region) - client-side robust matching
-        if (leadFilters.location) {
-          const locationLower = leadFilters.location.toLowerCase();
+        // Skip client-side broker filtering if backend is already filtering via createdBy
+        
+        // Filter by City (robust matching across fields)
+        if (leadFilters.city) {
+          const cityLower = leadFilters.city.toLowerCase();
           filteredItems = filteredItems.filter(lead => {
-            const primaryRegion = lead.primaryRegion || '';
-            const secondaryRegion = lead.secondaryRegion || '';
-            const regions = lead.regions || [];
-            const location = lead.location || '';
+            const city = (lead.city || '').toString().toLowerCase();
+            const location = (lead.location || '').toString().toLowerCase();
+            const primaryRegion = (typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion?.name || '').toString().toLowerCase();
+            const secondaryRegion = (typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion?.name || '').toString().toLowerCase();
+            const regionsArr = Array.isArray(lead.regions) ? lead.regions : [];
 
-            const tokens = (val) => String(val).toLowerCase().split(/[,\s]+/).filter(Boolean);
-            const match = (val) => tokens(val).includes(locationLower) || String(val).toLowerCase() === locationLower || String(val).toLowerCase().includes(locationLower);
+            const match = (val) => !!val && (val === cityLower || val.includes(cityLower));
+            const regionsMatch = regionsArr.some(r => {
+              const name = (typeof r === 'string' ? r : r?.name || '').toString().toLowerCase();
+              return match(name);
+            });
+            return match(city) || match(location) || match(primaryRegion) || match(secondaryRegion) || regionsMatch;
+          });
+        }
 
-            return match(primaryRegion) ||
-                   match(secondaryRegion) ||
-                   match(location) ||
-                   (Array.isArray(regions) && regions.some(region => match(region?.name || region)));
+        // Filter by Region (robust matching across fields)
+        if (leadFilters.location) {
+          const regionLower = leadFilters.location.toLowerCase();
+          filteredItems = filteredItems.filter(lead => {
+            const primaryRegion = (typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion?.name || '').toString().toLowerCase();
+            const secondaryRegion = (typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion?.name || '').toString().toLowerCase();
+            const regionsArr = Array.isArray(lead.regions) ? lead.regions : [];
+            const location = (lead.location || '').toString().toLowerCase();
+
+            const match = (val) => !!val && (val === regionLower || val.includes(regionLower));
+            const regionsMatch = regionsArr.some(r => {
+              const name = (typeof r === 'string' ? r : r?.name || '').toString().toLowerCase();
+              return match(name);
+            });
+            return match(primaryRegion) || match(secondaryRegion) || match(location) || regionsMatch;
           });
         }
         
@@ -224,10 +305,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         console.log('Filter results - Priority filter:', leadFilters.priority.length > 0 ? 'Applied (Client-side)' : 'Not applied');
         console.log('Filter results - Location filter:', leadFilters.location ? 'Applied (Client-side)' : 'Not applied');
         
-        // Use server pagination count when available; do NOT slice so we show one API page (9 items)
-        const finalTotalCount = totalCount > 0 ? totalCount : filteredItems.length;
-        setLeads(filteredItems);
-        setTotalLeads(finalTotalCount);
+        // Client-side pagination after filtering
+        const start = (currentPage - 1) * leadsPerPage;
+        const pagedItems = filteredItems.slice(start, start + leadsPerPage);
+        setLeads(pagedItems);
+        setTotalLeads(filteredItems.length);
       } else {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error('API Error:', response.status, errorData);
@@ -250,13 +332,70 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     fetchLeads();
   }, [leadFilters, sortBy, currentPage]);
 
+  // Reset UI loading when filters change (but don't show loading for filter changes)
+  useEffect(() => {
+    setUiLoading(false);
+  }, [leadFilters]);
+
+  // Fetch all brokers to populate Broker/Agent filter dropdown
+  useEffect(() => {
+    const fetchAllBrokers = async () => {
+      try {
+        setBrokersLoading(true);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const limit = 100;
+        let page = 1;
+        let aggregated = [];
+        let total = 0;
+        for (let i = 0; i < 5; i++) {
+          const params = new URLSearchParams();
+          params.set('limit', String(limit));
+          params.set('page', String(page));
+          const res = await fetch(`${apiUrl}/brokers?${params.toString()}`);
+          if (!res.ok) break;
+          const data = await res.json().catch(() => ({}));
+          let items = [];
+          if (Array.isArray(data?.data?.items)) items = data.data.items;
+          else if (Array.isArray(data?.data?.brokers)) items = data.data.brokers;
+          else if (Array.isArray(data?.data)) items = data.data;
+          else if (Array.isArray(data?.brokers)) items = data.brokers;
+          else if (Array.isArray(data)) items = data;
+          if (!Array.isArray(items) || items.length === 0) break;
+          aggregated = aggregated.concat(items);
+          total = data?.data?.pagination?.totalItems || data?.pagination?.totalItems || aggregated.length;
+          if (aggregated.length >= total) break;
+          page += 1;
+        }
+        const opts = aggregated
+          .map(b => ({
+            value: b._id || b.id || b.userId || b.brokerId || '',
+            label: b.name || b.fullName || b.firmName || b.email || 'Unknown'
+          }))
+          .filter(o => o.value);
+        setBrokersOptions(opts);
+      } catch {
+        setBrokersOptions([]);
+      } finally {
+        setBrokersLoading(false);
+      }
+    };
+    fetchAllBrokers();
+  }, []);
+
   // Fetch regions for dropdown (API-sourced)
   useEffect(() => {
     const fetchRegions = async () => {
       try {
         setRegionsLoading(true);
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        const res = await fetch(`${apiUrl}/regions`);
+        
+        // If city is selected, fetch regions for that city
+        let url = `${apiUrl}/regions`;
+        if (leadFilters.city) {
+          url += `?city=${encodeURIComponent(leadFilters.city)}`;
+        }
+        
+        const res = await fetch(url);
         const data = await res.json().catch(() => ({}));
         let list = [];
         if (Array.isArray(data?.data?.regions)) list = data.data.regions;
@@ -277,7 +416,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       }
     };
     fetchRegions();
-  }, []);
+  }, [leadFilters.city]); // Re-fetch when city changes
 
   const leadStatusOptions = [
     'New', 
@@ -296,6 +435,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       leadType: [],
       requirement: [],
       budgetRange: [5000000, 15000000],
+      city: '',
       location: '',
       dateAdded: { start: '', end: '' },
       brokerAgent: [],
@@ -523,7 +663,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     <div className="grid grid-cols-12 gap-8">
       {/* Filter Sidebar - 3 columns */}
       <div className="col-span-3">
-        {uiLoading || isLoading ? (
+        {false ? (
           <div className="bg-white rounded-lg p-6">
             <div className="space-y-6">
               {/* Filter Header Skeleton */}
@@ -532,18 +672,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 <div className="h-6 bg-gray-200 rounded w-32"></div>
               </div>
               
-              {/* Lead Status Filter Skeleton */}
-              <div className="mb-6 pb-6 border-b border-gray-200">
-                <div className="h-4 bg-gray-200 rounded w-20 mb-4"></div>
-                <div className="space-y-3">
-                  {[1,2,3].map((i) => (
-                    <div key={i} className="flex items-center">
-                      <div className="w-4 h-4 bg-gray-200 rounded"></div>
-                      <div className="ml-3 h-4 bg-gray-200 rounded w-16"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              
               
               {/* Lead Type Filter Skeleton */}
               <div className="mb-6 pb-6 border-b border-gray-200">
@@ -624,28 +753,55 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
 
-          {/* Lead Status Filter */}
+          {/* Top filters: City and Region */}
           <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Lead Status</h3>
-            <div className="space-y-2">
-              {leadStatusOptions.map((status, index) => (
-                <label key={`${status}-${index}`} className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="lead-status"
-                    checked={leadFilters.leadStatus[0] === status}
-                    onChange={() => handleLeadStatusChange(status)}
-                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 focus:ring-green-900"
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">City</h3>
+                <Select
+                  instanceId="leads-city-select"
+                  styles={reactSelectStyles}
+                  className="cursor-pointer"
+                  options={cities}
+                  value={leadFilters.city ? { value: leadFilters.city, label: leadFilters.city } : null}
+                  onChange={(opt) => {
+                    setLeadFilters(prev => ({ 
+                      ...prev, 
+                      city: opt?.value || '',
+                      location: '' // Clear region when city changes
+                    }));
+                    setCurrentPage(1);
+                  }}
+                  isSearchable
+                  isClearable
+                  placeholder="Select City"
+                />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">Region</h3>
+                {regionsLoading ? (
+                  <div className="h-8 bg-gray-200 rounded animate-pulse" />
+                ) : (
+                  <Select
+                    instanceId="leads-region-select"
+                    styles={reactSelectStyles}
+                    className="cursor-pointer"
+                    options={regions.map(r => ({ value: r.name, label: r.name }))}
+                    value={leadFilters.location ? { value: leadFilters.location, label: leadFilters.location } : null}
+                    onChange={(opt) => {
+                      setLeadFilters(prev => ({ ...prev, location: opt?.value || '' }));
+                      setCurrentPage(1);
+                    }}
+                    isSearchable
+                    isClearable
+                    placeholder="Select Region"
                   />
-                  <span className="ml-3 text-sm text-gray-700">
-                    {status}
-                  </span>
-                </label>
-              ))}
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Lead Type Filter (chips) */}
+          {/* Lead Type Filter (chips - gray) */}
           <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-2">Property Type</h3>
             <div className="flex flex-wrap gap-2">
@@ -656,7 +812,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     key={type}
                     type="button"
                     onClick={() => handleLeadTypeChange(type)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors shadow-sm ${selected ? 'bg-green-900 text-white border-green-900' : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200'}`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors shadow-sm ${selected ? 'bg-gray-600 text-white border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'}`}
                   >
                     {type}
                   </button>
@@ -665,7 +821,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
 
-          {/* Requirement Filter (chips) */}
+          {/* Requirement Filter (chips - gray) */}
           <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-2">Requirement</h3>
             <div className="flex flex-wrap gap-2">
@@ -676,7 +832,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     key={req}
                     type="button"
                     onClick={() => handleRequirementChange(req)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors shadow-sm ${selected ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200'}`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors shadow-sm ${selected ? 'bg-gray-600 text-white border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'}`}
                   >
                     {req}
                   </button>
@@ -734,57 +890,28 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
 
-          {/* Region Filter (from API) */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Region</h3>
-            {regionsLoading ? (
-              <div className="h-8 bg-gray-200 rounded animate-pulse" />
-            ) : (
-              <Select
-                instanceId="leads-region-select"
-                styles={reactSelectStyles}
-                className="cursor-pointer"
-                options={regions.map(r => ({ value: r.name, label: r.name }))}
-                value={leadFilters.location ? { value: leadFilters.location, label: leadFilters.location } : null}
-                onChange={(opt) => setLeadFilters(prev => ({ ...prev, location: opt?.value || '' }))}
-                isSearchable
-                isClearable
-                placeholder="Select Region"
-              />
-            )}
-          </div>
+          {/* Region/City already moved to top */}
 
           {/* Date filter removed as requested */}
 
-          {/* Broker/Agent Filter (multi-select with checkboxes) */}
+          {/* Broker/Agent Filter (single-select from API) */}
           <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Broker/Agent</h3>
             {(() => {
-              const agentOptions = [
-                { value: 'agent1', label: 'Agent 1' },
-                { value: 'agent2', label: 'Agent 2' },
-                { value: 'agent3', label: 'Agent 3' }
-              ];
-              const CheckboxOption = (props) => (
-                <components.Option {...props}>
-                  <input type="checkbox" checked={props.isSelected} readOnly className="mr-2" />
-                  <span>{props.label}</span>
-                </components.Option>
-              );
+              if (brokersLoading) return <div className="h-8 bg-gray-200 rounded animate-pulse" />;
               return (
                 <Select
                   instanceId="leads-agent-select"
                   styles={reactSelectStyles}
                   className="cursor-pointer"
-                  options={agentOptions}
-                  value={agentOptions.filter(o => (leadFilters.brokerAgent || []).includes(o.value))}
-                  onChange={(opts) => setLeadFilters(prev => ({ ...prev, brokerAgent: (opts || []).map(o => o.value) }))}
+                  options={brokersOptions}
+                  value={(() => {
+                    const sel = (leadFilters.brokerAgent || [])[0];
+                    return brokersOptions.find(o => o.value === sel) || null;
+                  })()}
+                  onChange={(opt) => setLeadFilters(prev => ({ ...prev, brokerAgent: opt?.value ? [opt.value] : [] }))}
                   isSearchable
-                  isMulti
-                  closeMenuOnSelect={false}
-                  hideSelectedOptions={false}
-                  components={{ Option: CheckboxOption }}
-                  placeholder="Select Agents"
+                  placeholder="Select Broker/Agent"
                 />
               );
             })()}
@@ -809,8 +936,75 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
       {/* Leads Grid - 9 columns */}
       <div className="col-span-9">
-        {/* Header */}
-      
+        {/* Header with page info and sort filter */}
+        <div className="flex items-center justify-between mb-6">
+          {/* Page number data on top left */}
+          <div className="text-sm text-gray-600">
+            {isLoading ? (
+              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+            ) : (
+              <>
+                Showing {startIndex + 1}-{Math.min(endIndex, totalLeads)} of {totalLeads} leads
+               
+              </>
+            )}
+          </div>
+          
+          {/* Sort filter on top right */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Sort by:</span>
+            <Select
+              instanceId="leads-sort-select"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  minHeight: 36,
+                  fontSize: 14,
+                  borderColor: '#d1d5db',
+                  boxShadow: 'none',
+                  cursor: 'pointer',
+                  ':hover': { borderColor: '#9ca3af' }
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  fontSize: 14,
+                  backgroundColor: state.isSelected
+                    ? '#0A421E'
+                    : state.isFocused
+                      ? '#f3f4f6'
+                      : 'white',
+                  color: state.isSelected ? 'white' : '#111827',
+                  cursor: 'pointer'
+                }),
+                singleValue: (base) => ({ ...base, color: '#111827', fontSize: 14 }),
+                placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 14 }),
+                input: (base) => ({ ...base, fontSize: 14 }),
+                indicatorSeparator: () => ({ display: 'none' })
+              }}
+              options={[
+                { value: 'date-added-newest', label: 'Date Added (Newest First)' },
+                { value: 'date-added-oldest', label: 'Date Added (Oldest First)' },
+                { value: 'status', label: 'Status' },
+                { value: 'budget-high', label: 'Budget (High to Low)' },
+                { value: 'budget-low', label: 'Budget (Low to High)' },
+                { value: 'name-asc', label: 'Name (A-Z)' },
+                { value: 'name-desc', label: 'Name (Z-A)' }
+              ]}
+              value={[
+                { value: 'date-added-newest', label: 'Date Added (Newest First)' },
+                { value: 'date-added-oldest', label: 'Date Added (Oldest First)' },
+                { value: 'status', label: 'Status' },
+                { value: 'budget-high', label: 'Budget (High to Low)' },
+                { value: 'budget-low', label: 'Budget (Low to High)' },
+                { value: 'name-asc', label: 'Name (A-Z)' },
+                { value: 'name-desc', label: 'Name (Z-A)' }
+              ].find(o => o.value === sortBy)}
+              onChange={(opt) => setSortBy(opt?.value || 'date-added-newest')}
+              isSearchable={false}
+              className="w-56"
+            />
+          </div>
+        </div>
 
         {/* Leads Grid */}
         {isLoading ? (
@@ -1021,9 +1215,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <button className="w-full bg-[#0A421E] text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
+                <a href={`/lead-details/${lead._id || lead.id}`} className="block w-full bg-[#0A421E] text-center text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
                   View Details
-                </button>
+                </a>
               </div>
             </div>
               );
@@ -1034,9 +1228,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         {/* Pagination */}
         {!isLoading && !leadsError && leads.length > 0 && totalPages > 1 && (
           <div className="mt-8 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Page {currentPage} of {totalPages}
-            </div>
             
             <div className="flex items-center space-x-2">
               {/* Previous Button */}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Select, { components } from 'react-select';
 
@@ -12,12 +12,17 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     brokerType: [],
     ratingRange: [0, 5],
     languages: [],
-    showVerifiedOnly: false
+    showVerifiedOnly: false,
+    city: ''
   });
 
   const [sortBy, setSortBy] = useState('rating-high');
   const [isLoading, setIsLoading] = useState(false);
   const [regions, setRegions] = useState([]);
+  const [cities, setCities] = useState([
+    { value: 'Agra', label: 'Agra' },
+    { value: 'Noida', label: 'Noida' }
+  ]);
   const [regionsLoading, setRegionsLoading] = useState(true);
   
   // New search states
@@ -42,7 +47,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     return () => clearTimeout(t);
   }, [activeTab]);
 
-  // Fetch regions from API
+  // Fetch regions from API (refetch when city changes)
   useEffect(() => {
     const fetchRegions = async () => {
       try {
@@ -50,8 +55,11 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         
         // Use environment variable for API URL following app pattern
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        
-        const response = await fetch(`${apiUrl}/regions`, { method: 'GET' });
+        let url = `${apiUrl}/regions`;
+        if (brokerFilters.city) {
+          url += `?city=${encodeURIComponent(brokerFilters.city)}`;
+        }
+        const response = await fetch(url, { method: 'GET' });
         
         if (!response.ok) {
           throw new Error(`Failed to fetch regions: ${response.status}`);
@@ -103,9 +111,9 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     };
 
     fetchRegions();
-  }, []);
+  }, [brokerFilters.city]);
 
-  // Fetch brokers from API with region filtering
+  // Fetch brokers from API with region and city filtering
   const fetchBrokers = async (regionIds = null) => {
     try {
       setBrokersLoading(true);
@@ -124,6 +132,10 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         const validRegionId = regionIds[0];
         baseQueryParams.append('regionId', validRegionId);
         console.log('Using region ID:', validRegionId);
+      } else if (brokerFilters.city) {
+        // If only city is selected (no region), pass regionCity to backend
+        baseQueryParams.append('regionCity', brokerFilters.city);
+        console.log('Using regionCity for filtering:', brokerFilters.city);
       }
       
       // Fetch brokers with a single API call first, then paginate if needed
@@ -363,7 +375,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
     // Cleanup timeout on unmount or dependency change
     return () => clearTimeout(timeoutId);
-  }, [brokerFilters.region, regionsData.length]); // Only depend on regionsData.length instead of the whole array
+  }, [brokerFilters.region, brokerFilters.city, regionsData.length]); // also update when city changes
 
   const brokerTypes = [
     'Commercial Leasing',
@@ -391,6 +403,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       ratingRange: [0, 5],
       languages: [],
       showVerifiedOnly: false,
+      city: ''
     });
 
     // Trigger fresh fetch without any region filter
@@ -502,15 +515,35 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   };
 
   const getRatingPillClasses = (rating) => {
-    const numRating = parseFloat(rating) || 0;
-    if (numRating >= 4.5) return 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white border-orange-500';
-    if (numRating >= 4.0) return 'bg-gradient-to-r from-yellow-300 to-orange-300 text-orange-800 border-orange-400';
-    if (numRating >= 3.5) return 'bg-gradient-to-r from-yellow-200 to-orange-200 text-orange-700 border-orange-300';
-    return 'bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 border-gray-400';
+    // Always use gray color for rating chips as requested
+    return 'bg-gray-200 text-gray-700 border-gray-300';
   };
 
-  // Filter brokers based on selected filters (client-side filtering for all filters)
+  // Compute region options based on selected city (mirror Leads behavior)
+  const regionOptionsForUI = useMemo(() => {
+    if (!brokerFilters.city) return regions;
+    const cityLower = brokerFilters.city.toLowerCase();
+    const collected = new Set();
+    try {
+      // Prefer extracting from current brokers data
+      (brokers || []).forEach(b => {
+        const locations = Array.isArray(b.locations) ? b.locations : [];
+        const address = (b.address || '').toLowerCase();
+        const cityMatch = address.includes(cityLower) || locations.some(l => (l || '').toLowerCase().includes(cityLower));
+        if (cityMatch) {
+          locations.forEach(l => { if (l) collected.add(l); });
+        }
+      });
+    } catch {}
+    if (collected.size > 0) return Array.from(collected);
+    // Fallback: filter master regions list by city token inclusion
+    return regions.filter(r => (r || '').toLowerCase().includes(cityLower));
+  }, [brokerFilters.city, brokers, regions]);
+
+  // Filter brokers based on selected filters (client-side filtering)
   const filteredBrokers = brokers.filter(broker => {
+    // City filter: backend already applies regionCity when city is selected.
+    // To avoid over-filtering due to string mismatches, skip client-side city filtering.
     // Name search filter
     if (nameSearchTerm.trim()) {
       const nameMatch = broker.name.toLowerCase().includes(nameSearchTerm.toLowerCase().trim());
@@ -720,51 +753,16 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
 
-          {/* Sort By */}
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6h18M7 12h10M10 18h4" />
-              </svg>
-              <span>Sort by</span>
-            </div>
-            <Select
-              instanceId="brokers-sort-select-left"
-              styles={reactSelectStyles}
-              options={[
-                { value: 'rating-high', label: 'Rating (High to Low)' },
-                { value: 'rating-low', label: 'Rating (Low to High)' },
-                { value: 'experience-high', label: 'Experience (High to Low)' },
-                { value: 'experience-low', label: 'Experience (Low to High)' },
-                { value: 'name-asc', label: 'Name (A-Z)' },
-                { value: 'name-desc', label: 'Name (Z-A)' }
-              ]}
-              value={[
-                { value: 'rating-high', label: 'Rating (High to Low)' },
-                { value: 'rating-low', label: 'Rating (Low to High)' },
-                { value: 'experience-high', label: 'Experience (High to Low)' },
-                { value: 'experience-low', label: 'Experience (Low to High)' },
-                { value: 'name-asc', label: 'Name (A-Z)' },
-                { value: 'name-desc', label: 'Name (Z-A)' }
-              ].find(o => o.value === sortBy)}
-              onChange={(opt) => setSortBy(opt?.value || 'rating-high')}
-              isSearchable={false}
-            />
-          </div>
 
           {/* Search by Name */}
           <div>
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
-              </svg>
+              
               <span>Search by Name</span>
             </div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
-                </svg>
+               
               </div>
             <input
               type="text"
@@ -777,12 +775,32 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           </div>
 
 
+          {/* City Dropdown */}
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
+             
+              <span>City</span>
+            </div>
+            <Select
+              instanceId="brokers-city-select"
+              styles={reactSelectStyles}
+              className="cursor-pointer"
+              options={cities}
+              value={brokerFilters.city ? { value: brokerFilters.city, label: brokerFilters.city } : null}
+              onChange={(opt) => {
+                setBrokerFilters(prev => ({ ...prev, city: opt?.value || '', region: [] }));
+                setCurrentPage(1);
+              }}
+              isSearchable
+              isClearable
+              placeholder="Select City"
+            />
+          </div>
+
           {/* Region Dropdown */}
           <div>
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7z" />
-              </svg>
+             
               <span>Region</span>
             </div>
             {regionsLoading ? (
@@ -814,9 +832,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           {/* Specialization - Chip Selector (no dropdown) */}
           <div>
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18" />
-              </svg>
+             
               <span>Specialization</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -827,7 +843,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                     key={type}
                     type="button"
                     onClick={() => handleBrokerTypeChange(type)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-150 ${selected ? 'bg-blue-600 text-white border-blue-600' : 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200'}`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-150 ${selected ? 'bg-gray-600 text-white border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'}`}
                   >
                     {type}
                   </button>
@@ -848,9 +864,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           {/* Experience */}
           <div className="mt-5">
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3v18h18M7 13l4-4 4 4 4-4" />
-              </svg>
+              
               <span>Experience</span>
             </div>
             <div className="flex items-center justify-between mb-2">
@@ -876,9 +890,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           {/* Rating Filter */}
           <div className="mt-5">
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927l1.902 0 1.07 3.292h3.462l-2.8 2.034 1.07 3.292-2.8-2.034-2.8 2.034 1.07-3.292-2.8-2.034h3.462z" />
-              </svg>
+             
               <span>Minimum Rating</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -918,6 +930,73 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
       {/* Brokers Grid - 9 columns */}
       <div className="col-span-9">
+        {/* Header with page info and sort filter */}
+        <div className="flex items-center justify-between mb-6">
+          {/* Page number data on top left */}
+          <div className="text-sm text-gray-600">
+            {isLoading || brokersLoading ? (
+              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+            ) : (
+              <>
+                Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} brokers
+               
+              </>
+            )}
+          </div>
+          
+          {/* Sort filter on top right */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Sort by:</span>
+            <Select
+              instanceId="brokers-sort-select"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  minHeight: 36,
+                  fontSize: 14,
+                  borderColor: '#d1d5db',
+                  boxShadow: 'none',
+                  cursor: 'pointer',
+                  ':hover': { borderColor: '#9ca3af' }
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  fontSize: 14,
+                  backgroundColor: state.isSelected
+                    ? '#0A421E'
+                    : state.isFocused
+                      ? '#f3f4f6'
+                      : 'white',
+                  color: state.isSelected ? 'white' : '#111827',
+                  cursor: 'pointer'
+                }),
+                singleValue: (base) => ({ ...base, color: '#111827', fontSize: 14 }),
+                placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 14 }),
+                input: (base) => ({ ...base, fontSize: 14 }),
+                indicatorSeparator: () => ({ display: 'none' })
+              }}
+              options={[
+                { value: 'rating-high', label: 'Rating (High to Low)' },
+                { value: 'rating-low', label: 'Rating (Low to High)' },
+                { value: 'experience-high', label: 'Experience (High to Low)' },
+                { value: 'experience-low', label: 'Experience (Low to High)' },
+                { value: 'name-asc', label: 'Name (A-Z)' },
+                { value: 'name-desc', label: 'Name (Z-A)' }
+              ]}
+              value={[
+                { value: 'rating-high', label: 'Rating (High to Low)' },
+                { value: 'rating-low', label: 'Rating (Low to High)' },
+                { value: 'experience-high', label: 'Experience (High to Low)' },
+                { value: 'experience-low', label: 'Experience (Low to High)' },
+                { value: 'name-asc', label: 'Name (A-Z)' },
+                { value: 'name-desc', label: 'Name (Z-A)' }
+              ].find(o => o.value === sortBy)}
+              onChange={(opt) => setSortBy(opt?.value || 'rating-high')}
+              isSearchable={false}
+              className="w-48"
+            />
+          </div>
+        </div>
         
         {/* Brokers Grid */}
         {isLoading || brokersLoading ? (
@@ -1222,9 +1301,6 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         {/* Pagination */}
         {totalItems > 0 && totalPages > 1 && (
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} brokers (Page {currentPage} of {totalPages})
-            </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Items per page:</span>
               <select

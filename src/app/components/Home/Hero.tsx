@@ -107,9 +107,7 @@ const Hero = ({ data = {
   const router = useRouter(); // ✅ Next.js router
   const [startIdx, setStartIdx] = useState(0);
   // Read token synchronously to avoid a first paint with hardcoded cards
-  const initialToken = typeof window !== 'undefined'
-    ? (localStorage.getItem('token') || localStorage.getItem('authToken'))
-    : null;
+  // removed unused initialToken
   const [apiCards, setApiCards] = useState<HeroCard[]>([]);
   // Always intend to use API; we will gracefully fallback if it fails
   const [intendApi, setIntendApi] = useState<boolean>(true);

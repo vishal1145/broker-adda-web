@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { Suspense, useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import data from '../data/furnitureData.json';
@@ -13,25 +13,104 @@ const TABS = [
 
 function PropertyDetailsPageInner() {
   const searchParams = useSearchParams();
-  const product = useMemo(() => {
-    const items = data?.products?.items || [];
-    const idParam = searchParams?.get('id');
-    const idNum = idParam ? Number(idParam) : NaN;
-    const found = items.find((p) => p.id === idNum);
-    return found || items[0] || null;
-  }, [searchParams]);
-
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState(0);
 
+  // Fetch property details from API
+  useEffect(() => {
+    const fetchPropertyDetails = async () => {
+      setLoading(true);
+      setError('');
+      
+      const idParam = searchParams?.get('id');
+      if (!idParam) {
+        setError('Property ID not found');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const token = typeof window !== 'undefined'
+          ? localStorage.getItem('token') || localStorage.getItem('authToken')
+          : null;
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        };
+
+        const res = await fetch(`${apiUrl}/properties/${encodeURIComponent(String(idParam))}`, { headers });
+        if (!res.ok) throw new Error('Failed to fetch property details');
+        
+        const responseData = await res.json();
+        const propertyData = responseData?.data?.property || responseData?.property || responseData?.data || responseData;
+        
+        if (propertyData) {
+          // Map API response to expected format
+          const mappedProperty = {
+            id: propertyData._id || propertyData.id || idParam,
+            name: propertyData.title || propertyData.name || 'Property',
+            category: propertyData.propertyType || propertyData.type || propertyData.category || 'Property',
+            price: propertyData.price || 0,
+            originalPrice: propertyData.originalPrice || propertyData.oldPrice || 0,
+            discount: propertyData.discount || '',
+            rating: propertyData.rating || 4.7,
+            reviewCount: propertyData.reviewCount || 245,
+            image: propertyData.images?.[0] || propertyData.image || '/images/pexels-binyaminmellish-106399.jpg',
+            images: propertyData.images || [propertyData.image || '/images/pexels-binyaminmellish-106399.jpg'],
+            description: propertyData.description || 'Modern property with excellent connectivity and amenities.',
+            bedrooms: propertyData.bedrooms || 3,
+            bathrooms: propertyData.bathrooms || 2,
+            areaSqft: propertyData.areaSqft || propertyData.area || 1450,
+            city: propertyData.city || 'Delhi NCR',
+            region: propertyData.region || 'Prime Location',
+            amenities: propertyData.amenities || [],
+            status: propertyData.status || 'Available',
+            address: propertyData.address || '',
+            propertyType: propertyData.propertyType || propertyData.type || 'Apartment',
+            subType: propertyData.subType || '',
+            facing: propertyData.facing || 'East',
+            floor: propertyData.floor || '5th of 12 floors',
+            maintenance: propertyData.maintenance || '₹3,000/month',
+            propertyTax: propertyData.propertyTax || '₹1,200/month',
+            registrationCost: propertyData.registrationCost || '₹50,000 (approx)',
+            loanAvailable: propertyData.loanAvailable !== false,
+            pricePerSqft: propertyData.pricePerSqft || (propertyData.price && propertyData.areaSqft ? Math.round(propertyData.price / propertyData.areaSqft) : 0)
+          };
+          setProduct(mappedProperty);
+        } else {
+          setError('Property not found');
+        }
+      } catch (err) {
+        console.error('Error fetching property details:', err);
+        setError('Failed to load property details');
+        // Fallback to static data if API fails
+        const items = data?.products?.items || [];
+        const idNum = Number(idParam);
+        const found = items.find((p) => p.id === idNum);
+        if (found) {
+          setProduct(found);
+          setError('');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPropertyDetails();
+  }, [searchParams]);
+
   const gallery = useMemo(() => {
-    const primary = product?.image || '';
-    // fallback thumbnails from JSON pool (ensure not duplicating)
-    const pool = (data?.products?.items || [])
-      .map((p) => p.image)
-      .filter((src) => src && src !== primary);
-    const a = pool[0] || primary;
-    const b = pool[1] || primary;
-    return [primary, a, b];
+    if (!product) return ['/images/pexels-binyaminmellish-106399.jpg'];
+    
+    const images = product.images || [product.image];
+    const primary = images[0] || '/images/pexels-binyaminmellish-106399.jpg';
+    const secondary = images[1] || primary;
+    const tertiary = images[2] || primary;
+    
+    return [primary, secondary, tertiary];
   }, [product]);
 
   const price = product?.price || 0;
@@ -46,6 +125,85 @@ function PropertyDetailsPageInner() {
       { label: 'Property Details', href: '/property-details' }
     ]
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <HeaderFile data={headerData} />
+        <div className="py-10">
+          <div className="w-full mx-auto">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading property details...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen">
+        <HeaderFile data={headerData} />
+        <div className="py-10">
+          <div className="w-full mx-auto">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Property</h3>
+                <p className="text-gray-600 mb-4">{error}</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // No property found
+  if (!product) {
+    return (
+      <div className="min-h-screen">
+        <HeaderFile data={headerData} />
+        <div className="py-10">
+          <div className="w-full mx-auto">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Property Not Found</h3>
+                <p className="text-gray-600 mb-4">The property you're looking for doesn't exist or has been removed.</p>
+                <Link 
+                  href="/properties" 
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  Browse Properties
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -72,13 +230,13 @@ function PropertyDetailsPageInner() {
             <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">{product?.name || 'Property'}</h1>
-                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">Available</span>
+                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">{product.status}</span>
                 </div>
-                <p className="text-sm text-gray-500">Delhi NCR · Prime Location · Listed 3 days ago</p>
+                <p className="text-sm text-gray-500">{product.city} · {product.region} · Listed 3 days ago</p>
                 <div className="flex items-center gap-4 mt-2">
                   <span className="text-xs text-gray-400">Price: ₹{Math.round(price).toLocaleString('en-IN')}</span>
                   <span className="text-xs text-gray-400">•</span>
-                  <span className="text-xs text-gray-400">Size: 1,450 sq.ft</span>
+                  <span className="text-xs text-gray-400">Size: {product.areaSqft?.toLocaleString('en-IN')} sq.ft</span>
                 </div>
               </div>
             </div>
@@ -161,7 +319,7 @@ function PropertyDetailsPageInner() {
                   </span>
           <div>
                     <div className="text-gray-500">Bedrooms</div>
-                    <div className="font-medium text-gray-900">3 BHK</div>
+                    <div className="font-medium text-gray-900">{product.bedrooms} BHK</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -170,7 +328,7 @@ function PropertyDetailsPageInner() {
                   </span>
               <div>
                     <div className="text-gray-500">Property Size</div>
-                    <div className="font-medium text-gray-900">1,450 sq.ft</div>
+                    <div className="font-medium text-gray-900">{product.areaSqft?.toLocaleString('en-IN')} sq.ft</div>
                 </div>
               </div>
                 <div className="flex items-start gap-3">
@@ -488,33 +646,33 @@ function PropertyDetailsPageInner() {
                     </h4>
                     <div className="space-y-3">
                       {[
-                        { label: 'Property Type', value: product?.category || 'Apartment', icon: (
+                        { label: 'Property Type', value: product?.propertyType || product?.category || 'Apartment', icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-5a1 1 0 011-1h2a1 1 0 011 1v5h3a1 1 0 001-1V10"/>
                           </svg>
                         )},
-                        { label: 'Bedrooms', value: '3 BHK', icon: (
+                        { label: 'Bedrooms', value: `${product?.bedrooms || 3} BHK`, icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <rect x="3" y="10" width="18" height="7" rx="1"/>
                             <path d="M7 10V7a2 2 0 012-2h6a2 2 0 012 2v3"/>
                           </svg>
                         )},
-                        { label: 'Bathrooms', value: '2', icon: (
+                        { label: 'Bathrooms', value: `${product?.bathrooms || 2}`, icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21H6.737a2 2 0 01-1.789-2.894l3.5-7A2 2 0 019.237 10H14zm0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v5m7 0H7"/>
                           </svg>
                         )},
-                        { label: 'Built-up Area', value: '1,450 sq.ft', icon: (
+                        { label: 'Built-up Area', value: `${product?.areaSqft?.toLocaleString('en-IN') || '1,450'} sq.ft`, icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <rect x="3" y="6" width="18" height="12" rx="2"/>
                           </svg>
                         )},
-                        { label: 'Floor', value: '5th of 12 floors', icon: (
+                        { label: 'Floor', value: product?.floor || '5th of 12 floors', icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                           </svg>
                         )},
-                        { label: 'Facing', value: 'East', icon: (
+                        { label: 'Facing', value: product?.facing || 'East', icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
                           </svg>
@@ -543,27 +701,27 @@ function PropertyDetailsPageInner() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                           </svg>
                         )},
-                        { label: 'Price per sq.ft', value: `₹${Math.round(price/1450).toLocaleString('en-IN')}`, icon: (
+                        { label: 'Price per sq.ft', value: `₹${product?.pricePerSqft?.toLocaleString('en-IN') || Math.round(price/(product?.areaSqft || 1450)).toLocaleString('en-IN')}`, icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 002 2h2a2 2 0 002-2z"/>
                           </svg>
                         )},
-                        { label: 'Maintenance', value: '₹3,000/month', icon: (
+                        { label: 'Maintenance', value: product?.maintenance || '₹3,000/month', icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                           </svg>
                         )},
-                        { label: 'Property Tax', value: '₹1,200/month', icon: (
+                        { label: 'Property Tax', value: product?.propertyTax || '₹1,200/month', icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                           </svg>
                         )},
-                        { label: 'Registration Cost', value: '₹50,000 (approx)', icon: (
+                        { label: 'Registration Cost', value: product?.registrationCost || '₹50,000 (approx)', icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                           </svg>
                         )},
-                        { label: 'Loan Available', value: 'Yes', icon: (
+                        { label: 'Loan Available', value: product?.loanAvailable ? 'Yes' : 'No', icon: (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                           </svg>
@@ -588,11 +746,11 @@ function PropertyDetailsPageInner() {
                     Amenities & Features
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {[
+                    {(product?.amenities && product.amenities.length > 0 ? product.amenities : [
                       '24/7 Security', 'Power Backup', 'Lift', 'Parking',
                       'Swimming Pool', 'Gym', 'Garden', 'Club House',
                       'Children Play Area', 'CCTV', 'Water Supply', 'Power Supply'
-                    ].map((amenity, index) => (
+                    ]).map((amenity, index) => (
                       <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                         <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>

@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import Select from 'react-select';
 
 const PropertiesComponent = ({ activeTab, setActiveTab }) => {
@@ -396,7 +397,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {propertyItems.map((property) => (
-            <div key={property.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow transition-transform duration-200 hover:-translate-y-1">
+            <Link key={property.id} href={`/property-details?id=${property.id}`} className="block">
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow transition-transform duration-200 hover:-translate-y-1 cursor-pointer">
               <div className="relative p-3">
                 {/* Image carousel */}
                 <div className="relative h-56 overflow-hidden rounded-xl">
@@ -515,7 +517,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
                 {/* View All button removed as requested */}
               </div>
-            </div>
+              </div>
+            </Link>
           ))}
           </div>
         )}
