@@ -132,10 +132,6 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         const validRegionId = regionIds[0];
         baseQueryParams.append('regionId', validRegionId);
         console.log('Using region ID:', validRegionId);
-      } else if (brokerFilters.city) {
-        // If only city is selected (no region), pass regionCity to backend
-        baseQueryParams.append('regionCity', brokerFilters.city);
-        console.log('Using regionCity for filtering:', brokerFilters.city);
       }
       
       // Fetch brokers with a single API call first, then paginate if needed
