@@ -172,7 +172,8 @@ const Hero = ({ data = {
         });
 
         if (!response.ok) {
-          setIntendApi(false);
+          // Keep intending API (no hardcoded fallback); show empty state/skeletons
+          setApiCards([]);
           return;
         }
 
@@ -190,7 +191,8 @@ const Hero = ({ data = {
          else if (Array.isArray(d)) brokers = d as BrokerApiItem[];
 
         if (!Array.isArray(brokers) || brokers.length === 0) {
-          setIntendApi(false);
+          // No brokers returned; avoid default cards
+          setApiCards([]);
           return;
         }
 
@@ -213,7 +215,9 @@ const Hero = ({ data = {
             ?? (typeof b?.leadCount === 'number' ? b.leadCount : undefined)
             ?? (typeof b?.totalLeads === 'number' ? b.totalLeads : undefined)
             ?? (typeof b?.leads === 'number' ? b.leads : undefined);
-          const leadsText = `${Math.max(1, Number(rawLeads ?? 1))}+ leads`;
+          const leadsNum = Number(rawLeads);
+          const hasLeads = Number.isFinite(leadsNum);
+          const leadsText = hasLeads ? `${leadsNum} leads` : `0 leads`;
 
           // Match Brokers.tsx logic: prefer userId (object/string), then _id, then id
           const id = (
@@ -239,8 +243,8 @@ const Hero = ({ data = {
 
         setApiCards(mapped);
       } catch {
-        // fallback to hardcoded cards
-        setIntendApi(false);
+        // On error, avoid default cards; keep intending API
+        setApiCards([]);
       } finally {
         setIsLoading(false);
       }
