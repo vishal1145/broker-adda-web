@@ -81,6 +81,8 @@ const Profile = () => {
     // Additional professional fields
     licenseNumber: "",
     officeAddress: "",
+    experience: "",
+    about: "",
     address: "",
     city: "",
     state: "",
@@ -719,6 +721,15 @@ const Profile = () => {
             const city = brokerData.city || brokerFormData.city || "";
             const licenseNumber =
               brokerData.licenseNumber || brokerFormData.licenseNumber || "";
+           
+            const experience = (
+              typeof brokerData.experience === "object" && brokerData.experience !== null
+                ? (brokerData.experience.years ?? "")
+                : (brokerData.experience ?? "")
+            ) || brokerFormData.experience || "";
+           
+            const about =
+              brokerData.content || brokerData.about || brokerFormData.about || "";
             const officeAddress =
               brokerData.address ||
               brokerData.officeAddress ||
@@ -772,6 +783,8 @@ const Profile = () => {
               gender: gender,
               city: city,
               licenseNumber: licenseNumber,
+              experience: experience,
+              about: about,
               officeAddress: officeAddress,
               specializations: specializations,
               state: state,
@@ -1308,6 +1321,14 @@ const Profile = () => {
         const city = brokerData.city || brokerFormData.city || "";
         const licenseNumber =
           brokerData.licenseNumber || brokerFormData.licenseNumber || "";
+        
+        const experience = (
+          typeof brokerData.experience === "object" && brokerData.experience !== null
+            ? (brokerData.experience.years ?? "")
+            : (brokerData.experience ?? "")
+        ) || brokerFormData.experience || "";
+        
+        const about = brokerData.content || brokerData.about || brokerFormData.about || "";
         const officeAddress =
           brokerData.address ||
           brokerData.officeAddress ||
@@ -1351,6 +1372,8 @@ const Profile = () => {
           gender: gender,
           city: city,
           licenseNumber: licenseNumber,
+          experience: experience,
+          about: about,
           officeAddress: officeAddress,
           specializations: specializations,
           state: state,
@@ -1854,6 +1877,22 @@ const Profile = () => {
                               </div>
                             </div>
 
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Experience (years)</label>
+                              <input
+                                type="number"
+                                min={0}
+                                value={brokerFormData.experience || ""}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const numeric = val === "" ? "" : Math.max(0, parseInt(val, 10) || 0);
+                                  setBrokerFormData((prev) => ({ ...prev, experience: numeric }));
+                                }}
+                                placeholder="e.g., 15"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                              />
+                            </div>
+
                             <div className="md:col-span-2">
                               <div className="flex items-center justify-between mb-2">
                                 <label className="block text-sm font-medium text-gray-700">
@@ -1984,6 +2023,18 @@ const Profile = () => {
                                   </div>
                                 )}
                               </div>
+                            </div>
+
+                            {/* About (hardcoded, read-only) */}
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">About</label>
+                              <textarea
+                                rows={4}
+                                value={brokerFormData.about || ""}
+                                onChange={(e) => setBrokerFormData((prev) => ({ ...prev, about: e.target.value }))}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                              />
+                             
                             </div>
                           </div>
                         </div>
@@ -3264,6 +3315,25 @@ const Profile = () => {
                                 "brokerDetails[gender]",
                                 currentFormData.gender || ""
                               );
+
+                              // Include About and Experience years at top-level as requested
+                              if (typeof currentFormData.about === "string") {
+                                formDataToSend.append(
+                                  "content",
+                                  currentFormData.about
+                                );
+                              }
+                              if (
+                                currentFormData.experience !== undefined &&
+                                currentFormData.experience !== null &&
+                                String(currentFormData.experience) !== ""
+                              ) {
+                                const yearsNum = Number(currentFormData.experience);
+                                formDataToSend.append(
+                                  "experienceYears",
+                                  Number.isNaN(yearsNum) ? "" : String(yearsNum)
+                                );
+                              }
 
                               // Add specializations
                               if (
