@@ -13,10 +13,23 @@ const TABS = [
 
 function PropertyDetailsPageInner() {
   const searchParams = useSearchParams();
+  // Also support dynamic route /property-details/[id] by reading path when query is missing
+  const [routeId, setRouteId] = useState(null);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const path = window.location.pathname || '';
+      const m = path.match(/\/property-details\/(.+)$/);
+      if (m && m[1]) setRouteId(m[1]);
+    } catch {}
+  }, []);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState(0);
+  const [agent, setAgent] = useState(null);
+  const [agentLoading, setAgentLoading] = useState(false);
+  const [agentError, setAgentError] = useState('');
 
   // Fetch property details from API
   useEffect(() => {
@@ -24,10 +37,9 @@ function PropertyDetailsPageInner() {
       setLoading(true);
       setError('');
       
-      const idParam = searchParams?.get('id');
+      const idParam = searchParams?.get('id') || routeId;
       if (!idParam) {
-        setError('Property ID not found');
-        setLoading(false);
+        // Wait until an id is available (from dynamic route or query)
         return;
       }
 
@@ -77,9 +89,73 @@ function PropertyDetailsPageInner() {
             propertyTax: propertyData.propertyTax || '₹1,200/month',
             registrationCost: propertyData.registrationCost || '₹50,000 (approx)',
             loanAvailable: propertyData.loanAvailable !== false,
-            pricePerSqft: propertyData.pricePerSqft || (propertyData.price && propertyData.areaSqft ? Math.round(propertyData.price / propertyData.areaSqft) : 0)
+            pricePerSqft: propertyData.pricePerSqft || (propertyData.price && propertyData.areaSqft ? Math.round(propertyData.price / propertyData.areaSqft) : 0),
+            // capture possible agent identifiers for downstream fetch
+            _raw: propertyData
           };
           setProduct(mappedProperty);
+
+          // If broker object is embedded on the property, use it directly
+          if (propertyData?.broker && typeof propertyData.broker === 'object') {
+            const b = propertyData.broker;
+            const mappedAgent = {
+              id: b._id || b.id || '',
+              name: b.name || b.fullName || b.firmName || 'Agent',
+              phone: b.phone || b.mobile || '',
+              email: b.email || '',
+              firm: b.firmName || b.company || '',
+              image: b.brokerImage || b.profileImage || b.avatar || '/images/user-1.webp',
+              region: b.region || propertyData.city || propertyData.region || '',
+              experience: b.experience || b.experienceYears || ''
+            };
+            setAgent(mappedAgent);
+          }
+
+          // Try to resolve an agent/broker id from the property payload
+          const candidateId = (
+            typeof propertyData?.createdBy === 'object' && propertyData.createdBy?._id ? propertyData.createdBy._id :
+            (typeof propertyData?.createdBy === 'string' ? propertyData.createdBy : null)
+          ) || propertyData?.brokerId || propertyData?.agentId || propertyData?.ownerId || propertyData?.userId;
+
+          if (candidateId) {
+            setAgentLoading(true);
+            setAgentError('');
+            try {
+              const brokerRes = await fetch(`${apiUrl}/brokers/${encodeURIComponent(String(candidateId))}`, { headers });
+              if (brokerRes.ok) {
+                const brokerJson = await brokerRes.json().catch(() => ({}));
+                const brokerData = brokerJson?.data?.broker || brokerJson?.broker || brokerJson?.data || brokerJson;
+                if (brokerData) {
+                  const mappedAgent = {
+                    id: brokerData._id || brokerData.id || candidateId,
+                    name: brokerData.name || brokerData.fullName || brokerData.firmName || 'Agent',
+                    phone: brokerData.phone || brokerData.mobile || brokerData.contact || '',
+                    email: brokerData.email || '',
+                    firm: brokerData.firmName || brokerData.company || '',
+                    image: brokerData.brokerImage || brokerData.profileImage || brokerData.avatar || '/images/user-1.webp',
+                    region: (() => {
+                      const r = brokerData.region;
+                      if (Array.isArray(r) && r.length > 0) {
+                        const first = r[0];
+                        return typeof first === 'string' ? first : (first?.name || first?.city || first?.state || '');
+                      }
+                      if (typeof r === 'string') return r;
+                      if (r && typeof r === 'object') return r.name || r.city || r.state || '';
+                      return brokerData.city || brokerData.state || '';
+                    })(),
+                    experience: brokerData.experience || brokerData.experienceYears || ''
+                  };
+                  setAgent(mappedAgent);
+                }
+              } else {
+                setAgentError('Failed to fetch agent details');
+              }
+            } catch (e) {
+              setAgentError('Failed to fetch agent details');
+            } finally {
+              setAgentLoading(false);
+            }
+          }
         } else {
           setError('Property not found');
         }
@@ -100,7 +176,7 @@ function PropertyDetailsPageInner() {
     };
 
     fetchPropertyDetails();
-  }, [searchParams]);
+  }, [searchParams, routeId]);
 
   const gallery = useMemo(() => {
     if (!product) return ['/images/pexels-binyaminmellish-106399.jpg'];
@@ -469,16 +545,27 @@ function PropertyDetailsPageInner() {
                 <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
                 <h3 className="text-base font-semibold text-gray-900">Agent Details</h3>
               </div>
-              <div className="flex items-center gap-3">
-                <img src="/images/user-1.webp" alt="Agent" className="w-12 h-12 rounded-full object-cover" />
-                <div>
-                  <div className="font-medium text-gray-900">Neha Mehta</div>
-                                    <div className="text-sm text-gray-500">+91 9785324582</div>
-
-                  <div className="text-sm text-gray-500">ABC Real Estate</div>
-                  <div className="text-xs text-gray-400">Expert Broker • Delhi NCR</div>
-                    </div>
-                    </div>
+              {agentLoading ? (
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-40 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-3 w-28 bg-gray-200 rounded animate-pulse" />
+                  </div>
+                </div>
+              ) : agent ? (
+                <div className="flex items-center gap-3">
+                  <img src={agent.image} alt="Agent" className="w-12 h-12 rounded-full object-cover" />
+                  <div>
+                    <div className="font-medium text-gray-900">{agent.name}</div>
+                    {agent.phone && (<div className="text-sm text-gray-500">{agent.phone}</div>)}
+                    {agent.firm && (<div className="text-sm text-gray-500">{agent.firm}</div>)}
+                    <div className="text-xs text-gray-400">Expert Broker {agent.region ? `• ${agent.region}` : ''}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500">Agent details not available.</div>
+              )}
                   </div>
 
             {/* Property Rating */}

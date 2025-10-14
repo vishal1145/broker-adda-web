@@ -397,7 +397,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {propertyItems.map((property) => (
-            <Link key={property.id} href={`/property-details?id=${property.id}`} className="block">
+            <Link key={property.id} href={`/property-details/${property.id}`} className="block">
               <div className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow transition-transform duration-200 hover:-translate-y-1 cursor-pointer">
               <div className="relative p-3">
                 {/* Image carousel */}

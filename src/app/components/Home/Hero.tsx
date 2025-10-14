@@ -297,7 +297,7 @@ onClick={() => {
 
               {/* Use Next Link instead of <a href> for client navigation */}
               <Link
-                href="/search"
+                href="/search?tab=brokers"
                 className="text-green-900 text-sm mt-2 font-semibold hover:opacity-80"
               >
                 {(buttons as { primary?: string; secondary?: string })?.secondary ?? 'Explore'}

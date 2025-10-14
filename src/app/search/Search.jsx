@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropertiesComponent from './components/PropertiesComponent';
 import LeadsComponent from './components/LeadsComponent';
 import BrokersComponent from './components/BrokersComponent';
@@ -42,6 +42,18 @@ const Dots = ({ className, style }) => (
 
 const Search = () => {
   const [activeTab, setActiveTab] = useState('brokers');
+
+  // Read query param without useSearchParams to avoid Suspense requirement
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const t = sp.get('tab');
+      if (t === 'leads' || t === 'brokers' || t === 'properties') {
+        setActiveTab(t);
+      }
+    } catch {}
+  }, []);
 
   const getPageTitle = () => {
     switch (activeTab) {
