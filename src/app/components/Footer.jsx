@@ -125,7 +125,7 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
       </div>
       
       {/* Bottom Bar */}
-      <div className="bg-yellow-400 text-sm text-gray-900 mt-12 py-4 px-12">
+      <div className="bg-yellow-400 text-sm text-gray-900 mt-12 py-4 px-[6rem]">
         <div className=" mx-auto flex flex-col sm:flex-row justify-between items-center">
           <p className="mb-2 sm:mb-0">{data.copyright}</p>
           
