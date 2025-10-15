@@ -81,6 +81,8 @@ const Dashboard = () => {
     todaysLeads: null,
   });
   const [metricsLoading, setMetricsLoading] = useState(false);
+  const [leadRows, setLeadRows] = useState([]);
+  const [propertyCards, setPropertyCards] = useState([]);
 
   const greeting = useMemo(() => {
     const hours = new Date().getHours();
@@ -113,15 +115,39 @@ const Dashboard = () => {
         return '';
       }
     };
+    // Helper: resolve brokerId exactly like Leads page
+    const resolveBrokerId = async () => {
+      const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const token = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : '';
+      const getCurrentUserIdFromToken = () => {
+        try {
+          if (!token) return '';
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.brokerId || payload.userId || payload.id || payload.sub || '';
+        } catch { return ''; }
+      };
+      const currentUserId = getCurrentUserIdFromToken();
+      let brokerId = '';
+      if (currentUserId) {
+        const res = await fetch(`${baseApi}/brokers/${currentUserId}`, {
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        });
+        if (res.ok) {
+          const bj = await res.json().catch(() => ({}));
+          const b = bj?.data?.broker || bj?.broker || bj?.data || bj;
+          brokerId = b?._id || '';
+        }
+      }
+      if (typeof window !== 'undefined' && brokerId) localStorage.setItem('brokerId', brokerId);
+      return { brokerId, baseApi, token };
+    };
+
     const fetchMetrics = async () => {
       try {
         setMetricsLoading(true);
-        const brokerId = getBrokerIdFromToken() || (typeof window !== 'undefined' ? (localStorage.getItem('brokerId') || localStorage.getItem('brokerID')) : null) || user?.brokerId || '';
-        if (typeof window !== 'undefined' && brokerId) {
-          localStorage.setItem('brokerId', brokerId);
-        }
-        const url = `http://localhost:5000/api/leads/metrics?createdBy=${brokerId}`;
-        const { data } = await axios.get(url);
+        const { brokerId, baseApi, token } = await resolveBrokerId();
+        const metricsUrl = `${baseApi}/leads/metrics?createdBy=${encodeURIComponent(brokerId)}`;
+        const { data } = await axios.get(metricsUrl, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         const payload = data?.data ?? data;
         setMetrics({
           totalLeads: payload?.totalLeads ?? 0,
@@ -135,6 +161,42 @@ const Dashboard = () => {
       }
     };
     fetchMetrics();
+
+    // Load top 3 leads and properties
+    const fetchOverviewLists = async () => {
+      try {
+        const { brokerId, baseApi, token } = await resolveBrokerId();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const leadsRes = await fetch(`${baseApi}/leads?createdBy=${encodeURIComponent(brokerId)}&limit=3&page=1`, { headers });
+        if (leadsRes.ok) {
+          const lj = await leadsRes.json().catch(() => ({}));
+          let list = [];
+          if (Array.isArray(lj?.data?.items)) list = lj.data.items;
+          else if (Array.isArray(lj?.data?.leads)) list = lj.data.leads;
+          else if (Array.isArray(lj?.data)) list = lj.data;
+          else if (Array.isArray(lj?.leads)) list = lj.leads;
+          else if (Array.isArray(lj)) list = lj;
+          setLeadRows(list.slice(0, 3));
+        } else setLeadRows([]);
+
+        const propsRes = await fetch(`${baseApi}/properties?limit=3&page=1&brokerId=${encodeURIComponent(brokerId)}`, { headers });
+        if (propsRes.ok) {
+          const pj = await propsRes.json().catch(() => ({}));
+          let list = [];
+          if (Array.isArray(pj?.data?.items)) list = pj.data.items;
+          else if (Array.isArray(pj?.data?.properties)) list = pj.data.properties;
+          else if (Array.isArray(pj?.data)) list = pj.data;
+          else if (Array.isArray(pj?.properties)) list = pj.properties;
+          else if (Array.isArray(pj)) list = pj;
+          setPropertyCards(list.slice(0, 3));
+        } else setPropertyCards([]);
+      } catch {
+        setLeadRows([]);
+        setPropertyCards([]);
+      }
+    };
+    fetchOverviewLists();
   }, [user]);
 
   const fmt = (n) => {
@@ -171,6 +233,9 @@ const Dashboard = () => {
                   <a href="/leads" className="text-sm font-medium text-green-900 hover:opacity-90">View all</a>
                 </div>
                 <div className="overflow-x-auto">
+                  {leadRows.length === 0 ? (
+                    <div className="rounded-lg border border-dashed p-8 text-center text-gray-500">No leads found for your account.</div>
+                  ) : (
                   <table className="min-w-full divide-y divide-gray-200 text-sm">
                     <thead className="bg-gray-50">
                       <tr>
@@ -184,25 +249,21 @@ const Dashboard = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {[
-                        { name: 'Rohan Sharma', contact: '+91 98123 45678', source: 'Website', status: 'Hot', statusClasses: 'bg-red-50 text-red-700', broker: 'AK', last: 'Today' },
-                        { name: 'Priya Kapoor', contact: 'priya@example.com', source: 'Referral', status: 'Warm', statusClasses: 'bg-yellow-50 text-yellow-700', broker: 'PK', last: 'Yesterday' },
-                        { name: 'Sameer Khan', contact: '+91 98989 12345', source: 'Ad', status: 'Cold', statusClasses: 'bg-blue-50 text-blue-700', broker: 'SK', last: '2 days ago' },
-                      ].map((row) => (
-                        <tr key={row.name} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 text-gray-900">{row.name}</td>
-                          <td className="px-4 py-3 text-gray-700">{row.contact}</td>
-                          <td className="px-4 py-3 text-gray-700">{row.source}</td>
+                      {leadRows.map((row) => (
+                        <tr key={row._id || row.id || row.name} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 text-gray-900">{row.name || row.fullName || row.customerName || row.contactName}</td>
+                          <td className="px-4 py-3 text-gray-700">{row.phone || row.contact || row.email || '-'}</td>
+                          <td className="px-4 py-3 text-gray-700">{row.source || row.leadSource || '-'}</td>
                           <td className="px-4 py-3">
-                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${row.statusClasses}`}>{row.status}</span>
+                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${row.status === 'Hot' ? 'bg-red-50 text-red-700' : row.status === 'Warm' ? 'bg-yellow-50 text-yellow-700' : 'bg-blue-50 text-blue-700'}`}>{row.status || row.stage || 'New'}</span>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
-                              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#0055AA]/10 text-[#0055AA] text-xs font-semibold">{row.broker}</span>
+                              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#0055AA]/10 text-[#0055AA] text-xs font-semibold">{(row.assignedBroker && (row.assignedBroker.initials || row.assignedBroker.code)) || 'BR'}</span>
                               <span className="text-gray-800">Broker</span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-gray-500">{row.last}</td>
+                          <td className="px-4 py-3 text-gray-500">{row.updatedAt ? new Date(row.updatedAt).toLocaleDateString() : (row.last || '-')}</td>
                           <td className="px-4 py-3 text-right">
                             <button className="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-gray-100 text-gray-500">⋮</button>
                           </td>
@@ -210,6 +271,7 @@ const Dashboard = () => {
                       ))}
                     </tbody>
                   </table>
+                  )}
                 </div>
               </section>
 
@@ -220,25 +282,24 @@ const Dashboard = () => {
                   <a href="/properties-management" className="text-sm font-medium text-green-900 hover:opacity-90">View all</a>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {[
-                    { name: 'Sunset Heights', location: 'Andheri, Mumbai', price: '₹1.2Cr', type: 'House', status: 'For Sale', img: 'https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=1200&auto=format&fit=crop' },
-                    { name: 'Emerald Residency', location: 'Baner, Pune', price: '₹85L', type: 'Condo', status: 'Under Offer', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop' },
-                    { name: 'Lakeview Villa', location: 'Whitefield, Bengaluru', price: '₹2.5Cr', type: 'House', status: 'For Sale', img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop' },
-                  ].map((p) => (
-                    <div key={p.name} className="rounded-[16px] border border-gray-100 bg-white shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
+                  {propertyCards.length === 0 && (
+                    <div className="col-span-full rounded-lg border border-dashed p-8 text-center text-gray-500">No properties found for your account.</div>
+                  )}
+                  {propertyCards.map((p) => (
+                    <div key={p._id || p.id || p.name} className="rounded-[16px] border border-gray-100 bg-white shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
                       <div className="relative aspect-[16/9] w-full bg-gray-100 overflow-hidden">
-                        <img src={p.img} alt={p.name} className="h-full w-full object-cover transition-transform duration-300 hover:scale-105" />
-                        <span className={`absolute top-3 right-3 rounded-full px-2.5 py-1 text-xs font-medium shadow-sm ${p.status === 'For Sale' ? 'bg-emerald-500 text-white' : p.status === 'Under Offer' ? 'bg-yellow-500 text-white' : 'bg-gray-500 text-white'}`}>{p.status}</span>
+                        <img src={(Array.isArray(p.images) && p.images[0]) || p.image || 'https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=1200&auto=format&fit=crop'} alt={p.title || p.name} className="h-full w-full object-cover transition-transform duration-300 hover:scale-105" />
+                        <span className={`absolute top-3 right-3 rounded-full px-2.5 py-1 text-xs font-medium shadow-sm ${p.status === 'For Sale' ? 'bg-emerald-500 text-white' : p.status === 'Under Offer' ? 'bg-yellow-500 text-white' : 'bg-gray-500 text-white'}`}>{p.status || 'Active'}</span>
                       </div>
                       <div className="p-4">
-                        <div className="text-gray-900 font-medium">{p.name}</div>
+                        <div className="text-gray-900 font-medium">{p.title || p.name || 'Property'}</div>
                         <div className="mt-0.5 text-sm text-gray-600 flex items-center gap-1">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-[#0055AA]"><path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11z" stroke="currentColor" strokeWidth="1.5"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5"/></svg>
-                          {p.location}
+                          {p.city || (Array.isArray(p.region) ? p.region[0]?.name : (typeof p.region === 'string' ? p.region : p.region?.name)) || ''}
                         </div>
                         <div className="mt-2 flex items-center justify-between">
-                          <div className="text-[15px] font-semibold text-[#0055AA]">{p.price}</div>
-                          <span className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs text-gray-700">{p.type}</span>
+                          <div className="text-[15px] font-semibold text-[#0055AA]">{typeof p.price === 'number' ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(p.price) : (p.currentPrice || '-')}</div>
+                          <span className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs text-gray-700">{p.propertyType || p.type || 'Residential'}</span>
                         </div>
                         <div className="mt-3 flex items-center gap-5 text-xs text-gray-600">
                           <span className="inline-flex items-center gap-1">
