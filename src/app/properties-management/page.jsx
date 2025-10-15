@@ -415,15 +415,15 @@ const PropertiesManagement = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((property) => (
             <div key={property.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-200 cursor-pointer">
-              <div className="relative p-3">
-                <div className="relative h-56 overflow-hidden rounded-xl">
-                  <img src={(property.images && property.images[0]) || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover" />
-                  {/* Bottom overlay with price chip and share icon */}
-                  <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-between">
-                    <div className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow">
+              <div className="relative">
+                <div className="relative h-56 overflow-visible rounded-xl">
+                  <img src={(property.images && property.images[0]) || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover rounded-xl" />
+                  {/* Price chip + share button protruding slightly below image */}
+                  <div className="absolute inset-x-0 -bottom-4 z-10 px-4 flex items-center justify-between">
+                    <div className="bg-yellow-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
                       {property.currentPrice !== '-' ? property.currentPrice : 'Price on Request'}
                     </div>
-                    <button className="p-2 bg-white/90 hover:bg-white rounded-full transition-colors shadow">
+                    <button className="p-2 bg-white rounded-full border border-gray-200 shadow-lg hover:shadow transition">
                       <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                       </svg>
@@ -432,7 +432,7 @@ const PropertiesManagement = () => {
                 </div>
 
                 <div className="absolute top-6 left-6">
-                  <span className="bg-[#0A421E] text-white px-3 py-1 rounded-full text-xs font-medium">
+                  <span className="bg-[#0A421E] text-white  px-6 py-1 rounded-full text-xs font-medium">
                     {property.propertyType}
                   </span>
                 </div>
@@ -443,7 +443,7 @@ const PropertiesManagement = () => {
                   <span className="text-xs font-medium text-gray-700">{property.rating}</span>
                 </div>
 
-                <div className="mt-4 px-1 pb-2">
+                <div className="mt-8 px-4 pb-4">
 
                   {/* Title with inline arrow */}
                   <div className="flex items-center gap-2 mb-2">
