@@ -1885,7 +1885,8 @@ const Profile = () => {
                                 value={brokerFormData.experience || ""}
                                 onChange={(e) => {
                                   const val = e.target.value;
-                                  const numeric = val === "" ? "" : Math.max(0, parseInt(val, 10) || 0);
+                                  // Only allow positive integers, no conversion to 0
+                                  const numeric = val === "" ? "" : (val >= 0 ? parseInt(val, 10) : "");
                                   setBrokerFormData((prev) => ({ ...prev, experience: numeric }));
                                 }}
                                 placeholder="e.g., 15"
@@ -3328,10 +3329,10 @@ const Profile = () => {
                                 currentFormData.experience !== null &&
                                 String(currentFormData.experience) !== ""
                               ) {
-                                const yearsNum = Number(currentFormData.experience);
+                                // Ensure we send the exact value entered by user
                                 formDataToSend.append(
                                   "experienceYears",
-                                  Number.isNaN(yearsNum) ? "" : String(yearsNum)
+                                  String(currentFormData.experience)
                                 );
                               }
 

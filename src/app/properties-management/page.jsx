@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Link from "next/link";
 
@@ -75,8 +75,12 @@ const initialProperties = [
 ];
 
 const PropertiesManagement = () => {
-  const [items, setItems] = useState(initialProperties);
+  const [items, setItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -111,71 +115,217 @@ const PropertiesManagement = () => {
   const [notes, setNotes] = useState("");
   const [brokerId, setBrokerId] = useState("");
 
+  // Fetch properties from API
+  const fetchProperties = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : null;
+      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      };
+
+      const response = await fetch(`${apiUrl}/properties`, {
+        method: 'GET',
+        headers
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Handle different response structures
+        let properties = [];
+        if (Array.isArray(data?.data?.items)) {
+          properties = data.data.items;
+        } else if (Array.isArray(data?.data?.properties)) {
+          properties = data.data.properties;
+        } else if (Array.isArray(data?.data)) {
+          properties = data.data;
+        } else if (Array.isArray(data?.properties)) {
+          properties = data.properties;
+        } else if (Array.isArray(data)) {
+          properties = data;
+        }
+
+        // Map API response to expected format
+        const mappedProperties = properties.map((property) => ({
+          id: property._id || property.id || `api-${Date.now()}-${Math.random()}`,
+          title: property.title || property.name || 'Untitled Property',
+          description: property.description || property.propertyDescription || '',
+          propertyDescription: property.propertyDescription || property.description || '',
+          region: property.region || property.city || '',
+          address: property.address || '',
+          city: property.city || '',
+          price: property.price || 0,
+          priceUnit: property.priceUnit || 'INR',
+          propertySize: property.propertySize || property.areaSqft || property.area || undefined,
+          coordinates: property.coordinates || { lat: '', lng: '' },
+          bedrooms: property.bedrooms || undefined,
+          bathrooms: property.bathrooms || undefined,
+          furnishing: property.furnishing || 'Furnished',
+          amenities: Array.isArray(property.amenities) ? property.amenities : [],
+          nearbyAmenities: Array.isArray(property.nearbyAmenities) ? property.nearbyAmenities : [],
+          features: Array.isArray(property.features) ? property.features : [],
+          locationBenefits: Array.isArray(property.locationBenefits) ? property.locationBenefits : [],
+          images: Array.isArray(property.images) && property.images.length > 0 ? property.images : [DEFAULT_IMAGE],
+          videos: Array.isArray(property.videos) ? property.videos : [],
+          propertyType: property.propertyType || property.type || 'Residential',
+          subType: property.subType || 'Apartment',
+          status: property.status || 'Active',
+          isFeatured: property.isFeatured || false,
+          notes: property.notes || '',
+          broker: property.broker || property.brokerId || '',
+          rating: property.rating || '4.7',
+          currentPrice: property.price ? new Intl.NumberFormat('en-IN', { 
+            style: 'currency', 
+            currency: 'INR', 
+            maximumFractionDigits: 0 
+          }).format(property.price) : '-'
+        }));
+
+        setItems(mappedProperties);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setError(errorData.message || 'Failed to fetch properties');
+        // Fallback to demo data if API fails
+        setItems(initialProperties);
+      }
+    } catch (err) {
+      console.error('Error fetching properties:', err);
+      setError('Error loading properties');
+      // Fallback to demo data if API fails
+      setItems(initialProperties);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Create new property via API
+  const createProperty = async (propertyData) => {
+    try {
+      setSubmitting(true);
+      
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : null;
+      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      };
+
+      const response = await fetch(`${apiUrl}/properties`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(propertyData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Property created successfully:', data);
+        // Refresh the properties list
+        await fetchProperties();
+        return { success: true, data };
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to create property');
+      }
+    } catch (err) {
+      console.error('Error creating property:', err);
+      throw err;
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Load properties on component mount
+  useEffect(() => {
+    fetchProperties();
+  }, [fetchProperties]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
-    const newItem = {
-      id: `local-${Date.now()}`,
-      title: form.title || "Untitled Property",
-      description: form.description,
-      propertyDescription: form.propertyDescription,
-      region: form.region,
-      address: form.address,
-      city: form.city,
-      price: form.price ? Number(form.price) : undefined,
-      priceUnit: form.priceUnit,
-      propertySize: form.propertySize ? Number(form.propertySize) : undefined,
-      coordinates: {
-        lat: coordinates.lat ? Number(coordinates.lat) : undefined,
-        lng: coordinates.lng ? Number(coordinates.lng) : undefined
-      },
-      bedrooms: bedrooms ? Number(bedrooms) : undefined,
-      bathrooms: bathrooms ? Number(bathrooms) : undefined,
-      furnishing,
-      amenities,
-      nearbyAmenities,
-      features,
-      locationBenefits,
-      images: images.length ? images : [DEFAULT_IMAGE],
-      videos,
-      propertyType: form.propertyType || "Residential",
-      subType: form.subType,
-      status,
-      isFeatured,
-      notes,
-      broker: brokerId || undefined,
-      rating: "4.7",
-      currentPrice: "-",
-      // keep for card display
-      images: images.length ? images : [DEFAULT_IMAGE]
-    };
-    setItems(prev => [newItem, ...prev]);
-    setForm({ title: "", description: "", propertyDescription: "", region: "", address: "", city: "Agra", price: "", priceUnit: "INR", propertySize: "", propertyType: "Residential", subType: "Apartment" });
-    setAmenities([]);
-    setAmenityInput("");
-    setNearbyAmenities([]);
-    setNearbyAmenityInput("");
-    setFeatures([]);
-    setFeatureInput("");
-    setLocationBenefits([]);
-    setLocationBenefitInput("");
-    setImages([]);
-    setImageInput("");
-    setVideos([]);
-    setVideoInput("");
-    setCoordinates({ lat: "", lng: "" });
-    setBedrooms("");
-    setBathrooms("");
-    setFurnishing("Furnished");
-    setStatus("Pending Approval");
-    setIsFeatured(false);
-    setNotes("");
-    setBrokerId("");
-    setIsModalOpen(false);
+    
+    try {
+      const propertyData = {
+        title: form.title || "Untitled Property",
+        description: form.description,
+        propertyDescription: form.propertyDescription,
+        region: form.region,
+        address: form.address,
+        city: form.city,
+        price: form.price ? Number(form.price) : undefined,
+        priceUnit: form.priceUnit,
+        propertySize: form.propertySize ? Number(form.propertySize) : undefined,
+        coordinates: {
+          lat: coordinates.lat ? Number(coordinates.lat) : undefined,
+          lng: coordinates.lng ? Number(coordinates.lng) : undefined
+        },
+        bedrooms: bedrooms ? Number(bedrooms) : undefined,
+        bathrooms: bathrooms ? Number(bathrooms) : undefined,
+        furnishing,
+        amenities,
+        nearbyAmenities,
+        features,
+        locationBenefits,
+        images: images.length ? images : [DEFAULT_IMAGE],
+        videos,
+        propertyType: form.propertyType || "Residential",
+        subType: form.subType,
+        status,
+        isFeatured,
+        notes,
+        broker: brokerId || undefined
+      };
+
+      await createProperty(propertyData);
+      
+      // Show success message
+      setSuccessMessage('Property created successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+      
+      // Reset form after successful creation
+      setForm({ title: "", description: "", propertyDescription: "", region: "", address: "", city: "Agra", price: "", priceUnit: "INR", propertySize: "", propertyType: "Residential", subType: "Apartment" });
+      setAmenities([]);
+      setAmenityInput("");
+      setNearbyAmenities([]);
+      setNearbyAmenityInput("");
+      setFeatures([]);
+      setFeatureInput("");
+      setLocationBenefits([]);
+      setLocationBenefitInput("");
+      setImages([]);
+      setImageInput("");
+      setVideos([]);
+      setVideoInput("");
+      setCoordinates({ lat: "", lng: "" });
+      setBedrooms("");
+      setBathrooms("");
+      setFurnishing("Furnished");
+      setStatus("Pending Approval");
+      setIsFeatured(false);
+      setNotes("");
+      setBrokerId("");
+      setIsModalOpen(false);
+      
+    } catch (err) {
+      console.error('Error creating property:', err);
+      setError(err.message || 'Failed to create property');
+    }
   };
 
   const addAmenity = () => {
@@ -208,24 +358,77 @@ const PropertiesManagement = () => {
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Properties Management</h1>
             <p className="text-gray-600 text-sm">Manage your properties and add new ones.</p>
+            {error && (
+              <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+                <button 
+                  onClick={() => setError('')} 
+                  className="mt-1 text-xs text-red-500 hover:text-red-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+            {successMessage && (
+              <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-600">{successMessage}</p>
+                <button 
+                  onClick={() => setSuccessMessage('')} 
+                  className="mt-1 text-xs text-green-500 hover:text-green-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
           </div>
-          <Link
-            href="/properties-management/new"
-            className="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Property
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={fetchProperties}
+              disabled={loading}
+              className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {loading ? 'Loading...' : 'Refresh'}
+            </button>
+            <Link
+              href="/properties-management/new"
+              className="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add Property
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((property) => (
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+              <span className="text-gray-600">Loading properties...</span>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {items.map((property) => (
             <div key={property.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-200 cursor-pointer">
               <div className="relative p-3">
                 <div className="relative h-56 overflow-hidden rounded-xl">
                   <img src={(property.images && property.images[0]) || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover" />
+                  {/* Bottom overlay with price chip and share icon */}
+                  <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-between">
+                    <div className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow">
+                      {property.currentPrice !== '-' ? property.currentPrice : 'Price on Request'}
+                    </div>
+                    <button className="p-2 bg-white/90 hover:bg-white rounded-full transition-colors shadow">
+                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="absolute top-6 left-6">
@@ -241,41 +444,96 @@ const PropertiesManagement = () => {
                 </div>
 
                 <div className="mt-4 px-1 pb-2">
-                  <div className="flex items-center gap-2">
+
+                  {/* Title with inline arrow */}
+                  <div className="flex items-center gap-2 mb-2">
                     <h3 className="text-base font-semibold text-gray-900">{property.title}</h3>
-                    <Link href={`/property-details/${property.id}`} className="text-gray-400 hover:text-gray-600" aria-label="Open details">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <Link href={`/property-details/${property.id}`} className="text-green-600 hover:text-green-700" aria-label="Open details">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h4m0 0v4m0-4L10 14" />
                       </svg>
                     </Link>
                   </div>
-                  <p className="text-sm text-gray-600 line-clamp-2">{property.description}</p>
 
-                  <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span>{property.region}</span>
+                  {/* Description */}
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">{property.description}</p>
+
+                  {/* Location - City and Region with separate icons */}
+                  <div className="mb-3">
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      {/* City with building icon */}
+                      <div className="flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <span>{property.city || 'City'}</span>
+                      </div>
+                      
+                      {/* Region with location pin icon */}
+                      <div className="flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>{property.region || 'Location'}</span>
+                      </div>
                     </div>
                   </div>
 
+                  {/* Features - Only show if values exist and are greater than 0 */}
+                  {((property.bedrooms && property.bedrooms > 0) || (property.bathrooms && property.bathrooms > 0) || (property.propertySize && property.propertySize > 0)) && (
+                    <div className="mb-3">
+                      <h4 className="text-xs font-medium text-gray-700 mb-2">Features</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {property.bedrooms && property.bedrooms > 0 && (
+                          <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                            </svg>
+                            {property.bedrooms} bd
+                          </span>
+                        )}
+                        {property.bathrooms && property.bathrooms > 0 && (
+                          <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                            </svg>
+                            {property.bathrooms} bt
+                          </span>
+                        )}
+                        {property.propertySize && property.propertySize > 0 && (
+                          <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                            </svg>
+                            {property.propertySize} sqft
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Amenities */}
                   {Array.isArray(property.amenities) && property.amenities.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {property.amenities.slice(0, 3).map((a, i) => (
-                        <span key={i} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{a}</span>
-                      ))}
-                      {property.amenities.length > 3 && (
-                        <span className="text-xs text-gray-500">+{property.amenities.length - 3} more</span>
-                      )}
+                    <div>
+                      <h4 className="text-xs font-medium text-gray-700 mb-2">Amenities</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {property.amenities.slice(0, 3).map((amenity, i) => (
+                          <span key={i} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{amenity}</span>
+                        ))}
+                        {property.amenities.length > 3 && (
+                          <span className="text-xs text-gray-500 px-2 py-1">+{property.amenities.length - 3} more</span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
         {isModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
@@ -511,8 +769,17 @@ const PropertiesManagement = () => {
                   </select>
                 </div>
                 <div className="pt-2 flex justify-end gap-3">
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg border text-gray-700">Cancel</button>
-                  <button type="submit" className="px-4 py-2 rounded-lg bg-green-700 text-white hover:bg-green-800">Add</button>
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg border text-gray-700" disabled={submitting}>Cancel</button>
+                  <button type="submit" className="px-4 py-2 rounded-lg bg-green-700 text-white hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2" disabled={submitting}>
+                    {submitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Adding...
+                      </>
+                    ) : (
+                      'Add'
+                    )}
+                  </button>
                 </div>
               </form>
             </div>
