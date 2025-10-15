@@ -29,6 +29,8 @@ function PropertyDetailsPageInner() {
   const [agent, setAgent] = useState(null);
   const [agentLoading, setAgentLoading] = useState(false);
   const [agentError, setAgentError] = useState('');
+  const [similarProperties, setSimilarProperties] = useState([]);
+  const [similarLoading, setSimilarLoading] = useState(false);
 
   // Fetch property details from API
   useEffect(() => {
@@ -180,6 +182,94 @@ function PropertyDetailsPageInner() {
 
     fetchPropertyDetails();
   }, [searchParams, routeId]);
+
+  // Fetch similar properties from API
+  useEffect(() => {
+    const fetchSimilarProperties = async () => {
+      if (!product) return;
+      
+      setSimilarLoading(true);
+      try {
+        const token = typeof window !== 'undefined'
+          ? localStorage.getItem('token') || localStorage.getItem('authToken')
+          : null;
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        };
+
+        // Fetch properties - get all properties to have better selection
+        const params = new URLSearchParams();
+        // Remove city and propertyType filters to get more diverse properties
+        params.append('limit', '20'); // Get more properties to have better selection
+        
+        console.log('Fetching similar properties with params:', params.toString());
+        const res = await fetch(`${apiUrl}/properties?${params.toString()}`, { headers });
+        console.log('API Response status:', res.status);
+        
+        if (res.ok) {
+          const responseData = await res.json();
+          console.log('Full API Response:', responseData);
+          
+          // Try different possible response structures
+          let properties = [];
+          if (responseData?.data?.properties) {
+            properties = responseData.data.properties;
+          } else if (responseData?.data?.items) {
+            properties = responseData.data.items;
+          } else if (responseData?.properties) {
+            properties = responseData.properties;
+          } else if (responseData?.data && Array.isArray(responseData.data)) {
+            properties = responseData.data;
+          } else if (Array.isArray(responseData)) {
+            properties = responseData;
+          }
+          
+          console.log('Properties found:', properties.length);
+          console.log('Current property ID:', product.id || product._id);
+          console.log('Product object:', product);
+          
+          // Filter out current property and map to expected format
+          const currentPropertyId = product.id || product._id;
+          console.log('Filtering with current ID:', currentPropertyId);
+          
+          const similar = properties
+            .filter(p => {
+              const propertyId = p._id || p.id;
+              const isDifferent = propertyId !== currentPropertyId;
+              console.log(`Property ${propertyId} vs current ${currentPropertyId}: ${isDifferent ? 'SHOW' : 'HIDE'}`);
+              return isDifferent;
+            })
+            .slice(0, 4)
+            .map(p => ({
+              id: p._id || p.id,
+              name: p.title || p.name || 'Property',
+              category: p.propertyType || p.type || p.category || 'Property',
+              price: p.price || 0,
+              originalPrice: p.originalPrice || p.oldPrice || 0,
+              image: p.images?.[0] || p.image || '/images/pexels-binyaminmellish-106399.jpg',
+              areaSqft: p.propertySize || p.areaSqft || p.area || 0,
+              bedrooms: p.bedrooms || 0,
+              bathrooms: p.bathrooms || 0,
+              city: p.city || '',
+              region: p.region || ''
+            }));
+          
+          console.log('Similar properties after filtering:', similar.length);
+          setSimilarProperties(similar);
+          
+        }
+      } catch (error) {
+        console.error('Error fetching similar properties:', error);
+        setSimilarProperties([]);
+      } finally {
+        setSimilarLoading(false);
+      }
+    };
+
+    fetchSimilarProperties();
+  }, [product]);
 
   const gallery = useMemo(() => {
     if (!product) return ['/images/pexels-binyaminmellish-106399.jpg'];
@@ -445,7 +535,7 @@ function PropertyDetailsPageInner() {
               <div className="space-y-2">
                 {(product?.nearbyAmenities && product.nearbyAmenities.length > 0 ? product.nearbyAmenities : []).map((name, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                    <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
                         <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
@@ -453,7 +543,7 @@ function PropertyDetailsPageInner() {
                       </div>
                       <div>
                         <div className="font-medium text-gray-900 text-sm">{name}</div>
-                      </div>
+                  </div>
                     </div>
                   </div>
                 ))}
@@ -776,6 +866,10 @@ function PropertyDetailsPageInner() {
         </div>
       </div>
 
+      
+        </div>
+      </div>
+
       {/* Related Properties */}
       <div className="mt-8 w-full">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
@@ -783,29 +877,50 @@ function PropertyDetailsPageInner() {
             <span className="inline-block h-0.5 w-8 rounded bg-yellow-400"></span>
             <h3 className="text-lg font-semibold text-gray-900">Related Properties</h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {(data?.products?.items || []).slice(0, 4).map((p) => (
-              <Link key={p.id} href={`/property-details?id=${p.id}`} className="block group">
-                <div className="rounded-xl border border-gray-200 overflow-hidden bg-white hover:shadow-md transition">
-                  <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
-                    <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.02] transition" />
-                  </div>
-                  <div className="p-4">
-                    <div className="text-xs text-gray-500 mb-1">{p.category}</div>
-                    <div className="font-medium text-gray-900 text-sm line-clamp-1 mb-2">{p.name}</div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-900 font-semibold text-sm">₹{Math.round(p.price || 0).toLocaleString('en-IN')}</span>
-                      {p.originalPrice && p.originalPrice > (p.price || 0) && (
-                        <span className="text-xs text-gray-500 line-through">₹{Math.round(p.originalPrice).toLocaleString('en-IN')}</span>
-                      )}
+          {similarLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="rounded-xl border border-gray-200 overflow-hidden bg-white">
+                    <div className="aspect-[4/3] bg-gray-200"></div>
+                    <div className="p-4">
+                      <div className="h-3 w-16 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-4 w-3/4 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-4 w-20 bg-gray-200 rounded"></div>
                     </div>
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-          </div>
+              ))}
+            </div>
+          ) : similarProperties.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {similarProperties.map((p) => (
+                <Link key={p.id} href={`/property-details/${p.id}`} className="block group">
+                  <div className="rounded-xl border border-gray-200 overflow-hidden bg-white hover:shadow-md transition">
+                    <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
+                      <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.02] transition" />
+                    </div>
+                    <div className="p-4">
+                      <div className="text-xs text-gray-500 mb-1">{p.category}</div>
+                      <div className="font-medium text-gray-900 text-sm line-clamp-1 mb-2">{p.name}</div>
+                      <div className="text-xs text-gray-600 mb-2">{p.bedrooms} BHK • {p.areaSqft?.toLocaleString('en-IN')} sq.ft</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-900 font-semibold text-sm">₹{Math.round(p.price || 0).toLocaleString('en-IN')}</span>
+                        {p.originalPrice && p.originalPrice > (p.price || 0) && (
+                          <span className="text-xs text-gray-500 line-through">₹{Math.round(p.originalPrice).toLocaleString('en-IN')}</span>
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">{p.city} • {p.region}</div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-gray-500">No similar properties found</div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -64,11 +64,14 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           const status = p.status || '';
           const address = p.address || '';
 
+          const description = p.description || p.propertyDescription || '';
+
           return {
             id,
             name: title,
             type: propertyType || subType || 'Property',
             details: subType || propertyType || '',
+            description,
             bedrooms,
             bathrooms,
             areaSqft,
@@ -453,7 +456,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   <h3 className="text-base font-semibold text-gray-900">{property.name}</h3>
                   <i className="fa-solid fa-arrow-right text-[12px] text-[#0A421E] px-2 mt-1 cursor-pointer" style={{ transform: 'rotate(320deg)' }} />
                 </div>
-                <p className="text-xs text-gray-900">Luxurious {property.type.toLowerCase()} retreat in prime location.</p>
+                <p className="text-xs text-gray-700 line-clamp-1">{property.description || `Luxurious ${property.type?.toLowerCase?.() || 'property'} retreat in prime location.`}</p>
 <div className='flex gap-7'>
                 {/* City */}
                 <div className="mt-2 flex items-center text-xs text-gray-600">

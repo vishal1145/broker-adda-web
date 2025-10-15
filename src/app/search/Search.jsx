@@ -55,6 +55,16 @@ const Search = () => {
     } catch {}
   }, []);
 
+  // Update URL when tab changes
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location);
+      url.searchParams.set('tab', tab);
+      window.history.pushState({}, '', url);
+    }
+  };
+
   const getPageTitle = () => {
     switch (activeTab) {
       case 'properties':
@@ -102,21 +112,21 @@ const Search = () => {
             <div className="inline-flex bg-gray-100 rounded-full p-1">
               <button
                 type="button"
-                onClick={() => setActiveTab('brokers')}
+                onClick={() => handleTabChange('brokers')}
                 className={`${activeTab === 'brokers' ? 'bg-[#0A421E] text-white' : 'text-gray-600 hover:text-gray-800'} px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer`}
               >
                 Brokers
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab('leads')}
+                onClick={() => handleTabChange('leads')}
                 className={`${activeTab === 'leads' ? 'bg-[#0A421E] text-white' : 'text-gray-600 hover:text-gray-800'} px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer`}
               >
                 Leads
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab('properties')}
+                onClick={() => handleTabChange('properties')}
                 className={`${activeTab === 'properties' ? 'bg-[#0A421E] text-white' : 'text-gray-600 hover:text-gray-800'} px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer`}
               >
                 Properties
