@@ -180,7 +180,7 @@ const enableSuggestions = false;
 
   return (
     <nav className="bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-gray-100 shadow-sm fixed top-0 left-0 right-0 z-80">
-      <div className=" mx-auto px-14">
+      <div className=" mx-auto px-[6rem] ">
         <div className="flex items-center justify-between py-4 gap-4">
           {/* Logo */}
           <button
@@ -201,7 +201,7 @@ const enableSuggestions = false;
           </button>
 
           {/* Search */}
-          <div className="hidden md:block flex-1 max-w-xl mx-4 search-container relative">
+          <div className="hidden md:block flex-1 max-w-lg mx-4 search-container relative">
             <form onSubmit={(e) => e.preventDefault()} className="relative" role="search">
         <input
           value={searchQuery}
