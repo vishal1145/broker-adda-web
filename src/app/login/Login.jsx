@@ -209,10 +209,10 @@ const Login = () => {
             throw new Error('Failed to save authentication token');
           }
           
-          console.log('Token saved successfully, redirecting to profile');
+          console.log('Token saved successfully, redirecting to dashboard');
           toast.success(data.message || 'Phone number verified successfully!');
           setShowOTPModal(false);
-          router.push('/profile');
+          router.push('/dashboard');
         } else {
           throw new Error(data.message || 'Invalid OTP');
         }

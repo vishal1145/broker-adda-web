@@ -196,7 +196,7 @@ const SignUp = () => {
           console.log('Token saved successfully, redirecting to profile');
           toast.success(data.message || 'Phone number verified successfully!');
           setShowOTPModal(false);
-          router.push('/profile');
+          router.push('/profile?mode=create');
         } else {
           throw new Error(data.message || 'Invalid OTP');
         }

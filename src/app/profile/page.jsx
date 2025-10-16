@@ -4,6 +4,7 @@ import Select from "react-select";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "../components/ProtectedRoute";
+import HeaderFile from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
 
 // Normalize backend file paths to public URLs for images
@@ -60,6 +61,18 @@ const Profile = () => {
   const { user } = useAuth();
   const router = useRouter();
   const userRole = user?.role || "broker";
+
+  // Get mode from URL parameters
+  const [mode, setMode] = useState('create');
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlMode = urlParams.get('mode');
+      console.log('Profile mode detection:', { urlMode, finalMode: urlMode || 'create' });
+      setMode(urlMode || 'create');
+    }
+  }, []);
 
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
@@ -1485,21 +1498,40 @@ const Profile = () => {
           },
         }}
       />
-      <div className="min-h-screen bg-white py-16">
+       {/* Shared hero header */}
+          <HeaderFile
+            data={{
+              title: userRole === "customer" ? "Customer Profile" : "Broker Profile",
+              breadcrumb: [
+                { label: "Home", href: "/" },
+                { label: "Profile", href: "/profile" },
+              ],
+            }}
+          />
+      <div className="min-h-screen bg-white py-12">
         <div className="w-full">
+         
           {/* Header Section */}
-          <div className="text-left mb-12">
-            <h1 className="text-4xl font-display text-gray-900 mb-4">
-              {userRole === "customer"
-                ? "Create Customer Profile"
-                : "Create Broker Profile"}
-            </h1>
-            <p className="text-sm font-body text-gray-600 text-left">
-              Complete your profile to get started with{" "}
-              {userRole === "customer"
-                ? "finding your dream property"
-                : "connecting with potential clients"}
-            </p>
+          <div className="text-left mb-12 ">
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1">
+                <h1 className="text-4xl font-display text-gray-900 mb-2">
+                  {mode === 'create' 
+                    ? (userRole === "customer" ? "Create Customer Profile" : "Create Broker Profile")
+                    : (userRole === "customer" ? "Edit Customer Profile" : "Edit Broker Profile")
+                  }
+                </h1>
+                <p className="text-sm font-body text-gray-600 text-left">
+                  {mode === 'create' 
+                    ? `Complete your profile to get started with ${userRole === "customer" ? "finding your dream property" : "connecting with potential clients"}`
+                    : `Update your profile information and preferences`
+                  }
+                </p>
+              </div>
+              {/* No separate view mode. We only support create and edit. */}
+            </div>
+            
+          
           </div>
 
           {/* Progress moved to right sidebar */}
@@ -1590,20 +1622,20 @@ const Profile = () => {
                               .click()
                           }
                         >
-                          <svg
-                            className="w-4 h-4 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </button>
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
                       </div>
                     </div>
 
@@ -3173,7 +3205,7 @@ const Profile = () => {
                           </>
                         ) : (
                           <>
-                            Continue to {getStepTitle(currentStep + 1)}
+                            {mode === 'create' ? `Continue to ${getStepTitle(currentStep + 1)}` : 'Update'}
                             <svg
                               className="w-5 h-5 ml-2 inline"
                               fill="none"
@@ -3549,7 +3581,7 @@ const Profile = () => {
                           </>
                         ) : (
                           <>
-                            Complete Profile
+                            {mode === 'create' ? 'Complete Profile' : 'Update Profile'}
                             <svg
                               className="w-5 h-5 ml-2 inline"
                               fill="none"
