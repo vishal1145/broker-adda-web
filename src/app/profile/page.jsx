@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import Select from "react-select";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -3756,4 +3756,10 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <Profile />
+    </Suspense>
+  );
+}

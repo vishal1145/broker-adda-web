@@ -47,11 +47,39 @@ const NewPropertyPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
 
+  // Step validations
+  const isNonEmpty = (v) => typeof v === 'string' && v.trim().length > 0;
+  const isPositiveNumber = (v) => v !== '' && !Number.isNaN(Number(v)) && Number(v) > 0;
+
+  const isStep1Valid = () => {
+    return isNonEmpty(form.title) && isNonEmpty(form.region);
+  };
+
+  const isStep2Valid = () => {
+    return isPositiveNumber(form.price) && isNonEmpty(form.priceUnit) && isNonEmpty(form.city);
+  };
+
+  const isStep3Valid = () => {
+    return isPositiveNumber(form.propertySize) && isPositiveNumber(bedrooms) && isPositiveNumber(bathrooms) && isNonEmpty(form.propertyType) && isNonEmpty(form.subType);
+  };
+
+  const isStep4Valid = () => {
+    return (images.length + imageFiles.length) > 0; // require at least one image
+  };
+
+  const isCurrentStepValid = () => {
+    if (currentStep === 1) return isStep1Valid();
+    if (currentStep === 2) return isStep2Valid();
+    if (currentStep === 3) return isStep3Valid();
+    if (currentStep === 4) return isStep4Valid();
+    return false;
+  };
+
   const goToStep = (step) => {
     if (step < 1 || step > totalSteps) return;
     setCurrentStep(step);
   };
-  const nextStep = () => { if (currentStep < totalSteps) setCurrentStep(currentStep + 1); };
+  const nextStep = () => { if (currentStep < totalSteps && isCurrentStepValid()) setCurrentStep(currentStep + 1); };
   const prevStep = () => { if (currentStep > 1) setCurrentStep(currentStep - 1); };
 
   const handleChange = (e) => {
@@ -279,10 +307,11 @@ const NewPropertyPage = () => {
                       name="title" 
                       value={form.title} 
                       onChange={handleChange} 
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
+                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.title) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="Enter property title" 
                       required
                     />
+                    {!isNonEmpty(form.title) && (<p className="text-xs text-red-600">Title is required.</p>)}
                   </div>
                   
                   <div className="space-y-2">
@@ -291,10 +320,11 @@ const NewPropertyPage = () => {
                       name="region" 
                       value={form.region} 
                       onChange={handleChange} 
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
+                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.region) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="City, State" 
                       required
                     />
+                    {!isNonEmpty(form.region) && (<p className="text-xs text-red-600">Region is required.</p>)}
                   </div>
                 </div>
                 
@@ -344,7 +374,7 @@ const NewPropertyPage = () => {
                       name="address" 
                       value={form.address} 
                       onChange={handleChange} 
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
+                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.address) || form.address === '' ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="Street address" 
                     />
             </div>
@@ -355,9 +385,10 @@ const NewPropertyPage = () => {
                       name="city" 
                       value={form.city} 
                       onChange={handleChange} 
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
+                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.city) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="City" 
                     />
+                    {!isNonEmpty(form.city) && (<p className="text-xs text-red-600">City is required.</p>)}
             </div>
           </div>
                 
@@ -369,11 +400,12 @@ const NewPropertyPage = () => {
                       name="price" 
                       value={form.price} 
                       onChange={handleChange} 
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
+                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isPositiveNumber(form.price) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="e.g. 42000000" 
                       required
                     />
-            </div>
+                    {!isPositiveNumber(form.price) && (<p className="text-xs text-red-600">Enter a valid price.</p>)}
+                  </div>
                   
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Currency</label>
@@ -381,12 +413,12 @@ const NewPropertyPage = () => {
                       name="priceUnit" 
                       value={form.priceUnit} 
                       onChange={handleChange} 
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.priceUnit) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`}
                     >
-                <option>INR</option>
-                <option>USD</option>
-              </select>
-            </div>
+                      <option>INR</option>
+                      <option>USD</option>
+                    </select>
+                  </div>
           </div>
                 {/* Coordinates removed per request */}
                 {/* Step navigation removed; use global bottom controls */}
@@ -554,7 +586,7 @@ const NewPropertyPage = () => {
             {nearbyAmenities.length>0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {nearbyAmenities.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{a}<button type="button" onClick={()=>removeFrom(a, setNearbyAmenities)} className="text-gray-500 hover:text-gray-700">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setNearbyAmenities)} className="text-green-600 hover:text-green-800">×</button></span>
                 ))}
               </div>
             )}
@@ -570,7 +602,7 @@ const NewPropertyPage = () => {
             {features.length>0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {features.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{a}<button type="button" onClick={()=>removeFrom(a, setFeatures)} className="text-gray-500 hover:text-gray-700">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setFeatures)} className="text-green-600 hover:text-green-800">×</button></span>
                 ))}
               </div>
             )}
@@ -586,7 +618,7 @@ const NewPropertyPage = () => {
             {locationBenefits.length>0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {locationBenefits.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{a}<button type="button" onClick={()=>removeFrom(a, setLocationBenefits)} className="text-gray-500 hover:text-gray-700">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setLocationBenefits)} className="text-green-600 hover:text-green-800">×</button></span>
                 ))}
               </div>
             )}
@@ -621,7 +653,7 @@ const NewPropertyPage = () => {
             {images.length>0 && (
                   <div className="flex flex-wrap gap-2">
                 {images.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{a}<button type="button" onClick={()=>removeFrom(a, setImages)} className="text-gray-500 hover:text-gray-700">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setImages)} className="text-green-600 hover:text-green-800">×</button></span>
                 ))}
                   </div>
                 )}
@@ -702,7 +734,7 @@ const NewPropertyPage = () => {
               <div className="pt-8 border-t border-gray-100">
                 {currentStep < 4 ? (
                   <div className="max-w-3xl mx-auto">
-                    <button type="button" onClick={nextStep} className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <button type="button" onClick={nextStep} disabled={!isCurrentStepValid()} className={`w-full py-4 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${isCurrentStepValid() ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-blue-100 hover:shadow-xl' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}>
                       Continue
                       <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
                     </button>
@@ -755,12 +787,14 @@ const NewPropertyPage = () => {
                         const circle = isActive
                           ? "bg-blue-600 text-white"
                           : isCompleted
-                          ? "bg-blue-50 text-blue-700 border border-blue-200"
+                          ? "bg-green-50 text-green-700 border border-green-200"
                           : "bg-gray-100 text-gray-600 border border-gray-200";
                         return (
                           <React.Fragment key={n}>
                             <button type="button" onClick={() => goToStep(n)} className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${circle}`}>{n}</button>
-                            {idx < steps.length - 1 && <span className="w-6 h-[2px] bg-gray-200"></span>}
+                            {idx < steps.length - 1 && (
+                              <span className={`w-6 h-[2px] ${n < currentStep ? 'bg-green-200' : 'bg-gray-200'}`}></span>
+                            )}
                           </React.Fragment>
                         );
                       })}
