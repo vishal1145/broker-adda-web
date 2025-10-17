@@ -2,10 +2,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Select from "react-select";
 import toast, { Toaster } from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ProtectedRoute from "../components/ProtectedRoute";
 import HeaderFile from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
+import ViewModeProfile from "./components/ViewMode";
 
 // Normalize backend file paths to public URLs for images
 const toPublicUrl = (raw) => {
@@ -62,17 +63,17 @@ const Profile = () => {
   const router = useRouter();
   const userRole = user?.role || "broker";
 
-  // Get mode from URL parameters
+  // Get mode from URL parameters (reactive to query changes)
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState('create');
-  
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlMode = urlParams.get('mode');
-      console.log('Profile mode detection:', { urlMode, finalMode: urlMode || 'create' });
-      setMode(urlMode || 'create');
-    }
-  }, []);
+    const urlMode = searchParams?.get('mode');
+    setMode(urlMode || 'create');
+  }, [searchParams]);
+
+  // Derived view flag
+  const isViewMode = mode === 'view';
 
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
@@ -1470,6 +1471,28 @@ const Profile = () => {
     }
   };
 
+  // Render dedicated view-mode UI inside this page
+  if (isViewMode) {
+    return (
+      <ProtectedRoute>
+        <link rel="stylesheet" href="/google-places.css" />
+        <Toaster position="top-right" />
+        <HeaderFile
+          data={{
+            title: userRole === "customer" ? "Customer Profile" : "Broker Profile",
+            breadcrumb: [
+              { label: "Home", href: "/" },
+              { label: "Profile", href: "/profile" },
+            ],
+          }}
+        />
+        <div className="min-h-screen bg-white py-12">
+          <ViewModeProfile />
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
   return (
     <ProtectedRoute>
       {/* Load Google Places CSS */}
@@ -1513,22 +1536,41 @@ const Profile = () => {
          
           {/* Header Section */}
           <div className="text-left mb-12 ">
-            <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
                 <h1 className="text-4xl font-display text-gray-900 mb-2">
-                  {mode === 'create' 
+                  {isViewMode
+                    ? (userRole === "customer" ? "Customer Profile" : "Broker Profile")
+                    : mode === 'create'
                     ? (userRole === "customer" ? "Create Customer Profile" : "Create Broker Profile")
-                    : (userRole === "customer" ? "Edit Customer Profile" : "Edit Broker Profile")
-                  }
+                    : (userRole === "customer" ? "Edit Customer Profile" : "Edit Broker Profile")}
                 </h1>
                 <p className="text-sm font-body text-gray-600 text-left">
-                  {mode === 'create' 
+                  {isViewMode
+                    ? `View your profile information`
+                    : mode === 'create'
                     ? `Complete your profile to get started with ${userRole === "customer" ? "finding your dream property" : "connecting with potential clients"}`
-                    : `Update your profile information and preferences`
-                  }
+                    : `Update your profile information and preferences`}
                 </p>
               </div>
-              {/* No separate view mode. We only support create and edit. */}
+              {isViewMode && (
+                <div className="flex-shrink-0 ml-4">
+                  <button
+                    onClick={() => {
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('mode', 'edit');
+                      window.history.pushState({}, '', url.toString());
+                      setMode('edit');
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
+                  </button>
+                </div>
+              )}
             </div>
             
           
@@ -1613,6 +1655,7 @@ const Profile = () => {
                           className="hidden"
                           id="profile-image-upload"
                         />
+                        {!isViewMode && (
                         <button
                           type="button"
                           className="absolute -bottom-1 -right-1 bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -1636,6 +1679,7 @@ const Profile = () => {
                               />
                             </svg>
                           </button>
+                        )}
                       </div>
                     </div>
 
@@ -1656,7 +1700,10 @@ const Profile = () => {
                             }
                             onChange={handleChange}
                             placeholder="Enter your full name"
-                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                            disabled={isViewMode}
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-body ${
+                              isViewMode ? 'bg-gray-100 border-gray-200 text-gray-600 cursor-not-allowed' : 'bg-gray-50 border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                            }`}
                           />
                         </div>
 
@@ -1675,10 +1722,13 @@ const Profile = () => {
                             }
                             onChange={handleChange}
                             placeholder="Enter your email address"
-                            className={`w-full px-3 py-2 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-body ${
-                              emailError
-                                ? "border-red-300 focus:ring-red-100 focus:border-red-500"
-                                : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                            disabled={isViewMode}
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-body ${
+                              isViewMode
+                                ? 'bg-gray-100 border-gray-200 text-gray-600 cursor-not-allowed'
+                                : emailError
+                                  ? 'bg-gray-50 border-red-300 focus:ring-red-100 focus:border-red-500'
+                                  : 'bg-gray-50 border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                             }`}
                           />
                           {emailError && (
@@ -3169,7 +3219,8 @@ const Profile = () => {
                   </div>
                 )}
 
-                {/* Navigation Button */}
+                {/* Navigation Button - hidden in view mode */}
+                {!isViewMode && (
                 <div className="mt-12 pt-8 border-t border-gray-100">
                   <div className="max-w-3xl mx-auto">
                     {currentStep < totalSteps ? (
@@ -3554,13 +3605,16 @@ const Profile = () => {
 
                             const result = await res.json();
                             toast.success(
-                              "Profile updated successfully! Redirecting to dashboard...",
+                              "Profile updated successfully!",
                             
                             );
 
                             // Redirect to dashboard after successful profile update
                             setTimeout(() => {
-                              router.push("/dashboard");
+                              const returnUrl = 
+                                (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('returnTo'))
+                                  || '/profile?mode=view';
+                              router.push(returnUrl);
                             }, 1500);
                           } catch (err) {
                             toast.error(
@@ -3601,6 +3655,7 @@ const Profile = () => {
                     )}
                   </div>
                 </div>
+                )}
               </div>
             )}
           </div>
