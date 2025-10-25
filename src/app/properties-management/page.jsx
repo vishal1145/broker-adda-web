@@ -572,15 +572,6 @@ const PropertiesManagement = () => {
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Properties Management</h1>
             <p className="text-gray-600 text-sm">Manage your properties and add new ones.</p>
-            {/* {brokerId ? (
-              <div className="mt-2 text-sm text-blue-600 font-medium">
-                Showing properties for Broker ID: {brokerId}
-              </div>
-            ) : (
-              <div className="mt-2 text-sm text-red-600 font-medium">
-                No broker ID found. Please login again.
-              </div>
-            )} */}
             {error && (
               <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-600">{error}</p>

@@ -260,7 +260,7 @@ const LatestLeads: React.FC = () => {
                 </svg>
               </Link>
             </div>
-            <div className="md:col-span-6 grid gap-6 md:grid-cols-2 self-center cursor-pointer">
+            <div className="md:col-span-6 grid gap-6 h-full md:grid-cols-2 self-center cursor-pointer">
               {leads.slice(0, 2).map((lead) => (
                 <Link
                   key={lead._id}
@@ -270,7 +270,7 @@ const LatestLeads: React.FC = () => {
                 >
 
                   <article
-                    className="group relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg"
+                    className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg"
                   >
                     <div className="p-5">
                       {/* Top Section - Tags and Icon */}

@@ -222,10 +222,16 @@ export default function LeadDetails() {
                   <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <line x1="12" y1="1" x2="12" y2="23" />
-                          <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-                        </svg>
+                      <svg
+  className="w-5 h-5 text-gray-600"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  strokeWidth="2"
+>
+  <path d="M6 4h12M6 8h12M6 4h6a4 4 0 010 8H6l9 8" />
+</svg>
+
                       </div>
                       <div>
                         <div className="text-sm text-gray-500">Budget Range</div>
@@ -457,7 +463,7 @@ export default function LeadDetails() {
                             </div>
                           </div>
                           <span className="inline-flex items-center rounded-full border border-green-200 bg-green-50 text-green-700 px-2 py-1 text-xs font-medium">
-                            {s.budget || "129998"}
+                            ₹{s.budget || "129998"}
                           </span>
                         </a>
                       ))
@@ -529,7 +535,7 @@ export default function LeadDetails() {
                             {s.propertyType || 'Residential'}
                           </span>
                           <span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs border border-green-200">
-                            {s.requirement || 'Buy'}
+                            {(s as { requirement?: string }).requirement || 'Buy'}
                         </span>
                         </div>
                       </div>

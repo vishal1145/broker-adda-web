@@ -562,7 +562,7 @@ const NewPropertyPage = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleRegionSelect(region)}
-                                    className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
+                                    className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none cursor-pointer"
                                   >
                                     <div className="font-medium text-gray-900">
                                       {region.name}
@@ -645,14 +645,14 @@ const NewPropertyPage = () => {
                     <label className="block text-sm font-medium text-gray-700">City</label>
                     <input 
                       name="city" 
-                      value={form.city} 
+                      value={form.city}
                       onChange={handleChange} 
                       onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
                       className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.city) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="City" 
                     />
                     {!isNonEmpty(form.city) && (<p className="text-xs text-red-600">City is required.</p>)}
-            </div>
+                  </div>
           </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -816,7 +816,7 @@ const NewPropertyPage = () => {
                       <button 
                         type="button" 
                         onClick={addAmenity} 
-                        className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium"
+                        className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium cursor-pointer"
                       >
                         Add
                       </button>
@@ -829,7 +829,7 @@ const NewPropertyPage = () => {
                             <button 
                               type="button" 
                               onClick={()=>removeFrom(a, setAmenities)} 
-                              className="text-green-500 hover:text-green-700 transition-colors"
+                              className="text-green-500 hover:text-green-700 transition-colors cursor-pointer"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -848,12 +848,12 @@ const NewPropertyPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Nearby Amenities</label>
             <div className="flex gap-2">
               <input value={nearbyAmenityInput} onChange={(e)=>setNearbyAmenityInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(nearbyAmenityInput, setNearbyAmenities, nearbyAmenities, setNearbyAmenityInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Add nearby amenity" />
-              <button type="button" onClick={()=>addTag(nearbyAmenityInput, setNearbyAmenities, nearbyAmenities, setNearbyAmenityInput)} className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium">Add</button>
+              <button type="button" onClick={()=>addTag(nearbyAmenityInput, setNearbyAmenities, nearbyAmenities, setNearbyAmenityInput)} className="cursor-pointer px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium">Add</button>
             </div>
             {nearbyAmenities.length>0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {nearbyAmenities.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setNearbyAmenities)} className="text-green-600 hover:text-green-800">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700  px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setNearbyAmenities)} className="text-green-600 hover:text-green-800 cursor-pointer">×</button></span>
                 ))}
               </div>
             )}
@@ -864,12 +864,12 @@ const NewPropertyPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Features</label>
             <div className="flex gap-2">
               <input value={featureInput} onChange={(e)=>setFeatureInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(featureInput, setFeatures, features, setFeatureInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Add feature" />
-              <button type="button" onClick={()=>addTag(featureInput, setFeatures, features, setFeatureInput)} className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium">Add</button>
+              <button type="button" onClick={()=>addTag(featureInput, setFeatures, features, setFeatureInput)} className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium cursor-pointer">Add</button>
             </div>
             {features.length>0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {features.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setFeatures)} className="text-green-600 hover:text-green-800">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setFeatures)} className="text-green-600 hover:text-green-800 cursor-pointer">×</button></span>
                 ))}
               </div>
             )}
@@ -880,12 +880,12 @@ const NewPropertyPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Location Benefits</label>
             <div className="flex gap-2">
               <input value={locationBenefitInput} onChange={(e)=>setLocationBenefitInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(locationBenefitInput, setLocationBenefits, locationBenefits, setLocationBenefitInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Add location benefit" />
-              <button type="button" onClick={()=>addTag(locationBenefitInput, setLocationBenefits, locationBenefits, setLocationBenefitInput)} className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium">Add</button>
+              <button type="button" onClick={()=>addTag(locationBenefitInput, setLocationBenefits, locationBenefits, setLocationBenefitInput)} className="px-6 py-3 bg-green-600 text-white rounded-xl cursor-pointer hover:bg-green-700 transition-colors duration-200 font-medium">Add</button>
             </div>
             {locationBenefits.length>0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {locationBenefits.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setLocationBenefits)} className="text-green-600 hover:text-green-800">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setLocationBenefits)} className="cursor-pointer text-green-600 hover:text-green-800">×</button></span>
                 ))}
               </div>
             )}
@@ -913,14 +913,14 @@ const NewPropertyPage = () => {
                   className="hidden" 
                 />
               </div>
-              <button type="button" onClick={()=>addTag(imageInput, setImages, images, setImageInput)} className="px-4 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors duration-200">Add</button>
+              <button type="button" onClick={()=>addTag(imageInput, setImages, images, setImageInput)} className="px-4 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors duration-200 cursor-pointer">Add</button>
             </div>
             {(images.length>0 || imageFiles.length>0) && (
               <div className="mt-3 space-y-2">
             {images.length>0 && (
                   <div className="flex flex-wrap gap-2">
                 {images.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setImages)} className="text-green-600 hover:text-green-800">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setImages)} className="text-green-600 hover:text-green-800 cursor-pointer">×</button></span>
                 ))}
                   </div>
                 )}
