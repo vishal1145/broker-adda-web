@@ -114,9 +114,35 @@ const PropertiesManagement = () => {
   const [isFeatured, setIsFeatured] = useState(false);
   const [notes, setNotes] = useState("");
   const [brokerId, setBrokerId] = useState("");
+  const [allProperties, setAllProperties] = useState([]); // Store all properties for pagination
+  
+  // Debug flag - set to true to temporarily disable broker filtering
+  const DEBUG_DISABLE_BROKER_FILTER = false;
+  
+  // Function to extract broker ID from JWT token
+  const getCurrentUserIdFromToken = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // Try different possible field names for broker ID
+      return payload.brokerId || payload.userId || payload.id || payload.sub;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  };
+  
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 9,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
 
   // Fetch properties from API
-  const fetchProperties = useCallback(async () => {
+  const fetchProperties = useCallback(async (page = 1, limit = 9) => {
     try {
       setLoading(true);
       setError('');
@@ -125,6 +151,26 @@ const PropertiesManagement = () => {
         ? localStorage.getItem('token') || localStorage.getItem('authToken')
         : null;
       
+      if (!token) {
+        setError('Please login to view properties');
+        setLoading(false);
+        return;
+      }
+      
+      // Extract broker ID from token
+      const currentBrokerId = getCurrentUserIdFromToken(token);
+      console.log('Extracted broker ID from token:', currentBrokerId);
+      if (!currentBrokerId) {
+        console.error('Failed to extract broker ID from token');
+        setError('Failed to extract broker ID from token. Please re-login.');
+        setLoading(false);
+        return;
+      }
+      
+      // Use the broker ID from state if available, otherwise use the extracted one
+      const brokerIdToUse = brokerId || currentBrokerId;
+      console.log('Using broker ID:', brokerIdToUse);
+      
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       
       const headers = {
@@ -132,27 +178,89 @@ const PropertiesManagement = () => {
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       };
 
-      const response = await fetch(`${apiUrl}/properties`, {
+      // Use broker endpoint to get broker's properties
+      const apiUrlWithParams = DEBUG_DISABLE_BROKER_FILTER 
+        ? `${apiUrl}/properties?page=${page}&limit=${limit}`
+        : `${apiUrl}/brokers/${brokerIdToUse}`;
+      console.log('API URL with broker filter:', apiUrlWithParams);
+      console.log('Debug mode (no broker filter):', DEBUG_DISABLE_BROKER_FILTER);
+      
+      const response = await fetch(apiUrlWithParams, {
         method: 'GET',
         headers
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log('API Response data:', data);
         
-        // Handle different response structures
+        // Handle broker endpoint response structure
         let properties = [];
-        if (Array.isArray(data?.data?.items)) {
-          properties = data.data.items;
-        } else if (Array.isArray(data?.data?.properties)) {
-          properties = data.data.properties;
-        } else if (Array.isArray(data?.data)) {
-          properties = data.data;
-        } else if (Array.isArray(data?.properties)) {
-          properties = data.properties;
-        } else if (Array.isArray(data)) {
-          properties = data;
+        let paginationData = {
+          total: 0,
+          page: 1,
+          limit: 10,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false
+        };
+
+        if (DEBUG_DISABLE_BROKER_FILTER) {
+          // Handle properties endpoint response
+          if (data.pagination) {
+            paginationData = {
+              total: data.pagination.total || 0,
+              page: data.pagination.page || 1,
+              limit: data.pagination.limit || 10,
+              totalPages: data.pagination.totalPages || 0,
+              hasNextPage: data.pagination.hasNextPage || false,
+              hasPrevPage: data.pagination.hasPrevPage || false
+            };
+          }
+          
+          // Handle different response structures for properties endpoint
+          if (Array.isArray(data?.data?.items)) {
+            properties = data.data.items;
+          } else if (Array.isArray(data?.data?.properties)) {
+            properties = data.data.properties;
+          } else if (Array.isArray(data?.data)) {
+            properties = data.data;
+          } else if (Array.isArray(data?.properties)) {
+            properties = data.properties;
+          } else if (Array.isArray(data)) {
+            properties = data;
+          }
+        } else {
+          // Handle broker endpoint response
+          if (data?.data?.broker) {
+            const broker = data.data.broker;
+            const brokerProperties = broker.properties || broker.propertiesListed?.items || [];
+            
+            // Store all properties for pagination
+            setAllProperties(brokerProperties);
+            
+            // Implement client-side pagination
+            const totalProperties = broker.propertyCount || brokerProperties.length;
+            const totalPages = Math.ceil(totalProperties / limit);
+            const startIndex = (page - 1) * limit;
+            const endIndex = startIndex + limit;
+            
+            // Get properties for current page
+            properties = brokerProperties.slice(startIndex, endIndex);
+            
+            // Set pagination data
+            paginationData = {
+              total: totalProperties,
+              page: page,
+              limit: limit,
+              totalPages: totalPages,
+              hasNextPage: page < totalPages,
+              hasPrevPage: page > 1
+            };
+          }
         }
+
+        setPagination(paginationData);
 
         // Map API response to expected format
         const mappedProperties = properties.map((property) => ({
@@ -181,7 +289,7 @@ const PropertiesManagement = () => {
           status: property.status || 'Active',
           isFeatured: property.isFeatured || false,
           notes: property.notes || '',
-          broker: property.broker || property.brokerId || '',
+          broker: brokerIdToUse, // Use the current broker ID
           rating: property.rating || '4.7',
           currentPrice: property.price ? new Intl.NumberFormat('en-IN', { 
             style: 'currency', 
@@ -190,18 +298,29 @@ const PropertiesManagement = () => {
           }).format(property.price) : '-'
         }));
 
-        setItems(mappedProperties);
+        // Since we're using the broker endpoint, all properties should belong to the current broker
+        let finalProperties = mappedProperties;
+        
+        if (DEBUG_DISABLE_BROKER_FILTER) {
+          console.log('Debug mode: Showing all properties without broker filtering');
+        } else {
+          console.log('Using broker endpoint - all properties belong to current broker');
+        }
+
+        setItems(finalProperties);
+        console.log(`Found ${finalProperties.length} properties for broker ID: ${brokerIdToUse}`);
+        console.log('Properties data:', finalProperties);
       } else {
         const errorData = await response.json().catch(() => ({}));
         setError(errorData.message || 'Failed to fetch properties');
-        // Fallback to demo data if API fails
-        setItems(initialProperties);
+        // Don't show demo data - only show broker-specific properties
+        setItems([]);
       }
     } catch (err) {
       console.error('Error fetching properties:', err);
       setError('Error loading properties');
-      // Fallback to demo data if API fails
-      setItems(initialProperties);
+      // Don't show demo data - only show broker-specific properties
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -233,7 +352,7 @@ const PropertiesManagement = () => {
         const data = await response.json();
         console.log('Property created successfully:', data);
         // Refresh the properties list
-        await fetchProperties();
+        await fetchProperties(pagination.page, pagination.limit);
         return { success: true, data };
       } else {
         const errorData = await response.json().catch(() => ({}));
@@ -247,10 +366,105 @@ const PropertiesManagement = () => {
     }
   };
 
+  // Pagination functions
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages && brokerId) {
+      // For broker endpoint, use client-side pagination
+      if (!DEBUG_DISABLE_BROKER_FILTER && allProperties.length > 0) {
+        const startIndex = (newPage - 1) * pagination.limit;
+        const endIndex = startIndex + pagination.limit;
+        const pageProperties = allProperties.slice(startIndex, endIndex);
+        
+        // Map properties for display
+        const mappedProperties = pageProperties.map((property) => ({
+          id: property._id || property.id || `api-${Date.now()}-${Math.random()}`,
+          title: property.title || property.name || 'Untitled Property',
+          description: property.description || property.propertyDescription || '',
+          propertyDescription: property.propertyDescription || property.description || '',
+          region: property.region || property.city || '',
+          address: property.address || '',
+          city: property.city || '',
+          price: property.price || 0,
+          priceUnit: property.priceUnit || 'INR',
+          propertySize: property.propertySize || property.areaSqft || property.area || undefined,
+          coordinates: property.coordinates || { lat: '', lng: '' },
+          bedrooms: property.bedrooms || undefined,
+          bathrooms: property.bathrooms || undefined,
+          furnishing: property.furnishing || 'Furnished',
+          amenities: Array.isArray(property.amenities) ? property.amenities : [],
+          nearbyAmenities: Array.isArray(property.nearbyAmenities) ? property.nearbyAmenities : [],
+          features: Array.isArray(property.features) ? property.features : [],
+          locationBenefits: Array.isArray(property.locationBenefits) ? property.locationBenefits : [],
+          images: Array.isArray(property.images) && property.images.length > 0 ? property.images : [DEFAULT_IMAGE],
+          videos: Array.isArray(property.videos) ? property.videos : [],
+          propertyType: property.propertyType || property.type || 'Residential',
+          subType: property.subType || 'Apartment',
+          status: property.status || 'Active',
+          isFeatured: property.isFeatured || false,
+          notes: property.notes || '',
+          broker: brokerId,
+          rating: property.rating || '4.7',
+          currentPrice: property.price ? new Intl.NumberFormat('en-IN', { 
+            style: 'currency', 
+            currency: 'INR', 
+            maximumFractionDigits: 0 
+          }).format(property.price) : '-'
+        }));
+        
+        setItems(mappedProperties);
+        
+        // Update pagination state
+        setPagination(prev => ({
+          ...prev,
+          page: newPage,
+          hasNextPage: newPage < prev.totalPages,
+          hasPrevPage: newPage > 1
+        }));
+      } else {
+        fetchProperties(newPage, pagination.limit);
+      }
+    }
+  };
+
+  const handleLimitChange = (newLimit) => {
+    if (brokerId) {
+      fetchProperties(1, newLimit);
+    }
+  };
+
+  // Set broker ID from token on component mount
+  useEffect(() => {
+    const token = typeof window !== 'undefined' 
+      ? localStorage.getItem('token') || localStorage.getItem('authToken')
+      : null;
+    
+    console.log('Token found:', !!token);
+    if (token) {
+      console.log('Token:', token.substring(0, 50) + '...');
+      const currentBrokerId = getCurrentUserIdFromToken(token);
+      console.log('Extracted broker ID in useEffect:', currentBrokerId);
+      if (currentBrokerId) {
+        setBrokerId(currentBrokerId);
+        console.log('Set broker ID state to:', currentBrokerId);
+      } else {
+        console.error('Failed to extract broker ID from token');
+      }
+    } else {
+      console.error('No token found in localStorage');
+    }
+  }, []);
+
   // Load properties on component mount
   useEffect(() => {
-    fetchProperties();
-  }, [fetchProperties]);
+    console.log('useEffect triggered - brokerId:', brokerId);
+    // Only fetch properties if we have a broker ID
+    if (brokerId) {
+      console.log('Fetching properties for broker ID:', brokerId);
+      fetchProperties(pagination.page, pagination.limit);
+    } else {
+      console.log('No broker ID, not fetching properties');
+    }
+  }, [fetchProperties, brokerId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -358,6 +572,15 @@ const PropertiesManagement = () => {
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Properties Management</h1>
             <p className="text-gray-600 text-sm">Manage your properties and add new ones.</p>
+            {/* {brokerId ? (
+              <div className="mt-2 text-sm text-blue-600 font-medium">
+                Showing properties for Broker ID: {brokerId}
+              </div>
+            ) : (
+              <div className="mt-2 text-sm text-red-600 font-medium">
+                No broker ID found. Please login again.
+              </div>
+            )} */}
             {error && (
               <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-600">{error}</p>
@@ -383,8 +606,8 @@ const PropertiesManagement = () => {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={fetchProperties}
-              disabled={loading}
+              onClick={() => brokerId && fetchProperties(pagination.page, pagination.limit)}
+              disabled={loading || !brokerId}
               className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -404,11 +627,43 @@ const PropertiesManagement = () => {
           </div>
         </div>
 
+        {(() => {
+          console.log('Render state - loading:', loading, 'brokerId:', brokerId, 'items.length:', items.length, 'pagination.total:', pagination.total);
+          return null;
+        })()}
+        
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
               <span className="text-gray-600">Loading properties...</span>
+            </div>
+          </div>
+        ) : !brokerId ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="text-gray-500 text-lg mb-2">No broker ID found</div>
+              <div className="text-gray-400 text-sm">Please login again to view your properties</div>
+            </div>
+          </div>
+        ) : items.length === 0 && pagination.total === 0 ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="text-gray-500 text-lg mb-2">No properties found</div>
+              <div className="text-gray-400 text-sm">You haven't created any properties yet</div>
+              <Link
+                href="/properties-management/new"
+                className="inline-block mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Create Your First Property
+              </Link>
+            </div>
+          </div>
+        ) : items.length === 0 && pagination.total > 0 ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="text-gray-500 text-lg mb-2">Loading properties...</div>
+              <div className="text-gray-400 text-sm">Please wait while we load your properties</div>
             </div>
           </div>
         ) : (
@@ -532,6 +787,90 @@ const PropertiesManagement = () => {
               </div>
             </div>
           ))}
+          </div>
+        )}
+
+        {/* Pagination Component */}
+        {!loading && pagination.total > 0 && (
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* Pagination Info */}
+            <div className="text-sm text-gray-600">
+              Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} properties
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center gap-2">
+              {/* Previous Button */}
+              <button
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={!pagination.hasPrevPage}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              {/* Page Numbers */}
+              <div className="flex items-center gap-1">
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((pageNum) => {
+                  // Show first page, last page, current page, and pages around current page
+                  const shouldShow = 
+                    pageNum === 1 || 
+                    pageNum === pagination.totalPages || 
+                    (pageNum >= pagination.page - 1 && pageNum <= pagination.page + 1);
+                  
+                  if (!shouldShow) {
+                    // Show ellipsis for gaps
+                    if (pageNum === 2 && pagination.page > 3) {
+                      return <span key={pageNum} className="px-2 text-gray-500">...</span>;
+                    }
+                    if (pageNum === pagination.totalPages - 1 && pagination.page < pagination.totalPages - 2) {
+                      return <span key={pageNum} className="px-2 text-gray-500">...</span>;
+                    }
+                    return null;
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                        pageNum === pagination.page
+                          ? 'bg-green-600 text-white'
+                          : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Next Button */}
+              <button
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={!pagination.hasNextPage}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+
+            {/* Items per page selector */}
+            {/* <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Show:</label>
+              <select
+                value={pagination.limit}
+                onChange={(e) => handleLimitChange(Number(e.target.value))}
+                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value={5}>5</option>
+                <option value={9}>9</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              <span className="text-sm text-gray-600">per page</span>
+            </div> */}
           </div>
         )}
 

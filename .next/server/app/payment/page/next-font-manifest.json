@@ -1,7 +1,7 @@
 {
   "pages": {},
   "app": {
-    "[project]/src/app/payment/page": []
+    "[project]/src/app/Payment/page": []
   },
   "appUsingSizeAdjust": true,
   "pagesUsingSizeAdjust": false

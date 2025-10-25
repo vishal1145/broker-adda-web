@@ -28,6 +28,22 @@
       "namedRegex": "^/blog/(?<nxtPslug>[^/]+?)(?:/)?$"
     },
     {
+      "page": "/broker-details/[id]",
+      "regex": "^/broker\\-details/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/broker\\-details/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/lead-details/[id]",
+      "regex": "^/lead\\-details/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/lead\\-details/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/properties/[category]/product-details/[id]",
       "regex": "^/properties/([^/]+?)/product\\-details/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -35,6 +51,14 @@
         "nxtPid": "nxtPid"
       },
       "namedRegex": "^/properties/(?<nxtPcategory>[^/]+?)/product\\-details/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/property-details/[id]",
+      "regex": "^/property\\-details/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/property\\-details/(?<nxtPid>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [
@@ -61,6 +85,12 @@
       "regex": "^/blog(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/blog(?:/)?$"
+    },
+    {
+      "page": "/broker-details",
+      "regex": "^/broker\\-details(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/broker\\-details(?:/)?$"
     },
     {
       "page": "/cart",
@@ -93,6 +123,12 @@
       "namedRegex": "^/debug(?:/)?$"
     },
     {
+      "page": "/documentation",
+      "regex": "^/documentation(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/documentation(?:/)?$"
+    },
+    {
       "page": "/faq",
       "regex": "^/faq(?:/)?$",
       "routeKeys": {},
@@ -105,10 +141,34 @@
       "namedRegex": "^/favicon\\.ico(?:/)?$"
     },
     {
+      "page": "/help/documentation",
+      "regex": "^/help/documentation(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/help/documentation(?:/)?$"
+    },
+    {
+      "page": "/help/getting-started",
+      "regex": "^/help/getting\\-started(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/help/getting\\-started(?:/)?$"
+    },
+    {
+      "page": "/help/legal-compliance",
+      "regex": "^/help/legal\\-compliance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/help/legal\\-compliance(?:/)?$"
+    },
+    {
       "page": "/leads",
       "regex": "^/leads(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/leads(?:/)?$"
+    },
+    {
+      "page": "/legal-compliance",
+      "regex": "^/legal\\-compliance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/legal\\-compliance(?:/)?$"
     },
     {
       "page": "/login",
@@ -135,10 +195,10 @@
       "namedRegex": "^/ordercompleted(?:/)?$"
     },
     {
-      "page": "/payment",
-      "regex": "^/payment(?:/)?$",
+      "page": "/Payment",
+      "regex": "^/Payment(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/payment(?:/)?$"
+      "namedRegex": "^/Payment(?:/)?$"
     },
     {
       "page": "/privacy",
@@ -165,16 +225,40 @@
       "namedRegex": "^/properties\\-management(?:/)?$"
     },
     {
+      "page": "/properties-management/new",
+      "regex": "^/properties\\-management/new(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/properties\\-management/new(?:/)?$"
+    },
+    {
+      "page": "/property-details",
+      "regex": "^/property\\-details(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/property\\-details(?:/)?$"
+    },
+    {
       "page": "/refund",
       "regex": "^/refund(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/refund(?:/)?$"
     },
     {
+      "page": "/role-selection",
+      "regex": "^/role\\-selection(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/role\\-selection(?:/)?$"
+    },
+    {
       "page": "/saved-properties",
       "regex": "^/saved\\-properties(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/saved\\-properties(?:/)?$"
+    },
+    {
+      "page": "/search",
+      "regex": "^/search(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/search(?:/)?$"
     },
     {
       "page": "/signup",

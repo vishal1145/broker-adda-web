@@ -2,8 +2,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const NewPropertyPage = () => {
+  const router = useRouter();
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -164,7 +166,19 @@ const NewPropertyPage = () => {
     if (step < 1 || step > totalSteps) return;
     setCurrentStep(step);
   };
-  const nextStep = () => { if (currentStep < totalSteps && isCurrentStepValid()) setCurrentStep(currentStep + 1); };
+  const nextStep = (e) => { 
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Continue button clicked, current step:', currentStep, 'isValid:', isCurrentStepValid());
+    console.log('Continue button clicked - submitting state:', submitting);
+    if (currentStep < totalSteps && isCurrentStepValid()) {
+      console.log('Moving to next step...');
+      setCurrentStep(currentStep + 1);
+      console.log('Moved to step:', currentStep + 1);
+    } else {
+      console.log('Cannot proceed - either at last step or validation failed');
+    }
+  };
   const prevStep = () => { if (currentStep > 1) setCurrentStep(currentStep - 1); };
 
   const handleChange = (e) => {
@@ -225,6 +239,19 @@ const NewPropertyPage = () => {
 
     const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    console.log('Form submitted - current step:', currentStep);
+    console.log('Form submitted - submitting state:', submitting);
+    
+    // Only proceed if we're on the last step (Step 4)
+    if (currentStep !== 4) {
+      console.log('Form submitted but not on Step 4, current step:', currentStep);
+      console.log('Preventing form submission - not on step 4');
+      setError(`Please complete all steps. Currently on step ${currentStep} of 4.`);
+      return;
+    }
+    
+    console.log('Create Property button clicked - starting property creation');
     setSubmitting(true);
     setError("");
 
@@ -353,44 +380,10 @@ const NewPropertyPage = () => {
       const result = await response.json();
       setSuccessMessage("Property created successfully!");
 
-      // ✅ Reset form after success
+      // ✅ Navigate to properties management page after success
       setTimeout(() => {
-        setSuccessMessage("");
-        setForm({
-          title: "",
-          description: "",
-          propertyDescription: "",
-          region: "",
-          address: "",
-          city: "Agra",
-          price: "",
-          priceUnit: "INR",
-          propertySize: "",
-          propertyType: "Residential",
-          subType: "Apartment",
-        });
-        setAmenities([]);
-        setAmenityInput("");
-        setNearbyAmenities([]);
-        setNearbyAmenityInput("");
-        setFeatures([]);
-        setFeatureInput("");
-        setLocationBenefits([]);
-        setLocationBenefitInput("");
-        setImages([]);
-        setImageInput("");
-        setImageFiles([]);
-        setVideos([]);
-        setVideoFiles([]);
-        setVideoInput("");
-        setCoordinates({ lat: "", lng: "" });
-        setBedrooms("");
-        setBathrooms("");
-        setFurnishing("Furnished");
-        setStatus("Pending Approval");
-        setIsFeatured(false);
-        setNotes("");
-      }, 3000);
+        router.push("/properties-management");
+      }, 2000); // Navigate after 2 seconds to show success message
     } catch (err) {
       setError(err.message || "Failed to create property. Please try again.");
     } finally {
@@ -405,10 +398,13 @@ const NewPropertyPage = () => {
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New Property</h1>
-                <p className="text-gray-600">Create a new property listing with all the details</p>
-              </div>
+               <div>
+                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New Property</h1>
+                 <p className="text-gray-600">Create a new property listing with all the details</p>
+                 <div className="mt-2 text-sm text-blue-600 font-medium">
+                   Step {currentStep} of {totalSteps}
+                 </div>
+               </div>
               <Link 
                 href="/properties-management" 
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -437,22 +433,42 @@ const NewPropertyPage = () => {
           </div>
             )}
             
-            {successMessage && (
+            {successMessage && currentStep === 4 && (
               <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-sm text-green-700">{successMessage}</p>
-          </div>
-          </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-sm text-green-700">{successMessage}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-green-600">Redirecting in 2 seconds...</p>
+                    <Link
+                      href="/properties-management"
+                      className="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      View Properties
+                    </Link>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
           {/* Layout: form + right sidebar like profile page */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Form */}
-          <form onSubmit={handleSubmit} className="lg:col-span-9 bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
+          <form onSubmit={(e) => {
+            console.log('Form onSubmit triggered - current step:', currentStep);
+            if (currentStep !== 4) {
+              console.log('Form submission prevented - not on step 4');
+              e.preventDefault();
+              e.stopPropagation();
+              return false;
+            }
+            return handleSubmit(e);
+          }} className="lg:col-span-9 bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
             
             {/* Stepper moved to right sidebar */}
 
@@ -476,6 +492,7 @@ const NewPropertyPage = () => {
                       name="title" 
                       value={form.title} 
                       onChange={handleChange} 
+                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
                       className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.title) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="Enter property title" 
                       required
@@ -618,6 +635,7 @@ const NewPropertyPage = () => {
                       name="address" 
                       value={form.address} 
                       onChange={handleChange} 
+                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
                       className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.address) || form.address === '' ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="Street address" 
                     />
@@ -629,6 +647,7 @@ const NewPropertyPage = () => {
                       name="city" 
                       value={form.city} 
                       onChange={handleChange} 
+                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
                       className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.city) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="City" 
                     />
@@ -644,6 +663,7 @@ const NewPropertyPage = () => {
                       name="price" 
                       value={form.price} 
                       onChange={handleChange} 
+                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
                       className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isPositiveNumber(form.price) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
                       placeholder="e.g. 42000000" 
                       required
@@ -689,6 +709,7 @@ const NewPropertyPage = () => {
                       name="propertySize" 
                       value={form.propertySize} 
                       onChange={handleChange} 
+                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
                       className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
                       placeholder="e.g. 1200"
                     />
@@ -700,6 +721,7 @@ const NewPropertyPage = () => {
                       type="number" 
                       value={bedrooms} 
                       onChange={(e)=>setBedrooms(e.target.value)} 
+                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
                       className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
                       placeholder="e.g. 3"
                     />
@@ -711,6 +733,7 @@ const NewPropertyPage = () => {
                       type="number" 
                       value={bathrooms} 
                       onChange={(e)=>setBathrooms(e.target.value)} 
+                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
                       className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
                       placeholder="e.g. 2"
                     />
@@ -978,7 +1001,12 @@ const NewPropertyPage = () => {
               <div className="pt-8 border-t border-gray-100">
                 {currentStep < 4 ? (
                   <div className="max-w-3xl mx-auto">
-                    <button type="button" onClick={nextStep} disabled={!isCurrentStepValid()} className={`w-full py-4 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${isCurrentStepValid() ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-blue-100 hover:shadow-xl' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}>
+                    <button 
+                      type="button" 
+                      onClick={nextStep} 
+                      disabled={!isCurrentStepValid() || submitting} 
+                      className={`w-full py-4 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${isCurrentStepValid() && !submitting ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-blue-100 hover:shadow-xl' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                    >
                       Continue
                       <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
                     </button>
