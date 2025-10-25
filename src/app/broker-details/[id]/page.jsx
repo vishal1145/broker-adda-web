@@ -938,7 +938,7 @@ export default function BrokerDetailsPage() {
                         const carousel = document.getElementById('similar-brokers-carousel');
                         if (carousel) carousel.scrollBy({ left: -300, behavior: 'smooth' });
                       }}
-                      className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-md"
+                      className="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center hover:bg-yellow-600 transition-colors shadow-md cursor-pointer"
                       title="Previous"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -951,7 +951,7 @@ export default function BrokerDetailsPage() {
                         const carousel = document.getElementById('similar-brokers-carousel');
                         if (carousel) carousel.scrollBy({ left: 300, behavior: 'smooth' });
                       }}
-                      className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center hover:bg-gray-300 transition-colors shadow-md"
+                      className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center hover:bg-gray-300 transition-colors shadow-md cursor-pointer"
                       title="Next"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -27,6 +27,20 @@ type LeadItem = {
   noteAddedAgo?: string;
   noteAddedBy?: string;
   propertyType?: string;
+  requirement?: string;
+  createdBy?: {
+    _id?: string;
+    name?: string;
+    firmName?: string;
+    brokerImage?: string;
+    email?: string;
+    phone?: string;
+    experience?: number | string;
+    licenseNumber?: string;
+    specialization?: string;
+    city?: string;
+    state?: string;
+  };
 };
 
 export default function LeadDetails() {
@@ -140,10 +154,15 @@ export default function LeadDetails() {
       <HeaderFile data={headerData} />
     
       <div className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="bg-white p-6 mb-8">
-            <div className="flex items-center gap-4">
+        <div className="w-full mx-auto ">
+         
+
+          {/* Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Content - 8 columns */}
+            <section className="lg:col-span-8 space-y-12">
+              {/* Lead Header Section */}
+              <div className="flex items-center gap-4 ">
               <div className="relative">
                 <img
                   src={lead?.brokerImage || "/images/user-2.jpeg"}
@@ -176,14 +195,8 @@ export default function LeadDetails() {
               </div>
             </div>
             
-          </div>
-
-          {/* Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left Content - 8 columns */}
-            <section className="lg:col-span-8 space-y-6">
               {/* Requirements Section */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <div>
                 <div className="flex items-center gap-2 mb-6">
                   <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
                   <h2 className="text-lg font-semibold text-gray-900">Requirements</h2>
@@ -247,7 +260,7 @@ export default function LeadDetails() {
               </div>
 
               {/* Notes Section */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <div>
                 <div className="flex items-center gap-2 mb-4">
                   <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
                   <h3 className="text-lg font-semibold text-gray-900">Notes</h3>
@@ -278,7 +291,84 @@ export default function LeadDetails() {
             </section>
 
             {/* Right Sidebar - 4 columns */}
-            <aside className="lg:col-span-4 space-y-6">
+              <aside className="lg:col-span-4 space-y-8">
+                {/* Broker Details Section */}
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Broker Details</h3>
+                  </div>
+                  
+                  {lead?.createdBy ? (
+                    <div className="">
+                      <div className="flex items-center gap-3 mb-3">
+                        <img
+                          src={lead.createdBy.brokerImage || "/images/user-2.jpeg"}
+                          alt="Broker"
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div>
+                          <h4 className="font-semibold text-gray-900 text-sm">
+                            {lead.createdBy.name || "Broker"}
+                          </h4>
+                          <p className="text-xs text-gray-600">
+                            {lead.createdBy.firmName || "Real Estate Broker"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2 text-xs">
+                        {lead.createdBy.experience && (
+                          <div className="flex items-center gap-2">
+                            <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-gray-600">
+                              {typeof lead.createdBy.experience === 'number' ? `${lead.createdBy.experience}+` : lead.createdBy.experience} Years Experience
+                            </span>
+                          </div>
+                        )}
+                        {lead.createdBy.phone && (
+                          <div className="flex items-center gap-2">
+                            <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span className="text-gray-600">{lead.createdBy.phone}</span>
+                          </div>
+                        )}
+                        {lead.createdBy.email && (
+                          <div className="flex items-center gap-2">
+                            <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span className="text-gray-600 truncate">{lead.createdBy.email}</span>
+                          </div>
+                        )}
+                        {(lead.createdBy.city || lead.createdBy.state) && (
+                          <div className="flex items-center gap-2">
+                            <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span className="text-gray-600">
+                              {[lead.createdBy.city, lead.createdBy.state].filter(Boolean).join(', ')}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="text-center">
+                        <div className="w-10 h-10 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                        <h4 className="font-semibold text-gray-900 text-sm mb-1">Broker Information</h4>
+                        <p className="text-xs text-gray-600">Not available</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               {/* Quick Contact */}
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Contact</h3>
@@ -377,42 +467,150 @@ export default function LeadDetails() {
             </aside>
           </div>
 
-          {/* Similar Leads - Full Width */}
-          <section className="mt-8">
-            <div className="flex items-center gap-2 mb-4">
+        </div>
+
+        {/* Similar Leads - Full Width Carousel */}
+        <section className="mt-12">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
               <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
               <h3 className="text-lg font-semibold text-gray-900">Similar Leads</h3>
             </div>
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+            <div className="flex items-center gap-2">
+              <a href="/search?type=leads" className="px-3 py-1.5 text-green-900 rounded-lg text-xs font-medium transition-colors">
+                View All
+              </a>
+            </div>
+          </div>
+          
+          {/* Carousel with scrollable cards */}
+          <div id="similar-leads-carousel" className="overflow-x-auto scroll-smooth" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div className="flex gap-6 min-w-0 pb-2">
               {sameLeads && sameLeads.filter((s) => s._id !== lead._id).length === 0 ? (
-                <p className="text-gray-500 text-sm p-6">No similar leads found.</p>
+                // No leads found
+                <div className="w-full flex items-center justify-center py-16">
+                  <div className="text-center">
+                    <svg className="w-16 h-16 mx-auto mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p className="text-xl font-semibold text-gray-900 mb-3">No similar leads found</p>
+                    <p className="text-base text-gray-500">We couldn't find any leads with similar requirements.</p>
+                  </div>
+                </div>
               ) : (
-                <div className="divide-y divide-gray-100">
-                  {sameLeads
+                sameLeads
                     .filter((s) => s._id !== lead._id)
+                  .slice(0, 6)
                     .map((s) => (
-                      <a
-                        key={s._id}
-                        href={`/lead-details/${s._id}`}
-                        className="flex items-center justify-between px-4 sm:px-6 py-4 hover:bg-gray-50 transition"
-                      >
-                        <div className="min-w-0">
-                          <div className="font-medium text-gray-900 truncate">
-                            {s.customerName}
+                    <div key={s._id} className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-lg transition-shadow">
+                      <div className="flex items-center gap-3 mb-4">
+                        <img 
+                          src={s.brokerImage || "/images/user-2.jpeg"} 
+                          alt="Lead" 
+                          className="w-12 h-12 rounded-full object-cover" 
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold text-gray-900 truncate">{s.customerName}</div>
+                          <div className="text-sm text-gray-600 truncate">
+                            {s.primaryRegion?.name || "Location"}, {s.primaryRegion?.state || "State"}
                           </div>
-                          <div className="text-gray-500 text-sm truncate">
-                            {s.primaryRegion?.name || "Noida sector 61"}, {s.primaryRegion?.state || "Uttar Pradesh"}
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className="text-sm font-medium text-green-700">
+                              ₹{typeof s.budget === 'number' ? s.budget.toLocaleString() : s.budget || '0'}
+                            </span>
+                            <span className="text-xs text-gray-500">• {s.propertyType || 'Property'}</span>
                           </div>
                         </div>
-                        <span className="ml-4 inline-flex items-center rounded-full border border-green-200 bg-green-50 text-green-700 px-3 py-1 text-sm font-medium whitespace-nowrap">
-                          {s.budget ?? "129998"}
+                      </div>
+                      
+                      <div className="mb-4">
+                        <div className="flex flex-wrap gap-1">
+                          <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs border border-blue-200">
+                            {s.propertyType || 'Residential'}
+                          </span>
+                          <span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs border border-green-200">
+                            {(s as any).requirement || 'Buy'}
                         </span>
-                      </a>
-                    ))}
+                        </div>
+                      </div>
                 </div>
+                  ))
               )}
             </div>
+            <div className="flex gap-2 mt-7 justify-center">
+              <button 
+                type="button" 
+                onClick={() => {
+                  const carousel = document.getElementById('similar-leads-carousel');
+                  if (carousel) carousel.scrollBy({ left: -300, behavior: 'smooth' });
+                }}
+                className="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center hover:bg-yellow-600 transition-colors shadow-md cursor-pointer"
+                title="Previous"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  const carousel = document.getElementById('similar-leads-carousel');
+                  if (carousel) carousel.scrollBy({ left: 300, behavior: 'smooth' });
+                }}
+                className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center hover:bg-gray-300 transition-colors shadow-md cursor-pointer"
+                title="Next"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+            </div>
           </section>
+
+        {/* CTA Section */}
+        <div className="bg-white rounded-2xl mx-4 sm:mx-6 lg:mx-8 mb-8 shadow-xl mt-12 border-t-4 border-yellow-500">
+          <div className="px-6 py-6 text-center relative overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute top-0 left-0 w-full h-1 "></div>
+            <div className="absolute top-3 right-3 w-12 h-12 bg-yellow-100 rounded-full opacity-20"></div>
+            <div className="absolute bottom-3 left-3 w-10 h-10 bg-yellow-200 rounded-full opacity-30"></div>
+            
+            <div className="max-w-2xl mx-auto relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium mb-4">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                </svg>
+                Trusted by 1000+ Brokers
+              </div>
+              
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Ready to Find Your Perfect Property?
+              </h2>
+              <p className="text-gray-600 text-base mb-6 max-w-xl mx-auto leading-relaxed">
+                Join thousands of satisfied customers who found their dream homes through our platform. 
+                Get started today and let our expert brokers help you every step of the way.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a 
+                  href="/search?type=leads" 
+                  className="inline-flex items-center justify-center px-6 py-3 bg-yellow-500 text-white font-semibold text-base rounded-lg hover:bg-yellow-600 transition-colors shadow-lg hover:shadow-xl"
+                >
+                  Browse All Leads
+                  <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+                  </svg>
+                </a>
+                <a 
+                  href="/search?type=brokers" 
+                  className="inline-flex items-center justify-center px-6 py-3 border-2 border-yellow-500 text-yellow-600 font-semibold text-base rounded-lg hover:bg-yellow-50 transition-colors"
+                >
+                  Find Brokers
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
