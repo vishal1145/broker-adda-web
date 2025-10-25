@@ -1159,6 +1159,80 @@ function PropertyDetailsPageInner() {
           </button>
         </div>
       </div>
+
+      {/* CTA Section */}
+      <div className="bg-white rounded-2xl mx-4 sm:mx-6 lg:mx-8 mb-8 shadow-xl mt-12 border-t-4 border-yellow-500">
+        <div className="px-6 py-8 text-center relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute top-0 left-0 w-full h-1 "></div>
+          <div className="absolute top-3 right-3 w-12 h-12 bg-yellow-100 rounded-full opacity-20"></div>
+          <div className="absolute bottom-3 left-3 w-10 h-10 bg-yellow-200 rounded-full opacity-30"></div>
+          
+          <div className="max-w-2xl mx-auto relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium mb-4">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+              </svg>
+              Trusted by 1000+ Customers
+            </div>
+            
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Ready to Find Your Perfect Property?
+            </h2>
+            <p className="text-gray-600 text-base mb-6 max-w-xl mx-auto leading-relaxed">
+              Join thousands of satisfied customers who found their dream homes through our platform. 
+              Get started today and let our expert brokers help you every step of the way.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+              <a 
+                href="/search?tab=properties" 
+                className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold text-base hover:bg-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                Browse All Properties
+              </a>
+              <a 
+                href="/search?tab=brokers" 
+                className="px-6 py-3 border-2 border-yellow-500 text-yellow-600 rounded-lg font-semibold text-base hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                Find Brokers
+              </a>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-yellow-50 transition-colors">
+                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                </div>
+                <span className="font-semibold text-gray-900 text-sm">Verified Properties</span>
+                <span className="text-xs text-gray-600">Quality Assured</span>
+              </div>
+              
+              <div className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-yellow-50 transition-colors">
+                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                </div>
+                <span className="font-semibold text-gray-900 text-sm">Expert Brokers</span>
+                <span className="text-xs text-gray-600">Professional Service</span>
+              </div>
+              
+              <div className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-yellow-50 transition-colors">
+                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                </div>
+                <span className="font-semibold text-gray-900 text-sm">Free Consultation</span>
+                <span className="text-xs text-gray-600">No Obligation</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
