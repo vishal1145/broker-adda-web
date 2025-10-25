@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import Link from "next/link";
 
@@ -46,6 +46,91 @@ const NewPropertyPage = () => {
   // Wizard steps (match profile page flow style)
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
+
+  // Regions API state
+  const [regions, setRegions] = useState([]);
+  const [filteredRegions, setFilteredRegions] = useState([]);
+  const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
+  const [regionSearchQuery, setRegionSearchQuery] = useState("");
+  const [regionsLoading, setRegionsLoading] = useState(false);
+  const [regionsError, setRegionsError] = useState("");
+
+  // Regions API functions
+  const fetchRegions = async () => {
+    try {
+      setRegionsLoading(true);
+      setRegionsError("");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api'}/regions`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch regions: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data && data.data.regions) {
+        setRegions(data.data.regions);
+        setFilteredRegions(data.data.regions);
+      } else {
+        throw new Error('Invalid response format from regions API');
+      }
+    } catch (error) {
+      console.error('Error fetching regions:', error);
+      setRegionsError('Failed to load regions');
+    } finally {
+      setRegionsLoading(false);
+    }
+  };
+
+  const searchRegions = (query) => {
+    if (!query) {
+      setFilteredRegions(regions);
+      return;
+    }
+    
+    const lowercaseQuery = query.toLowerCase();
+    const filtered = regions.filter(region => 
+      region.name.toLowerCase().includes(lowercaseQuery) ||
+      region.city.toLowerCase().includes(lowercaseQuery) ||
+      region.state.toLowerCase().includes(lowercaseQuery) ||
+      region.description.toLowerCase().includes(lowercaseQuery)
+    );
+    setFilteredRegions(filtered);
+  };
+
+  const formatRegionDisplay = (region) => {
+    if (!region) return '';
+    return `${region.name}, ${region.city}, ${region.state}`;
+  };
+
+  const formatRegionValue = (region) => {
+    if (!region) return '';
+    return `${region.name}, ${region.city}, ${region.state}`;
+  };
+
+  // Load regions on component mount
+  useEffect(() => {
+    fetchRegions();
+  }, []);
+
+  // Filter regions based on search query
+  useEffect(() => {
+    searchRegions(regionSearchQuery);
+  }, [regionSearchQuery, regions]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isRegionDropdownOpen && !event.target.closest('.region-dropdown')) {
+        setIsRegionDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isRegionDropdownOpen]);
 
   // Step validations
   const isNonEmpty = (v) => typeof v === 'string' && v.trim().length > 0;
@@ -111,82 +196,166 @@ const NewPropertyPage = () => {
 
   const removeFrom = (value, setter) => setter((prev) => prev.filter((x) => x !== value));
 
-  const handleSubmit = async (e) => {
+  // Region dropdown handlers
+  const handleRegionInputChange = (e) => {
+    const query = e.target.value;
+    setRegionSearchQuery(query);
+    setIsRegionDropdownOpen(true);
+    
+    // Update form region value as user types
+    setForm(prev => ({ ...prev, region: query }));
+  };
+
+  const handleRegionSelect = (region) => {
+    const regionValue = formatRegionValue(region);
+    setForm(prev => ({ ...prev, region: regionValue }));
+    setRegionSearchQuery(regionValue);
+    setIsRegionDropdownOpen(false);
+  };
+
+  const handleRegionInputFocus = () => {
+    setIsRegionDropdownOpen(true);
+  };
+
+  const handleRegionInputKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setIsRegionDropdownOpen(false);
+    }
+  };
+
+    const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError("");
-    
+
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         setError("Please login to create a property");
+        setSubmitting(false);
         return;
       }
 
-      // Prepare form data for API
-      const formData = new FormData();
-      
-      // Basic information
-      formData.append('title', form.title);
-      formData.append('description', form.description || '');
-      formData.append('propertyDescription', form.propertyDescription || '');
-      formData.append('propertySize', form.propertySize || '');
-      formData.append('propertyType', form.propertyType);
-      formData.append('subType', form.subType);
-      formData.append('price', form.price);
-      formData.append('priceUnit', form.priceUnit);
-      formData.append('address', form.address || '');
-      formData.append('city', form.city);
-      formData.append('region', form.region);
-      
-      // Coordinates
-      if (coordinates.lat) formData.append('coordinates[lat]', coordinates.lat);
-      if (coordinates.lng) formData.append('coordinates[lng]', coordinates.lng);
-      
-      // Property details
-      formData.append('bedrooms', bedrooms || '0');
-      formData.append('bathrooms', bathrooms || '0');
-      formData.append('furnishing', furnishing);
-      
-      // Arrays
-      amenities.forEach(amenity => formData.append('amenities[]', amenity));
-      nearbyAmenities.forEach(amenity => formData.append('nearbyAmenities[]', amenity));
-      features.forEach(feature => formData.append('features[]', feature));
-      locationBenefits.forEach(benefit => formData.append('locationBenefits[]', benefit));
-      videos.forEach(video => formData.append('videos[]', video));
-      videoFiles.forEach(file => formData.append('videos', file));
-      // Image URLs and selected files
-      images.forEach(url => formData.append('images[]', url));
-      imageFiles.forEach(file => formData.append('images', file));
-      
-      // Other fields
-      formData.append('status', status);
-      formData.append('isFeatured', isFeatured.toString());
-      formData.append('notes', notes || '');
-      
-      // Get broker ID from token or use default
-      const brokerId = '68c7aa725eb872ca1499e8cc'; // You might want to get this from user context
-      formData.append('broker', brokerId);
+      // ✅ Decode JWT token to extract user ID
+      let userId = null;
+      try {
+        const tokenParts = token.split(".");
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          userId =
+            payload?.userId ||
+            payload?.user?._id ||
+            payload?.user?.id ||
+            payload?._id ||
+            payload?.id ||
+            payload?.sub ||
+            null;
+        }
+      } catch (err) {
+        console.warn("Token decoding failed:", err);
+      }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api'}/properties`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData
-      });
+      if (!userId) {
+        setError("Failed to extract user ID from token. Please re-login.");
+        setSubmitting(false);
+        return;
+      }
+
+      // ✅ Fetch broker details using userId
+      let brokerId = null;
+      try {
+        const brokerRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.algofolks.com/api"}/brokers/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (brokerRes.ok) {
+          const brokerData = await brokerRes.json();
+          brokerId =
+            brokerData?._id ||
+            brokerData?.broker?._id ||
+            brokerData?.data?._id ||
+            brokerData?.data?.broker?._id ||
+            null;
+        }
+      } catch (err) {
+        console.warn("Broker fetch failed:", err);
+      }
+
+      if (!brokerId) {
+        setError("Broker not found for this account.");
+        setSubmitting(false);
+        return;
+      }
+
+      // ✅ Prepare form data for API
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description || "");
+      formData.append("propertyDescription", form.propertyDescription || "");
+      formData.append("propertySize", form.propertySize || "");
+      formData.append("propertyType", form.propertyType);
+      formData.append("subType", form.subType);
+      formData.append("price", form.price);
+      formData.append("priceUnit", form.priceUnit);
+      formData.append("address", form.address || "");
+      formData.append("city", form.city);
+      formData.append("region", form.region);
+
+      // Coordinates
+      if (coordinates.lat) formData.append("coordinates[lat]", coordinates.lat);
+      if (coordinates.lng) formData.append("coordinates[lng]", coordinates.lng);
+
+      // Property details
+      formData.append("bedrooms", bedrooms || "0");
+      formData.append("bathrooms", bathrooms || "0");
+      formData.append("furnishing", furnishing);
+
+      // Arrays
+      amenities.forEach((a) => formData.append("amenities[]", a));
+      nearbyAmenities.forEach((a) => formData.append("nearbyAmenities[]", a));
+      features.forEach((f) => formData.append("features[]", f));
+      locationBenefits.forEach((b) => formData.append("locationBenefits[]", b));
+      videos.forEach((v) => formData.append("videos[]", v));
+      videoFiles.forEach((f) => formData.append("videos", f));
+      images.forEach((url) => formData.append("images[]", url));
+      imageFiles.forEach((f) => formData.append("images", f));
+
+      // Other fields
+      formData.append("status", status);
+      formData.append("isFeatured", isFeatured.toString());
+      formData.append("notes", notes || "");
+
+      // ✅ Append valid broker ID
+      formData.append("broker", brokerId);
+
+      // ✅ API call to create property
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.algofolks.com/api"}/properties`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create property');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to create property");
       }
 
       const result = await response.json();
       setSuccessMessage("Property created successfully!");
-      
+
+      // ✅ Reset form after success
       setTimeout(() => {
         setSuccessMessage("");
-        // Reset form
         setForm({
           title: "",
           description: "",
@@ -316,15 +485,90 @@ const NewPropertyPage = () => {
                   
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Region *</label>
-                    <input 
-                      name="region" 
-                      value={form.region} 
-                      onChange={handleChange} 
-                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.region) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
-                      placeholder="City, State" 
-                      required
-                    />
-                    {!isNonEmpty(form.region) && (<p className="text-xs text-red-600">Region is required.</p>)}
+                    <div className="relative region-dropdown">
+                      <input
+                        type="text"
+                        name="region"
+                        value={regionSearchQuery || form.region}
+                        onChange={handleRegionInputChange}
+                        onFocus={handleRegionInputFocus}
+                        onKeyDown={handleRegionInputKeyDown}
+                        className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${
+                          !isNonEmpty(form.region) 
+                            ? 'border border-red-300 focus:ring-2 focus:ring-red-400' 
+                            : 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                        }`}
+                        placeholder="Select a region..."
+                        required
+                        autoComplete="off"
+                      />
+                      
+                      {/* Dropdown arrow */}
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg
+                          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                            isRegionDropdownOpen ? "rotate-180" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+
+                      {/* Dropdown menu */}
+                      {isRegionDropdownOpen && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                          {regionsLoading ? (
+                            <div className="px-4 py-3 text-sm text-gray-500 flex items-center gap-2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                              Loading regions...
+                            </div>
+                          ) : regionsError ? (
+                            <div className="px-4 py-3 text-sm text-red-600">
+                              {regionsError}
+                            </div>
+                          ) : filteredRegions.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-gray-500">
+                              {regionSearchQuery ? "No regions found" : "No regions available"}
+                            </div>
+                          ) : (
+                            <ul className="py-1">
+                              {filteredRegions.map((region) => (
+                                <li key={region._id}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRegionSelect(region)}
+                                    className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
+                                  >
+                                    <div className="font-medium text-gray-900">
+                                      {region.name}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {region.city}, {region.state}
+                                    </div>
+                                    {/* {region.description && (
+                                      <div className="text-xs text-gray-400 mt-1">
+                                        {region.description}
+                                      </div>
+                                    )} */}
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {!isNonEmpty(form.region) && (
+                      <p className="text-xs text-red-600">Region is required.</p>
+                    )}
                   </div>
                 </div>
                 
