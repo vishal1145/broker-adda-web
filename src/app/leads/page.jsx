@@ -3084,19 +3084,24 @@ const [noteText, setNoteText] = useState("");
                               background: `linear-gradient(to right, #2563eb 0%, #2563eb ${fillPct}%, #e5e7eb ${fillPct}%, #e5e7eb 100%)`,
                             }}
                           />
-                          <div className="absolute -top-6 right-0">
-                            <input
-                              type="text"
-                    inputMode="numeric"
-                              value={String(value)}
-                              onChange={(e) => {
-                                const n = Number((e.target.value || '').replace(/[^0-9]/g, ''));
-                                const clamped = isNaN(n) ? 0 : Math.min(budgetMax, Math.max(budgetMin, n));
-                                setNewLead({ ...newLead, budget: clamped });
-                              }}
-                              className="w-24 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 text-right focus:outline-none focus:ring-2 focus:ring-blue-100"
-                            />
-                          </div>
+                         <div className="absolute -top-6 right-0 flex items-center border border-blue-200 rounded-full bg-blue-50 px-2 py-0.5">
+  <span className="text-[11px] font-semibold text-blue-600 mr-1">₹</span>
+  <input
+    type="text"
+    inputMode="numeric"
+    value={String(value)}
+    onChange={(e) => {
+      const n = Number((e.target.value || '').replace(/[^0-9]/g, ''));
+      const clamped = isNaN(n) ? 0 : Math.min(budgetMax, Math.max(budgetMin, n));
+      setNewLead({ ...newLead, budget: clamped });
+    }}
+    className="w-[2ch] text-[11px] font-semibold text-blue-700 bg-transparent text-right focus:outline-none font-mono tabular-nums"
+    style={{
+      width: `calc(${Math.max(3, String(value).length)}ch + 0.15rem)` // dynamic width
+    }}
+  />
+</div>
+
                         </div>
                         {/* removed below-slider controls per request */}
                       </div>
