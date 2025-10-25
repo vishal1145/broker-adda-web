@@ -142,14 +142,38 @@ export default function ViewModeProfile() {
             <svg className={`w-3.5 h-3.5 ${disabled ? 'text-gray-300' : 'text-green-600'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             Preview
           </button>
-          <a
-            href={disabled ? '#' : value}
-            download={downloadName}
+          <button
+            disabled={disabled}
+            onClick={async () => {
+              if (!disabled && value) {
+                try {
+                  const response = await fetch(value);
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = downloadName;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  window.URL.revokeObjectURL(url);
+                } catch (error) {
+                  console.error('Download failed:', error);
+                  // Fallback to direct link
+                  const link = document.createElement('a');
+                  link.href = value;
+                  link.download = downloadName;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+              }
+            }}
             className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded border ${disabled ? 'pointer-events-none text-gray-400 border-gray-200 bg-white' : 'text-gray-700 border-gray-300 bg-white hover:bg-gray-50'}`}
           >
             <span className="inline-flex items-center justify-center w-4 h-4 rounded border border-gray-300 text-[10px] text-gray-600">D</span>
             Download
-          </a>
+          </button>
         </div>
       </div>
     );
@@ -361,10 +385,35 @@ export default function ViewModeProfile() {
                         Download
                       </span>
                     ) : (
-                      <a href={value} download={fileName} className="text-sm border border-gray-200 px-2.5 py-1.5 rounded-md text-gray-700 hover:bg-gray-50 flex items-center gap-1.5">
+                      <button 
+                        onClick={async () => {
+                          try {
+                            const response = await fetch(value);
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = fileName;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            window.URL.revokeObjectURL(url);
+                          } catch (error) {
+                            console.error('Download failed:', error);
+                            // Fallback to direct link
+                            const link = document.createElement('a');
+                            link.href = value;
+                            link.download = fileName;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }
+                        }}
+                        className="text-sm border border-gray-200 px-2.5 py-1.5 rounded-md text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 cursor-pointer"
+                      >
                         <span className="inline-flex items-center justify-center w-4 h-4 rounded border border-gray-300 text-[10px]">D</span>
                         Download
-                      </a>
+                      </button>
                     )}
                   </div>
                 </div>
