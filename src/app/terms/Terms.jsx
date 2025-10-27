@@ -20,8 +20,8 @@ const Terms = () => {
       <div className="space-y-10">
         {terms.map((term, index) => (
           <div key={index}>
-            <h2 className="text-2xl font-semibold text-green-900 mb-2">{term.title}</h2>
-            <p className="text-gray-700  text-[14px] leading-relaxed">{term.description}</p>
+            <h2 className=" text-[24px] leading-[36px] font-bold text-green-900 mb-2">{term.title}</h2>
+            <p className="font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">{term.description}</p>
           </div>
         ))}
       </div>

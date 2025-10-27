@@ -9,14 +9,14 @@ export default function ReturnPolicy() {
   return (
     <div>
       <HeaderFile data={refundData.header} />
-      <div className="px-6 sm:px-12 lg:px-32 py-12">
-        <div className="max-w-7xl mx-auto">
+      <div className=" py-12">
+        <div className=" mx-auto">
           <div className="flex flex-col gap-10">
             {refundData.sections.map((section, index) => (
               <div key={index} className="flex flex-col gap-5">
-                <h2 className="text-2xl font-semibold text-green-900">{section.title}</h2>
+                <h2 className=" text-[24px] leading-[36px] font-bold text-green-900">{section.title}</h2>
                 {section.content.map((paragraph, idx) => (
-                  <p key={idx} className="text-[14px] text-gray-700">
+                  <p key={idx} className="font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
                     {paragraph}
                   </p>
                 ))}

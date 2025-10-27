@@ -27,7 +27,7 @@ const AboutUs = () => {
           </h2>
 
           {/* Descriptive Paragraph */}
-          <p className="text-gray-600 max-w-2xl mx-auto text-sm mb-10 leading-relaxed">
+          <p className="max-w-2xl mx-auto  mb-10 font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
             At Broker Adda, we believe finding your perfect home should be effortless and exciting. 
             Since our founding, we've been dedicated to connecting you with the finest properties, 
             from luxury apartments to commercial spaces. Our expert brokers and comprehensive platform 

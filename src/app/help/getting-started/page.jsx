@@ -25,13 +25,13 @@ const GettingStartedPage = () => {
                 <div key={idx}>
                   {/* Text section without card styling */}
                   <div className="p-0">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-3">{section.title}</h2>
-                    <p className="text-gray-600 mb-4 text-sm">{section.description}</p>
+                    <h2 className=" text-[24px] leading-[36px] font-bold text-[#171A1FFF] mb-3">{section.title}</h2>
+                    <p className="mb-4 font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">{section.description}</p>
                     {section.highlightsTitle && (
-                      <h3 className="text-gray-900 font-semibold mt-2">{section.highlightsTitle}</h3>
+                      <h3 className="text-gray-900 font-[Inter] text-[18px] leading-[28px] font-medium  mt-2">{section.highlightsTitle}</h3>
                     )}
                     {Array.isArray(section.highlights) && section.highlights.length > 0 && (
-                      <ul className="list-disc list-inside text-gray-600 mb-4 space-y-1 text-sm">
+                      <ul className="list-disc list-inside  mb-4 space-y-1 font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
                         {section.highlights.map((point, i) => (
                           <li key={i}>{point}</li>
                         ))}
@@ -101,15 +101,15 @@ const GettingStartedPage = () => {
 
           {/* FAQ Section */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">{data.faq.title}</h2>
+            <h2 className=" text-[24px] leading-[36px] font-bold text-[#171A1FFF] mb-6">{data.faq.title}</h2>
             
             <div className="space-y-6">
               {data.faq.questions.map((faq, index) => (
                 <div key={index}>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="font-[Inter] text-[18px] leading-[28px] font-medium text-gray-900 mb-2">
                     {faq.question}
                   </h3>
-                  <p className="text-gray-600 text-sm">
+                  <p className="font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
                     {faq.answer}
                   </p>
                 </div>
@@ -119,8 +119,8 @@ const GettingStartedPage = () => {
 
           {/* Contact Section */}
           <div className="bg-yellow-500 rounded-lg shadow-lg p-8 text-center text-white">
-            <h2 className="text-2xl font-semibold mb-4">{data.contact.title}</h2>
-            <p className="text-white mb-6 max-w-2xl mx-auto">
+            <h2 className=" text-[24px] leading-[36px] font-bold  mb-4">{data.contact.title}</h2>
+            <p className="text-white mb-6 max-w-2xl mx-auto font-[Inter] text-[16px] leading-[26px] font-normal ">
               {data.contact.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

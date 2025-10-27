@@ -23,10 +23,10 @@ const TrackOrder = () => {
     <>
       <HeaderFile data={trackData.header} />
 
-      <section className="py-16 px-6 sm:px-12 lg:px-32">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-16">
+        <div className=" mx-auto">
           {/* Instructional Text */}
-          <p className="text-gray-700 mb-8 text-left leading-relaxed">
+          <p className=" mb-8 text-left font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
             To track your order please enter your Order ID in the box below and press the "Track Order" button. This was given to you on your receipt and in the confirmation email you should have received.
           </p>
 

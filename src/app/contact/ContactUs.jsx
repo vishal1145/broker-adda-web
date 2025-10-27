@@ -31,8 +31,8 @@ const ContactUs = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Form */}
           <div>
-            <h2 className="text-2xl font-semibold mb-2">Get in Touch</h2>
-            <p className="text-gray-600 text-sm mb-8">
+            <h2 className="text-[24px] leading-[36px] font-bold text-[#171A1FFF] mb-2">Get in Touch</h2>
+            <p className="font-[Inter] text-[18px] leading-[28px] font-medium text-[#565D6D] mb-8">
               Your email address will not be published. Required fields are marked*
             </p>
 
