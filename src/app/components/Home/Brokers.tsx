@@ -290,52 +290,86 @@ const Brokers = () => {
               />
             </div>
             <div className="p-6">
-              <div className="flex items-center justify-between">
+              {/* Name with Green Arrow Icon */}
+              <div className="flex items-start justify-between mb-3">
                 <Link href={`/broker-details/${brokerId}`} className="flex items-center gap-1 group/name" title="View details">
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover/name:text-gray-900" style={{display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden'}}>
+                  <h3 className="text-xl leading-7 font-semibold text-gray-900 group-hover/name:text-gray-900">
                     {typeof broker.name === 'string' ? broker.name : 
                      typeof broker.fullName === 'string' ? broker.fullName : 
                      broker.name?.name || broker.fullName?.name || 'Unknown Broker'}
                   </h3>
-                  <svg className="h-7 w-7 -rotate-45 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                  <svg
+                    className="h-5 w-5 text-emerald-600 mt-1"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
                 </Link>
-                <button className="inline-flex h-7 w-7 items-center justify-center text-emerald-700" title="Chat">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
-                </button>
               </div>
 
-              <p className="text-[13px] leading-5 text-gray-600 group-hover:text-gray-900">
-                {Array.isArray(broker.specializations) && broker.specializations.length > 0 ? broker.specializations[0] :
-                 typeof broker.specialization === 'string' ? broker.specialization : 
-                 typeof broker.expertise === 'string' ? broker.expertise : 
-                 typeof broker.role === 'string' ? broker.role : 
-                 broker.firmName || 'Real Estate Specialist'}
-              </p>
+              {/* Title */}
+              <div className="mb-3">
+                <p className="text-sm leading-5 font-normal text-gray-600">
+                  {Array.isArray(broker.specializations) && broker.specializations.length > 0 ? broker.specializations[0] :
+                   typeof broker.specialization === 'string' ? broker.specialization : 
+                   typeof broker.expertise === 'string' ? broker.expertise : 
+                   typeof broker.role === 'string' ? broker.role : 
+                   broker.firmName || 'Real Estate Specialist'}
+                </p>
+              </div>
 
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] font-medium">
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 group-hover:bg-white group-hover:text-gray-900">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>
+              {/* Location with Map Pin Icon */}
+              <div className="flex items-center gap-2 mb-3">
+                <svg
+                  className="h-4 w-4 text-gray-600"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <p className="text-sm leading-5 font-normal text-gray-600">
                   {(() => {
-                    // Normalise region to a displayable string without using any
                     const r = broker.region;
                     if (Array.isArray(r) && r.length > 0) {
                       const first = r[0] as string | RegionObject;
-                      return typeof first === 'string' ? first : (first.name || first.city || first.state || '-');
+                      return typeof first === 'string' ? first : (first.name || first.city || first.state || 'Location');
                     }
                     if (typeof r === 'string') return r;
                     if (r && typeof r === 'object') {
                       const ro = r as RegionObject;
-                      return ro.name || ro.city || ro.state || '-';
+                      return ro.name || ro.city || ro.state || 'Location';
                     }
                     if (typeof broker.location === 'string') return broker.location;
                     if (typeof broker.city === 'string') return broker.city;
                     return broker.state || broker.city || 'Location';
                   })()}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 text-gray-700 px-3 py-1 group-hover:bg-white group-hover:text-gray-900">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/></svg>
-                  {broker.leadsCreated?.count || broker.leadCount || broker.totalLeads || broker.leads || 0}+ leads
-                </span>
+                </p>
+              </div>
+
+              {/* Leads Completed with User Group Icon */}
+              <div className="flex items-center gap-2">
+                <svg
+                  className="h-4 w-4 text-gray-600"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <p className="text-sm leading-5 font-normal text-gray-600">
+                  {broker.leadsCreated?.count || broker.leadCount || broker.totalLeads || broker.leads || 0} Leads Completed
+                </p>
               </div>
             </div>
           </article>

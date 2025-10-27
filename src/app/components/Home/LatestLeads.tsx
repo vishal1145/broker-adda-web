@@ -225,7 +225,7 @@ const LatestLeads: React.FC = () => {
             className="grid gap-6 md:grid-cols-12 items-center"
           >
             {/* Left 6-col content */}
-            <div className="md:col-span-6 space-y-4 bg-gray-50 p-8 rounded-2xl relative overflow-hidden">
+            <div className="md:col-span-6 space-y-6 bg-gray-50 p-8 rounded-2xl relative overflow-hidden">
               {/* Dots - top right */}
               <div className="absolute right-20 top-0">
                 <Dots />
@@ -272,106 +272,235 @@ const LatestLeads: React.FC = () => {
                   <article
                     className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg"
                   >
-                    <div className="p-5">
-                      {/* Top Section - Tags and Icon */}
-                      <div className="flex items-center justify-between gap-2 mb-4">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`inline-flex items-center rounded-full ${reqClass(
-                              lead.requirement
-                            )} px-3 py-1.5 text-xs font-medium`}
-                          >
-                            {lead.requirement || ""}
-                          </span>
-                          <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 px-3 py-1.5 text-xs font-medium">
-                            {lead.propertyType || ""}
-                          </span>
-                        </div>
-                        <div className="w-5 h-5 text-gray-600">
-                          <svg
-                            className="w-full h-full"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                          </svg>
-                        </div>
-                      </div>
-
-                      {/* Middle Section - Location with right arrow */}
+                    <div className="p-6">
+                      {/* Top Section - Main Title */}
                       <div className="mb-4">
-                        <div className="flex items-center ">
-                          <h3 className="text-lg font-bold text-gray-900 capitalize">
-                            {regionName(lead.primaryRegion)}
-                          </h3>
-                          <Link
-                            href={`/lead-details/${lead._id}`}
-                            aria-label="Open lead details"
-                            className="ml-2 align-middle"
-                          >
+                        <h3 className="text-[20px] leading-[28px] font-bold mb-2" style={{ color: '#323743' }}>
+                          {lead.propertyType || "Property"} for {lead.requirement || "inquiry"}
+                        </h3>
+                        
+                        {/* Tags and Time */}
+                        <div className="flex items-center justify-between gap-2 flex-nowrap">
+                          <div className="flex items-center gap-2 flex-nowrap">
+                            <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                              {lead.requirement || ""}
+                            </span>
+                            <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                              {lead.propertyType || ""}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-sm leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
                             <svg
-                              className="h-7 w-7 -rotate-45 text-gray-700"
+                              className="h-4 w-4"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
                               strokeWidth="2"
                             >
-                              <path d="M5 12h14" />
-                              <path d="m12 5 7 7-7 7" />
+                              <circle cx="12" cy="12" r="10" />
+                              <path d="M12 6v6l4 2" />
                             </svg>
-                          </Link>
-                        </div>
-                        {lead.secondaryRegion && (
-                          <p className="text-sm text-gray-600 capitalize mt-1">
-                            {regionName(lead.secondaryRegion)}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Price Chip */}
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between">
-                          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 px-3 py-1.5 text-sm font-semibold">
-                            ₹
-                            {typeof lead.budget === "number"
-                              ? INR.format(lead.budget).replace("₹", "")
-                              : lead.budget || "—"}
+                            {lead.createdAt ? ago(lead.createdAt) : ""}
                           </div>
-                          {lead.createdAt && (
-                            <span className="text-xs text-gray-500">
-                              {ago(lead.createdAt)}
-                            </span>
-                          )}
                         </div>
                       </div>
 
-                      {/* Bottom Section - Broker */}
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-gray-500">
-                          posted by{" "}
-                          <span className="font-medium text-gray-900">
-                            {(() => {
-                              const createdBy = (
-                                lead as unknown as { createdBy?: unknown }
-                              )?.createdBy as unknown;
-                              if (!createdBy) return "—";
-                              if (typeof createdBy === "string")
-                                return createdBy;
-                              const obj = createdBy as {
-                                [key: string]: unknown;
-                              };
-                              return (
-                                (obj["name"] as string) ||
-                                (obj["fullName"] as string) ||
-                                (obj["email"] as string) ||
-                                "—"
-                              );
-                            })()}
-                          </span>
+                      {/* Horizontal Divider */}
+                      <div className="border-t border-gray-200 my-4"></div>
+
+                      {/* Middle Section - Property Details */}
+                      <div className="space-y-3 mb-4">
+                        {/* Preferred Location */}
+                        <div className="flex items-center gap-2">
+  <svg
+    className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+
+  <div className="flex items-center flex-wrap gap-1">
+    <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">
+      Preferred:
+    </span>
+    <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+      {regionName(lead.primaryRegion) || "—"}
+    </span>
+  </div>
+</div>
+
+
+                        {/* Secondary Location */}
+                        {lead.secondaryRegion && (
+                           <div className="flex items-center gap-2">
+  <svg
+    className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+
+  <div className="flex items-center flex-wrap gap-1">
+    <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Secondary:</span>{" "}
+    <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+                                {regionName(lead.secondaryRegion)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Budget */}
+                        <div className="flex items-start gap-2">
+                          <svg
+ className="h-4 w-4 flex-shrink-0 text-[#565D6D]"                            style={{ color: '#565D6D' }}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <rect x="3" y="8" width="18" height="12" rx="2" />
+                            <path d="M3 12h18M9 8v8" />
+                          </svg>
+                            <div className="flex items-center flex-wrap gap-1">
+    <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
+                            <span className="text-sm leading-5 font-normal" style={{ color: '#565D6D' }}>
+                              {typeof lead.budget === "number"
+                                ? "₹" + INR.format(lead.budget).replace("₹", "")
+                                : lead.budget || "—"}
+                            </span>
+                          </div>
                         </div>
                       </div>
+
+                      {/* Bottom Section - Broker Profile and Actions */}
+                  <div className="pt-4">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      {/* Avatar */}
+       <div
+         className="relative w-12 h-12 text-sm font-semibold"
+         style={{ color: '#323743' }}
+       >
+        {(() => {
+          const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
+          let name = "—";
+          let brokerImage: string | undefined;
+
+          if (!createdBy) {
+            name = "—";
+          } else if (typeof createdBy === "string") {
+            name = createdBy;
+          } else {
+            const obj = createdBy as { [key: string]: unknown };
+            name =
+              (obj["name"] as string) ||
+              (obj["fullName"] as string) ||
+              (obj["email"] as string) ||
+              "—";
+            brokerImage =
+              (obj["brokerImage"] as string) ||
+              (obj["profileImage"] as string) ||
+              (obj["image"] as string);
+          }
+
+          if (brokerImage) {
+            return (
+              <>
+                <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] overflow-hidden">
+                  <img
+                    src={brokerImage}
+                    alt={name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+                 {/* Green active badge */}
+                 <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+              </>
+            );
+          }
+
+          return (
+            <>
+              <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] flex items-center justify-center">
+                {name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join('')
+                  .toUpperCase()}
+              </div>
+               <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
+            </>
+          );
+        })()}
+      </div>
+
+      {/* Name and icons */}
+      <div>
+        <div className="flex items-center gap-2">
+          <p className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">
+            {(() => {
+              const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
+              if (!createdBy) return "Unknown";
+              if (typeof createdBy === "string") return createdBy;
+              const obj = createdBy as { [key: string]: unknown };
+              return (
+                (obj["name"] as string) ||
+                (obj["fullName"] as string) ||
+                (obj["email"] as string) ||
+                "Unknown"
+              );
+            })()}
+          </p>
+        </div>
+
+        {/* Connect / Chat */}
+        <div className="flex items-center gap-3 mt-1">
+          <span className="flex items-center gap-2">
+            <svg
+              className="w-5 h-5 fill-none stroke-[#171A1FFF]"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+            >
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+            <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">
+              Connect
+            </span>
+          </span>
+
+          <span className="flex items-center gap-2">
+            <svg
+              className="w-5 h-5 fill-none stroke-[#171A1FFF]"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">
+              Chat
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+
                     </div>
                   </article>
                 </Link>
