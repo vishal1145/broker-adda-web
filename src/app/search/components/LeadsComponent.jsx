@@ -1315,11 +1315,15 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               });
               
               return (
-                <article
+                <Link
                   key={lead._id || lead.id || index}
-                  className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg"
+                  href={`/lead-details/${lead._id || lead.id || index}`}
+                  className="block h-full"
                 >
-                  <div className="p-6">
+                  <article
+                    className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+                  >
+                    <div className="p-6">
                     {/* Top Section - Main Title */}
                     <div className="mb-4">
                       <h3 className="text-[20px] leading-[28px] font-bold mb-2" style={{  color: '#323743' }}>
@@ -1489,6 +1493,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     </div>
                   </div>
                 </article>
+                </Link>
               );
             })}
           </div>
