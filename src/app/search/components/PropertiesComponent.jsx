@@ -4,12 +4,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Select from 'react-select';
+import TabsBar from './TabsBar';
 
 const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const [filters, setFilters] = useState({
     categories: [],
+    transactionType: [],
     priceRange: [5000000, 20000000],
     bedrooms: [],
+    status: [],
     amenities: []
   });
 
@@ -17,6 +20,18 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [imageIndexById, setImageIndexById] = useState({});
   const [propertyItems, setPropertyItems] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
+  const [showSecondaryFilters, setShowSecondaryFilters] = useState(false);
+  const [secondaryFilters, setSecondaryFilters] = useState({
+    bathrooms: null,
+    furnishingType: null,
+    facingDirection: null,
+    possessionStatus: null,
+    postedBy: null,
+    verificationStatus: null,
+    propertyAge: null
+  });
   const timersRef = useRef({});
 
   // Trigger skeleton loader when switching between tabs from header
@@ -137,8 +152,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     indicatorSeparator: () => ({ display: 'none' })
   };
 
-  const categories = ['Apartment', 'Villa', 'Plot', 'Studio', 'Penthouse'];
-  const bedroomOptions = ['1 BHK', '2 BHK', '3 BHK', '4+ BHK'];
+  const categories = ['Apartment', 'Villa', 'Plot', 'Commercial', 'Office', 'Shop', 'Industrial'];
+  const transactionTypeOptions = ['Buy', 'Rent', 'Lease', 'Sell'];
+  const bedroomOptions = ['1', '2', '3', '4', '5+'];
+  const statusOptions = ['Available', 'Sold', 'Rented', 'Pending Approval'];
   const amenitiesOptions = ['Gym', 'Swimming Pool', 'Parking', 'Security', 'Balcony'];
 
   // Using API-backed propertyItems state instead of hardcoded list
@@ -146,9 +163,14 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const handleCategoryChange = (category) => {
     setFilters(prev => ({
       ...prev,
-      categories: prev.categories.includes(category)
-        ? prev.categories.filter(c => c !== category)
-        : [...prev.categories, category]
+      categories: prev.categories[0] === category ? [] : [category]
+    }));
+  };
+
+  const handleTransactionTypeChange = (type) => {
+    setFilters(prev => ({
+      ...prev,
+      transactionType: prev.transactionType[0] === type ? [] : [type]
     }));
   };
 
@@ -158,6 +180,13 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       bedrooms: prev.bedrooms.includes(bedroom)
         ? prev.bedrooms.filter(b => b !== bedroom)
         : [...prev.bedrooms, bedroom]
+    }));
+  };
+
+  const handleStatusChange = (status) => {
+    setFilters(prev => ({
+      ...prev,
+      status: prev.status[0] === status ? [] : [status]
     }));
   };
 
@@ -173,8 +202,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const resetFilters = () => {
     setFilters({
       categories: [],
+      transactionType: [],
       priceRange: [5000000, 20000000],
       bedrooms: [],
+      status: [],
       amenities: []
     });
   };
@@ -198,6 +229,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   };
 
   return (
+    <>
     <div className="grid grid-cols-12 gap-8">
       {/* Filter Sidebar - 3 columns */}
       <div className="col-span-3">
@@ -258,98 +290,293 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg p-6">
-          {/* Filter Header */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 space-y-5">
+
+          {/* Filter Results Heading */}
+          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-200">
+            <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-              <h2 className="text-lg font-bold text-gray-900">Filter Options</h2>
+            <h2 style={{ fontSize: '20px', lineHeight: '28px', fontWeight: '600', color: '#171A1FFF' }}>Filter Results</h2>
+          </div>
+
+
+          {/* Property Type Filter */}
+          <div className="mb-5">
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Property Type</h3>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => {
+                const selected = filters.categories[0] === category;
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => handleCategoryChange(category)}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '12px',
+                      lineHeight: '20px',
+                      fontWeight: '500',
+                      color: '#323742FF',
+                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                    className={`px-3 py-2 transition-colors ${
+                      selected 
+                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                        : 'hover:bg-[#B8BECAFF]'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
             </div>
+          </div>
+
+          {/* Transaction Type Filter */}
+          <div className="mb-5">
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Transaction Type</h3>
+            <div className="flex flex-wrap gap-2">
+              {transactionTypeOptions.map((type) => {
+                const selected = filters.transactionType[0] === type;
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => handleTransactionTypeChange(type)}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '12px',
+                      lineHeight: '20px',
+                      fontWeight: '500',
+                      color: '#323742FF',
+                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                    className={`px-3 py-2 transition-colors ${
+                      selected 
+                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                        : 'hover:bg-[#B8BECAFF]'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Region/Location Filter */}
+          <div className="mb-5">
+            <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Region/Location</h3>
+            <Select
+              instanceId="property-region-select"
+              styles={reactSelectStyles}
+              className="cursor-pointer"
+              options={[{ value: 'tajganj', label: 'Tajganj' }, { value: 'agra', label: 'Agra' }]}
+              placeholder="Select Region"
+              isSearchable
+              isClearable
+            />
+          </div>
+
+          {/* Price/Budget Range (INR) Filter */}
+          <div className="mb-5">
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Price/Budget Range (INR)</h3>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={filters.priceRange[0]}
+                onChange={(e) => handlePriceChange(0, parseInt(e.target.value) || 0)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+              />
+                  <input
+                type="number"
+                value={filters.priceRange[1]}
+                onChange={(e) => handlePriceChange(1, parseInt(e.target.value) || 0)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Bedrooms (BHK) Filter */}
+          <div className="mb-5">
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Bedrooms (BHK)</h3>
+            <div className="flex flex-wrap gap-2">
+              {bedroomOptions.map((bedroom) => {
+                const selected = filters.bedrooms.includes(bedroom);
+                return (
+                  <button
+                    key={bedroom}
+                    type="button"
+                    onClick={() => handleBedroomChange(bedroom)}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '12px',
+                      lineHeight: '20px',
+                      fontWeight: '500',
+                      color: '#323742FF',
+                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                    className={`px-3 py-2 transition-colors ${
+                      selected 
+                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                        : 'hover:bg-[#B8BECAFF]'
+                    }`}
+                  >
+                    {bedroom}
+                  </button>
+                );
+              })}
+              </div>
+            </div>
+
+          {/* Status Filter */}
+          <div className="mb-5">
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Status</h3>
+            <div className="flex flex-wrap gap-2">
+              {statusOptions.map((status) => {
+                const selected = filters.status[0] === status;
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => handleStatusChange(status)}
+                  style={{
+                      fontFamily: 'Inter',
+                      fontSize: '12px',
+                      lineHeight: '20px',
+                      fontWeight: '500',
+                      color: '#323742FF',
+                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                    className={`px-3 py-2 transition-colors ${
+                      selected 
+                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                        : 'hover:bg-[#B8BECAFF]'
+                    }`}
+                  >
+                    {status}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* More Filters Toggle */}
+          <div className="pt-4 border-t border-gray-200">
             <button
-              type="button"
-              onClick={resetFilters}
-              className="text-[#0A421E] hover:text-green-700 cursor-pointer flex items-center"
-              aria-label="Reset filters"
-              title="Reset filters"
+              onClick={() => setShowSecondaryFilters(!showSecondaryFilters)}
+              className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900"
+              style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}
             >
-              <i className="fa-solid fa-arrows-rotate text-sm" aria-hidden="true"></i>
-              <span className="sr-only">Reset</span>
+              <span>More Filters</span>
+              <svg className="w-4 h-4 transition-transform" style={{ transform: showSecondaryFilters ? 'rotate(180deg)' : 'rotate(0deg)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </button>
           </div>
 
-          {/* Category Filter */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-4">Category</h3>
-            <div className="space-y-3">
-              {categories.map((category) => (
-                <label key={category} className="flex items-center cursor-pointer">
+          {/* Secondary Filters Content */}
+          {showSecondaryFilters && (
+            <div className="space-y-5 pt-4">
+              {/* Property Size/Area (Sq. Ft.) */}
+              <div>
+                <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Property Size/Area (Sq. Ft.)</h3>
+                <div className="flex gap-2">
                   <input
-                    type="checkbox"
-                    checked={filters.categories.includes(category)}
-                    onChange={() => handleCategoryChange(category)}
-                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
+                    type="number"
+                    placeholder="1000"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
                   />
-                  <span className="ml-3 text-sm text-gray-700">{category}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Price Filter */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-4">Price</h3>
-            <div className="mb-4">
-              <div className="text-sm text-gray-600">
-                {formatPrice(filters.priceRange[0])} - {formatPrice(filters.priceRange[1])}
-              </div>
-            </div>
-            <div className="relative">
-              <div className="w-full h-2 bg-gray-200 rounded-lg relative">
-                <div
-                  className="h-2 bg-[#0A421E] rounded-lg absolute top-0"
-                  style={{
-                    left: '0%',
-                    width: `${((filters.priceRange[1] - 1000000) / (20000000 - 1000000)) * 100}%`
-                  }}
-                ></div>
                 <input
-                  type="range"
-                  min="1000000"
-                  max="20000000"
-                  step="500000"
-                  value={filters.priceRange[1]}
-                  onChange={(e) => handlePriceChange(1, e.target.value)}
-                  className="w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 slider-single"
+                    type="number"
+                    placeholder="2500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
                 />
               </div>
+              </div>
+
+              {/* Bathrooms */}
+              <div>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Bathrooms</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['1', '2', '3', '4+'].map((bath) => {
+                    const selected = secondaryFilters.bathrooms === bath;
+                    return (
+                      <button
+                        key={bath}
+                        type="button"
+                        onClick={() => setSecondaryFilters(prev => ({ ...prev, bathrooms: prev.bathrooms === bath ? null : bath }))}
+                        style={{
+                          fontFamily: 'Inter',
+                          fontSize: '12px',
+                          lineHeight: '20px',
+                          fontWeight: '500',
+                          color: '#323742FF',
+                          background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                          borderRadius: '6px',
+                          transition: 'all 0.2s',
+                        }}
+                        className={`px-3 py-2 transition-colors ${
+                          selected 
+                            ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                            : 'hover:bg-[#B8BECAFF]'
+                        }`}
+                      >
+                        {bath}
+                      </button>
+                    );
+                  })}
             </div>
           </div>
 
-          {/* Bedrooms Filter */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-4">Bedrooms</h3>
-            <div className="space-y-3">
-              {bedroomOptions.map((bedroom) => (
-                <label key={bedroom} className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.bedrooms.includes(bedroom)}
-                    onChange={() => handleBedroomChange(bedroom)}
-                    className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
-                  />
-                  <span className="ml-3 text-sm text-gray-700">{bedroom}</span>
-                </label>
-              ))}
+              {/* Furnishing Type */}
+              <div>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Furnishing Type</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['Furnished', 'Semi-Furnished', 'Unfurnished'].map((type) => {
+                    const selected = secondaryFilters.furnishingType === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setSecondaryFilters(prev => ({ ...prev, furnishingType: prev.furnishingType === type ? null : type }))}
+                        style={{
+                          fontFamily: 'Inter',
+                          fontSize: '12px',
+                          lineHeight: '20px',
+                          fontWeight: '500',
+                          color: '#323742FF',
+                          background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                          borderRadius: '6px',
+                          transition: 'all 0.2s',
+                        }}
+                        className={`px-3 py-2 transition-colors ${
+                          selected 
+                            ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                            : 'hover:bg-[#B8BECAFF]'
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    );
+                  })}
             </div>
           </div>
 
-          {/* Amenities Filter */}
+              {/* Amenities (Checkboxes) */}
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-4">Amenities</h3>
-            <div className="space-y-3">
-              {amenitiesOptions.map((amenity) => (
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Amenities</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {['Parking', 'Security', 'Power Backup', 'Gym', 'Lift', 'Water Supply', 'Garden', 'Swimming Pool'].map((amenity) => (
                 <label key={amenity} className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -357,9 +584,248 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     onChange={() => handleAmenityChange(amenity)}
                     className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
-                  <span className="ml-3 text-sm text-gray-700">{amenity}</span>
+                      <span className="ml-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>{amenity}</span>
                 </label>
               ))}
+                </div>
+              </div>
+
+              {/* Facing Direction */}
+              <div>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Facing Direction</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['North', 'East', 'South', 'West'].map((direction) => {
+                    const selected = secondaryFilters.facingDirection === direction;
+                    return (
+                      <button
+                        key={direction}
+                        type="button"
+                        onClick={() => setSecondaryFilters(prev => ({ ...prev, facingDirection: prev.facingDirection === direction ? null : direction }))}
+                        style={{
+                          fontFamily: 'Inter',
+                          fontSize: '12px',
+                          lineHeight: '20px',
+                          fontWeight: '500',
+                          color: '#323742FF',
+                          background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                          borderRadius: '6px',
+                          transition: 'all 0.2s',
+                        }}
+                        className={`px-3 py-2 transition-colors ${
+                          selected 
+                            ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                            : 'hover:bg-[#B8BECAFF]'
+                        }`}
+                      >
+                        {direction}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Possession Status */}
+              <div>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Possession Status</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['Ready to Move', 'Under Construction', 'Upcoming'].map((status) => {
+                    const selected = secondaryFilters.possessionStatus === status;
+                    return (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => setSecondaryFilters(prev => ({ ...prev, possessionStatus: prev.possessionStatus === status ? null : status }))}
+                        style={{
+                          fontFamily: 'Inter',
+                          fontSize: '12px',
+                          lineHeight: '20px',
+                          fontWeight: '500',
+                          color: '#323742FF',
+                          background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                          borderRadius: '6px',
+                          transition: 'all 0.2s',
+                        }}
+                        className={`px-3 py-2 transition-colors ${
+                          selected 
+                            ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                            : 'hover:bg-[#B8BECAFF]'
+                        }`}
+                      >
+                        {status}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Posted By */}
+              <div>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Posted By</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['Broker', 'Builder', 'Owner', 'Admin'].map((postedBy) => {
+                    const selected = secondaryFilters.postedBy === postedBy;
+                    return (
+                      <button
+                        key={postedBy}
+                        type="button"
+                        onClick={() => setSecondaryFilters(prev => ({ ...prev, postedBy: prev.postedBy === postedBy ? null : postedBy }))}
+                        style={{
+                          fontFamily: 'Inter',
+                          fontSize: '12px',
+                          lineHeight: '20px',
+                          fontWeight: '500',
+                          color: '#323742FF',
+                          background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                          borderRadius: '6px',
+                          transition: 'all 0.2s',
+                        }}
+                        className={`px-3 py-2 transition-colors ${
+                          selected 
+                            ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                            : 'hover:bg-[#B8BECAFF]'
+                        }`}
+                      >
+                        {postedBy}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Date Posted */}
+              <div>
+                <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Date Posted</h3>
+                <div className="relative">
+                  <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <input
+                    type="date"
+                    placeholder="Pick a date"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Verification Status */}
+              <div>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Verification Status</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['Verified', 'Unverified'].map((status) => {
+                    const selected = secondaryFilters.verificationStatus === status;
+                    return (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => setSecondaryFilters(prev => ({ ...prev, verificationStatus: prev.verificationStatus === status ? null : status }))}
+                        style={{
+                          fontFamily: 'Inter',
+                          fontSize: '12px',
+                          lineHeight: '20px',
+                          fontWeight: '500',
+                          color: '#323742FF',
+                          background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                          borderRadius: '6px',
+                          transition: 'all 0.2s',
+                        }}
+                        className={`px-3 py-2 transition-colors ${
+                          selected 
+                            ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                            : 'hover:bg-[#B8BECAFF]'
+                        }`}
+                      >
+                        {status}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Property Age */}
+              <div>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Property Age</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['New', '<5 Years', '<10 Years', '>10 Years'].map((age) => {
+                    const selected = secondaryFilters.propertyAge === age;
+                    return (
+                      <button
+                        key={age}
+                        type="button"
+                        onClick={() => setSecondaryFilters(prev => ({ ...prev, propertyAge: prev.propertyAge === age ? null : age }))}
+                        style={{
+                          fontFamily: 'Inter',
+                          fontSize: '12px',
+                          lineHeight: '20px',
+                          fontWeight: '500',
+                          color: '#323742FF',
+                          background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                          borderRadius: '6px',
+                          transition: 'all 0.2s',
+                        }}
+                        className={`px-3 py-2 transition-colors ${
+                          selected 
+                            ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                            : 'hover:bg-[#B8BECAFF]'
+                        }`}
+                      >
+                        {age}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons - Always Visible */}
+          <div className="pt-4 border-t border-gray-200 mt-5">
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setFilters({
+                    categories: [],
+                    transactionType: [],
+                    priceRange: [5000000, 20000000],
+                    bedrooms: [],
+                    status: [],
+                    amenities: []
+                  });
+                  setSecondaryFilters({
+                    bathrooms: null,
+                    furnishingType: null,
+                    facingDirection: null,
+                    possessionStatus: null,
+                    postedBy: null,
+                    verificationStatus: null,
+                    propertyAge: null
+                  });
+                }}
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  lineHeight: '22px',
+                  fontWeight: '500',
+                  color: '#171A1FFF'
+                }}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => {
+                  setShowSecondaryFilters(false);
+                  // Apply filters logic here
+                }}
+                className="flex-1 px-3 py-2 bg-green-900 rounded-lg text-sm font-medium text-white hover:bg-green-800 transition-colors"
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  lineHeight: '22px',
+                  fontWeight: '500'
+                }}
+              >
+                Apply Filters
+              </button>
             </div>
           </div>
           </div>
@@ -368,7 +834,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
       {/* Properties Grid - 9 columns */}
       <div className="col-span-9">
-        
+        {/* Tabs Bar */}
+        <TabsBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {/* Properties Grid */}
         {isLoading ? (
@@ -398,13 +865,24 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {propertyItems.map((property) => (
+          <>
+          {/* Results Heading */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Property Search Results ({propertyItems.length} Found)
+            </h2>
+          </div>
+
+          <div className="space-y-6">
+            {/* Property cards - horizontal layout */}
+            {propertyItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((property) => (
             <Link key={property.id} href={`/property-details/${property.id}`} className="block">
-              <div className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow transition-transform duration-200 hover:-translate-y-1 cursor-pointer">
-              <div className="relative p-3">
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex">
+                  {/* Image Section - Left */}
+                  <div className="relative w-[400px] h-[300px] flex-shrink-0">
                 {/* Image carousel */}
-                <div className="relative h-56 overflow-hidden rounded-xl">
+                    <div className="relative w-full h-full overflow-hidden rounded-l-xl">
                   {(() => {
                     const imgs = Array.isArray(property.images) ? property.images : [property.image];
                     const idx = imageIndexById[property.id] ?? 0;
@@ -419,112 +897,169 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     );
                   })()}
                 </div>
-               
-                {/* Slider controls removed as requested */}
-                <div className="absolute top-6 left-6">
+                    {/* Tag overlay - top-left */}
+                    <div className="absolute top-4 left-4">
                   <span className="bg-[#0A421E] text-white px-3 py-1 rounded-full text-xs font-medium">
                     {property.type}
                   </span>
                 </div>
-                <div className="absolute top-6 right-6 flex items-center bg-white/90 backdrop-blur rounded-full px-2 py-1 shadow-sm">
+                    {/* Rating - top-right */}
+                    <div className="absolute top-4 right-4 flex items-center bg-white/90 backdrop-blur rounded-full px-2 py-1 shadow-sm">
                   <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                   <span className="text-xs font-medium text-gray-700">{property.rating}</span>
                 </div>
                 {/* Price pill bottom-left */}
-                <div className="absolute bottom-[-0px] left-6 z-10">
-                  <span className="px-4 py-1.5 rounded-full text-white text-sm font-semibold shadow-md"
+                    <div className="absolute bottom-4 left-4 z-10">
+                      <span className="px-3 py-1 rounded-full text-sm font-semibold"
                     style={{
-                      background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%)'
+                          backgroundColor: '#FDC700'
                     }}
                   >
                     {property.currentPrice}
                   </span>
                 </div>
                 {/* Share icon bottom-right */}
-                <button aria-label="Share" className="absolute bottom-[-8px] right-6 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer">
+                    <button aria-label="Share" className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                   </svg>
                 </button>
               </div>
               
-              <div className="p-5">
-                
-                <div className="mt-2 flex items-center gap-1">
-                  <h3 className="text-base font-semibold text-gray-900">{property.name}</h3>
-                  <i className="fa-solid fa-arrow-right text-[12px] text-[#0A421E] px-2 mt-1 cursor-pointer" style={{ transform: 'rotate(320deg)' }} />
+                  {/* Details Section - Right */}
+                  <div className="flex-1 p-6 flex flex-col">
+                    {/* Title */}
+                    <h3 className="mb-2 flex items-center gap-2" style={{  fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
+                      {property.name}
+                      <svg className="w-3.5 h-3.5 text-[#0A421E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
+                        <path d="M7 17l10-10M7 7h10v10" />
+                      </svg>
+                    </h3>
+                    
+                    {/* Description */}
+                    <p className="mb-4" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF', width: '418px' }}>
+                      {property.description || `A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.`}
+                    </p>
+                    
+                    {/* Location Details */}
+                    <div className="flex flex-col gap-2 mb-4">
+                      <div className="flex items-center text-xs text-gray-600">
+                        <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        {property.city || 'Agra'}
                 </div>
-                <p className="text-xs text-gray-700 line-clamp-1">{property.description || `Luxurious ${property.type?.toLowerCase?.() || 'property'} retreat in prime location.`}</p>
-<div className='flex gap-7'>
-                {/* City */}
-                <div className="mt-2 flex items-center text-xs text-gray-600">
-                  <i className="fa-regular fa-building mr-1 text-[12px]" aria-hidden="true"></i>
-                  {property.city}
-                </div>
-                {/* Region (Location icon) */}
-                <div className="mt-2 flex items-center text-xs text-gray-600">
-                  <svg className="w-4 h-4 mr-1 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <div className="flex items-center text-xs text-gray-600">
+                        <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
                     <circle cx="12" cy="10" r="3" strokeWidth="2" />
                   </svg>
                   {Array.isArray(property.region)
                     ? property.region.map(r => (typeof r === 'string' ? r : r?.name)).filter(Boolean).join(', ')
-                    : (typeof property.region === 'string' ? property.region : property.region?.name) || '-'}
+                          : (typeof property.region === 'string' ? property.region : property.region?.name) || 'Electronic City, Noida, Uttar Pradesh, India'}
                 </div>
                 </div>
 
-                <div className="mt-3 text-xs font-medium text-gray-900">Features</div>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px]">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-                    {/* Bed icon */}
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 12V9a2 2 0 012-2h7a3 3 0 013 3v2m0 0h4a2 2 0 012 2v3M4 12h14M4 19v-4m16 4v-4" />
+                    {/* Features */}
+                    <div className="mb-3">
+                      <div className="text-xs font-semibold text-gray-900 mb-2">Features</div>
+                      <div className="flex flex-wrap gap-2">
+                        {property.bedrooms && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
+                            <svg className="w-4 h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M3 12l-1 8a2 2 0 002 2h16a2 2 0 002-2l-1-8M3 12V9a2 2 0 012-2h5m0 0h6a2 2 0 012 2v3m0 0v3a2 2 0 01-2 2h-6v0M9 21h6" />
                     </svg>
-                    {property.bedrooms} bd
+                            <span style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '600', color: '#19191FFF' }}>{property.bedrooms} bd</span>
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-                    {/* Bath icon */}
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 10V7a3 3 0 016 0v3m-8 0h12a2 2 0 012 2v2a5 5 0 01-5 5H8a5 5 0 01-5-5v-2a2 2 0 012-2z" />
+                        )}
+                        {property.bathrooms && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
+                            <svg className="w-4 h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2m0 0h4a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h8zm0 0v4" />
                     </svg>
-                    {property.bathrooms} bt
-                  </span>
-                  {typeof property.areaSqft === 'number' && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 ">
-                      {/* Area icon (square with diagonal) */}
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2" strokeWidth="2" />
-                        <path d="M6 18L18 6" strokeWidth="2" />
-                      </svg>
-                      {property.areaSqft.toLocaleString()} sq ft
+                            <span style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '600', color: '#19191FFF' }}>{property.bathrooms} bt</span>
                     </span>
                   )}
+                      </div>
                 </div>
 
-                {/* Amenities under features */}
-                <div className="mt-3">
-                  <div className="text-xs font-medium text-gray-900 mb-2">Amenities</div>
+                    {/* Amenities */}
+                    <div className="mt-auto">
+                      <div className="text-xs font-semibold text-gray-900 mb-2">Amenities</div>
                   <div className="flex flex-wrap gap-2 text-[11px]">
-                    {(Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities.slice(0, 3) : ['Gym', 'Parking', 'Security']).map((amenity, idx) => (
+                        {(Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities : ['Gym', 'Parking', 'Security', 'Swimming Pool', 'Clubhouse']).map((amenity, idx) => (
                       <span
                         key={idx}
-                        className="inline-flex items-center px-2 py-1 rounded-full border bg-gray-100 text-gray-700 border-gray-200"
+                            className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
                       >
                         {amenity}
                       </span>
                     ))}
                   </div>
                 </div>
-
-                {/* View All button removed as requested */}
+                  </div>
               </div>
               </div>
             </Link>
           ))}
           </div>
+
+          {/* Pagination */}
+          {propertyItems.length > 0 && (
+            <div className="flex items-center justify-between mt-6">
+              <p className="text-sm text-gray-600">
+                Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, propertyItems.length)} of {propertyItems.length} results
+              </p>
+              {Math.ceil(propertyItems.length / itemsPerPage) > 1 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className={`w-8 h-8 rounded-md border flex items-center justify-center ${
+                      currentPage === 1
+                        ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
+                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  {Array.from({ length: Math.ceil(propertyItems.length / itemsPerPage) }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-8 h-8 rounded-md border ${
+                        currentPage === page
+                          ? 'bg-[#0A421E] text-white border-[#0A421E]'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(Math.ceil(propertyItems.length / itemsPerPage), prev + 1))}
+                    disabled={currentPage >= Math.ceil(propertyItems.length / itemsPerPage)}
+                    className={`w-8 h-8 rounded-md border flex items-center justify-center ${
+                      currentPage >= Math.ceil(propertyItems.length / itemsPerPage)
+                        ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
+                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          </>
         )}
+      </div>
       </div>
 
       <style jsx>{`
@@ -557,7 +1092,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           background: transparent;
         }
       `}</style>
-    </div>
+    </>
   );
 };
 

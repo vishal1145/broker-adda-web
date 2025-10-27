@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Select, { components } from 'react-select';
+import TabsBar from './TabsBar';
 
 const BrokersComponent = ({ activeTab, setActiveTab }) => {
   const router = useRouter();
@@ -39,6 +40,17 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
+  
+  // Secondary filters state
+  const [showSecondaryFilters, setShowSecondaryFilters] = useState(false);
+  const [secondaryFilters, setSecondaryFilters] = useState({
+    companyName: '',
+    language: '',
+    brokerStatus: [],
+    responseRate: [],
+    joinedDate: '',
+    sortBy: 'rating-high'
+  });
 
   // Enable skeleton loader on Brokers page when switching tabs
   useEffect(() => {
@@ -737,74 +749,23 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100 space-y-6">
-
-          {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-            </div>
+          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 space-y-5">
+          
+          {/* Filter Results Heading */}
+          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-200">
+            <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <h3 style={{ fontSize: '20px', lineHeight: '28px', fontWeight: '600', color: '#171A1FFF' }}>Filter Results</h3>
           </div>
 
-
-          {/* Search by Name */}
+          {/* Region/Area */}
           <div>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-              
-              <span>Search by Name</span>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-               
-              </div>
-            <input
-              type="text"
-              placeholder="Search broker name..."
-              value={nameSearchTerm}
-              onChange={(e) => setNameSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm bg-white"
-            />
-          </div>
-          </div>
-
-
-          {/* City Dropdown */}
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-             
-              <span>City</span>
-            </div>
-            <Select
-              instanceId="brokers-city-select"
-              styles={reactSelectStyles}
-              className="cursor-pointer"
-              options={cities}
-              value={brokerFilters.city ? { value: brokerFilters.city, label: brokerFilters.city } : null}
-              onChange={(opt) => {
-                setBrokerFilters(prev => ({ ...prev, city: opt?.value || '', region: [] }));
-                setCurrentPage(1);
-              }}
-              isSearchable
-              isClearable
-              placeholder="Select City"
-            />
-          </div>
-
-          {/* Region Dropdown */}
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-             
-              <span>Region</span>
-            </div>
+            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Region/Area</label>
             {regionsLoading ? (
-              <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-9 bg-gray-100 rounded border border-gray-200 animate-pulse"></div>
             ) : regions.length === 0 ? (
-              <div className="text-sm text-gray-500">
-                No regions available
-              </div>
+              <div className="text-sm text-gray-500">No regions available</div>
             ) : (
               <Select
                 instanceId="brokers-region-select"
@@ -823,102 +784,303 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
             )}
           </div>
 
-
-
-          {/* Specialization - Chip Selector (no dropdown) */}
+          {/* Specialization/Property Type */}
           <div>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-             
-              <span>Specialization</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {brokerTypes.map((type) => {
+            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Specialization/Property Type</label>
+            <div className="grid grid-cols-2 gap-3">
+              {['Residential', 'Commercial', 'Plot', 'Rental', 'Industrial'].map((type) => {
                 const selected = brokerFilters.brokerType.includes(type);
                 return (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => handleBrokerTypeChange(type)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-150 ${selected ? 'bg-gray-600 text-white border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'}`}
-                  >
-                    {type}
-                  </button>
+                  <label key={type} className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => handleBrokerTypeChange(type)}
+                      className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
+                    />
+                    <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>{type}</span>
+                  </label>
                 );
               })}
-              {brokerFilters.brokerType.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setBrokerFilters(prev => ({ ...prev, brokerType: [] }))}
-                  className="ml-1 px-3 py-1 rounded-full text-xs font-medium border bg-gray-100 text-gray-700 hover:bg-gray-200"
-                >
-                  Clear
-                </button>
-              )}
             </div>
           </div>
 
-          {/* Experience */}
-          <div className="mt-5">
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-              
-              <span>Experience</span>
-            </div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-base font-semibold text-gray-800">{brokerFilters.experienceRange[0]}+ years</span>
-              <span className="text-[11px] text-green-900">Years</span>
-            </div>
-            <div className="relative">
-                <input
-                  type="range"
-                min={0}
-                max={20}
-                step={1}
-                  value={brokerFilters.experienceRange[0]}
-                  onChange={(e) => handleExperienceChange(0, e.target.value)}
-                className="w-full accent-green-900"
+          {/* Rating */}
+          <div>
+            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Rating</label>
+            <Select
+              instanceId="rating-select"
+              styles={reactSelectStyles}
+              className="cursor-pointer"
+              options={[
+                { value: '4', label: '4★ and above' },
+                { value: '3', label: '3★ and above' },
+                { value: '2', label: '2★ and above' },
+                { value: '1', label: '1★ and above' }
+              ]}
+              value={brokerFilters.ratingRange[0] >= 4 ? { value: '4', label: '4★ and above' } : 
+                     brokerFilters.ratingRange[0] >= 3 ? { value: '3', label: '3★ and above' } :
+                     brokerFilters.ratingRange[0] >= 2 ? { value: '2', label: '2★ and above' } :
+                     { value: '1', label: '1★ and above' }}
+              onChange={(opt) => setBrokerFilters(prev => ({ ...prev, ratingRange: [parseFloat(opt?.value || 0), 5] }))}
+              placeholder="Select Rating"
+            />
+          </div>
+
+          {/* Show Verified Brokers Only */}
+          <div>
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={brokerFilters.showVerifiedOnly}
+                onChange={(e) => setBrokerFilters(prev => ({ ...prev, showVerifiedOnly: e.target.checked }))}
+                className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
               />
-              <div className="mt-1 flex justify-between text-[10px] text-gray-400">
-                {[0,5,10,15,20].map(v => <span key={v}>{v}</span>)}
+              <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Show Verified Brokers Only</span>
+            </label>
+          </div>
+
+          {/* Experience/Activity Level */}
+          <div>
+            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Experience/Activity Level</label>
+            <Select
+              instanceId="experience-select"
+              styles={reactSelectStyles}
+              className="cursor-pointer"
+              options={[
+                { value: '5', label: '5+ Years' },
+                { value: '10', label: '10+ Years' },
+                { value: '15', label: '15+ Years' },
+                { value: '20', label: '20+ Years' }
+              ]}
+              value={brokerFilters.experienceRange[0] >= 20 ? { value: '20', label: '20+ Years' } :
+                     brokerFilters.experienceRange[0] >= 15 ? { value: '15', label: '15+ Years' } :
+                     brokerFilters.experienceRange[0] >= 10 ? { value: '10', label: '10+ Years' } :
+                     brokerFilters.experienceRange[0] >= 5 ? { value: '5', label: '5+ Years' } : null}
+              onChange={(opt) => setBrokerFilters(prev => ({ ...prev, experienceRange: [parseInt(opt?.value || 0), 20] }))}
+              placeholder="Select Experience"
+            />
+          </div>
+
+          {/* Leads Closed/Deals Completed */}
+          <div>
+            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Leads Closed/Deals Completed</label>
+            <Select
+              instanceId="deals-select"
+              styles={reactSelectStyles}
+              className="cursor-pointer"
+              options={[
+                { value: '50', label: '50+' },
+                { value: '100', label: '100+' },
+                { value: '200', label: '200+' },
+                { value: '500', label: '500+' }
+              ]}
+              placeholder="Select Deals"
+            />
+          </div>
+
+          {/* Badges */}
+          <div>
+            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Badges</label>
+            <div className="space-y-2">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
+                />
+                <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Verified</span>
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
+                />
+                <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Top Badge</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Secondary Filters Toggle */}
+          <div className="pt-4 border-t border-gray-200">
+            <button
+              onClick={() => setShowSecondaryFilters(!showSecondaryFilters)}
+              className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              <span>More Filters</span>
+              <svg className="w-4 h-4 transition-transform" style={{ transform: showSecondaryFilters ? 'rotate(180deg)' : 'rotate(0deg)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Secondary Filters */}
+          {showSecondaryFilters && (
+            <div className="space-y-5 pt-4">
+              {/* Firm/Company Name */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Firm/Company Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g., ABC Realty"
+                  value={secondaryFilters.companyName}
+                  onChange={(e) => setSecondaryFilters(prev => ({ ...prev, companyName: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                />
+              </div>
+
+              {/* Language Preference */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Language Preference</label>
+                <Select
+                  instanceId="language-select"
+                  styles={reactSelectStyles}
+                  className="cursor-pointer"
+                  options={[
+                    { value: 'english', label: 'English' },
+                    { value: 'hindi', label: 'Hindi' },
+                    { value: 'other', label: 'Other' }
+                  ]}
+                  value={secondaryFilters.language ? { value: secondaryFilters.language, label: secondaryFilters.language } : null}
+                  onChange={(opt) => setSecondaryFilters(prev => ({ ...prev, language: opt?.value || '' }))}
+                  placeholder="Select Language"
+                />
+              </div>
+
+              {/* Broker Status */}
+              <div>
+                <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Broker Status</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {['Online', 'Busy', 'Active', 'Offline'].map((status) => (
+                    <label key={status} className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={secondaryFilters.brokerStatus.includes(status)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSecondaryFilters(prev => ({ ...prev, brokerStatus: [...prev.brokerStatus, status] }));
+                          } else {
+                            setSecondaryFilters(prev => ({ ...prev, brokerStatus: prev.brokerStatus.filter(s => s !== status) }));
+                          }
+                        }}
+                        className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
+                      />
+                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>{status}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Response Rate */}
+              <div>
+                <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Response Rate</label>
+                <div className="space-y-2">
+                  {['Fast Responders', 'Highly Active'].map((rate) => (
+                    <label key={rate} className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={secondaryFilters.responseRate.includes(rate)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSecondaryFilters(prev => ({ ...prev, responseRate: [...prev.responseRate, rate] }));
+                          } else {
+                            setSecondaryFilters(prev => ({ ...prev, responseRate: prev.responseRate.filter(r => r !== rate) }));
+                          }
+                        }}
+                        className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
+                      />
+                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>{rate}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Joined Date */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Joined Date</label>
+                <Select
+                  instanceId="joined-date-select"
+                  styles={reactSelectStyles}
+                  className="cursor-pointer"
+                  options={[
+                    { value: 'newest', label: 'Newest' },
+                    { value: 'oldest', label: 'Oldest' },
+                    { value: 'recent', label: 'Recently Joined' }
+                  ]}
+                  value={secondaryFilters.joinedDate ? { value: secondaryFilters.joinedDate, label: secondaryFilters.joinedDate } : null}
+                  onChange={(opt) => setSecondaryFilters(prev => ({ ...prev, joinedDate: opt?.value || '' }))}
+                  placeholder="Select Date"
+                />
+              </div>
+
+              {/* Sort By */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Sort By</label>
+                <Select
+                  instanceId="sort-select"
+                  styles={reactSelectStyles}
+                  className="cursor-pointer"
+                  options={[
+                    { value: 'rating-high', label: 'Top Rated' },
+                    { value: 'rating-low', label: 'Lowest Rated' },
+                    { value: 'newest', label: 'Newest' },
+                    { value: 'oldest', label: 'Oldest' }
+                  ]}
+                  value={secondaryFilters.sortBy ? { value: secondaryFilters.sortBy, label: secondaryFilters.sortBy } : { value: 'rating-high', label: 'Top Rated' }}
+                  onChange={(opt) => setSecondaryFilters(prev => ({ ...prev, sortBy: opt?.value || 'rating-high' }))}
+                />
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Rating Filter */}
-          <div className="mt-5">
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-             
-              <span>Minimum Rating</span>
+          {/* Action Buttons - Always Visible */}
+          <div className="pt-4">
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setSecondaryFilters({
+                    companyName: '',
+                    language: '',
+                    brokerStatus: [],
+                    responseRate: [],
+                    joinedDate: '',
+                    sortBy: 'rating-high'
+                  });
+                  // Reset primary filters as well
+                  setBrokerFilters({
+                    region: [],
+                    brokerType: [],
+                    ratingRange: [0, 5],
+                    experienceRange: [0, 999],
+                    showVerifiedOnly: false
+                  });
+                }}
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  lineHeight: '22px',
+                  fontWeight: '500',
+                  color: '#171A1FFF'
+                }}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => {
+                  // Apply filters logic here
+                  setShowSecondaryFilters(false);
+                }}
+                className="flex-1 px-3 py-2 bg-green-900 rounded-lg text-sm font-medium text-white hover:bg-green-800 transition-colors"
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  lineHeight: '22px',
+                  fontWeight: '500'
+                }}
+              >
+                Apply Filters
+              </button>
             </div>
-            <div className="flex items-center gap-1.5">
-              {[1,2,3,4,5].map((i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setBrokerFilters(prev => ({ ...prev, ratingRange: [i, 5] }))}
-                  className="p-0.5 cursor-pointer"
-                  aria-label={`Minimum ${i} stars`}
-                >
-              <svg className={`w-5 h-5 ${i <= Math.round(brokerFilters.ratingRange[0]) ? 'text-yellow-500' : 'text-slate-300'}`} viewBox="0 0 20 20" fill={i <= Math.round(brokerFilters.ratingRange[0]) ? 'currentColor' : 'none'} stroke="currentColor">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                </button>
-              ))}
-              <span className="ml-2 text-xs text-gray-700">{Math.round(brokerFilters.ratingRange[0])}+ stars</span>
-            </div>
-            <div className="mt-4 border-t border-gray-100" />
-          </div>
-
-          {/* Reset Button */}
-          <div className="pt-5">
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="w-full text-white bg-green-900  cursor-pointer flex items-center justify-center px-4 py-2 rounded-lg transition-all duration-200 shadow"
-              aria-label="Reset filters"
-            >
-              <i className="fa-solid fa-arrows-rotate text-sm mr-2 text-white" aria-hidden="true"></i>
-              Reset Filters
-            </button>
           </div>
           </div>
         )}
@@ -926,72 +1088,14 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
       {/* Brokers Grid - 9 columns */}
       <div className="col-span-9">
-        {/* Header with page info and sort filter */}
-        <div className="flex items-center justify-between mb-6">
-          {/* Page number data on top left */}
-          <div className="text-sm text-gray-600">
-            {isLoading || brokersLoading ? (
-              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-            ) : (
-              <>
-                Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} brokers
-               
-              </>
-            )}
-          </div>
-          
-          {/* Sort filter on top right */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Sort by:</span>
-            <Select
-              instanceId="brokers-sort-select"
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  minHeight: 36,
-                  fontSize: 14,
-                  borderColor: '#d1d5db',
-                  boxShadow: 'none',
-                  cursor: 'pointer',
-                  ':hover': { borderColor: '#9ca3af' }
-                }),
-                option: (base, state) => ({
-                  ...base,
-                  fontSize: 14,
-                  backgroundColor: state.isSelected
-                    ? '#0A421E'
-                    : state.isFocused
-                      ? '#f3f4f6'
-                      : 'white',
-                  color: state.isSelected ? 'white' : '#111827',
-                  cursor: 'pointer'
-                }),
-                singleValue: (base) => ({ ...base, color: '#111827', fontSize: 14 }),
-                placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 14 }),
-                input: (base) => ({ ...base, fontSize: 14 }),
-                indicatorSeparator: () => ({ display: 'none' })
-              }}
-              options={[
-                { value: 'rating-high', label: 'Rating (High to Low)' },
-                { value: 'rating-low', label: 'Rating (Low to High)' },
-                { value: 'experience-high', label: 'Experience (High to Low)' },
-                { value: 'experience-low', label: 'Experience (Low to High)' },
-                { value: 'name-asc', label: 'Name (A-Z)' },
-                { value: 'name-desc', label: 'Name (Z-A)' }
-              ]}
-              value={[
-                { value: 'rating-high', label: 'Rating (High to Low)' },
-                { value: 'rating-low', label: 'Rating (Low to High)' },
-                { value: 'experience-high', label: 'Experience (High to Low)' },
-                { value: 'experience-low', label: 'Experience (Low to High)' },
-                { value: 'name-asc', label: 'Name (A-Z)' },
-                { value: 'name-desc', label: 'Name (Z-A)' }
-              ].find(o => o.value === sortBy)}
-              onChange={(opt) => setSortBy(opt?.value || 'rating-high')}
-              isSearchable={false}
-              className="w-48"
-            />
-          </div>
+        {/* Tabs Bar */}
+        <TabsBar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        {/* Header with heading */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Broker Search Results ({totalItems} Found)
+          </h2>
         </div>
         
         {/* Brokers Grid */}
@@ -1109,231 +1213,288 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
               });
               
               return (
-            <div
-              key={broker.id}
-              className="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 cursor-pointer"
-              onClick={() => {
-                const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id;
-                router.push(`/broker-details/${brokerId}`);
-              }}
-              role="button"
-              aria-label={`Open details for ${broker.name || 'broker'}`}
-            >
-              {/* Header: Avatar, name, rating */}
-              <div className="flex items-start gap-4 mb-5">
-                <div className="flex flex-col items-center">
-                  <img src={broker.profileImage} alt={broker.name} className="w-18 h-18 rounded-full object-cover" />
-                  <span className={`mt-2 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold border-2 shadow-md ${(() => {
-                      // Generate rating based on broker data - use the raw broker data directly
-                      const leadsCount = broker.leadsCreated?.count || 0;
-                      const hasSpecializations = (broker.specializations || []).length > 0;
-                      const hasFirmName = broker.firmName && broker.firmName.trim() !== '';
-                      const isVerified = broker.approvedByAdmin === 'unblocked';
-                      
-                      console.log('Rating calculation for', broker.name, {
-                        leadsCount,
-                        hasSpecializations,
-                        hasFirmName,
-                        isVerified,
-                        specializations: broker.specializations,
-                        firmName: broker.firmName,
-                        leadsCreated: broker.leadsCreated
-                      });
-                      
-                      // Base rating 3.0, add points for various factors
-                      let rating = 3.0;
-                      if (leadsCount > 0) rating += 0.5;
-                      if (hasSpecializations) rating += 0.3;
-                      if (hasFirmName) rating += 0.2;
-                      if (isVerified) rating += 0.5;
-                      
-                      // Cap at 5.0
-                      rating = Math.min(rating, 5.0);
-                      console.log('Calculated rating:', rating);
-                      return getRatingPillClasses(rating);
-                    })()}`}>
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    {(() => {
-                      // Generate rating based on broker data - same calculation as above
-                      const leadsCount = broker.leadsCreated?.count || 0;
-                      const hasSpecializations = (broker.specializations || []).length > 0;
-                      const hasFirmName = broker.firmName && broker.firmName.trim() !== '';
-                      const isVerified = broker.approvedByAdmin === 'unblocked';
-                      
-                      // Base rating 3.0, add points for various factors
-                      let rating = 3.0;
-                      if (leadsCount > 0) rating += 0.5;
-                      if (hasSpecializations) rating += 0.3;
-                      if (hasFirmName) rating += 0.2;
-                      if (isVerified) rating += 0.5;
-                      
-                      // Cap at 5.0
-                      rating = Math.min(rating, 5.0);
-                      return rating.toFixed(1);
-                    })()}
-                      </span>
-                </div>
-                <div className='flex-1'>
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-bold text-gray-900">{broker.name}</h3>
-                    {broker.approvedByAdmin === 'unblocked' && (
-                      <span
-                        className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg border-2 border-white"
-                        title="Verified"
-                        aria-label="Verified"
-                      >
-                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  {/* Specializations below name - small text */}
-                  <div className="text-xs text-gray-600 font-medium mb-2">
-                    {actualSpecializations.length > 0 ? (
-                      <>
-                        {actualSpecializations.slice(0, 1).map((type, index) => (
-                          <span key={index}>{type}</span>
-                        ))}
-                        {actualSpecializations.length > 1 && (
-                          <span> +{actualSpecializations.length - 1} more</span>
-                        )}
-                      </>
-                    ) : (
-                      <span>General Broker</span>
-                    )}
-                </div>
+           <div
+  key={broker.id}
+  className="relative bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 cursor-pointer"
+  onClick={() => {
+    const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id;
+    router.push(`/broker-details/${brokerId}`);
+  }}
+  role="button"
+  aria-label={`Open details for ${broker.name || 'broker'}`}
+>
+  {/* Header */}
+  <div className="flex items-start gap-4 mb-5">
+    {/* Avatar + Rating */}
+    <div className="flex flex-col items-center">
+      <img
+        src={broker.profileImage}
+        alt={broker.name}
+        className="w-18 h-18 rounded-full object-cover"
+      />
 
-                  {/* Firm name and Experience under red box */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <div className="text-xs font-semibold text-gray-800">{actualFirmName || 'Independent Broker'}</div>
-                  </div>
-                  <div className="text-xs text-gray-600 font-medium ml-7 mb-3">
-                    {`${Math.max(0, parseInt(broker.experience ?? 0))} years experience`}
-                  </div>
-                </div>
-              </div>
+      {/* Rating chip */}
+      <span
+        className={`mt-[-5] inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 border border-gray-200`}
+      >
+        <svg
+          className="w-3 h-3 text-yellow-500"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <span className="text-xs font-semibold text-gray-800">
+          {(() => {
+            let rating = 3.0;
+            const leadsCount = broker.leadsCreated?.count || 0;
+            if (leadsCount > 0) rating += 0.5;
+            if ((broker.specializations || []).length > 0) rating += 0.3;
+            if (broker.firmName) rating += 0.2;
+            if (broker.approvedByAdmin === 'unblocked') rating += 0.5;
+            return Math.min(rating, 5.0).toFixed(1);
+          })()}
+        </span>
+      </span>
+    </div>
 
-              {/* Address Display */}
-              {broker.address && (
-                <div className="mb-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200 border-l-4 border-yellow-500 ring-1 ring-yellow-100">
-                  <div className="flex items-start gap-2">
-                    <svg className="w-4 h-4 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <div className="text-sm text-gray-700">{broker.address}</div>
-                  </div>
-                </div>
-              )}
+    {/* Name + Details */}
+    <div className="flex-1">
+      {/* Name + verified */}
+      <div className="flex items-center gap-2 mb-1">
+        <h3 className="font-inter text-sm leading-[14px] font-semibold text-[#171A1FFF]">
+          {broker.name}
+        </h3>
+         {broker.approvedByAdmin === 'unblocked' && (
+           <span
+  className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-[#12B76A] text-[#12B76A] bg-white"
+  title="Verified"
+  aria-label="Verified"
+>
+  <svg
+    className="w-3 h-3"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    viewBox="0 0 24 24"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+</span>
+         )}
+      </div>
 
-              {/* Locations and Leads */}
-              <div className="mb-4">
-                <div className="flex flex-wrap gap-2">
-                  {actualLocations.slice(0, 1).map((location, index) => (
-                    <span key={index} className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[11px] font-medium rounded-full flex items-center gap-1.5 border border-gray-200">
-                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                      {location}
-                    </span>
-                  ))}
-                  {actualLocations.length === 0 && (
-                    <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[11px] font-medium rounded-full flex items-center gap-1.5 border border-gray-200">
-                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      {broker.city || 'Location'}
-                    </span>
-                  )}
-                  <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[11px] font-medium rounded-full flex items-center gap-1.5 border border-gray-200">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-5a1 1 0 011-1h2a1 1 0 011 1v5h3a1 1 0 001-1V10" />
-                    </svg>
-                    {actualLeadsCreated.count || 0} leads
-                  </span>
-                  </div>
-                </div>
+      {/* Specialization */}
+      <div className="font-inter text-[12px] leading-[12px] font-normal text-[#565D6DFF] mb-1">
+        {actualSpecializations.length > 0 ? (
+          <>
+            {actualSpecializations.slice(0, 1).map((type, i) => (
+              <span key={i}>{type}</span>
+            ))}
+            {actualSpecializations.length > 1 && (
+              <span> +{actualSpecializations.length - 1} more</span>
+            )}
+          </>
+        ) : (
+          <span>General Broker</span>
+        )}
+      </div>
 
-              {/* Top-right icon actions */}
-              <div className="absolute top-4 right-4 flex items-center gap-2">
-                  <button 
-                  onClick={(e) => { e.stopPropagation(); const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id; router.push(`/broker-details/${brokerId}`); }}
-                  className="w-9 h-9 rounded-full bg-green-900 text-white flex items-center justify-center shadow hover:bg-green-800"
-                  title="View Details"
-                  aria-label="View Details"
-                  >
-                  {/* Eye icon */}
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id; router.push(`/broker-details/${brokerId}?chat=1`); }}
-                  className="w-9 h-9 rounded-full bg-gray-100 text-gray-600 border border-gray-300 flex items-center justify-center shadow hover:bg-gray-200"
-                  title="Chat"
-                  aria-label="Chat"
-                >
-                  {/* Simple chat bubble outline (gray) */}
-                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10a2 2 0 012 2v5a2 2 0 01-2 2H11l-3 3v-3H7a2 2 0 01-2-2v-5a2 2 0 012-2z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
+      {/* Firm name */}
+      {/* Firm name + Experience (same row) */}
+<div className="flex items-center gap-4 mb-3">
+  {/* Firm */}
+  <span className="inline-flex items-center gap-1.5">
+    <svg className="w-4 h-4 text-[#565D6DFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+    <span className="font-inter text-[12px] leading-[12px] font-normal text-[#565D6DFF]">
+      {actualFirmName || 'Independent Broker'}
+    </span>
+  </span>
+
+  {/* Experience */}
+  <span className="inline-flex items-center gap-1.5">
+   
+    <span className="font-inter text-[12px] leading-[12px] font-normal text-[#565D6DFF]">
+      {`${Math.max(0, parseInt(broker.experience ?? 0))} years experience`}
+    </span>
+  </span>
+</div>
+
+
+      
+    </div>
+  </div>
+
+  {/* Address Chip */}
+  {broker.address && (
+    <div className="mb-3 px-4 py-2 rounded-md border border-yellow-300 bg-yellow-50">
+      <div className="flex items-center gap-2">
+        <svg
+          className="w-4 h-4 text-[#171A1FFF]"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          strokeWidth="2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"
+          />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        <div className="font-inter text-[12px] leading-[15px] font-normal text-[#19191FFF]">
+          {broker.address}
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Location + Leads */}
+  <div className="flex flex-wrap gap-2 mb-4">
+    {actualLocations.slice(0, 1).map((location, i) => (
+      <span
+        key={i}
+        className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md flex items-center gap-2 border border-gray-200"
+      >
+        <svg
+          className="w-4 h-4 text-gray-800"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          strokeWidth="2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+        </svg>
+        <span>{location}</span>
+      </span>
+    ))}
+
+    <span className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md flex items-center gap-2 border border-gray-200">
+      <svg
+        className="w-4 h-4 text-gray-800"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        strokeWidth="2"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-5a1 1 0 011-1h2a1 1 0 011 1v5h3a1 1 0 001-1V10"
+        />
+      </svg>
+      <span>{actualLeadsCreated.count || 0} leads</span>
+    </span>
+  </div>
+
+  {/* Top-right Actions */}
+  <div className="absolute top-6 right-6 flex items-center gap-2">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id;
+        router.push(`/broker-details/${brokerId}`);
+      }}
+      className="p-2"
+      title="View Details"
+      aria-label="View Details"
+    >
+      <svg
+        className="w-5 h-5 text-green-900"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        strokeWidth="2"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z"
+        />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+        />
+      </svg>
+    </button>
+
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id;
+        router.push(`/broker-details/${brokerId}?chat=1`);
+      }}
+      className="p-2"
+      title="Chat"
+      aria-label="Chat"
+    >
+      <svg
+        className="w-5 h-5 text-gray-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        strokeWidth="2"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+        />
+      </svg>
+    </button>
+  </div>
+</div>
+
             );
             })}
           </div>
         )}
 
         {/* Pagination */}
-        {totalItems > 0 && totalPages > 1 && (
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Items per page:</span>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A421E] focus:border-transparent"
-              >
-                <option value={6}>6</option>
-                <option value={9}>9</option>
-                <option value={12}>12</option>
-                <option value={15}>15</option>
-                <option value={18}>18</option>
-              </select>
+        {totalItems > 0 && (
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-4">
+            {/* Left: Results info */}
+            <div className="text-sm text-gray-600">
+              Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} results
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2">
+            {/* Right: Pagination buttons */}
+            {totalPages > 1 && (
+            <div className="flex items-center gap-1">
               <button
                 onClick={handlePrevious}
                 disabled={currentPage === 1}
-                className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md ${
+                className={`w-8 h-8 flex items-center justify-center rounded-md border ${
                   currentPage === 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <span className="hidden sm:inline">Previous</span>
-                <span className="sm:hidden">Prev</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
 
               <div className="flex items-center gap-1 overflow-x-auto">
                 {/* Always show first page */}
                 <button
                   onClick={() => handlePageChange(1)}
-                  className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md ${
+                  className={`w-8 h-8 flex items-center justify-center rounded-md font-medium ${
                     currentPage === 1
                       ? 'bg-[#0A421E] text-white'
                       : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -1373,7 +1534,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md ${
+                      className={`w-8 h-8 flex items-center justify-center rounded-md font-medium ${
                         currentPage === page
                           ? 'bg-[#0A421E] text-white'
                           : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -1392,7 +1553,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                 {totalPages > 1 && (
                   <button
                     onClick={() => handlePageChange(totalPages)}
-                    className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md ${
+                    className={`w-8 h-8 flex items-center justify-center rounded-md font-medium ${
                       currentPage === totalPages
                         ? 'bg-[#0A421E] text-white'
                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -1406,15 +1567,18 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
               <button
                 onClick={handleNext}
                 disabled={currentPage === totalPages}
-                className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md ${
+                className={`w-8 h-8 flex items-center justify-center rounded-md border ${
                   currentPage === totalPages
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Next
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
+            )}
           </div>
         )}
       </div>

@@ -3,19 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Select, { components } from 'react-select';
+import Link from 'next/link';
+import TabsBar from './TabsBar';
 
 const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [leadFilters, setLeadFilters] = useState({
     leadStatus: [],
     leadType: [],
     requirement: [],
-    budgetRange: [5000000, 15000000],
+    budgetRange: [50000, 500000],
     city: '',
     location: '',
     dateAdded: {
       start: '2024-06-01',
       end: ''
     },
+    datePosted: '',
     brokerAgent: [],
     priority: []
   });
@@ -37,6 +40,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   ]);
   const [brokersOptions, setBrokersOptions] = useState([]);
   const [brokersLoading, setBrokersLoading] = useState(false);
+  const [showSecondaryFilters, setShowSecondaryFilters] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -92,9 +96,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         params.set('requirement', leadFilters.requirement[0]);
       }
 
-      // Region/location: do NOT send to API if backend rejects it, apply client-side below
-      // If your backend supports it, uncomment next line
-      // if (leadFilters.location) params.set('region', leadFilters.location);
+      // Region/location - send region ID to API
+      if (leadFilters.location) params.set('regionId', leadFilters.location);
 
       console.log('API URL:', `${apiUrl}/leads?${params.toString()}`);
       console.log('Status filters:', leadFilters.leadStatus);
@@ -111,6 +114,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('API Response:', data);
         let items = [];
         let totalCount = 0;
         
@@ -281,29 +285,43 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           });
         }
 
-        // Filter by Region (robust matching across fields)
+        // Filter by Region (robust matching by ID or name)
         if (leadFilters.location) {
-          const regionLower = leadFilters.location.toLowerCase();
+          const regionFilterValue = leadFilters.location;
+          const isRegionID = typeof regionFilterValue === 'string' || typeof regionFilterValue === 'number';
+          
           filteredItems = filteredItems.filter(lead => {
+            // Check if lead has matching region ID
+            const primaryRegionID = lead.primaryRegion?._id || lead.primaryRegion?.id || lead.primaryRegion;
+            const secondaryRegionID = lead.secondaryRegion?._id || lead.secondaryRegion?.id || lead.secondaryRegion;
+            
+            // Check if IDs match
+            if (isRegionID && String(regionFilterValue) === String(primaryRegionID) || String(regionFilterValue) === String(secondaryRegionID)) {
+              return true;
+            }
+            
+            // Fallback: check names (case-insensitive)
+            const regionLower = String(regionFilterValue).toLowerCase();
             const primaryRegion = (typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion?.name || '').toString().toLowerCase();
             const secondaryRegion = (typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion?.name || '').toString().toLowerCase();
-            const regionsArr = Array.isArray(lead.regions) ? lead.regions : [];
             const location = (lead.location || '').toString().toLowerCase();
 
-            const match = (val) => !!val && (val === regionLower || val.includes(regionLower));
-            const regionsMatch = regionsArr.some(r => {
-              const name = (typeof r === 'string' ? r : r?.name || '').toString().toLowerCase();
-              return match(name);
-            });
-            return match(primaryRegion) || match(secondaryRegion) || match(location) || regionsMatch;
+            return primaryRegion.includes(regionLower) || secondaryRegion.includes(regionLower) || location.includes(regionLower);
           });
         }
         
-        console.log('Filtered leads:', filteredItems);
-        console.log('Filter results - Status filter:', leadFilters.leadStatus.length > 0 ? 'Applied (API-side)' : 'Not applied');
-        console.log('Filter results - Property Type filter:', leadFilters.leadType.length > 0 ? 'Applied (API-side)' : 'Not applied');
+        console.log('=== LEAD FILTERING DEBUG ===');
+        console.log('Total items from API:', items.length);
+        console.log('Current filters:', leadFilters);
+        console.log('Filtered items count:', filteredItems.length);
+        console.log('Filter results - Status filter:', leadFilters.leadStatus.length > 0 ? `Applied (${leadFilters.leadStatus.join(', ')})` : 'Not applied');
+        console.log('Filter results - Property Type filter:', leadFilters.leadType.length > 0 ? `Applied (${leadFilters.leadType.join(', ')})` : 'Not applied');
+        console.log('Filter results - Requirement filter:', leadFilters.requirement.length > 0 ? `Applied (${leadFilters.requirement.join(', ')})` : 'Not applied');
         console.log('Filter results - Priority filter:', leadFilters.priority.length > 0 ? 'Applied (Client-side)' : 'Not applied');
-        console.log('Filter results - Location filter:', leadFilters.location ? 'Applied (Client-side)' : 'Not applied');
+        console.log('Filter results - Location filter:', leadFilters.location ? `Applied (Region ID: ${leadFilters.location})` : 'Not applied');
+        if (items.length > 0 && filteredItems.length === 0) {
+          console.log('WARNING: Items from API but filtered out. Sample item:', items[0]);
+        }
         
         // Client-side pagination after filtering
         const start = (currentPage - 1) * leadsPerPage;
@@ -426,7 +444,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     'Rejected'
   ];
   const leadTypeOptions = ['Residential', 'Commercial', 'Plot', 'Other'];
-  const requirementOptions = ['Buy', 'Rent', 'Sell'];
+  const requirementOptions = ['Buy', 'Rent', 'Sell', 'Lease'];
   const priorityOptions = ['High', 'Medium', 'Low'];
 
   const resetFilters = () => {
@@ -741,98 +759,42 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
         ) : (
-           <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100 space-y-6">
+          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 space-y-5">
 
-          {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          {/* Filter Results Heading */}
+          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-200">
+            <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-              <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-            </div>
+            <h2 style={{ fontSize: '20px', lineHeight: '28px', fontWeight: '600', color: '#171A1FFF' }}>Filter Results</h2>
           </div>
 
-          {/* Top filters: City and Region */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-2">City</h3>
-                <Select
-                  instanceId="leads-city-select"
-                  styles={reactSelectStyles}
-                  className="cursor-pointer"
-                  options={cities}
-                  value={leadFilters.city ? { value: leadFilters.city, label: leadFilters.city } : null}
-                  onChange={(opt) => {
-                    setLeadFilters(prev => ({ 
-                      ...prev, 
-                      city: opt?.value || '',
-                      location: '' // Clear region when city changes
-                    }));
-                    setCurrentPage(1);
-                  }}
-                  isSearchable
-                  isClearable
-                  placeholder="Select City"
-                />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-2">Region</h3>
-                {regionsLoading ? (
-                  <div className="h-8 bg-gray-200 rounded animate-pulse" />
-                ) : (
-                  <Select
-                    instanceId="leads-region-select"
-                    styles={reactSelectStyles}
-                    className="cursor-pointer"
-                    options={regions.map(r => ({ value: r.name, label: r.name }))}
-                    value={leadFilters.location ? { value: leadFilters.location, label: leadFilters.location } : null}
-                    onChange={(opt) => {
-                      setLeadFilters(prev => ({ ...prev, location: opt?.value || '' }));
-                      setCurrentPage(1);
-                    }}
-                    isSearchable
-                    isClearable
-                    placeholder="Select Region"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Lead Type Filter (chips - gray) */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Property Type</h3>
-            <div className="flex flex-wrap gap-2">
-              {leadTypeOptions.map((type) => {
-                const selected = (leadFilters.leadType || []).includes(type);
-                return (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => handleLeadTypeChange(type)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors shadow-sm ${selected ? 'bg-gray-600 text-white border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'}`}
-                  >
-                    {type}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Requirement Filter (chips - gray) */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Requirement</h3>
-            <div className="flex flex-wrap gap-2">
+          {/* Requirement Filter */}
+          <div>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Requirement</h3>
+            <div className="grid grid-cols-2 gap-3">
               {requirementOptions.map((req) => {
-                const selected = (leadFilters.requirement || []).includes(req);
+                const selected = leadFilters.requirement?.includes(req);
                 return (
                   <button
                     key={req}
                     type="button"
                     onClick={() => handleRequirementChange(req)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors shadow-sm ${selected ? 'bg-gray-600 text-white border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'}`}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '12px',
+                      lineHeight: '20px',
+                      fontWeight: '500',
+                      color: '#323742FF',
+                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                    className={`px-3 py-2 w-full transition-colors ${
+                      selected 
+                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                        : 'hover:bg-[#B8BECAFF]'
+                    }`}
                   >
                     {req}
                   </button>
@@ -841,67 +803,239 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
 
-          {/* Budget Range Filter */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Budget Range</h3>
-            <div className="mb-3 grid grid-cols-2 gap-2">
-              <div className="relative">
-                <span className="absolute left-3 top-2 text-xs text-gray-500">Min</span>
-                <input
-                  type="number"
-                  value={leadFilters.budgetRange[0]}
-                  onChange={(e) => handleBudgetMinInput(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                />
+          {/* Property Type Filter */}
+              <div>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Property Type</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {leadTypeOptions.map((type) => {
+                const selected = leadFilters.leadType?.includes(type);
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => handleLeadTypeChange(type)}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '12px',
+                      lineHeight: '20px',
+                      fontWeight: '500',
+                      color: '#323742FF',
+                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                    className={`px-3 py-2 w-full transition-colors ${
+                      selected 
+                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                        : 'hover:bg-[#B8BECAFF]'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                );
+              })}
               </div>
-              <div className="relative">
-                <span className="absolute left-3 top-2 text-xs text-gray-500">Max</span>
-                <input
-                  type="number"
-                  value={leadFilters.budgetRange[1]}
-                  onChange={(e) => handleBudgetMaxInput(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                />
-              </div>
+          </div>
+
+          {/* Region/Area Filter */}
+              <div>
+            <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Region/Area</h3>
+                  <Select
+                    instanceId="leads-region-select"
+                    styles={reactSelectStyles}
+                    className="cursor-pointer"
+              options={regions.map(r => ({ value: r.id, label: r.name }))}
+              value={(() => {
+                if (!leadFilters.location) return null;
+                const region = regions.find(r => r.id === leadFilters.location || r.name === leadFilters.location);
+                return region ? { value: region.id, label: region.name } : { value: leadFilters.location, label: leadFilters.location };
+              })()}
+                    onChange={(opt) => {
+                      setLeadFilters(prev => ({ ...prev, location: opt?.value || '' }));
+                      setCurrentPage(1);
+                    }}
+                    isSearchable
+                    isClearable
+                    placeholder="Select Region"
+                  />
+          </div>
+
+          {/* Status Filter */}
+          <div>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Status</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {['New', 'Assigned', 'In Progress', 'Closed', 'Rejected'].map((status) => {
+                const selected = leadFilters.leadStatus?.includes(status);
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => {
+                      handleLeadStatusChange(status);
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '12px',
+                      lineHeight: '20px',
+                      fontWeight: '500',
+                      color: '#323742FF',
+                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                    className={`px-3 py-2 w-full transition-colors ${
+                      selected 
+                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                        : 'hover:bg-[#B8BECAFF]'
+                    }`}
+                  >
+                    {status}
+                  </button>
+                );
+              })}
             </div>
-            <div className="relative">
-              <div className="w-full h-2 bg-gray-200 rounded-lg relative">
+          </div>
+
+          {/* Budget Range Filter */}
+          <div>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Budget Range</h3>
+              <div className="relative">
+              <div className="flex justify-between text-sm text-gray-700 mb-2">
+                <span>${leadFilters.budgetRange[0].toLocaleString()}</span>
+                <span>${leadFilters.budgetRange[1].toLocaleString()}</span>
+              </div>
+              <div className="relative h-2 bg-green-50 rounded-lg">
                 <div 
-                  className="h-2 bg-green-900 rounded-lg absolute top-0"
+                  className="h-2 bg-green-700 rounded-lg absolute"
                   style={{
-                    left: '0%',
-                    width: `${((leadFilters.budgetRange[0] - 1000000) / (20000000 - 1000000)) * 100}%`
+                    left: `${((leadFilters.budgetRange[0] - 50000) / (500000 - 50000)) * 100}%`,
+                    width: `${((leadFilters.budgetRange[1] - leadFilters.budgetRange[0]) / (500000 - 50000)) * 100}%`
                   }}
                 ></div>
                 <input
                   type="range"
-                  min="1000000"
-                  max="20000000"
-                  step="500000"
+                  min="50000"
+                  max="500000"
+                  step="10000"
                   value={leadFilters.budgetRange[0]}
-                  onChange={(e) => handleLeadBudgetChange(e.target.value)}
-                  className="w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 slider-single"
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    setLeadFilters(prev => ({ 
+                      ...prev, 
+                      budgetRange: [val, prev.budgetRange[1]]
+                    }));
+                  }}
+                  className="w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 slider-min"
+                />
+                <input
+                  type="range"
+                  min="50000"
+                  max="500000"
+                  step="10000"
+                  value={leadFilters.budgetRange[1]}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    setLeadFilters(prev => ({ 
+                      ...prev, 
+                      budgetRange: [prev.budgetRange[0], val]
+                    }));
+                  }}
+                  className="w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 slider-max"
                 />
               </div>
-              <div className="flex justify-between text-xs text-gray-700 mt-1">
-                <span>$1M</span>
-                <span>$20M</span>
               </div>
+          </div>
+
+          {/* Date Posted Filter */}
+          <div>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Date Posted</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {['Today', 'Last 7 Days', 'Last 30 Days', 'Custom Range'].map((dateOption) => {
+                const selected = leadFilters.datePosted === dateOption;
+                return (
+                  <button
+                    key={dateOption}
+                    type="button"
+                    onClick={() => {
+                      setLeadFilters(prev => ({
+                        ...prev,
+                        datePosted: prev.datePosted === dateOption ? '' : dateOption
+                      }));
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '12px',
+                      lineHeight: '20px',
+                      fontWeight: '500',
+                      color: '#323742FF',
+                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                    className={`px-3 py-2 w-full transition-colors flex items-center justify-center gap-2 ${
+                      selected 
+                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
+                        : 'hover:bg-[#B8BECAFF]'
+                    }`}
+                  >
+                    {dateOption}
+                    {dateOption === 'Custom Range' && (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Region/City already moved to top */}
+          {/* Secondary Filters Toggle */}
+          <div className="pt-4 border-t border-gray-200">
+            <button
+              onClick={() => setShowSecondaryFilters(!showSecondaryFilters)}
+              className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              <span>Secondary Filters</span>
+              <svg className="w-4 h-4 transition-transform" style={{ transform: showSecondaryFilters ? 'rotate(180deg)' : 'rotate(0deg)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
 
-          {/* Date filter removed as requested */}
+          {/* Secondary Filters Content */}
+          {showSecondaryFilters && (
+            <div className="space-y-5 pt-4">
+              {/* Preferred Location (Primary) */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Preferred Location (Primary)</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Downtown, Financial District"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                />
+              </div>
 
-          {/* Broker/Agent Filter (single-select from API) */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Broker/Agent</h3>
+              {/* Preferred Location (Secondary) (Optional) */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Preferred Location (Secondary) (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Mid-levels, Causeway Bay"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                />
+              </div>
+
+              {/* Broker Assigned */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Broker Assigned</label>
             {(() => {
               if (brokersLoading) return <div className="h-8 bg-gray-200 rounded animate-pulse" />;
               return (
                 <Select
-                  instanceId="leads-agent-select"
+                      instanceId="broker-assigned-select"
                   styles={reactSelectStyles}
                   className="cursor-pointer"
                   options={brokersOptions}
@@ -909,101 +1043,137 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     const sel = (leadFilters.brokerAgent || [])[0];
                     return brokersOptions.find(o => o.value === sel) || null;
                   })()}
-                  onChange={(opt) => setLeadFilters(prev => ({ ...prev, brokerAgent: opt?.value ? [opt.value] : [] }))}
+                      onChange={(opt) => {
+                        setLeadFilters(prev => ({ ...prev, brokerAgent: opt?.value ? [opt.value] : [] }));
+                        setCurrentPage(1);
+                      }}
                   isSearchable
-                  placeholder="Select Broker/Agent"
+                      placeholder="Select Broker"
                 />
               );
             })()}
           </div>
 
-          <div className="pt-5">
+              {/* Customer Name/Contact */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Customer Name/Contact</label>
+                <input
+                  type="text"
+                  placeholder="Search by name or contact"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                />
+              </div>
+
+              {/* Lead Source */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Lead Source</label>
               <button
-                type="button"
-                onClick={resetFilters}
-                className="w-full text-white bg-green-900 cursor-pointer flex items-center justify-center px-4 py-2 rounded-lg transition-all duration-200 shadow"
-                aria-label="Reset filters"
+                  className="w-full px-3 py-2 text-sm text-left border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
               >
-                <i className="fa-solid fa-arrows-rotate text-sm mr-2 text-white" aria-hidden="true"></i>
-                Reset Filters
+                  Select Lead Sources
+              </button>
+          </div>
+
+             
+
+              {/* Verification Status */}
+              <div className="flex items-center justify-between">
+                <label className="block" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Verification Status: Verified</label>
+                <div className="relative inline-block w-[44px] h-6">
+                  <input
+                    type="checkbox"
+                    className="peer sr-only"
+                    defaultChecked
+                  />
+                  <div className="absolute inset-0 bg-gray-200 rounded-full cursor-pointer transition-colors duration-200 ease-in-out peer-checked:bg-[#0D542B]">
+                    <div className="absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform duration-200 peer-checked:translate-x-[20px]"></div>
+                  </div>
+                </div>
+              </div>
+          
+              {/* Sort By */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Sort By</label>
+            <Select
+                  instanceId="sort-select"
+                  styles={reactSelectStyles}
+                  className="cursor-pointer"
+              options={[
+                    { value: 'newest', label: 'Newest' },
+                    { value: 'oldest', label: 'Oldest' },
+                { value: 'name-asc', label: 'Name (A-Z)' },
+                { value: 'name-desc', label: 'Name (Z-A)' }
+              ]}
+                  placeholder="Newest"
+            />
+          </div>
+            </div>
+          )}
+
+          {/* Action Buttons - Always Visible */}
+          <div className="pt-4">
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setSecondaryFilters({
+                    companyName: '',
+                    language: '',
+                    brokerStatus: [],
+                    responseRate: [],
+                    joinedDate: '',
+                    sortBy: 'rating-high'
+                  });
+                  // Reset primary filters as well
+                  setBrokerFilters({
+                    region: [],
+                    brokerType: [],
+                    ratingRange: [0, 5],
+                    experienceRange: [0, 999],
+                    showVerifiedOnly: false
+                  });
+                }}
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  lineHeight: '22px',
+                  fontWeight: '500',
+                  color: '#171A1FFF'
+                }}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => {
+                  // Apply filters logic here
+                  setShowSecondaryFilters(false);
+                }}
+                className="flex-1 px-3 py-2 bg-green-900 rounded-lg text-sm font-medium text-white hover:bg-green-800 transition-colors"
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  lineHeight: '22px',
+                  fontWeight: '500'
+                }}
+              >
+                Apply Filters
               </button>
             </div>
           </div>
-
-          
+          </div>
         )}
       </div>
 
       {/* Leads Grid - 9 columns */}
       <div className="col-span-9">
-        {/* Header with page info and sort filter */}
-        <div className="flex items-center justify-between mb-6">
-          {/* Page number data on top left */}
-          <div className="text-sm text-gray-600">
-            {isLoading ? (
-              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-            ) : (
-              <>
-                Showing {startIndex + 1}-{Math.min(endIndex, totalLeads)} of {totalLeads} leads
-               
-              </>
-            )}
-          </div>
-          
-          {/* Sort filter on top right */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Sort by:</span>
-            <Select
-              instanceId="leads-sort-select"
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  minHeight: 36,
-                  fontSize: 14,
-                  borderColor: '#d1d5db',
-                  boxShadow: 'none',
-                  cursor: 'pointer',
-                  ':hover': { borderColor: '#9ca3af' }
-                }),
-                option: (base, state) => ({
-                  ...base,
-                  fontSize: 14,
-                  backgroundColor: state.isSelected
-                    ? '#0A421E'
-                    : state.isFocused
-                      ? '#f3f4f6'
-                      : 'white',
-                  color: state.isSelected ? 'white' : '#111827',
-                  cursor: 'pointer'
-                }),
-                singleValue: (base) => ({ ...base, color: '#111827', fontSize: 14 }),
-                placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 14 }),
-                input: (base) => ({ ...base, fontSize: 14 }),
-                indicatorSeparator: () => ({ display: 'none' })
-              }}
-              options={[
-                { value: 'date-added-newest', label: 'Date Added (Newest First)' },
-                { value: 'date-added-oldest', label: 'Date Added (Oldest First)' },
-                { value: 'status', label: 'Status' },
-                { value: 'budget-high', label: 'Budget (High to Low)' },
-                { value: 'budget-low', label: 'Budget (Low to High)' },
-                { value: 'name-asc', label: 'Name (A-Z)' },
-                { value: 'name-desc', label: 'Name (Z-A)' }
-              ]}
-              value={[
-                { value: 'date-added-newest', label: 'Date Added (Newest First)' },
-                { value: 'date-added-oldest', label: 'Date Added (Oldest First)' },
-                { value: 'status', label: 'Status' },
-                { value: 'budget-high', label: 'Budget (High to Low)' },
-                { value: 'budget-low', label: 'Budget (Low to High)' },
-                { value: 'name-asc', label: 'Name (A-Z)' },
-                { value: 'name-desc', label: 'Name (Z-A)' }
-              ].find(o => o.value === sortBy)}
-              onChange={(opt) => setSortBy(opt?.value || 'date-added-newest')}
-              isSearchable={false}
-              className="w-56"
-            />
-          </div>
+        {/* Tabs Bar */}
+        <TabsBar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        {/* Header with heading */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Lead Search Results ({totalLeads} Found)
+          </h2>
         </div>
 
         {/* Leads Grid */}
@@ -1110,257 +1280,370 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {leads.map((lead, index) => {
               const { primary, secondary } = getRegionNames(lead);
-              const seed = lead.customerName || lead.name || lead.customerEmail || lead.customerPhone || '';
-              const avatarColor = getAvatarColor(seed);
+              const brokerImage = lead.createdBy?.brokerImage || lead.createdBy?.profileImage || lead.createdBy?.image;
+              const brokerName = lead.createdBy?.name || lead.createdBy?.fullName || lead.createdBy?.email || 'Unknown';
+              
+              // Helper function to format region names
+              const regionName = (region) => {
+                if (!region) return null;
+                if (typeof region === 'string') return region;
+                if (typeof region === 'object') {
+                  return region.name || region.city || region.state || null;
+                }
+                return null;
+              };
+
+              // Helper function for ago
+              const ago = (dateString) => {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffMs = now.getTime() - date.getTime();
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMins / 60);
+                const diffDays = Math.floor(diffHours / 24);
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                if (diffDays < 7) return `${diffDays}d ago`;
+                return date.toLocaleDateString();
+              };
+
+              // Helper function for INR formatting
+              const INR = new Intl.NumberFormat('en-IN', {
+                maximumFractionDigits: 0,
+              });
               
               return (
-                <div key={lead._id || lead.id || index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow text-sm">
-              {/* Profile and Status */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                    <div className={`w-18 h-18 rounded-full flex items-center justify-center text-xs font-semibold ${avatarColor.bg} ${avatarColor.text}`}>
-                        {(lead.customerName || lead.name || '-')
-                          .split(' ')
-                          .map(s => s[0])
-                          .filter(Boolean)
-                          .join('')
-                          .slice(0, 2)
-                          .toUpperCase()}
+                <article
+                  key={lead._id || lead.id || index}
+                  className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <div className="p-6">
+                    {/* Top Section - Main Title */}
+                    <div className="mb-4">
+                      <h3 className="text-[20px] leading-[28px] font-bold mb-2" style={{  color: '#323743' }}>
+                        {lead.propertyType || "Property"} for {lead.requirement || lead.req || "inquiry"}
+                      </h3>
+                      
+                      {/* Tags and Time */}
+                      <div className="flex items-center justify-between gap-2 flex-nowrap">
+                        <div className="flex items-center gap-2 flex-nowrap">
+                          <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                            {lead.requirement || lead.req || ""}
+                          </span>
+                          <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                            {lead.propertyType || ""}
+                          </span>
                       </div>
-                  <div className="ml-3">
-                        <h3 className="text-base font-semibold text-gray-900">{lead.customerName || lead.name || '-'}</h3>
+                        {lead.createdAt && (
+                          <div className="flex items-center gap-1.5 text-sm leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
+                            <svg
+                              className="h-4 w-4"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <circle cx="12" cy="12" r="10" />
+                              <path d="M12 6v6l4 2" />
+                            </svg>
+                            {ago(lead.createdAt)}
                   </div>
+                        )}
                 </div>
-                <div className="relative">
-                  <span
-                    className="text-[11px] font-semibold text-white px-3 py-1 rounded-tr-md rounded-bl-md inline-block"
-                    style={getStatusRibbonStyle(lead.status)}
-                  >
-                        {(() => {
-                          if (!lead.status) return 'NEW';
-                          const statusLower = lead.status.toLowerCase().trim();
-                          switch (statusLower) {
-                            case 'open':
-                            case 'new':
-                              return 'NEW';
-                            case 'assigned':
-                              return 'ASSIGNED';
-                            case 'in progress':
-                            case 'inprogress':
-                              return 'IN PROGRESS';
-                            case 'closed':
-                            case 'completed':
-                              return 'CLOSED';
-                            case 'rejected':
-                            case 'cancelled':
-                              return 'REJECTED';
-                            case 'transferred':
-                              return 'TRANSFERRED';
-                            case 'active':
-                              return 'ACTIVE';
-                            default:
-                              console.log('Unknown status text:', lead.status);
-                              return lead.status.toUpperCase();
-                          }
-                        })()}
+                    </div>
+
+                    {/* Horizontal Divider */}
+                    <div className="border-t border-gray-200 my-4"></div>
+
+                    {/* Middle Section - Property Details */}
+                    <div className="space-y-3 mb-4">
+                      {/* Preferred Location */}
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <div className="flex items-center flex-wrap gap-1">
+                          <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Preferred:</span>
+                          <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+                            {regionName(lead.primaryRegion) || primary || "—"}
                   </span>
                 </div>
               </div>
 
-              {/* Lead Details */}
-              <div className="space-y-0 mb-4">
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Type:</span>
-                      <span className="text-sm font-medium text-gray-900">{lead.propertyType || '-'}</span>
+                      {/* Secondary Location */}
+                      {(lead.secondaryRegion || secondary) && (
+                        <div className="flex items-center gap-2">
+                          <svg
+                            className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                          <div className="flex items-center flex-wrap gap-1">
+                            <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Secondary:</span>
+                            <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+                              {regionName(lead.secondaryRegion) || secondary || "—"}
+                            </span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Budget/Price:</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {typeof lead.budget === 'number' 
-                          ? `$${lead.budget.toLocaleString()}` 
-                          : lead.budget || '-'}
+                        </div>
+                      )}
+
+                      {/* Budget */}
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <rect x="3" y="8" width="18" height="12" rx="2" />
+                          <path d="M3 12h18M9 8v8" />
+                        </svg>
+                        <div className="flex items-center flex-wrap gap-1">
+                          <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Budget:</span>
+                          <span className="text-sm leading-5 font-normal" style={{ color: '#565D6D' }}>
+                            {typeof lead.budget === "number"
+                              ? "₹" + INR.format(lead.budget).replace("₹", "")
+                              : lead.budget || "—"}
                       </span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Phone:</span>
-                      <span className="text-sm font-medium text-gray-900">{lead.customerPhone || lead.contact || '-'}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Email:</span>
-                      <span className="text-sm font-medium text-gray-900">{lead.customerEmail || '-'}</span>
                 </div>
+
+                    {/* Bottom Section - Broker Profile and Actions */}
+                    <div className="pt-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {/* Avatar */}
+                          <div className="relative w-12 h-12 text-sm font-semibold" style={{ color: '#323743' }}>
+                            {brokerImage ? (
+                              <>
+                                <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] overflow-hidden">
+                                  <img
+                                    src={brokerImage}
+                                    alt={brokerName}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
+                                <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] flex items-center justify-center">
+                                  {brokerName
+                                    .split(' ')
+                                    .map((n) => n[0])
+                                    .slice(0, 2)
+                                    .join('')
+                                    .toUpperCase()}
+                                </div>
+                                <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
+                              </>
+                            )}
               </div>
 
-              {/* Interested Regions */}
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Interested Regions:</h4>
-                <div className="flex flex-wrap gap-1">
-                      {primary && (
-                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
-                          {primary}
+                          {/* Name and icons */}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">
+                                {brokerName}
+                              </p>
+                            </div>
+
+                            {/* Connect / Chat */}
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
+                                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                </svg>
+                                <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Connect</span>
                     </span>
-                      )}
-                      {secondary && (
-                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
-                          {secondary}
+
+                              <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
+                                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                </svg>
+                                <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Chat</span>
                         </span>
-                      )}
-                      {!primary && !secondary && (
-                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
-                          Not specified
-                        </span>
-                      )}
                 </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <a href={`/lead-details/${lead._id || lead.id}`} className="block w-full bg-[#0A421E] text-center text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-[#0b4f24] transition-colors cursor-pointer">
-                  View Details
-                </a>
               </div>
             </div>
+                    </div>
+                  </div>
+                </article>
               );
             })}
           </div>
         )}
 
         {/* Pagination */}
-        {!isLoading && !leadsError && leads.length > 0 && totalPages > 1 && (
-          <div className="mt-8 flex items-center justify-between">
-            
-            <div className="flex items-center space-x-2">
-              {/* Previous Button */}
+        {!isLoading && !leadsError && totalLeads > 0 && (
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-4">
+            {/* Left: Results info */}
+            <div className="text-sm text-gray-600">
+              Showing {startIndex + 1}-{Math.min(endIndex, totalLeads)} of {totalLeads} results
+            </div>
+
+            {/* Right: Pagination buttons */}
+            {totalPages > 1 ? (
+              <div className="flex items-center gap-1">
               <button
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1}
-                className={`px-3 py-2 text-sm font-medium rounded-md ${
+                  className={`w-8 h-8 flex items-center justify-center rounded-md border ${
                   currentPage === 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                      ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Previous
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
               </button>
 
-              {/* Page Numbers */}
-              <div className="flex items-center space-x-1">
-                {(() => {
-                  const pages = [];
-                  const maxVisiblePages = 5;
-                  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-                  
-                  // Adjust start page if we're near the end
-                  if (endPage - startPage + 1 < maxVisiblePages) {
-                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
-                  }
-
-                  // Add first page and ellipsis if needed
-                  if (startPage > 1) {
-                    pages.push(
+                <div className="flex items-center gap-1 overflow-x-auto">
+                  {/* Always show first page */}
                       <button
-                        key={1}
                         onClick={() => handlePageChange(1)}
-                        className="px-3 py-2 text-sm font-medium rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    className={`w-8 h-8 flex items-center justify-center rounded-md font-medium ${
+                      currentPage === 1
+                        ? 'bg-[#0A421E] text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
                       >
                         1
                       </button>
-                    );
-                    if (startPage > 2) {
-                      pages.push(
-                        <span key="ellipsis1" className="px-2 text-gray-500">
-                          ...
-                        </span>
-                      );
-                    }
-                  }
 
-                  // Add visible page numbers
-                  for (let i = startPage; i <= endPage; i++) {
-                    pages.push(
+                  {/* Show ellipsis if current page is far from start */}
+                  {currentPage > 4 && (
+                    <span className="px-2 py-2 text-sm text-gray-500">...</span>
+                  )}
+
+                  {/* Show pages around current page */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      // Don't show page 1 (already shown above)
+                      if (page === 1) return false;
+                      // Don't show last page (shown below)
+                      if (page === totalPages) return false;
+                      
+                      // Show pages 2-4 if current page is 1-3
+                      if (currentPage <= 3) {
+                        return page >= 2 && page <= 4;
+                      }
+                      // Show pages around current page
+                      if (currentPage > 3 && currentPage < totalPages - 2) {
+                        return page >= currentPage - 1 && page <= currentPage + 1;
+                      }
+                      // Show last few pages if current page is near end
+                      if (currentPage >= totalPages - 2) {
+                        return page >= totalPages - 3 && page < totalPages;
+                      }
+                      return false;
+                    })
+                    .map((page) => (
                       <button
-                        key={i}
-                        onClick={() => handlePageChange(i)}
-                        className={`px-3 py-2 text-sm font-medium rounded-md ${
-                          i === currentPage
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-md font-medium ${
+                          currentPage === page
                             ? 'bg-[#0A421E] text-white'
                             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                         }`}
                       >
-                        {i}
+                        {page}
                       </button>
-                    );
-                  }
+                    ))}
 
-                  // Add last page and ellipsis if needed
-                  if (endPage < totalPages) {
-                    if (endPage < totalPages - 1) {
-                      pages.push(
-                        <span key="ellipsis2" className="px-2 text-gray-500">
-                          ...
-                        </span>
-                      );
-                    }
-                    pages.push(
+                  {/* Show ellipsis if current page is far from end */}
+                  {currentPage < totalPages - 3 && (
+                    <span className="px-2 py-2 text-sm text-gray-500">...</span>
+                  )}
+
+                  {/* Always show last page if there's more than 1 page */}
+                  {totalPages > 1 && (
                       <button
-                        key={totalPages}
                         onClick={() => handlePageChange(totalPages)}
-                        className="px-3 py-2 text-sm font-medium rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                      className={`w-8 h-8 flex items-center justify-center rounded-md font-medium ${
+                        currentPage === totalPages
+                          ? 'bg-[#0A421E] text-white'
+                          : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                      }`}
                       >
                         {totalPages}
                       </button>
-                    );
-                  }
-
-                  return pages;
-                })()}
+                  )}
               </div>
 
-              {/* Next Button */}
               <button
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
-                className={`px-3 py-2 text-sm font-medium rounded-md ${
+                  className={`w-8 h-8 flex items-center justify-center rounded-md border ${
                   currentPage === totalPages
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                      ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Next
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
               </button>
             </div>
+            ) : null}
           </div>
         )}
       </div>
 
       <style jsx>{`
-        .slider-single {
+        .slider-min,
+        .slider-max {
           background: transparent;
         }
-        .slider-single::-webkit-slider-thumb {
+        .slider-min::-webkit-slider-thumb,
+        .slider-max::-webkit-slider-thumb {
           appearance: none;
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          border: 2px solid #0A421E;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          border: 3px solid #22c55e;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .slider-single::-moz-range-thumb {
-          width: 20px;
-          height: 20px;
+        .slider-min::-moz-range-thumb,
+        .slider-max::-moz-range-thumb {
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          border: 2px solid #0A421E;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          border: 3px solid #22c55e;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .slider-single::-webkit-slider-track {
+        .slider-min::-webkit-slider-track,
+        .slider-max::-webkit-slider-track {
           background: transparent;
         }
-        .slider-single::-moz-range-track {
+        .slider-min::-moz-range-track,
+        .slider-max::-moz-range-track {
           background: transparent;
         }
       `}</style>
