@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import HeaderFile from "../components/Header";
 import Select, { components as RSComponents } from "react-select";
 import ProtectedRoute from "../components/ProtectedRoute";
-import siteConfig, { SUPPORT_EMAIL, SUPPORT_PHONE} from "../config/siteConfig";
+import siteConfig, { SUPPORT_EMAIL, SUPPORT_PHONE } from "../config/siteConfig";
 
 /* ───────────── Small stat card ───────────── */
 const StatCard = ({ label, value, deltaText, trend = "up", color = "sky" }) => {
@@ -262,8 +263,8 @@ export default function BrokerLeadsPage() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const DEBOUNCE_DELAY = 500; // Configurable debounce delay
-const [viewTab, setViewTab] = useState("overview");
-const [noteText, setNoteText] = useState("");
+  const [viewTab, setViewTab] = useState("overview");
+  const [noteText, setNoteText] = useState("");
   useEffect(() => {
     // Show searching indicator when user types (with small delay to avoid flickering)
     const showSearchingTimer = setTimeout(() => {
@@ -924,12 +925,21 @@ const [noteText, setNoteText] = useState("");
       try {
         createdLeadResp = await res.json();
       } catch {}
-      const createdLead = (createdLeadResp && (createdLeadResp.lead || createdLeadResp.data || createdLeadResp.newLead)) || createdLeadResp || null;
+      const createdLead =
+        (createdLeadResp &&
+          (createdLeadResp.lead ||
+            createdLeadResp.data ||
+            createdLeadResp.newLead)) ||
+        createdLeadResp ||
+        null;
 
       toast.success("Lead created successfully");
       await loadLeads();
       // Prefill selectedLead with the newly created lead if available; else fetch latest
-      let leadForTransfer = createdLead && (createdLead._id || createdLead.id) ? createdLead : await fetchLatestLead();
+      let leadForTransfer =
+        createdLead && (createdLead._id || createdLead.id)
+          ? createdLead
+          : await fetchLatestLead();
       if (leadForTransfer) setSelectedLead(leadForTransfer);
       // Open transfer modal immediately for the newly created lead
       setShowTransfer(true);
@@ -1070,7 +1080,11 @@ const [noteText, setNoteText] = useState("");
       const withDate = items
         .map((it) => ({
           item: it,
-          ts: it?.createdAt ? Date.parse(it.createdAt) : (it?._id ? Date.parse(it._id?.toString().substring(0,8)) : 0),
+          ts: it?.createdAt
+            ? Date.parse(it.createdAt)
+            : it?._id
+            ? Date.parse(it._id?.toString().substring(0, 8))
+            : 0,
         }))
         .sort((a, b) => (b.ts || 0) - (a.ts || 0));
       return withDate[0]?.item || items[0] || null;
@@ -1162,7 +1176,12 @@ const [noteText, setNoteText] = useState("");
     if (!b || !regionId) return false;
     // b.region can be array of objects, single object, or string id
     if (Array.isArray(b.region)) {
-      return b.region.some((r) => (r && (r._id || r.id || r)) && String(r._id || r.id || r) === String(regionId));
+      return b.region.some(
+        (r) =>
+          r &&
+          (r._id || r.id || r) &&
+          String(r._id || r.id || r) === String(regionId)
+      );
     }
     if (b.region && typeof b.region === "object") {
       const id = b.region._id || b.region.id;
@@ -1173,7 +1192,10 @@ const [noteText, setNoteText] = useState("");
     }
     // some backends use primaryRegion
     if (b.primaryRegion) {
-      const id = typeof b.primaryRegion === 'object' ? (b.primaryRegion._id || b.primaryRegion.id) : b.primaryRegion;
+      const id =
+        typeof b.primaryRegion === "object"
+          ? b.primaryRegion._id || b.primaryRegion.id
+          : b.primaryRegion;
       return id ? String(id) === String(regionId) : false;
     }
     return false;
@@ -1209,9 +1231,14 @@ const [noteText, setNoteText] = useState("");
       }
       const regionId = transferRegion.value;
       toBrokers = (brokersList || [])
-        .filter((b) => (b._id || b.id) && (b._id || b.id) !== currentUserId && brokerMatchesRegion(b, regionId))
+        .filter(
+          (b) =>
+            (b._id || b.id) &&
+            (b._id || b.id) !== currentUserId &&
+            brokerMatchesRegion(b, regionId)
+        )
         .map((b) => b._id || b.id);
-    if (!toBrokers.length) {
+      if (!toBrokers.length) {
         toast.error("No brokers found for the selected region");
         return;
       }
@@ -1590,8 +1617,17 @@ const [noteText, setNoteText] = useState("");
     </div>
   );
 
+  const headerData = {
+    title: "My Leads",
+    breadcrumb: [
+      { label: "Home", href: "/" },
+      { label: "Leads", href: "/leads" },
+    ],
+  };
+
   return (
     <ProtectedRoute requiredRole="broker">
+      <HeaderFile data={headerData} />
       <div className="min-h-screen bg-white py-16">
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
         <div className="w-full mx-auto  ">
@@ -1603,31 +1639,29 @@ const [noteText, setNoteText] = useState("");
               <div className="mb-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h1 className="text-4xl font-display text-gray-700">
+                    <h1 className=" font-archivo text-[30px] leading-[36px] font-bold text-[#171A1FFF]">
                       Lead Management
                     </h1>
-                    <p className="text-sm font-body text-gray-600 mt-2">
-                      Capture leads, share with brokers, and track progress — all in one place.
+                    <p className="text-[14px] leading-[20px] font-normal text-[#565D6DFF]">
+                      Capture leads, share with brokers, and track progress —
+                      all in one place.
                     </p>
                   </div>
 
                   {/* View Mode Toggle (single switch with label) */}
-                  <div className="flex flex-col items-center gap-3">
+                  <div className="flex items-center gap-3">
                     <button
                       type="button"
                       role="switch"
                       aria-checked={leadViewMode === "transferred"}
                       onClick={() => {
-                        const next = leadViewMode === "my-leads" ? "transferred" : "my-leads";
+                        const next =
+                          leadViewMode === "my-leads"
+                            ? "transferred"
+                            : "my-leads";
                         setLeadViewMode(next);
                         setPage(1);
-                        loadLeads(
-                          filters,
-                          1,
-                          limit,
-                          debouncedQuery,
-                          next
-                        );
+                        loadLeads(filters, 1, limit, debouncedQuery, next);
                       }}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 border ${
                         leadViewMode === "transferred"
@@ -1637,12 +1671,16 @@ const [noteText, setNoteText] = useState("");
                     >
                       <span
                         className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
-                          leadViewMode === "transferred" ? "translate-x-5" : "translate-x-0"
+                          leadViewMode === "transferred"
+                            ? "translate-x-5"
+                            : "translate-x-0"
                         }`}
                       />
                     </button>
-                    <span className="text-sm text-gray-700">
-                      {leadViewMode === "transferred" ? "Transferred to Me" : "My Leads"}
+                    <span className="text-sm leading-5 font-normal text-[#565D6D]">
+                      {leadViewMode === "transferred"
+                        ? "Transferred to Me"
+                        : "My Leads"}
                     </span>
                   </div>
                 </div>
@@ -1650,41 +1688,43 @@ const [noteText, setNoteText] = useState("");
 
               {/* Stat row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                <StatCard
-                  color="sky"
-                  label="Total Leads"
-                  value={
-                    metricsLoading ? "—" : metrics.totalLeads.toLocaleString()
-                  }
-                  // deltaText={metricsError ? 'Unable to load' : '↑ 12.5% vs last month'}
-                  trend="up"
-                />
-                <StatCard
-                  color="amber"
-                  label="Shared With Me"
-                  value={
-                    metricsLoading
+                {/* Total Leads (Active Card with Purple Border) */}
+                <div className="border border-gray-200 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white rounded-lg p-4">
+                  <p className="text-sm text-[#565D6DFF] font-medium">
+                    Total Leads
+                  </p>
+                  <p className="text-2xl font-semibold text-gray-900 mt-1">
+                    {metricsLoading ? "—" : metrics.totalLeads.toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Shared With Me */}
+                <div className="border border-gray-200 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white rounded-lg p-4">
+                  <p className="text-sm text-[#565D6DFF] font-medium">
+                    Shared With Me
+                  </p>
+                  <p className="text-2xl font-semibold text-gray-900 mt-1">
+                    {metricsLoading
                       ? "—"
                       : Number(
                           metrics.transferredToMe || metrics.transfersToMe || 0
-                        ).toLocaleString()
-                  }
-                  deltaText=""
-                  trend="up"
-                />
-                <StatCard
-                  color="emerald"
-                  label="Shared By Me"
-                  value={
-                    metricsLoading
+                        ).toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Shared By Me */}
+                <div className="border shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border-gray-200 bg-white rounded-lg p-4">
+                  <p className="text-sm text-[#565D6DFF] font-medium">
+                    Shared By Me
+                  </p>
+                  <p className="text-2xl font-semibold text-gray-900 mt-1">
+                    {metricsLoading
                       ? "—"
                       : Number(
                           metrics.transferredByMe || metrics.transfersByMe || 0
-                        ).toLocaleString()
-                  }
-                  deltaText=""
-                  trend="up"
-                />
+                        ).toLocaleString()}
+                  </p>
+                </div>
                 {/* <StatCard
     color="violet"
     label="Avg. Deal Size"
@@ -1699,7 +1739,7 @@ const [noteText, setNoteText] = useState("");
               {/* Search + status + buttons - Flexible layout */}
               <div className="mt-6 flex items-center gap-3">
                 {/* Search - Fixed width to match status dropdown */}
-                <div className="w-52 relative">
+                <div className="w-80 relative">
                   <input
                     type="text"
                     placeholder="Search leads..."
@@ -1707,7 +1747,7 @@ const [noteText, setNoteText] = useState("");
                     onChange={(e) =>
                       setFilters({ ...filters, query: e.target.value })
                     }
-                    className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-body placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500"
+                    className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white text-sm font-body placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500"
                     style={{ minHeight: "40px", fontSize: "14px" }}
                   />
                   <svg
@@ -1753,11 +1793,21 @@ const [noteText, setNoteText] = useState("");
                   <button
                     type="button"
                     onClick={() => setShowAdvanced(true)}
-                    className="px-3 py-2.5 rounded-xl text-sm font-body border border-gray-200 bg-white text-gray-500 hover:text-gray-600 hover:bg-white hover:border-gray-300 shadow-sm cursor-pointer whitespace-nowrap flex items-center gap-2"
+                    className="px-3 py-2.5 rounded-xl text-sm font-body border border-gray-200 bg-white text-gray-500 hover:text-gray-600 hover:bg-white hover:border-gray-300 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center gap-2"
                     style={{ minHeight: "40px", fontSize: "14px" }}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"
+                      />
                     </svg>
                     Advanced Filters
                   </button>
@@ -1768,11 +1818,21 @@ const [noteText, setNoteText] = useState("");
                   <button
                     type="button"
                     onClick={() => setShowAddLead(true)}
-                    className="px-3 py-2.5 rounded-xl text-sm border border-green-600 text-green-600 bg-white hover:bg-green-50 hover:border-green-700 shadow-sm cursor-pointer whitespace-nowrap flex items-center gap-2"
+                    className="px-3 py-2.5 rounded-xl text-sm border border-green-600 text-white bg-[#0D542B]  hover:bg-[#0B4624]  hover:border-green-700 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center gap-2"
                     style={{ minHeight: "40px", fontSize: "14px" }}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
                     </svg>
                     Add New Lead
                   </button>
@@ -1792,7 +1852,6 @@ const [noteText, setNoteText] = useState("");
                   </div>
                 )}
               </div>
-
 
               {/* Table */}
               <div className="mt-6">
@@ -1827,7 +1886,7 @@ const [noteText, setNoteText] = useState("");
 
                 {/* Cards */}
                 {!leadsLoading && Array.isArray(leads) && leads.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-6">
                     {leads.map((row, idx) => {
                       // ----- Shared With (avatars from transfers) -----
                       const transfers = Array.isArray(row?.transfers)
@@ -1886,7 +1945,7 @@ const [noteText, setNoteText] = useState("");
                       return (
                         <div
                           key={row._id || row.id || idx}
-                          className="group relative bg-white rounded-2xl shadow-2xl"
+                          className="group relative border shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border-gray-200 bg-white rounded-lg"
                         >
                           {/* Status Badge - Horizontal Ribbon with Folded Corner */}
                           <div className="absolute top-0 right-0 z-10">
@@ -1945,10 +2004,10 @@ const [noteText, setNoteText] = useState("");
                                   );
                                 })()}
                                 <div className="flex-1 pr-4">
-                                  <h3 className="text-lg font-bold text-gray-900 mb-1 break-words leading-tight">
+                                  <h3 className=" mb-1 break-words text-[16px] leading-[24px] font-semibold text-[#171A1F]">
                                     {row.customerName || row.name || "-"}
                                   </h3>
-                                  <p className="text-sm text-gray-500 break-words leading-tight">
+                                  <p className="text-[14px] font-normal text-[#565D6D] break-words leading-tight">
                                     {row.customerEmail ||
                                       row.customerPhone ||
                                       row.contact ||
@@ -1961,20 +2020,20 @@ const [noteText, setNoteText] = useState("");
                             {/* Lead Details Section - Two Rows */}
                             <div className="space-y-4">
                               {/* First Row */}
-                              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                              <div className="flex justify-between items-center py-3  border-gray-100">
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     REQUIREMENT
                                   </div>
-                                  <div className="text-sm font-medium text-gray-700 break-words leading-tight">
+                                  <div className="break-words text-[16px] leading-[16px]  font-medium text-[#171A1F]">
                                     {row.requirement || row.req || "—"}
                                   </div>
                                 </div>
                                 <div className="flex-1 pl-4">
-                                  <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     PROPERTY TYPE
                                   </div>
-                                  <div className="text-sm font-medium text-gray-700 break-words leading-tight">
+                                  <div className="break-words text-[16px] leading-[16px]  font-medium text-[#171A1F]">
                                     {row.propertyType || "—"}
                                   </div>
                                 </div>
@@ -1983,27 +2042,27 @@ const [noteText, setNoteText] = useState("");
                               {/* Second Row */}
                               <div className="flex justify-between items-center py-3">
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     BUDGET
                                   </div>
-                                  <div className="text-sm font-medium text-gray-700 break-words leading-tight">
+                                  <div className="break-words text-[16px] leading-[16px]  font-medium  text-[#171A1F]">
                                     {typeof row.budget === "number"
                                       ? `$${row.budget.toLocaleString()}`
                                       : row.budget || "—"}
                                   </div>
                                 </div>
                                 <div className="flex-1 pl-4">
-                                  <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     REGION(S)
                                   </div>
                                   {(() => {
                                     const { primary, secondary } =
                                       getRegionNames(row);
                                     return (
-                                      <div className="text-sm font-medium text-gray-700 break-words leading-tight">
+                                      <div className="break-words text-[16px] leading-[16px] flex flex-col gap-2 font-medium text-[#171A1F]">
                                         <div>{primary || "—"}</div>
                                         {secondary && (
-                                          <div className="text-sm font-medium text-gray-700">
+                                          <div className="break-words text-[16px] leading-[16px]  font-medium text-[#171A1F]">
                                             {secondary}
                                           </div>
                                         )}
@@ -2018,7 +2077,7 @@ const [noteText, setNoteText] = useState("");
                             <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
                               {/* Shared With */}
                               <div>
-                                <div className="text-xs text-gray-400 uppercase tracking-wide mb-2">
+                                <div className="uppercase tracking-wide mb-2 text-[14px] leading-[12px] font-normal text-[#565D6D]">
                                   SHARED WITH
                                 </div>
                                 {(() => {
@@ -2048,7 +2107,7 @@ const [noteText, setNoteText] = useState("");
 
                                   if (uniqueToBrokers.length === 0) {
                                     return (
-                                      <span className="text-[12px] text-gray-400">
+                                      <span className="text-[12px]  font-normal text-[#565D6D]">
                                         Not shared
                                       </span>
                                     );
@@ -2131,7 +2190,7 @@ const [noteText, setNoteText] = useState("");
                                 {/* View Button */}
                                 <button
                                   title="View Details"
-                                  className="flex flex-col items-center gap-1 text-green-900 hover:text-green-900 transition-colors cursor-pointer"
+                                  className="flex items-center gap-1 text-[14px] font-medium text-[#565D6D] hover:text-green-900 transition-colors cursor-pointer"
                                   onClick={() => {
                                     setSelectedLead(row);
                                     setViewEditMode(false);
@@ -2207,13 +2266,13 @@ const [noteText, setNoteText] = useState("");
                                       d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                                     />
                                   </svg>
-                                  <span className="text-xs">View</span>
+                                  <span className="text-[14px] font-medium text-[#565D6D]">View</span>
                                 </button>
 
                                 {/* Transfer Button */}
                                 <button
                                   title="Transfer Lead"
-                                  className="flex flex-col items-center gap-1 text-blue-700 hover:text-blue-800 transition-colors cursor-pointer"
+                                  className="flex items-center gap-1 text-[14px] font-medium text-[#565D6D] hover:text-blue-800 transition-colors cursor-pointer"
                                   onClick={() => openTransferForLead(row)}
                                 >
                                   <svg
@@ -2228,16 +2287,16 @@ const [noteText, setNoteText] = useState("");
                                     <line x1="22" y1="2" x2="11" y2="13" />
                                     <polygon points="22 2 15 22 11 13 2 9 22 2" />
                                   </svg>
-                                  <span className="text-xs">Share</span>
+                                  <span className="text-[14px] font-medium text-[#565D6D]">Share</span>
                                 </button>
 
                                 {/* Delete Button */}
                                 <button
                                   title="Delete Lead"
-                                  className={`flex flex-col items-center gap-1 transition-colors ${
+                                  className={`flex items-center gap-1 text-[14px] font-medium text-[#565D6D] transition-colors ${
                                     isTransferred
                                       ? "text-gray-300 cursor-not-allowed"
-                                      : "text-red-700 hover:text-red-700 cursor-pointer"
+                                      : "text-[#565D6D] hover:text-[#565D6D] cursor-pointer"
                                   }`}
                                   onClick={() =>
                                     !isTransferred && handleDeleteLead(row)
@@ -2257,7 +2316,7 @@ const [noteText, setNoteText] = useState("");
                                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                     />
                                   </svg>
-                                  <span className="text-xs">Delete</span>
+                                  <span className="flex items-center gap-1 text-[14px] font-medium text-[#565D6D]">Delete</span>
                                 </button>
                               </div>
                             </div>
@@ -2296,8 +2355,8 @@ const [noteText, setNoteText] = useState("");
             {/* Right 3 (sticky) */}
             <aside className="md:col-span-3 space-y-6 md:sticky md:top-6 self-start">
               {/* Recent Activity */}
-              <div className="bg-white rounded-2xl shadow-2xl p-4">
-                <h4 className="text-[15px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+              <div className="bg-white  p-4 rounded-[10px] border border-[#DEE1E6] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
+                <h4 className=" mb-3 flex items-center gap-2 text-base leading-6 font-semibold text-[#171A1F]">
                   {/* clock-in-circle */}
                   <svg
                     className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
@@ -2336,10 +2395,10 @@ const [noteText, setNoteText] = useState("");
                       </svg>
                     </span>
                     <div className="flex-1">
-                      <div className="text-gray-700 leading-5 mb-1">
+                      <div className="text-sm leading-5 font-normal text-[#171A1F] mb-1">
                         New lead created
                       </div>
-                      <div className="text-xs text-slate-500 leading-5">
+                      <div className="text-xs leading-5 font-normal text-[#565D6D]">
                         Today, 10:45 AM
                       </div>
                     </div>
@@ -2364,10 +2423,10 @@ const [noteText, setNoteText] = useState("");
                       </svg>
                     </span>
                     <div className="flex-1">
-                      <div className="text-gray-700 leading-5 mb-1">
+                      <div className="text-sm leading-5 font-normal text-[#171A1F] mb-1">
                         Follow-up email sent to Michael Chen
                       </div>
-                      <div className="text-xs text-slate-500 leading-5">
+                      <div className="text-xs leading-5 font-normal text-[#565D6D]">
                         Yesterday, 3:20 PM
                       </div>
                     </div>
@@ -2391,10 +2450,10 @@ const [noteText, setNoteText] = useState("");
                       </svg>
                     </span>
                     <div className="flex-1">
-                      <div className="text-gray-700 leading-5 mb-1">
+                      <div className="text-sm leading-5 font-normal text-[#171A1F] mb-1">
                         Lead status changed to Qualified
                       </div>
-                      <div className="text-xs text-slate-500 leading-5">
+                      <div className="text-xs leading-5 font-normal text-[#565D6D]">
                         Yesterday, 11:15 AM
                       </div>
                     </div>
@@ -2403,9 +2462,9 @@ const [noteText, setNoteText] = useState("");
               </div>
 
               {/* Lead Help & Resources */}
-              <div className="bg-white rounded-2xl shadow-2xl p-4">
+              <div className="bg-white  p-4 rounded-[10px] border border-[#DEE1E6] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-[15px] font-bold text-slate-900 flex items-center gap-2">
+                  <h4 className="flex items-center gap-2 text-base leading-6 font-semibold text-[#171A1F]">
                     {/* chat/faq icon */}
                     <svg
                       className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
@@ -2428,7 +2487,7 @@ const [noteText, setNoteText] = useState("");
                     href="/faq"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-medium text-gray-500 hover:underline hover:text-sky-800 transition-colors"
+                    className=" text-blue-600 hover:underline hover:text-sky-800 transition-colors text-sm leading-5 font-medium "
                   >
                     View all
                   </a>
@@ -2441,7 +2500,7 @@ const [noteText, setNoteText] = useState("");
                     open
                   >
                     <summary className="list-none cursor-pointer flex items-center justify-between">
-                      <span className="text-[15px]  text-gray-700">
+                      <span className="text-sm leading-5 font-normal text-[#171A1F]">
                         How do I add a new lead quickly?
                       </span>
                       <svg
@@ -2457,14 +2516,15 @@ const [noteText, setNoteText] = useState("");
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-gray-600 border-l-2 border-gray-300">
-                      Use the Add Lead button, fill name, phone, requirement and region. You can edit details later in Lead Details.
+                      Use the Add Lead button, fill name, phone, requirement and
+                      region. You can edit details later in Lead Details.
                     </p>
                   </details>
 
                   {/* FAQ 2 */}
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
-                      <span className="text-[15px]  text-gray-700">
+                      <span className="text-sm leading-5 font-normal text-[#171A1F]">
                         How do I change a lead status?
                       </span>
                       <svg
@@ -2480,14 +2540,15 @@ const [noteText, setNoteText] = useState("");
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
-                      Open a lead, click Edit Status in the drawer header, pick the status and save.
+                      Open a lead, click Edit Status in the drawer header, pick
+                      the status and save.
                     </p>
                   </details>
 
                   {/* FAQ 3 */}
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
-                      <span className="text-[15px]  text-gray-700">
+                      <span className="text-sm leading-5 font-normal text-[#171A1F]">
                         How do I share a lead with another broker?
                       </span>
                       <svg
@@ -2503,16 +2564,17 @@ const [noteText, setNoteText] = useState("");
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
-                      Use Share/Transfer, choose brokers, add notes and confirm. The transfer history appears in Lead Details.
+                      Use Share/Transfer, choose brokers, add notes and confirm.
+                      The transfer history appears in Lead Details.
                     </p>
                   </details>
                 </div>
-                </div>
+              </div>
 
               {/* Help & Support */}
-              <div className="bg-white rounded-2xl shadow-2xl">
+              <div className="bg-white  p-4 rounded-[10px] border border-[#DEE1E6] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
                 <div className="p-4">
-                  <h4 className="text-md font-bold text-slate-900 mb-3 flex items-center gap-2 pl-0.5">
+                  <h4 className="mb-3 flex items-center gap-2 text-base leading-6 font-semibold text-[#171A1F]">
                     {/* Headset */}
                     <svg
                       className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
@@ -2532,7 +2594,7 @@ const [noteText, setNoteText] = useState("");
                   </h4>
 
                   {/* Links */}
-                  <ul className="text-sm text-gray-500 space-y-2">
+                  <ul className="text-sm font-normal text-[#171A1F] space-y-2">
                     <li>
                       <a
                         href="/help/getting-started"
@@ -2602,15 +2664,14 @@ const [noteText, setNoteText] = useState("");
                         Legal & Compliance Guide
                       </a>
                     </li>
-                     
-                </ul>
+                  </ul>
                 </div>
 
                 {/* Divider like screenshot */}
                 <div className="h-px bg-slate-100 mx-4" />
 
                 {/* Contact */}
-                  <div className="px-4 py-3 text-sm text-slate-600 space-y-2">
+                <div className="px-4 py-3 text-sm font-normal text-[#171A1F] space-y-2">
                   <div className="flex items-center gap-3 pl-0.5">
                     {/* Mail */}
                     <svg
@@ -2625,7 +2686,7 @@ const [noteText, setNoteText] = useState("");
                       <rect x="3" y="5" width="18" height="14" rx="2" />
                       <path d="M22 7 12 13 2 7" />
                     </svg>
-                 <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> 
+                    <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
                   </div>
                   <div className="flex items-center gap-3 pl-0.5">
                     {/* Phone (handset) */}
@@ -2640,11 +2701,12 @@ const [noteText, setNoteText] = useState("");
                     >
                       <path d="M22 16.92V21a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3 6.18 2 2 0 0 1 5 4h3.3a1 1 0 0 1 .95.68l1.2 3.6a1 1 0 0 1-.27 1.06l-1.8 1.8a12 12 0 0 0 6.8 6.8l1.8-1.8a1 1 0 0 1 1.06-.27l3.6 1.2A1 1 0 0 1 22 16.92z" />
                     </svg>
-                     <a href={`tel:${SUPPORT_PHONE.replace(/\s+/g,'')}`}> {SUPPORT_PHONE}</a>
+                    <a href={`tel:${SUPPORT_PHONE.replace(/\s+/g, "")}`}>
+                      {" "}
+                      {SUPPORT_PHONE}
+                    </a>
                   </div>
-                  
                 </div>
-               
               </div>
             </aside>
           </div>
@@ -2996,13 +3058,17 @@ const [noteText, setNoteText] = useState("");
                         .filter((o) => o.value !== "all")
                         .map((opt) => {
                           const isSelected =
-                            (newLead.requirement && (newLead.requirement.value || newLead.requirement)) === opt.value;
+                            (newLead.requirement &&
+                              (newLead.requirement.value ||
+                                newLead.requirement)) === opt.value;
                           return (
                             <button
                               key={opt.value}
                               type="button"
                               aria-pressed={isSelected}
-                              onClick={() => setNewLead({ ...newLead, requirement: opt })}
+                              onClick={() =>
+                                setNewLead({ ...newLead, requirement: opt })
+                              }
                               className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${
                                 isSelected
                                   ? "bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-100 shadow-sm"
@@ -3024,13 +3090,17 @@ const [noteText, setNoteText] = useState("");
                         .filter((o) => o.value !== "all")
                         .map((opt) => {
                           const isSelected =
-                            (newLead.propertyType && (newLead.propertyType.value || newLead.propertyType)) === opt.value;
+                            (newLead.propertyType &&
+                              (newLead.propertyType.value ||
+                                newLead.propertyType)) === opt.value;
                           return (
                             <button
                               key={opt.value}
                               type="button"
                               aria-pressed={isSelected}
-                              onClick={() => setNewLead({ ...newLead, propertyType: opt })}
+                              onClick={() =>
+                                setNewLead({ ...newLead, propertyType: opt })
+                              }
                               className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${
                                 isSelected
                                   ? "bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-100 shadow-sm"
@@ -3052,8 +3122,10 @@ const [noteText, setNoteText] = useState("");
                   {(() => {
                     const pTypeRaw =
                       typeof newLead.propertyType === "object"
-                        ? (newLead.propertyType.value || newLead.propertyType.label || "")
-                        : (newLead.propertyType || "");
+                        ? newLead.propertyType.value ||
+                          newLead.propertyType.label ||
+                          ""
+                        : newLead.propertyType || "";
                     const pType = String(pTypeRaw).toLowerCase();
                     const presets = {
                       residential: { min: 5000, max: 100000000, step: 5000 }, // 10 Cr
@@ -3061,47 +3133,67 @@ const [noteText, setNoteText] = useState("");
                       plot: { min: 50000, max: 250000000, step: 50000 }, // 25 Cr
                       other: { min: 1000, max: 50000000, step: 1000 }, // 5 Cr
                     };
-                    const preset = presets[pType] || { min: 0, max: 10000000, step: 5000 };
+                    const preset = presets[pType] || {
+                      min: 0,
+                      max: 10000000,
+                      step: 5000,
+                    };
                     const budgetMin = preset.min;
                     const budgetMax = preset.max;
                     const budgetStep = preset.step;
                     const raw = Number(newLead.budget || 0);
-                    const value = isNaN(raw) ? budgetMin : Math.min(budgetMax, Math.max(budgetMin, raw));
-                    const pct = ((value - budgetMin) / (budgetMax - budgetMin)) * 100;
+                    const value = isNaN(raw)
+                      ? budgetMin
+                      : Math.min(budgetMax, Math.max(budgetMin, raw));
+                    const pct =
+                      ((value - budgetMin) / (budgetMax - budgetMin)) * 100;
                     const fillPct = value > budgetMin ? Math.max(2, pct) : 0;
                     return (
                       <div className="space-y-2">
                         <div className="relative">
-                  <input
+                          <input
                             type="range"
                             min={budgetMin}
                             max={budgetMax}
                             step={budgetStep}
                             value={value}
-                            onChange={(e) => setNewLead({ ...newLead, budget: Number(e.target.value) })}
+                            onChange={(e) =>
+                              setNewLead({
+                                ...newLead,
+                                budget: Number(e.target.value),
+                              })
+                            }
                             className="w-full h-2 rounded-full appearance-none focus:outline-none"
                             style={{
                               background: `linear-gradient(to right, #2563eb 0%, #2563eb ${fillPct}%, #e5e7eb ${fillPct}%, #e5e7eb 100%)`,
                             }}
                           />
-                         <div className="absolute -top-6 right-0 flex items-center border border-blue-200 rounded-full bg-blue-50 px-2 py-0.5">
-  <span className="text-[11px] font-semibold text-blue-600 mr-1">₹</span>
-  <input
-    type="text"
-    inputMode="numeric"
-    value={String(value)}
-    onChange={(e) => {
-      const n = Number((e.target.value || '').replace(/[^0-9]/g, ''));
-      const clamped = isNaN(n) ? 0 : Math.min(budgetMax, Math.max(budgetMin, n));
-      setNewLead({ ...newLead, budget: clamped });
-    }}
-    className="w-[2ch] text-[11px] font-semibold text-blue-700 bg-transparent text-right focus:outline-none font-mono tabular-nums"
-    style={{
-      width: `calc(${Math.max(3, String(value).length)}ch + 0.15rem)` // dynamic width
-    }}
-  />
-</div>
-
+                          <div className="absolute -top-6 right-0 flex items-center border border-blue-200 rounded-full bg-blue-50 px-2 py-0.5">
+                            <span className="text-[11px] font-semibold text-blue-600 mr-1">
+                              ₹
+                            </span>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={String(value)}
+                              onChange={(e) => {
+                                const n = Number(
+                                  (e.target.value || "").replace(/[^0-9]/g, "")
+                                );
+                                const clamped = isNaN(n)
+                                  ? 0
+                                  : Math.min(budgetMax, Math.max(budgetMin, n));
+                                setNewLead({ ...newLead, budget: clamped });
+                              }}
+                              className="w-[2ch] text-[11px] font-semibold text-blue-700 bg-transparent text-right focus:outline-none font-mono tabular-nums"
+                              style={{
+                                width: `calc(${Math.max(
+                                  3,
+                                  String(value).length
+                                )}ch + 0.15rem)`, // dynamic width
+                              }}
+                            />
+                          </div>
                         </div>
                         {/* removed below-slider controls per request */}
                       </div>
@@ -3236,10 +3328,12 @@ const [noteText, setNoteText] = useState("");
                       type="radio"
                       name="transferMode"
                       className="h-4 w-4 accent-blue-600 cursor-pointer"
-                      checked={transferMode === 'all'}
-                      onChange={() => setTransferMode('all')}
+                      checked={transferMode === "all"}
+                      onChange={() => setTransferMode("all")}
                     />
-                    <span className="text-sm  text-slate-800">Share with all brokers</span>
+                    <span className="text-sm  text-slate-800">
+                      Share with all brokers
+                    </span>
                   </label>
                   <div className="flex items-center gap-3">
                     <label className="inline-flex items-center gap-2 cursor-pointer select-none">
@@ -3247,10 +3341,12 @@ const [noteText, setNoteText] = useState("");
                         type="radio"
                         name="transferMode"
                         className="h-4 w-4 accent-blue-600 cursor-pointer"
-                        checked={transferMode === 'region'}
-                        onChange={() => setTransferMode('region')}
+                        checked={transferMode === "region"}
+                        onChange={() => setTransferMode("region")}
                       />
-                      <span className="text-sm  text-slate-800">Share with brokers of a region</span>
+                      <span className="text-sm  text-slate-800">
+                        Share with brokers of a region
+                      </span>
                     </label>
                   </div>
                   <label className="inline-flex items-center gap-2 cursor-pointer select-none">
@@ -3258,134 +3354,136 @@ const [noteText, setNoteText] = useState("");
                       type="radio"
                       name="transferMode"
                       className="h-4 w-4 accent-blue-600 cursor-pointer"
-                      checked={transferMode === 'select'}
-                      onChange={() => setTransferMode('select')}
+                      checked={transferMode === "select"}
+                      onChange={() => setTransferMode("select")}
                     />
-                    <span className="text-sm  text-slate-800">Share with selected brokers</span>
+                    <span className="text-sm  text-slate-800">
+                      Share with selected brokers
+                    </span>
                   </label>
                 </div>
 
-                {transferMode === 'region' && (
-                <div>
-                  <label className="block text-xs font-label text-gray-700 mb-1">
-                    Select Region
-                  </label>
-                  <Select
-                    value={transferRegion}
-                    onChange={(opt)=> setTransferRegion(opt)}
-                    options={regionOptions.filter(o=> o.value !== 'all')}
-                    styles={customSelectStyles}
-                    isSearchable
-                    placeholder="Select region"
-                  />
-                </div>
+                {transferMode === "region" && (
+                  <div>
+                    <label className="block text-xs font-label text-gray-700 mb-1">
+                      Select Region
+                    </label>
+                    <Select
+                      value={transferRegion}
+                      onChange={(opt) => setTransferRegion(opt)}
+                      options={regionOptions.filter((o) => o.value !== "all")}
+                      styles={customSelectStyles}
+                      isSearchable
+                      placeholder="Select region"
+                    />
+                  </div>
                 )}
 
-                {transferMode === 'select' && (
-                <div>
-                  <label className="block text-xs font-label text-gray-700 mb-1">
-                    Select Broker(s)
-                  </label>
-                  <Select
-                    value={transferForm.brokerIds
-                      .filter((id) =>
-                        (brokersList || []).some(
-                          (x) =>
-                            (x._id || x.id) === id &&
-                            (x._id || x.id) !== currentUserId
+                {transferMode === "select" && (
+                  <div>
+                    <label className="block text-xs font-label text-gray-700 mb-1">
+                      Select Broker(s)
+                    </label>
+                    <Select
+                      value={transferForm.brokerIds
+                        .filter((id) =>
+                          (brokersList || []).some(
+                            (x) =>
+                              (x._id || x.id) === id &&
+                              (x._id || x.id) !== currentUserId
+                          )
                         )
-                      )
-                      .map((id) => {
-                        const b = (brokersList || []).find(
-                          (x) => (x._id || x.id) === id
-                        );
-                        let regionName = "";
+                        .map((id) => {
+                          const b = (brokersList || []).find(
+                            (x) => (x._id || x.id) === id
+                          );
+                          let regionName = "";
+                          if (
+                            b?.region &&
+                            Array.isArray(b.region) &&
+                            b.region.length > 0
+                          ) {
+                            regionName = b.region[0].name || "Unknown";
+                          } else if (
+                            b?.region &&
+                            typeof b.region === "object" &&
+                            !Array.isArray(b.region)
+                          ) {
+                            regionName =
+                              b.region.name || b.region.region || "Unknown";
+                          } else if (typeof b?.region === "string") {
+                            regionName = b.region;
+                          }
+                          return {
+                            value: id,
+                            label: `${
+                              b?.name || b?.fullName || b?.email || id
+                            }${regionName ? ` (${regionName})` : ""}`,
+                          };
+                        })}
+                      onChange={(opts, meta) => {
+                        const selectedValues = (opts || []).map((o) => o.value);
+                        setTransferForm((prev) => ({
+                          ...prev,
+                          brokerIds: selectedValues,
+                        }));
+                      }}
+                      options={(brokersList || [])
+                        .filter(
+                          (b) =>
+                            (b._id || b.id) && (b._id || b.id) !== currentUserId
+                        )
+                        .map((b) => {
+                          let regionName = "";
+                          if (
+                            b.region &&
+                            Array.isArray(b.region) &&
+                            b.region.length > 0
+                          ) {
+                            regionName = b.region[0].name || "Unknown";
+                          } else if (
+                            b.region &&
+                            typeof b.region === "object" &&
+                            !Array.isArray(b.region)
+                          ) {
+                            regionName =
+                              b.region.name || b.region.region || "Unknown";
+                          } else if (typeof b.region === "string") {
+                            regionName = b.region;
+                          }
+                          return {
+                            value: b._id || b.id,
+                            label: `${
+                              b.name || b.fullName || b.email || "Unnamed"
+                            }${regionName ? ` (${regionName})` : ""}`,
+                          };
+                        })}
+                      styles={customSelectStyles}
+                      components={{ MenuList: BrokerMenuList }}
+                      onInputChange={(inputValue, { action }) => {
                         if (
-                          b?.region &&
-                          Array.isArray(b.region) &&
-                          b.region.length > 0
+                          action === "input-change" &&
+                          transferForm.selectAllFiltered
                         ) {
-                          regionName = b.region[0].name || "Unknown";
-                        } else if (
-                          b?.region &&
-                          typeof b.region === "object" &&
-                          !Array.isArray(b.region)
-                        ) {
-                          regionName =
-                            b.region.name || b.region.region || "Unknown";
-                        } else if (typeof b?.region === "string") {
-                          regionName = b.region;
+                          // Defer actual selection to MenuList header using props.children
                         }
-                        return {
-                          value: id,
-                          label: `${b?.name || b?.fullName || b?.email || id}${
-                            regionName ? ` (${regionName})` : ""
-                          }`,
-                        };
-                      })}
-                    onChange={(opts, meta) => {
-                      const selectedValues = (opts || []).map((o) => o.value);
-                      setTransferForm((prev) => ({
-                        ...prev,
-                        brokerIds: selectedValues,
-                      }));
-                    }}
-                    options={(brokersList || [])
-                      .filter(
-                        (b) =>
-                          (b._id || b.id) && (b._id || b.id) !== currentUserId
-                      )
-                      .map((b) => {
-                        let regionName = "";
-                        if (
-                          b.region &&
-                          Array.isArray(b.region) &&
-                          b.region.length > 0
-                        ) {
-                          regionName = b.region[0].name || "Unknown";
-                        } else if (
-                          b.region &&
-                          typeof b.region === "object" &&
-                          !Array.isArray(b.region)
-                        ) {
-                          regionName =
-                            b.region.name || b.region.region || "Unknown";
-                        } else if (typeof b.region === "string") {
-                          regionName = b.region;
-                        }
-                        return {
-                          value: b._id || b.id,
-                          label: `${
-                            b.name || b.fullName || b.email || "Unnamed"
-                          }${regionName ? ` (${regionName})` : ""}`,
-                        };
-                      })}
-                    styles={customSelectStyles}
-                    components={{ MenuList: BrokerMenuList }}
-                    onInputChange={(inputValue, { action }) => {
-                      if (
-                        action === "input-change" &&
-                        transferForm.selectAllFiltered
-                      ) {
-                        // Defer actual selection to MenuList header using props.children
+                        setTransferFilter(inputValue || "");
+                        return inputValue;
+                      }}
+                      isMulti
+                      isSearchable
+                      closeMenuOnSelect={false}
+                      hideSelectedOptions
+                      placeholder={
+                        brokersLoading
+                          ? "Loading brokers..."
+                          : brokersError
+                          ? brokersError
+                          : "Choose brokers..."
                       }
-                      setTransferFilter(inputValue || "");
-                      return inputValue;
-                    }}
-                    isMulti
-                    isSearchable
-                    closeMenuOnSelect={false}
-                    hideSelectedOptions
-                    placeholder={
-                      brokersLoading
-                        ? "Loading brokers..."
-                        : brokersError
-                        ? brokersError
-                        : "Choose brokers..."
-                    }
-                    isLoading={brokersLoading}
-                  />
-                </div>
+                      isLoading={brokersLoading}
+                    />
+                  </div>
                 )}
                 <div>
                   <label className="block text-xs font-label text-gray-700 mb-1">
@@ -3448,8 +3546,12 @@ const [noteText, setNoteText] = useState("");
 
         {/* View Drawer */}
         {showView && selectedLead && (
-  <div className={`fixed inset-0 z-50 ${viewClosing ? "pointer-events-none" : ""}`}>
-    {/* Backdrop */}
+          <div
+            className={`fixed inset-0 z-50 ${
+              viewClosing ? "pointer-events-none" : ""
+            }`}
+          >
+            {/* Backdrop */}
             <div
               className="absolute inset-0 bg-black/50"
               onClick={() => {
@@ -3457,18 +3559,27 @@ const [noteText, setNoteText] = useState("");
                 setTimeout(() => setShowView(false), 200);
               }}
             />
-    {/* Panel */}
+            {/* Panel */}
             <div
-      className={`absolute right-0 top-0 h-full w-full max-w-md bg-slate-50 shadow-2xl ${
+              className={`absolute right-0 top-0 h-full w-full max-w-md bg-slate-50 shadow-2xl ${
                 viewClosing ? "animate-slide-out" : "animate-slide-in"
               }`}
             >
-      {/* Header Bar */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-white">
+              {/* Header Bar */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-white">
                 <h4 className="text-[18px] font-semibold text-slate-900 flex items-center gap-2">
-          <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <svg
+                    className="w-5 h-5 text-sky-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
                   Lead Details
                 </h4>
@@ -3480,601 +3591,869 @@ const [noteText, setNoteText] = useState("");
                   className="p-2 rounded hover:bg-gray-100"
                   aria-label="Close"
                 >
-          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                  <svg
+                    className="w-5 h-5 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
 
-      {/* Scroll Area */}
-      <div className="h-[calc(100%-56px)] overflow-y-auto no-scrollbar p-5">
-        {/* Profile Header */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+              {/* Scroll Area */}
+              <div className="h-[calc(100%-56px)] overflow-y-auto no-scrollbar p-5">
+                {/* Profile Header */}
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
                   <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-white bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-semibold">
-              {getInitials(selectedLead.name || selectedLead.customerName || "?")}
+                    <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-white bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-semibold">
+                      {getInitials(
+                        selectedLead.name || selectedLead.customerName || "?"
+                      )}
                     </div>
-            <div className="min-w-0">
-              <div className="text-[16px] font-semibold text-slate-900 truncate">
+                    <div className="min-w-0">
+                      <div className="text-[16px] font-semibold text-slate-900 truncate">
                         {selectedLead.name || selectedLead.customerName || "—"}
                       </div>
-                            <div className="text-[12px] text-slate-500 mt-0.5">
-                {selectedLead.contact || selectedLead.customerPhone || "—"}
-                    </div>
+                      <div className="text-[12px] text-slate-500 mt-0.5">
+                        {selectedLead.contact ||
+                          selectedLead.customerPhone ||
+                          "—"}
+                      </div>
                     </div>
                     <span
-              className={`ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
-                selectedLead.status || "Closed"
+                      className={`ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
+                        selectedLead.status || "Closed"
                       )}`}
                     >
-              {selectedLead.status || "Closed"}
+                      {selectedLead.status || "Closed"}
                     </span>
-          </div>
+                  </div>
                 </div>
 
-        {/* Tabs */}
-        <div className="mt-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
-          <div className="flex items-center gap-1 px-3 pt-3">
-            {(() => {
-              const TabButton = ({ active, children, onClick }) => (
-                        <button
-                  onClick={onClick}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
-                    active
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-100"
-                  }`}
-                >
-                  {children}
-                        </button>
-              );
-              return (
-                <div className="flex gap-2">
-                  <TabButton active={viewTab === "overview"} onClick={() => setViewTab("overview")}>
-                    Overview
-                  </TabButton>
-                  <TabButton active={viewTab === "share"} onClick={() => setViewTab("share")}>
-                    Share
-                  </TabButton>
-                  {/* Removed Notes tab as requested */}
-                      </div>
-              );
-            })()}
-                  </div>
-
-          {/* Tab Panels */}
-          <div className="p-4">
-            {/* OVERVIEW */}
-            {(!viewTab || viewTab === "overview") && (
-              <div className="space-y-4">
-                {/* Contact Details */}
-                <div className="rounded-xl border border-gray-200 bg-white p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h5 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2">
-                      <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                        </svg>
-                      Contact Details
-                    </h5>
-                        </div>
-                  <div className="space-y-3 text-[14px]">
+                {/* Tabs */}
+                <div className="mt-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                  <div className="flex items-center gap-1 px-3 pt-3">
                     {(() => {
-                      const isOwner = !!(
-                        (selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === currentUserId) ||
-                        (selectedLead?.brokerId && String(selectedLead.brokerId) === String(currentUserId))
-                      );
-                      return null;
-                    })()}
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
-                        <svg className="w-3.5 h-3.5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                            d="M3 5h6l2 5-2 1a10 10 0 005 5l1-2 5 2v6a2 2 0 01-2 2A16 16 0 013 7z"/>
-                        </svg>
-                      </span>
-                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
-                        <input
-                          type="tel"
-                          name="contact"
-                          value={viewForm.contact ?? (selectedLead.contact || selectedLead.customerPhone || "")}
-                          onChange={handleViewFieldChange}
-                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
-                          placeholder="Phone number"
-                        />
-                      ) : (
-                        selectedLead.contact || selectedLead.customerPhone || "—"
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
-                        <svg className="w-3.5 h-3.5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                            d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                      </span>
-                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
-                        <input
-                          type="email"
-                          name="email"
-                          value={viewForm.email ?? (selectedLead.customerEmail || "")}
-                          onChange={handleViewFieldChange}
-                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
-                          placeholder="Email address"
-                        />
-                      ) : (
-                        selectedLead.customerEmail || "—"
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Property Preferences */}
-                <div className="rounded-xl border border-gray-200 bg-white p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h5 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2">
-                      <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                          d="M7 8h10M7 12h7M5 20l2.5-2.5M19 20l-2.5-2.5"/>
-                        </svg>
-                      Property Preferences
-                    </h5>
-                  </div>
-                  <div className="space-y-3 text-[14px]">
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"
-                          />
-                        </svg>
-                      </span>
-                      <span className="text-slate-500 mr-1">Property Type:</span>
-                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
-                          <Select
-                            name="propertyType"
-                            options={(() => {
-                              const base = propertyTypeOptions.filter((o) => o.value !== "all");
-                              const v = viewForm.propertyType ?? selectedLead.propertyType ?? "";
-                              return base.some((o) => o.value === v) ? base : [...base, { value: v, label: v }];
-                            })()}
-                            value={(() => {
-                              const v = viewForm.propertyType ?? selectedLead.propertyType ?? "";
-                              const opts = (() => {
-                                const base = propertyTypeOptions.filter((o) => o.value !== "all");
-                                return base.some((o) => o.value === v) ? base : [...base, { value: v, label: v }];
-                              })();
-                              return opts.find((o) => o.value === v) || null;
-                            })()}
-                            onChange={(opt) => setViewForm((prev) => ({ ...prev, propertyType: opt?.value || "" }))}
-                            classNamePrefix="react-select"
-                            styles={customSelectStyles}
-                        />
-                      ) : (
-                        <span className="text-slate-900">{selectedLead.propertyType || "—"}</span>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z" />
-                        </svg>
-                      </span>
-                      <span className="text-slate-500 mr-1">Budget:</span>
-                        {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
-                          <input
-                          type="number"
-                          name="budget"
-                          value={viewForm.budget ?? (selectedLead.budget ?? "")}
-                            onChange={handleViewFieldChange}
-                          className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
-                          placeholder="Budget"
-                          />
-                        ) : (
-                        <span className="text-slate-900">
-                          {typeof selectedLead.budget === "number"
-                            ? `$${selectedLead.budget.toLocaleString()}`
-                            : (selectedLead.budget || "—")}
-                      </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                          />
-                        </svg>
-                      </span>
-                      <span className="text-slate-500 mr-1">Requirement:</span>
-                        {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === currentUserId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(currentUserId))) ? (
-                          <Select
-                            name="requirement"
-                            options={(() => {
-                              const base = requirementOptions.filter((o) => o.value !== "all");
-                              const v = viewForm.requirement ?? selectedLead.requirement ?? selectedLead.req ?? "";
-                              return base.some((o) => o.value === v) ? base : [...base, { value: v, label: v }];
-                            })()}
-                            value={(() => {
-                              const v = viewForm.requirement ?? selectedLead.requirement ?? selectedLead.req ?? "";
-                              const opts = (() => {
-                                const base = requirementOptions.filter((o) => o.value !== "all");
-                                return base.some((o) => o.value === v) ? base : [...base, { value: v, label: v }];
-                              })();
-                              return opts.find((o) => o.value === v) || null;
-                            })()}
-                            onChange={(opt) => setViewForm((prev) => ({ ...prev, requirement: opt?.value || "" }))}
-                            classNamePrefix="react-select"
-                            styles={customSelectStyles}
-                          />
-                        ) : (
-                        <span className="text-slate-900">
-                          {selectedLead.requirement || selectedLead.req || "—"}
-                      </span>
-                      )}
-                    </div>
-                    {/* Regions */}
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                      </span>
-                      <span className="text-slate-500 mr-1">Primary Region:</span>
-                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
-                          <Select
-                          name="primaryRegion"
-                          options={regionOptions}
-                          value={viewForm.primaryRegion || null}
-                          onChange={(opt) => setViewForm((prev) => ({ ...prev, primaryRegion: opt }))}
-                          classNamePrefix="react-select"
-                          />
-                        ) : (
-                        <span className="text-slate-900">{getRegionName(selectedLead?.primaryRegion || selectedLead?.region) || "—"}</span>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
-                        <svg
-                          className="w-3 h-3 text-slate-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                      </span>
-                      <span className="text-slate-500 mr-1">Secondary Region:</span>
-                      {viewEditMode && ((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? (
-                            <Select
-                          name="secondaryRegion"
-                          options={regionOptions}
-                          value={viewForm.secondaryRegion || null}
-                          onChange={(opt) => setViewForm((prev) => ({ ...prev, secondaryRegion: opt }))}
-                          classNamePrefix="react-select"
-                        />
-                      ) : (
-                        <span className="text-slate-900">{getRegionName(selectedLead?.secondaryRegion) || "—"}</span>
-                      )}
-                    </div>
-                            </div>
-                            </div>
-
-                {/* Lead Status + Actions */}
-                <div className="rounded-xl border border-gray-200 bg-white p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-[13px] text-slate-500">Status</div>
-                      <div className="mt-0.5">
-                        {viewEditMode ? (
-                            <Select
-                            name="status"
-                            options={statusOptions.filter((o) => o.value !== "all")}
-                            value={(() => {
-                              const v = viewForm.status ?? selectedLead.status ?? "New";
-                              return statusOptions.find((o) => o.value === v) || null;
-                            })()}
-                            onChange={(opt) => setViewForm((prev) => ({ ...prev, status: opt?.value || "New" }))}
-                            classNamePrefix="react-select"
-                            styles={customSelectStyles}
-                          />
-                        ) : (
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
-                              selectedLead.status || "Closed"
-                            )}`}
-                          >
-                            {selectedLead.status || "Closed"}
-                      </span>
-                        )}
-                    </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {!viewEditMode ? (
+                      const TabButton = ({ active, children, onClick }) => (
                         <button
-                          onClick={() => {
-                            // prefill edit form from selectedLead
-                            const primaryId = (selectedLead?.primaryRegion && (selectedLead.primaryRegion._id || selectedLead.primaryRegion.id || selectedLead.primaryRegion.value)) || selectedLead?.region || null;
-                            const primaryLabel = (selectedLead?.primaryRegion && (selectedLead.primaryRegion.name || selectedLead.primaryRegion.label)) || getRegionName(selectedLead?.primaryRegion || selectedLead?.region) || "";
-                            const secondaryId = selectedLead?.secondaryRegion && (selectedLead.secondaryRegion._id || selectedLead.secondaryRegion.id || selectedLead.secondaryRegion.value);
-                            const secondaryLabel = selectedLead?.secondaryRegion && (selectedLead.secondaryRegion.name || selectedLead.secondaryRegion.label);
-                            setViewForm({
-                              name: selectedLead.name || selectedLead.customerName || "",
-                              contact: selectedLead.contact || selectedLead.customerPhone || "",
-                              email: selectedLead.customerEmail || "",
-                              requirement: selectedLead.requirement || selectedLead.req || "",
-                              propertyType: selectedLead.propertyType || "",
-                              budget: typeof selectedLead.budget === "number" ? selectedLead.budget : (selectedLead.budget || ""),
-                              status: selectedLead.status || "Closed",
-                              primaryRegion: primaryId ? { value: primaryId, label: primaryLabel } : null,
-                              secondaryRegion: secondaryId ? { value: secondaryId, label: secondaryLabel || "" } : null,
-                            });
-                            setViewEditMode(true);
-                          }}
-                          className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950"
+                          onClick={onClick}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
+                            active
+                              ? "bg-slate-900 text-white"
+                              : "text-slate-600 hover:bg-slate-100"
+                          }`}
                         >
-                          {((selectedLead?.createdBy && (selectedLead.createdBy._id || selectedLead.createdBy.id) === brokerId) || (selectedLead?.brokerId && String(selectedLead.brokerId) === String(brokerId))) ? "Edit" : "Edit Status"}
+                          {children}
                         </button>
-                      ) : (
-                        <>
-                          <button
-                            onClick={saveViewEdits}
-                            className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700"
+                      );
+                      return (
+                        <div className="flex gap-2">
+                          <TabButton
+                            active={viewTab === "overview"}
+                            onClick={() => setViewTab("overview")}
                           >
-                            Save
-                          </button>
-                          <button
-                            onClick={() => setViewEditMode(false)}
-                            className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200"
+                            Overview
+                          </TabButton>
+                          <TabButton
+                            active={viewTab === "share"}
+                            onClick={() => setViewTab("share")}
                           >
-                            Cancel
-                          </button>
-                        </>
-                      )}
-                      {/* <button
+                            Share
+                          </TabButton>
+                          {/* Removed Notes tab as requested */}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Tab Panels */}
+                  <div className="p-4">
+                    {/* OVERVIEW */}
+                    {(!viewTab || viewTab === "overview") && (
+                      <div className="space-y-4">
+                        {/* Contact Details */}
+                        <div className="rounded-xl border border-gray-200 bg-white p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h5 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2">
+                              <svg
+                                className="w-4 h-4 text-sky-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                />
+                              </svg>
+                              Contact Details
+                            </h5>
+                          </div>
+                          <div className="space-y-3 text-[14px]">
+                            {(() => {
+                              const isOwner = !!(
+                                (selectedLead?.createdBy &&
+                                  (selectedLead.createdBy._id ||
+                                    selectedLead.createdBy.id) ===
+                                    currentUserId) ||
+                                (selectedLead?.brokerId &&
+                                  String(selectedLead.brokerId) ===
+                                    String(currentUserId))
+                              );
+                              return null;
+                            })()}
+                            <div className="flex items-center gap-2 text-slate-700">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                                <svg
+                                  className="w-3.5 h-3.5 text-gray-500"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M3 5h6l2 5-2 1a10 10 0 005 5l1-2 5 2v6a2 2 0 01-2 2A16 16 0 013 7z"
+                                  />
+                                </svg>
+                              </span>
+                              {viewEditMode &&
+                              ((selectedLead?.createdBy &&
+                                (selectedLead.createdBy._id ||
+                                  selectedLead.createdBy.id) === brokerId) ||
+                                (selectedLead?.brokerId &&
+                                  String(selectedLead.brokerId) ===
+                                    String(brokerId))) ? (
+                                <input
+                                  type="tel"
+                                  name="contact"
+                                  value={
+                                    viewForm.contact ??
+                                    (selectedLead.contact ||
+                                      selectedLead.customerPhone ||
+                                      "")
+                                  }
+                                  onChange={handleViewFieldChange}
+                                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
+                                  placeholder="Phone number"
+                                />
+                              ) : (
+                                selectedLead.contact ||
+                                selectedLead.customerPhone ||
+                                "—"
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-slate-700">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                                <svg
+                                  className="w-3.5 h-3.5 text-gray-500"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                  />
+                                </svg>
+                              </span>
+                              {viewEditMode &&
+                              ((selectedLead?.createdBy &&
+                                (selectedLead.createdBy._id ||
+                                  selectedLead.createdBy.id) === brokerId) ||
+                                (selectedLead?.brokerId &&
+                                  String(selectedLead.brokerId) ===
+                                    String(brokerId))) ? (
+                                <input
+                                  type="email"
+                                  name="email"
+                                  value={
+                                    viewForm.email ??
+                                    (selectedLead.customerEmail || "")
+                                  }
+                                  onChange={handleViewFieldChange}
+                                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
+                                  placeholder="Email address"
+                                />
+                              ) : (
+                                selectedLead.customerEmail || "—"
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Property Preferences */}
+                        <div className="rounded-xl border border-gray-200 bg-white p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h5 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2">
+                              <svg
+                                className="w-4 h-4 text-sky-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M7 8h10M7 12h7M5 20l2.5-2.5M19 20l-2.5-2.5"
+                                />
+                              </svg>
+                              Property Preferences
+                            </h5>
+                          </div>
+                          <div className="space-y-3 text-[14px]">
+                            <div className="flex items-center gap-2 text-slate-700">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                                <svg
+                                  className="w-3 h-3 text-slate-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"
+                                  />
+                                </svg>
+                              </span>
+                              <span className="text-slate-500 mr-1">
+                                Property Type:
+                              </span>
+                              {viewEditMode &&
+                              ((selectedLead?.createdBy &&
+                                (selectedLead.createdBy._id ||
+                                  selectedLead.createdBy.id) === brokerId) ||
+                                (selectedLead?.brokerId &&
+                                  String(selectedLead.brokerId) ===
+                                    String(brokerId))) ? (
+                                <Select
+                                  name="propertyType"
+                                  options={(() => {
+                                    const base = propertyTypeOptions.filter(
+                                      (o) => o.value !== "all"
+                                    );
+                                    const v =
+                                      viewForm.propertyType ??
+                                      selectedLead.propertyType ??
+                                      "";
+                                    return base.some((o) => o.value === v)
+                                      ? base
+                                      : [...base, { value: v, label: v }];
+                                  })()}
+                                  value={(() => {
+                                    const v =
+                                      viewForm.propertyType ??
+                                      selectedLead.propertyType ??
+                                      "";
+                                    const opts = (() => {
+                                      const base = propertyTypeOptions.filter(
+                                        (o) => o.value !== "all"
+                                      );
+                                      return base.some((o) => o.value === v)
+                                        ? base
+                                        : [...base, { value: v, label: v }];
+                                    })();
+                                    return (
+                                      opts.find((o) => o.value === v) || null
+                                    );
+                                  })()}
+                                  onChange={(opt) =>
+                                    setViewForm((prev) => ({
+                                      ...prev,
+                                      propertyType: opt?.value || "",
+                                    }))
+                                  }
+                                  classNamePrefix="react-select"
+                                  styles={customSelectStyles}
+                                />
+                              ) : (
+                                <span className="text-slate-900">
+                                  {selectedLead.propertyType || "—"}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-slate-700">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                                <svg
+                                  className="w-3 h-3 text-slate-400"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z" />
+                                </svg>
+                              </span>
+                              <span className="text-slate-500 mr-1">
+                                Budget:
+                              </span>
+                              {viewEditMode &&
+                              ((selectedLead?.createdBy &&
+                                (selectedLead.createdBy._id ||
+                                  selectedLead.createdBy.id) === brokerId) ||
+                                (selectedLead?.brokerId &&
+                                  String(selectedLead.brokerId) ===
+                                    String(brokerId))) ? (
+                                <input
+                                  type="number"
+                                  name="budget"
+                                  value={
+                                    viewForm.budget ?? selectedLead.budget ?? ""
+                                  }
+                                  onChange={handleViewFieldChange}
+                                  className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
+                                  placeholder="Budget"
+                                />
+                              ) : (
+                                <span className="text-slate-900">
+                                  {typeof selectedLead.budget === "number"
+                                    ? `$${selectedLead.budget.toLocaleString()}`
+                                    : selectedLead.budget || "—"}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-slate-700">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                                <svg
+                                  className="w-3 h-3 text-slate-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                  />
+                                </svg>
+                              </span>
+                              <span className="text-slate-500 mr-1">
+                                Requirement:
+                              </span>
+                              {viewEditMode &&
+                              ((selectedLead?.createdBy &&
+                                (selectedLead.createdBy._id ||
+                                  selectedLead.createdBy.id) ===
+                                  currentUserId) ||
+                                (selectedLead?.brokerId &&
+                                  String(selectedLead.brokerId) ===
+                                    String(currentUserId))) ? (
+                                <Select
+                                  name="requirement"
+                                  options={(() => {
+                                    const base = requirementOptions.filter(
+                                      (o) => o.value !== "all"
+                                    );
+                                    const v =
+                                      viewForm.requirement ??
+                                      selectedLead.requirement ??
+                                      selectedLead.req ??
+                                      "";
+                                    return base.some((o) => o.value === v)
+                                      ? base
+                                      : [...base, { value: v, label: v }];
+                                  })()}
+                                  value={(() => {
+                                    const v =
+                                      viewForm.requirement ??
+                                      selectedLead.requirement ??
+                                      selectedLead.req ??
+                                      "";
+                                    const opts = (() => {
+                                      const base = requirementOptions.filter(
+                                        (o) => o.value !== "all"
+                                      );
+                                      return base.some((o) => o.value === v)
+                                        ? base
+                                        : [...base, { value: v, label: v }];
+                                    })();
+                                    return (
+                                      opts.find((o) => o.value === v) || null
+                                    );
+                                  })()}
+                                  onChange={(opt) =>
+                                    setViewForm((prev) => ({
+                                      ...prev,
+                                      requirement: opt?.value || "",
+                                    }))
+                                  }
+                                  classNamePrefix="react-select"
+                                  styles={customSelectStyles}
+                                />
+                              ) : (
+                                <span className="text-slate-900">
+                                  {selectedLead.requirement ||
+                                    selectedLead.req ||
+                                    "—"}
+                                </span>
+                              )}
+                            </div>
+                            {/* Regions */}
+                            <div className="flex items-center gap-2 text-slate-700">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                                <svg
+                                  className="w-3 h-3 text-slate-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                </svg>
+                              </span>
+                              <span className="text-slate-500 mr-1">
+                                Primary Region:
+                              </span>
+                              {viewEditMode &&
+                              ((selectedLead?.createdBy &&
+                                (selectedLead.createdBy._id ||
+                                  selectedLead.createdBy.id) === brokerId) ||
+                                (selectedLead?.brokerId &&
+                                  String(selectedLead.brokerId) ===
+                                    String(brokerId))) ? (
+                                <Select
+                                  name="primaryRegion"
+                                  options={regionOptions}
+                                  value={viewForm.primaryRegion || null}
+                                  onChange={(opt) =>
+                                    setViewForm((prev) => ({
+                                      ...prev,
+                                      primaryRegion: opt,
+                                    }))
+                                  }
+                                  classNamePrefix="react-select"
+                                />
+                              ) : (
+                                <span className="text-slate-900">
+                                  {getRegionName(
+                                    selectedLead?.primaryRegion ||
+                                      selectedLead?.region
+                                  ) || "—"}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-slate-700">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                                <svg
+                                  className="w-3 h-3 text-slate-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                </svg>
+                              </span>
+                              <span className="text-slate-500 mr-1">
+                                Secondary Region:
+                              </span>
+                              {viewEditMode &&
+                              ((selectedLead?.createdBy &&
+                                (selectedLead.createdBy._id ||
+                                  selectedLead.createdBy.id) === brokerId) ||
+                                (selectedLead?.brokerId &&
+                                  String(selectedLead.brokerId) ===
+                                    String(brokerId))) ? (
+                                <Select
+                                  name="secondaryRegion"
+                                  options={regionOptions}
+                                  value={viewForm.secondaryRegion || null}
+                                  onChange={(opt) =>
+                                    setViewForm((prev) => ({
+                                      ...prev,
+                                      secondaryRegion: opt,
+                                    }))
+                                  }
+                                  classNamePrefix="react-select"
+                                />
+                              ) : (
+                                <span className="text-slate-900">
+                                  {getRegionName(
+                                    selectedLead?.secondaryRegion
+                                  ) || "—"}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Lead Status + Actions */}
+                        <div className="rounded-xl border border-gray-200 bg-white p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-[13px] text-slate-500">
+                                Status
+                              </div>
+                              <div className="mt-0.5">
+                                {viewEditMode ? (
+                                  <Select
+                                    name="status"
+                                    options={statusOptions.filter(
+                                      (o) => o.value !== "all"
+                                    )}
+                                    value={(() => {
+                                      const v =
+                                        viewForm.status ??
+                                        selectedLead.status ??
+                                        "New";
+                                      return (
+                                        statusOptions.find(
+                                          (o) => o.value === v
+                                        ) || null
+                                      );
+                                    })()}
+                                    onChange={(opt) =>
+                                      setViewForm((prev) => ({
+                                        ...prev,
+                                        status: opt?.value || "New",
+                                      }))
+                                    }
+                                    classNamePrefix="react-select"
+                                    styles={customSelectStyles}
+                                  />
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeClasses(
+                                      selectedLead.status || "Closed"
+                                    )}`}
+                                  >
+                                    {selectedLead.status || "Closed"}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {!viewEditMode ? (
+                                <button
+                                  onClick={() => {
+                                    // prefill edit form from selectedLead
+                                    const primaryId =
+                                      (selectedLead?.primaryRegion &&
+                                        (selectedLead.primaryRegion._id ||
+                                          selectedLead.primaryRegion.id ||
+                                          selectedLead.primaryRegion.value)) ||
+                                      selectedLead?.region ||
+                                      null;
+                                    const primaryLabel =
+                                      (selectedLead?.primaryRegion &&
+                                        (selectedLead.primaryRegion.name ||
+                                          selectedLead.primaryRegion.label)) ||
+                                      getRegionName(
+                                        selectedLead?.primaryRegion ||
+                                          selectedLead?.region
+                                      ) ||
+                                      "";
+                                    const secondaryId =
+                                      selectedLead?.secondaryRegion &&
+                                      (selectedLead.secondaryRegion._id ||
+                                        selectedLead.secondaryRegion.id ||
+                                        selectedLead.secondaryRegion.value);
+                                    const secondaryLabel =
+                                      selectedLead?.secondaryRegion &&
+                                      (selectedLead.secondaryRegion.name ||
+                                        selectedLead.secondaryRegion.label);
+                                    setViewForm({
+                                      name:
+                                        selectedLead.name ||
+                                        selectedLead.customerName ||
+                                        "",
+                                      contact:
+                                        selectedLead.contact ||
+                                        selectedLead.customerPhone ||
+                                        "",
+                                      email: selectedLead.customerEmail || "",
+                                      requirement:
+                                        selectedLead.requirement ||
+                                        selectedLead.req ||
+                                        "",
+                                      propertyType:
+                                        selectedLead.propertyType || "",
+                                      budget:
+                                        typeof selectedLead.budget === "number"
+                                          ? selectedLead.budget
+                                          : selectedLead.budget || "",
+                                      status: selectedLead.status || "Closed",
+                                      primaryRegion: primaryId
+                                        ? {
+                                            value: primaryId,
+                                            label: primaryLabel,
+                                          }
+                                        : null,
+                                      secondaryRegion: secondaryId
+                                        ? {
+                                            value: secondaryId,
+                                            label: secondaryLabel || "",
+                                          }
+                                        : null,
+                                    });
+                                    setViewEditMode(true);
+                                  }}
+                                  className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950"
+                                >
+                                  {(selectedLead?.createdBy &&
+                                    (selectedLead.createdBy._id ||
+                                      selectedLead.createdBy.id) ===
+                                      brokerId) ||
+                                  (selectedLead?.brokerId &&
+                                    String(selectedLead.brokerId) ===
+                                      String(brokerId))
+                                    ? "Edit"
+                                    : "Edit Status"}
+                                </button>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={saveViewEdits}
+                                    className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700"
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setViewEditMode(false)}
+                                    className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200"
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              )}
+                              {/* <button
                         onClick={() => setViewTab("share")}
                         className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200"
                       >
                         Share
                       </button> */}
-                    </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SHARE DETAILS */}
+                    {viewTab === "share" && (
+                      <div className="space-y-3 text-[14px]">
+                        <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
+                          <h5 className="text-[16px] font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                            <svg
+                              className="w-4 h-4 text-sky-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M7 8h10M7 12h7M5 20l2.5-2.5M19 20l-2.5-2.5"
+                              />
+                            </svg>
+                            Share History
+                          </h5>
+                          {(() => {
+                            const transfers = Array.isArray(
+                              selectedLead?.transfers
+                            )
+                              ? selectedLead.transfers
+                              : [];
+                            if (!transfers.length) {
+                              return (
+                                <div className="text-[14px] text-slate-500">
+                                  Not shared yet.
+                                </div>
+                              );
+                            }
+                            const idToBroker = new Map(
+                              (brokersList || []).map((b) => [b._id || b.id, b])
+                            );
+                            return (
+                              <ul className="text-[14px] text-slate-700 space-y-3">
+                                {transfers.map((t, i) => {
+                                  const toB =
+                                    t && typeof t.toBroker === "object"
+                                      ? t.toBroker
+                                      : idToBroker.get(t?.toBroker) || {};
+                                  const fromB =
+                                    t && typeof t.fromBroker === "object"
+                                      ? t.fromBroker
+                                      : idToBroker.get(t?.fromBroker) || {};
+                                  const toName =
+                                    toB.name ||
+                                    toB.fullName ||
+                                    toB.email ||
+                                    toB._id ||
+                                    t?.toBroker ||
+                                    "Unknown broker";
+                                  const fromName =
+                                    fromB.name ||
+                                    fromB.fullName ||
+                                    fromB.email ||
+                                    fromB._id ||
+                                    t?.fromBroker ||
+                                    "Unknown broker";
+                                  const toAvatar =
+                                    toB.brokerImage ||
+                                    toB.avatarUrl ||
+                                    toB.imageUrl ||
+                                    "";
+                                  const fromAvatar =
+                                    fromB.brokerImage ||
+                                    fromB.avatarUrl ||
+                                    fromB.imageUrl ||
+                                    "";
+                                  const when = t?.createdAt
+                                    ? new Date(t.createdAt).toLocaleString()
+                                    : "";
+                                  const keyFrom =
+                                    (typeof t?.fromBroker === "object"
+                                      ? t?.fromBroker?._id
+                                      : t?.fromBroker) || "from";
+                                  const keyTo =
+                                    (typeof t?.toBroker === "object"
+                                      ? t?.toBroker?._id
+                                      : t?.toBroker) || "to";
+                                  const fromRegion =
+                                    getRegionName(fromB?.region) ||
+                                    getRegionName(fromB?.primaryRegion) ||
+                                    "";
+                                  const toRegion =
+                                    getRegionName(toB?.region) ||
+                                    getRegionName(toB?.primaryRegion) ||
+                                    "";
+                                  const toId =
+                                    t && typeof t.toBroker === "object"
+                                      ? t.toBroker?._id || t.toBroker?.id
+                                      : t?.toBroker;
+                                  const isPending =
+                                    pendingDeleteTransferId === String(toId);
+                                  return (
+                                    <li
+                                      key={`${keyFrom}-${keyTo}-${t?._id || i}`}
+                                      className="flex items-center gap-3"
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <div
+                                          className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700"
+                                          title={
+                                            typeof toName === "string"
+                                              ? toName
+                                              : String(toName)
+                                          }
+                                        >
+                                          <img
+                                            src={
+                                              toAvatar ||
+                                              "https://www.w3schools.com/howto/img_avatar.png"
+                                            }
+                                            alt={
+                                              typeof toName === "string"
+                                                ? toName
+                                                : "Broker"
+                                            }
+                                            className="w-full h-full object-cover"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-slate-900 truncate">
+                                          {typeof fromName === "string"
+                                            ? fromName
+                                            : String(fromName)}
+                                          <span className="mx-1 text-slate-400">
+                                            →
+                                          </span>
+                                          {typeof toName === "string"
+                                            ? toName
+                                            : String(toName)}
+                                        </div>
+                                        <div className="text-[12px] text-slate-500 truncate">
+                                          {fromRegion || "—"}{" "}
+                                          <span className="mx-1 text-slate-400">
+                                            →
+                                          </span>{" "}
+                                          {toRegion || "—"}
+                                        </div>
+                                        {when && (
+                                          <div className="text-[11px] text-slate-400">
+                                            Shared on {when}
+                                          </div>
+                                        )}
+                                      </div>
+                                      <button
+                                        type="button"
+                                        disabled={isPending}
+                                        onClick={async () => {
+                                          if (!toId) return;
+                                          setPendingDeleteTransferId(
+                                            String(toId)
+                                          );
+                                          await deleteTransfer(toId);
+                                        }}
+                                        className={`ml-2 inline-flex items-center px-2 py-1 text-[12px] rounded border ${
+                                          isPending
+                                            ? "border-gray-200 text-gray-400"
+                                            : "border-rose-200 text-rose-700 hover:bg-rose-50"
+                                        }`}
+                                        title="Delete transfer"
+                                      >
+                                        {isPending ? "Removing…" : "Delete"}
+                                      </button>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-                                  </div>
-                                )}
 
-            {/* SHARE DETAILS */}
-            {viewTab === "share" && (
-              <div className="space-y-3 text-[14px]">
-                <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
-                  <h5 className="text-[16px] font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                    <svg
-                      className="w-4 h-4 text-sky-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M7 8h10M7 12h7M5 20l2.5-2.5M19 20l-2.5-2.5"
-                      />
-                    </svg>
-                    Share History
-                  </h5>
-                  {(() => {
-                    const transfers = Array.isArray(selectedLead?.transfers)
-                      ? selectedLead.transfers
-                      : [];
-                    if (!transfers.length) {
-                      return (
-                        <div className="text-[14px] text-slate-500">
-                          Not shared yet.
-                        </div>
-                      );
-                    }
-                    const idToBroker = new Map(
-                      (brokersList || []).map((b) => [b._id || b.id, b])
-                    );
-                    return (
-                      <ul className="text-[14px] text-slate-700 space-y-3">
-                        {transfers.map((t, i) => {
-                          const toB =
-                            t && typeof t.toBroker === "object"
-                              ? t.toBroker
-                              : idToBroker.get(t?.toBroker) || {};
-                          const fromB =
-                            t && typeof t.fromBroker === "object"
-                              ? t.fromBroker
-                              : idToBroker.get(t?.fromBroker) || {};
-                          const toName =
-                            toB.name ||
-                            toB.fullName ||
-                            toB.email ||
-                            toB._id ||
-                            t?.toBroker ||
-                            "Unknown broker";
-                          const fromName =
-                            fromB.name ||
-                            fromB.fullName ||
-                            fromB.email ||
-                            fromB._id ||
-                            t?.fromBroker ||
-                            "Unknown broker";
-                          const toAvatar =
-                            toB.brokerImage ||
-                            toB.avatarUrl ||
-                            toB.imageUrl ||
-                            "";
-                          const fromAvatar =
-                            fromB.brokerImage ||
-                            fromB.avatarUrl ||
-                            fromB.imageUrl ||
-                            "";
-                          const when = t?.createdAt
-                            ? new Date(t.createdAt).toLocaleString()
-                            : "";
-                          const keyFrom =
-                            (typeof t?.fromBroker === "object"
-                              ? t?.fromBroker?._id
-                              : t?.fromBroker) || "from";
-                          const keyTo =
-                            (typeof t?.toBroker === "object"
-                              ? t?.toBroker?._id
-                              : t?.toBroker) || "to";
-                          const fromRegion =
-                            getRegionName(fromB?.region) ||
-                            getRegionName(fromB?.primaryRegion) ||
-                            "";
-                          const toRegion =
-                            getRegionName(toB?.region) ||
-                            getRegionName(toB?.primaryRegion) ||
-                            "";
-                          const toId =
-                            t && typeof t.toBroker === "object"
-                              ? t.toBroker?._id || t.toBroker?.id
-                              : t?.toBroker;
-                          const isPending =
-                            pendingDeleteTransferId === String(toId);
-                          return (
-                            <li
-                              key={`${keyFrom}-${keyTo}-${t?._id || i}`}
-                              className="flex items-center gap-3"
-                            >
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700"
-                                  title={
-                                    typeof toName === "string"
-                                      ? toName
-                                      : String(toName)
-                                  }
-                                >
-                                  <img
-                                    src={
-                                      toAvatar ||
-                                      "https://www.w3schools.com/howto/img_avatar.png"
-                                    }
-                                    alt={
-                                      typeof toName === "string"
-                                        ? toName
-                                        : "Broker"
-                                    }
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-slate-900 truncate">
-                                  {typeof fromName === "string"
-                                    ? fromName
-                                    : String(fromName)}
-                                  <span className="mx-1 text-slate-400">→</span>
-                                  {typeof toName === "string"
-                                    ? toName
-                                    : String(toName)}
-                                </div>
-                                <div className="text-[12px] text-slate-500 truncate">
-                                  {fromRegion || "—"}{" "}
-                                  <span className="mx-1 text-slate-400">→</span>{" "}
-                                  {toRegion || "—"}
-                                </div>
-                                {when && (
-                                  <div className="text-[11px] text-slate-400">
-                                    Shared on {when}
-                                  </div>
-                                )}
-                              </div>
-                                  <button
-                                    type="button"
-                                    disabled={isPending}
-                                    onClick={async () => {
-                                      if (!toId) return;
-                                      setPendingDeleteTransferId(String(toId));
-                                      await deleteTransfer(toId);
-                                    }}
-                                    className={`ml-2 inline-flex items-center px-2 py-1 text-[12px] rounded border ${
-                                      isPending
-                                        ? "border-gray-200 text-gray-400"
-                                        : "border-rose-200 text-rose-700 hover:bg-rose-50"
-                                    }`}
-                                    title="Delete transfer"
-                                  >
-                                    {isPending ? "Removing…" : "Delete"}
-                                  </button>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* (Optional) Share history card – keep your existing logic if you want it below */}
-        {/* <YourShareHistoryCard /> */}
+                {/* (Optional) Share history card – keep your existing logic if you want it below */}
+                {/* <YourShareHistoryCard /> */}
               </div>
             </div>
           </div>
         )}
-
       </div>
 
       <style jsx global>{`
@@ -4115,4 +4494,3 @@ const [noteText, setNoteText] = useState("");
     </ProtectedRoute>
   );
 }
-
