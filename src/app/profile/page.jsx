@@ -1580,8 +1580,8 @@ const Profile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
            
-          {/* Form Card */}
-          <div className="lg:col-span-9 bg-white rounded-2xl shadow-xs overflow-hidden">
+          {/* Form Card - 9 columns */}
+          <div className="lg:col-span-9 bg-white rounded-2xl shadow-xs overflow-hidden order-1 lg:order-1">
             {/* Step Content */}
             {profileLoading ? (
               <div className="flex items-center justify-center py-20">
@@ -1598,19 +1598,21 @@ const Profile = () => {
                 {currentStep === 1 && (
                   <div className="w-full mx-auto">
                     {/* Progress Card - Above Profile Image */}
-                    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm mb-6">
-                      <div className="flex items-start gap-3 mb-4">
-                        <div className="w-8 h-8 rounded-lg  flex items-center justify-center flex-shrink-0">
-                          <svg className="w-5 h-5 text-green-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                          </svg>
+                      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm mb-6">
+                        <div className="flex items-start gap-3 mb-4">
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                              <path d="M3 20.9996C3.00003 21.5518 2.55228 21.9995 2 21.9996C1.4479 21.9996 1.00029 21.5526 1 21.0005L3 20.9996ZM6.29688 12.7964C7.87562 12.0838 9.62701 11.8423 11.3398 12.1001C13.0526 12.358 14.6542 13.1048 15.9531 14.2505C16.3673 14.6159 16.4073 15.2475 16.042 15.6617C15.6766 16.0758 15.045 16.1149 14.6309 15.7496C13.6205 14.8584 12.3742 14.2782 11.042 14.0777C9.70979 13.8772 8.34803 14.0654 7.12012 14.6197C5.89221 15.1739 4.84995 16.0709 4.11914 17.2027C3.38856 18.3343 3 19.6526 3 20.9996L1 21.0005C0.999905 19.2684 1.49989 17.5728 2.43945 16.1177C3.37903 14.6626 4.71822 13.5091 6.29688 12.7964Z" fill="#0D542B"/>
+                              <path d="M14 8C14 5.79086 12.2091 4 10 4C7.79086 4 6 5.79086 6 8C6 10.2091 7.79086 12 10 12C12.2091 12 14 10.2091 14 8ZM16 8C16 11.3137 13.3137 14 10 14C6.68629 14 4 11.3137 4 8C4 4.68629 6.68629 2 10 2C13.3137 2 16 4.68629 16 8Z" fill="#0D542B"/>
+                              <path d="M18 22V16C18 15.4477 18.4477 15 19 15C19.5523 15 20 15.4477 20 16V22C20 22.5523 19.5523 23 19 23C18.4477 23 18 22.5523 18 22Z" fill="#0D542B"/>
+                              <path d="M22 18C22.5523 18 23 18.4477 23 19C23 19.5523 22.5523 20 22 20H16C15.4477 20 15 19.5523 15 19C15 18.4477 15.4477 18 16 18H22Z" fill="#0D542B"/>
+                            </svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-1">Create broker profile</h3>
+                            <p className="text-xs text-gray-600">Finish basic details and choose your nearest region to get started.</p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold text-gray-900 mb-1">Create broker profile</h3>
-                          <p className="text-xs text-gray-600">Finish basic details and choose your nearest region to get started.</p>
-                        </div>
-                      </div>
                       {/* Progress Bar */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -1726,19 +1728,10 @@ const Profile = () => {
                               .getElementById("profile-image-upload")
                               .click()
                           }
-                        >
-                            <svg
-                              className="w-4 h-4 text-white"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                              />
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                              <path d="M21 9C21 8.73478 20.8946 8.48051 20.707 8.29297C20.5429 8.12883 20.3276 8.02757 20.0986 8.00488L20 8H17C16.7033 8 16.4214 7.86856 16.2314 7.64062L14.0312 5H9.96875L7.76855 7.64062C7.57856 7.86856 7.29674 8 7 8H4C3.73478 8 3.48051 8.10543 3.29297 8.29297C3.10543 8.48051 3 8.73478 3 9V18C3 18.2652 3.10543 18.5195 3.29297 18.707C3.48051 18.8946 3.73478 19 4 19H20C20.2652 19 20.5195 18.8946 20.707 18.707C20.8946 18.5195 21 18.2652 21 18V9ZM23 18C23 18.7957 22.6837 19.5585 22.1211 20.1211C21.5585 20.6837 20.7957 21 20 21H4C3.20435 21 2.44152 20.6837 1.87891 20.1211C1.3163 19.5585 1 18.7956 1 18V9C1 8.20435 1.3163 7.44152 1.87891 6.87891C2.44152 6.3163 3.20435 6 4 6H6.53125L8.73145 3.35938L8.80762 3.2793C8.99282 3.10135 9.24033 3 9.5 3H14.5L14.6104 3.00586C14.8656 3.03418 15.1023 3.15991 15.2686 3.35938L17.4688 6H20L20.2969 6.01465C20.9835 6.08291 21.6289 6.38671 22.1211 6.87891C22.6837 7.44152 23 8.20435 23 9V18Z" fill="white"/>
+                              <path d="M14 13C14 11.8954 13.1046 11 12 11C10.8954 11 10 11.8954 10 13C10 14.1046 10.8954 15 12 15C13.1046 15 14 14.1046 14 13ZM16 13C16 15.2091 14.2091 17 12 17C9.79086 17 8 15.2091 8 13C8 10.7909 9.79086 9 12 9C14.2091 9 16 10.7909 16 13Z" fill="white"/>
                             </svg>
                           </button>
                         )}
@@ -3700,13 +3693,12 @@ const Profile = () => {
               </div>
             )}
           </div>
-          {/* Sidebar: Resources / Help */}
-          <aside className="lg:col-span-3 space-y-5 lg:sticky lg:top-20 self-start">
+          {/* Sidebar: Resources / Help - 3 columns */}
+          <aside className="lg:col-span-3 space-y-5 lg:sticky lg:top-20 self-start order-2 lg:order-2">
             {/* Create Broker Profile Progress Card */}
         
 
             {/* Combined Tips & Support Card */}
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 shadow-sm space-y-4">
               {/* Tips for Profile Completion */}
               <div className="  rounded-[10px] F] border border-gray-200 bg-white p-4 shadow-xs">
                 <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-3">Tips for Profile Completion</h3>
@@ -3724,7 +3716,7 @@ const Profile = () => {
                     <span className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Keep KYC documents under 10MB per file for quick upload.</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-green-600 mr-2">•</span>
+                    <span className="text-gray-600 mr-2">•</span>
                     <span>Use nearest regions for a faster setup process.</span>
                   </li>
                   <li className="flex items-start">
@@ -3797,7 +3789,7 @@ const Profile = () => {
                 </div>
               </div>
               </div>
-            </div>
+         
 
          
           </aside>
