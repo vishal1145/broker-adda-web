@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Link from "next/link";
+import HeaderFile from "../components/Header";
 
 const DEFAULT_IMAGE = "/images/pexels-binyaminmellish-106399.jpg";
 
@@ -15,7 +16,9 @@ const initialProperties = [
     propertyType: "Residential",
     rating: "4.7",
     currentPrice: "₹4,20,00,000",
-    images: [DEFAULT_IMAGE]
+    images: [DEFAULT_IMAGE],
+    bedrooms: 4,
+    bathrooms: 3
   },
   {
     id: "demo-2",
@@ -26,7 +29,9 @@ const initialProperties = [
     propertyType: "Residential",
     rating: "4.5",
     currentPrice: "₹1,20,00,000",
-    images: [DEFAULT_IMAGE]
+    images: [DEFAULT_IMAGE],
+    bedrooms: 3,
+    bathrooms: 2
   },
   {
     id: "demo-3",
@@ -48,7 +53,9 @@ const initialProperties = [
     propertyType: "Residential",
     rating: "4.3",
     currentPrice: "₹85,00,000",
-    images: [DEFAULT_IMAGE]
+    images: [DEFAULT_IMAGE],
+    bedrooms: 2,
+    bathrooms: 2
   },
   {
     id: "demo-5",
@@ -567,7 +574,9 @@ const PropertiesManagement = () => {
 
   return (
     <ProtectedRoute>
-      <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <HeaderFile data={{ title: 'Dashboard', breadcrumb: [{ label: 'Home', href: '/' }, { label: 'Property', href: '/properties-management' }] }} />
+      
+      <div className=" mx-auto  py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Properties Management</h1>
@@ -608,7 +617,7 @@ const PropertiesManagement = () => {
             </button>
             <Link
               href="/properties-management/new"
-              className="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm"
+              className="inline-flex items-center gap-2 bg-green-900 hover:bg-green-900 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -658,213 +667,268 @@ const PropertiesManagement = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {items.map((property) => (
-            <div key={property.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-200 cursor-pointer">
-              <div className="relative">
-                <div className="relative h-56 overflow-visible rounded-xl">
-                  <img src={(property.images && property.images[0]) || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover rounded-xl" />
-                  {/* Price chip + share button protruding slightly below image */}
-                  <div className="absolute inset-x-0 -bottom-4 z-10 px-4 flex items-center justify-between">
-                    <div className="bg-yellow-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-                      {property.currentPrice !== '-' ? property.currentPrice : 'Price on Request'}
-                    </div>
-                    <button className="p-2 bg-white rounded-full border border-gray-200 shadow-lg hover:shadow transition">
-                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="absolute top-6 left-6">
-                  <span className="bg-[#0A421E] text-white  px-6 py-1 rounded-full text-xs font-medium">
-                    {property.propertyType}
-                  </span>
-                </div>
-                <div className="absolute top-6 right-6 flex items-center bg-white/90 backdrop-blur rounded-full px-2 py-1 shadow-sm">
-                  <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                  <span className="text-xs font-medium text-gray-700">{property.rating}</span>
-                </div>
-
-                <div className="mt-8 px-4 pb-4">
-
-                  {/* Title with inline arrow */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-base font-semibold text-gray-900">{property.title}</h3>
-                    <Link href={`/property-details/${property.id}`} className="text-green-600 hover:text-green-700" aria-label="Open details">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h4m0 0v4m0-4L10 14" />
-                      </svg>
-                    </Link>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">{property.description}</p>
-
-                  {/* Location - City and Region with separate icons */}
-                  <div className="mb-3">
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
-                      {/* City with building icon */}
-                      <div className="flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        <span>{property.city || 'City'}</span>
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Left column - 9/12 width for property cards */}
+            <div className="w-full lg:w-9/12">
+              <div className="space-y-6">
+                {items.map((property) => (
+                <Link key={property.id} href={`/property-details/${property.id}`} className="block">
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex">
+                      {/* Image Section - Left */}
+                      <div className="relative w-[400px] h-[300px] flex-shrink-0">
+                        {/* Image carousel */}
+                        <div className="relative w-full h-full overflow-hidden rounded-l-xl">
+                          <div className="absolute inset-0 transition-opacity duration-700 ease-in-out opacity-100">
+                            <img src={(property.images && property.images[0]) || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover" />
+                          </div>
+                        </div>
+                        {/* Tag overlay - top-left */}
+                        <div className="absolute top-4 left-4">
+                          <span className="bg-[#0A421E] text-white px-3 py-1 rounded-full text-xs font-medium">
+                            {property.propertyType}
+                          </span>
+                        </div>
+                        {/* Rating - top-right */}
+                        <div className="absolute top-4 right-4 flex items-center bg-white/90 backdrop-blur rounded-full px-2 py-1 shadow-sm">
+                          <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          <span className="text-xs font-medium text-gray-700">{property.rating || '4.7'}</span>
+                        </div>
+                        {/* Price pill bottom-left */}
+                        <div className="absolute bottom-4 left-4 z-10">
+                          <span className="px-3 py-1 rounded-full text-sm font-semibold"
+                            style={{
+                              backgroundColor: '#FDC700'
+                            }}
+                          >
+                            {property.currentPrice !== '-' ? property.currentPrice : 'Price on Request'}
+                          </span>
+                        </div>
+                        {/* Share icon bottom-right */}
+                        <button aria-label="Share" className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                          </svg>
+                        </button>
                       </div>
                       
-                      {/* Region with location pin icon */}
-                      <div className="flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span>{property.region || 'Location'}</span>
+                      {/* Details Section - Right */}
+                      <div className="flex-1 p-6 flex flex-col">
+                        {/* Title */}
+                        <h3 className="mb-2 flex items-center gap-2" style={{  fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
+                          {property.title}
+                          <svg className="w-3.5 h-3.5 text-[#0A421E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
+                            <path d="M7 17l10-10M7 7h10v10" />
+                          </svg>
+                        </h3>
+                        
+                        {/* Description */}
+                        <p className="mb-4" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF', width: '418px' }}>
+                          {property.description || `A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.`}
+                        </p>
+                        
+                        {/* Location Details */}
+                        <div className="flex flex-col gap-2 mb-4">
+                          <div className="flex items-center text-xs text-gray-600">
+                            <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            {property.city || 'City'}
+                          </div>
+                          <div className="flex items-center text-xs text-gray-600">
+                            <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
+                              <circle cx="12" cy="10" r="3" strokeWidth="2" />
+                            </svg>
+                            {property.region || 'Location'}
+                          </div>
+                        </div>
+
+                        {/* Features */}
+                        <div className="mb-3">
+                          <div className="text-xs font-semibold text-gray-900 mb-2">Features</div>
+                          <div className="flex flex-wrap gap-2">
+                            {property.bedrooms && property.bedrooms > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
+                                <svg className="w-4 h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M3 12l-1 8a2 2 0 002 2h16a2 2 0 002-2l-1-8M3 12V9a2 2 0 012-2h5m0 0h6a2 2 0 012 2v3m0 0v3a2 2 0 01-2 2h-6v0M9 21h6" />
+                                </svg>
+                                <span style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '600', color: '#19191FFF' }}>{property.bedrooms} bd</span>
+                              </span>
+                            )}
+                            {property.bathrooms && property.bathrooms > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
+                                <svg className="w-4 h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2m0 0h4a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h8zm0 0v4" />
+                                </svg>
+                                <span style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '600', color: '#19191FFF' }}>{property.bathrooms} bt</span>
+                              </span>
+                            )}
+                            {property.propertySize && property.propertySize > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
+                                <svg className="w-4 h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                </svg>
+                                <span style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '600', color: '#19191FFF' }}>{property.propertySize} sqft</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Amenities */}
+                        <div className="mt-auto">
+                          <div className="text-xs font-semibold text-gray-900 mb-2">Amenities</div>
+                          <div className="flex flex-wrap gap-2 text-[11px]">
+                            {(Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities : ['Gym', 'Parking', 'Security']).map((amenity, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+                              >
+                                {amenity}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
+                </Link>
+              ))}
+              </div>
+              
+              {/* Pagination Component */}
+              {!loading && pagination.total > 0 && (
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  {/* Pagination Info */}
+                  <div className="text-sm text-gray-600">
+                    Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} properties
+                  </div>
 
-                  {/* Features - Only show if values exist and are greater than 0 */}
-                  {((property.bedrooms && property.bedrooms > 0) || (property.bathrooms && property.bathrooms > 0) || (property.propertySize && property.propertySize > 0)) && (
-                    <div className="mb-3">
-                      <h4 className="text-xs font-medium text-gray-700 mb-2">Features</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {property.bedrooms && property.bedrooms > 0 && (
-                          <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
-                            </svg>
-                            {property.bedrooms} bd
-                          </span>
-                        )}
-                        {property.bathrooms && property.bathrooms > 0 && (
-                          <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                            </svg>
-                            {property.bathrooms} bt
-                          </span>
-                        )}
-                        {property.propertySize && property.propertySize > 0 && (
-                          <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                            </svg>
-                            {property.propertySize} sqft
-                          </span>
-                        )}
-                      </div>
+                  {/* Pagination Controls - match broker/lead detail style */}
+                  <div className="flex items-center gap-2">
+                    {/* Previous */}
+                    <button
+                      onClick={() => handlePageChange(pagination.page - 1)}
+                      disabled={!pagination.hasPrevPage}
+                      className="w-8 h-8 flex items-center justify-center rounded-[8px] border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Previous page"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+
+                    {/* Page Numbers */}
+                    <div className="flex items-center">
+                      {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (pagination.totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (pagination.page <= 3) {
+                          pageNum = i + 1;
+                        } else if (pagination.page >= pagination.totalPages - 2) {
+                          pageNum = pagination.totalPages - 4 + i;
+                        } else {
+                          pageNum = pagination.page - 2 + i;
+                        }
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`w-8 h-8 flex items-center justify-center rounded-[8px] mx-1 text-[12px] ${
+                              pagination.page === pageNum
+                                ? 'bg-green-900 text-white'
+                                : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
                     </div>
-                  )}
 
-                  {/* Amenities */}
-                  {Array.isArray(property.amenities) && property.amenities.length > 0 && (
+                    {/* Next */}
+                    <button
+                      onClick={() => handlePageChange(pagination.page + 1)}
+                      disabled={!pagination.hasNextPage}
+                      className="w-8 h-8 flex items-center justify-center rounded-[8px] border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Next page"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Right column - 3/12 width - match lead details right cards style */}
+            <div className="w-full lg:w-3/12">
+              <div className="bg-green-50 rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5">
+                <h3 className="text-[14px] font-semibold text-gray-900 mb-3">Property Management Tips</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 bg-white rounded-full flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
                     <div>
-                      <h4 className="text-xs font-medium text-gray-700 mb-2">Amenities</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {property.amenities.slice(0, 3).map((amenity, i) => (
-                          <span key={i} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{amenity}</span>
-                        ))}
-                        {property.amenities.length > 3 && (
-                          <span className="text-xs text-gray-500 px-2 py-1">+{property.amenities.length - 3} more</span>
-                        )}
-                      </div>
+                      <h4 className="text-[13px] font-medium text-gray-800">Add high-quality images</h4>
+                      <p className="text-[12px] text-gray-600 mt-1">Properties with 5+ images get 70% more inquiries</p>
                     </div>
-                  )}
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 bg-white rounded-full flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-[13px] font-medium text-gray-800">Complete all details</h4>
+                      <p className="text-[12px] text-gray-600 mt-1">Properties with complete information get 40% more views</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 bg-white rounded-full flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-[13px] font-medium text-gray-800">Respond quickly</h4>
+                      <p className="text-[12px] text-gray-600 mt-1">Responding within 24 hours increases conversion by 50%</p>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+
+              {/* Quick Actions - separate white card */}
+              <div className="mt-6 bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5">
+                <h4 className="text-[14px] font-medium text-gray-800 mb-3">Quick Actions</h4>
+                <div className="space-y-2">
+                  <Link href="/properties-management/new" className="flex items-center gap-2 text-[12px] text-green-900 hover:text-green-800">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add New Property
+                  </Link>
+                  <Link href="/properties-management/post-property" className="flex items-center gap-2 text-[12px] text-green-900 hover:text-green-800">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Post Property
+                  </Link>
                 </div>
               </div>
             </div>
-          ))}
           </div>
         )}
 
-        {/* Pagination Component */}
-        {!loading && pagination.total > 0 && (
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Pagination Info */}
-            <div className="text-sm text-gray-600">
-              Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} properties
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="flex items-center gap-2">
-              {/* Previous Button */}
-              <button
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={!pagination.hasPrevPage}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-
-              {/* Page Numbers */}
-              <div className="flex items-center gap-1">
-                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((pageNum) => {
-                  // Show first page, last page, current page, and pages around current page
-                  const shouldShow = 
-                    pageNum === 1 || 
-                    pageNum === pagination.totalPages || 
-                    (pageNum >= pagination.page - 1 && pageNum <= pagination.page + 1);
-                  
-                  if (!shouldShow) {
-                    // Show ellipsis for gaps
-                    if (pageNum === 2 && pagination.page > 3) {
-                      return <span key={pageNum} className="px-2 text-gray-500">...</span>;
-                    }
-                    if (pageNum === pagination.totalPages - 1 && pagination.page < pagination.totalPages - 2) {
-                      return <span key={pageNum} className="px-2 text-gray-500">...</span>;
-                    }
-                    return null;
-                  }
-
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => handlePageChange(pageNum)}
-                      className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                        pageNum === pagination.page
-                          ? 'bg-green-600 text-white'
-                          : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Next Button */}
-              <button
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={!pagination.hasNextPage}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-
-            {/* Items per page selector */}
-            {/* <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600">Show:</label>
-              <select
-                value={pagination.limit}
-                onChange={(e) => handleLimitChange(Number(e.target.value))}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                <option value={5}>5</option>
-                <option value={9}>9</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
-              <span className="text-sm text-gray-600">per page</span>
-            </div> */}
-          </div>
-        )}
-
+        
         {isModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative border border-gray-100">
@@ -1121,3 +1185,4 @@ const PropertiesManagement = () => {
 };
 
 export default PropertiesManagement;
+
