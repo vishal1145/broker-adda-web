@@ -266,12 +266,12 @@ export default function BrokerDetailsPage() {
             <div className="lg:col-span-8 space-y-12">
 
           {/* Hero Section - Broker Header */}
-          <div className="bg-white overflow-hidden">
+          <div className="bg-white overflow-hidden border border-gray-200 rounded-[10px] mb-8" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
             <div className="p-8">
               <div className="grid grid-cols-[5rem_1fr] items-center gap-6">
                 {/* Avatar */}
-                <div className="relative">
-                  <img src={profileImage} alt="Broker" className="w-20 h-20 rounded-full object-cover" />
+                <div className="relative  w-[96px] h-[96px] bg-[#E5F0FA] opacity-100 overflow-hidden rounded-[48px]">
+                  <img src={profileImage} alt="Broker" className="w-[96px] h-[96px] object-cover" />
                   <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
@@ -281,19 +281,19 @@ export default function BrokerDetailsPage() {
 
                 {/* Broker Info */}
                 <div>
-                  <div className="flex items-center gap-3 mb-1 flex-wrap">
-                    <h1 className="text-3xl font-bold text-gray-900">{displayName}</h1>
-                    <span className="px-3 py-1 rounded-full bg-yellow-100 text-green-900 text-sm font-medium inline-flex items-center gap-1">
+                  <div className="flex items-center gap-3 mb-1 flex-wrap ">
+                    <h1 className="text-[48px] leading-[48px] font-extrabold text-[#171A1F] px-4">{displayName}</h1>
+                    <span className="h-[30px] px-6 rounded-full bg-[#FDC700] flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium opacity-100">
                       Top Rated Broker
-                      <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                      {/* <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                      </svg>
+                      </svg> */}
                     </span>
                   </div>
-                  <p className="text-gray-600 mb-2">{firmDisplay} - {city}</p>
+                  <p className="font-[Inter] text-[18px] leading-[28px] font-normal text-[#565D6D] mb-2 px-6 ">{firmDisplay} - {city}</p>
                   
               {/* Social Media Icons - Only for platforms in the section */}
-              {(() => {
+              {/* {(() => {
                 const socialLinks = [];
                 
                 if (nonEmpty(broker?.socialMedia?.linkedin)) {
@@ -380,21 +380,38 @@ export default function BrokerDetailsPage() {
                     ))}
                   </div>
                 );
-              })()}
+              })()} */}
                 </div>
                 
 
                  {/* Chips row - spans full width starting from avatar's left edge */}
                  <div className="col-span-2 mt-3 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="inline-flex items-center h-7 px-2.5 rounded-full bg-gray-50 border border-gray-200 text-gray-700">
-                      <span className="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-500"></span>
+                    <span className="inline-flex items-center  px-2.5 rounded-full  h-[26px] bg-[#F3F4F6] border border-transparent">
+                     <img
+  src="/images/lucide-Circle-Outlined (2).svg"
+  alt="status"
+  className="w-2 h-2 mr-1.5 inline-block fill-[#565D6D]"
+/>
+
                       {years !== '' ? `${years}+ Years Experience` : '0 Years Experience'}
                     </span>
-                   <span className="inline-flex items-center h-7 px-2.5 rounded-full bg-gray-50 border border-gray-200 text-gray-700">
+                   <span className="inline-flex items-center  px-2.5  rounded-full  h-[26px] bg-[#F3F4F6] border border-transparent">
+                                                       <img
+  src="/images/lucide-Building2-Outlined (2).svg"
+  alt="status"
+  className="w-3 h-3 mr-1.5 inline-block  fill-[#565D6D]"
+/>
+
                      {leads} Properties Sold
                    </span>
-                   <span className="inline-flex items-center h-7 px-2.5 rounded-full bg-gray-50 border border-gray-200 text-gray-700">
-                     <span className="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-600"></span>
+                   <span className="inline-flex items-center px-2.5 h-[26px] bg-[#0D542B] rounded-full border border-transparent font-[Inter] text-[12px] leading-[16px] font-medium text-white">
+                                    <img
+  src="/images/lucide-Circle-Outlined (2).svg"
+  alt="status"
+  className="w-2 h-2 mr-1.5 inline-block"
+  style={{ filter: 'brightness(0) invert(1)' }}
+/>
+
                      active
                    </span>
                  </div>
@@ -404,8 +421,8 @@ export default function BrokerDetailsPage() {
                {/* About Section */}
                <section className="bg-white">
                  <div className="flex items-center gap-2 mb-6">
-                   <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                   <h2 className="text-lg font-semibold text-gray-900">About {displayName}</h2>
+                   {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
+                   <h2 className="text-[24px] leading-[36px] font-bold text-[#171A1F]">About {displayName}</h2>
                  </div>
                 {nonEmpty(about) ? (
                   <p className="text-gray-700 leading-relaxed">
@@ -421,15 +438,13 @@ export default function BrokerDetailsPage() {
                {/* Professional Details */}
                <section className="">
                  <div className="flex items-center gap-2 mb-6">
-                   <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                   <h3 className="text-lg font-semibold text-gray-900">Professional Details</h3>
+                   {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
+                   <h3 className="text-[24px] leading-[36px] font-bold text-[#171A1F]">Professional Details</h3>
                  </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 bg-gray-50">
-                    <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
+                  <div className="flex items-center gap-3 p-4 w-[372px] h-[76px] bg-[#FAFAFB] rounded-[10px]">
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                      <img src="/images/lucide-Briefcase-Outlined (1).svg" alt="Firm" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Firm Name</div>
@@ -437,15 +452,9 @@ export default function BrokerDetailsPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 bg-gray-50">
-                     <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                       <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                         <polyline points="14,2 14,8 20,8" />
-                         <line x1="16" y1="13" x2="8" y2="13" />
-                         <line x1="16" y1="17" x2="8" y2="17" />
-                         <polyline points="10,9 9,9 8,9" />
-                       </svg>
+                  <div className="flex items-center gap-3 p-4 w-[372px] h-[76px] bg-[#FAFAFB] rounded-[10px]">
+                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                      <img src="/images/lucide-Award-Outlined.svg" alt="License" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                      </div>
                     <div>
                       <div className="text-sm text-gray-500">License Number</div>
@@ -464,8 +473,8 @@ export default function BrokerDetailsPage() {
    {/* Leads Section */}
               <div className="">
                 <div className="flex items-center gap-2 mb-6">
-                  <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                  <h3 className="text-lg font-semibold text-gray-900">Leads posted by this broker</h3>
+                  {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
+                  <h3 className="text-[24px] leading-[36px] font-bold text-[#171A1F]">Leads posted by this broker</h3>
                 </div>
                 
                 {leadsLoading ? (
@@ -507,13 +516,13 @@ export default function BrokerDetailsPage() {
                       const customerEmail = lead?.customerEmail || '';
                       
                       return (
-                        <div key={leadId} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div key={leadId} className="w-[768px] h-[170px] bg-white rounded-[10px] border border-gray-200 p-4 hover:shadow-md transition-shadow" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
                           <div className="flex items-start gap-4">
-                            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                            <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
                               <img 
                                 src={image} 
                                 alt={title}
-                                className="w-full h-full object-cover"
+                                className="w-24 h-24 object-cover"
                                 onError={(e) => {
                                   e.target.src = '/images/property-placeholder.jpg';
                                 }}
@@ -521,24 +530,24 @@ export default function BrokerDetailsPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between mb-2">
-                                <h4 className="font-semibold text-gray-900 truncate">{title}</h4>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  status === 'New' ? 'bg-blue-100 text-blue-800' :
-                                  status === 'Active' ? 'bg-green-100 text-green-800' :
-                                  status === 'Sold' ? 'bg-red-100 text-red-800' :
-                                  status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-gray-100 text-gray-800'
+                                <h4 className="text-[20px] leading-[28px] font-semibold text-[#171A1F]">{title}</h4>
+                                <span className={`h-[22px] px-3 py-0 flex items-center justify-center rounded-full text-xs font-[Inter] font-medium ${
+                                  status === 'New' ? 'bg-[#0D542B] text-white' :
+                                  status === 'Active' ? 'bg-[#0D542B] text-white' :
+                                  status === 'Sold' ? 'bg-[#0D542B] text-white' :
+                                  status === 'Pending' ? 'bg-[#0D542B] text-white' :
+                                  'bg-[#0D542B] text-white'
                                 }`}>
                                   {status}
                                 </span>
                               </div>
-                              <p className="text-sm text-gray-600 mb-2 line-clamp-2">{description}</p>
+                              <p className="font-[Inter] text-[14px] leading-[20px] font-normal text-[#565D6D] mb-2">{description}</p>
                               
                               {/* Customer Contact Info */}
-                              <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                              <div className="flex items-center gap-2 mb-2 font-[Inter] text-[14px] leading-[20px] font-normal mb-2 text-[#565D6D]">
                                 {customerPhone && (
                                   <span className="flex items-center gap-1">
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                     </svg>
                                     {customerPhone}
@@ -546,7 +555,7 @@ export default function BrokerDetailsPage() {
                                 )}
                                 {customerEmail && (
                                   <span className="flex items-center gap-1">
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
                                     {customerEmail}
@@ -556,20 +565,20 @@ export default function BrokerDetailsPage() {
                               
                               <div className="flex items-center gap-4 text-sm text-gray-500">
                                 {price && (
-                                  <span className="font-medium text-green-600">
+                                  <span className="text-xl leading-7 font-bold text-[#0D542B]">
                                     {typeof price === 'number' ? `₹${price.toLocaleString()}` : price}
                                   </span>
                                 )}
                                 {location && (
-                                  <span className="flex items-center gap-1">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <span className="flex items-center gap-1 font-[Inter] text-[16px] leading-[24px] font-normal text-[#565D6D]">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
                                     {location}
                                   </span>
                                 )}
-                                <span className="px-2 py-1 bg-gray-100 rounded text-xs">
+                                <span className="h-[22px] px-[6px] flex items-center justify-center rounded-full font-[Inter] text-[12px] leading-[20px] font-semibold bg-[#F3F4F6] opacity-100">
                                   {type}
                                 </span>
                               </div>
@@ -728,34 +737,34 @@ export default function BrokerDetailsPage() {
             <div className="lg:col-span-4 space-y-8">
               {/* Performance Metrics Grid */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-green-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-green-700">{leads}</div>
-                  <div className="text-xs text-green-700 mt-1">Properties Sold</div>
+                <div className="bg-[#EDFDF4] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                  <div className=" text-[30px] leading-[36px] font-bold text-[#19191F]">{leads}</div>
+                  <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#19191F] mt-1">Properties Sold</div>
                 </div>
-                <div className="bg-blue-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-700">4.8</div>
-                  <div className="text-xs text-blue-700 mt-1">Client Rating</div>
+                <div className="bg-[#FFF9E6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                  <div className=" text-[30px] leading-[36px] font-bold text-[#19191F]">4.8</div>
+                  <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#19191F] mt-1">Client Rating</div>
                 </div>
-                 <div className="bg-purple-50 rounded-lg p-4 text-center">
-                   <div className="text-2xl font-bold text-purple-700">{years === '' ? '0' : (typeof years === 'number' ? `${years}+` : years)}</div>
-                   <div className="text-xs text-purple-700 mt-1">Years Experience</div>
+                 <div className="bg-[#FAFAFB] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                   <div className=" text-[30px] leading-[36px] font-bold text-[#19191F]">{years === '' ? '0' : (typeof years === 'number' ? `${years}+` : years)}</div>
+                   <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#19191F] mt-1">Years Experience</div>
                  </div>
-                <div className="bg-orange-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-orange-700">98%</div>
-                  <div className="text-xs text-orange-700 mt-1">Satisfaction</div>
+                <div className="bg-[#F3F4F6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                  <div className=" text-[30px] leading-[36px] font-bold text-[#19191F]">98%</div>
+                  <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#19191F] mt-1">Satisfaction</div>
                 </div>
               </div>
 
               {/* Quick Contact */}
               <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Contact</h3>
+                <h3 className=" text-[20px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
                 <button type="button" onClick={() => {
                   const el = document.getElementById('send-message-prompt');
                   if (el) el.focus();
-                }} className="w-full px-6 py-3 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-medium">
+                }} className="w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md">
                   Send Message
                 </button>
-                <a href="#join-network" className="mt-3 w-full inline-flex items-center justify-center px-6 py-3 border border-green-600 text-green-700 hover:bg-green-50 rounded-full text-sm font-medium">
+                <a href="#join-network" className="mt-3 w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium text-[#0D542B] bg-transparent hover:bg-transparent hover:active:bg-transparent disabled:opacity-40 border-none opacity-100 rounded-md">
                   Join Our Network
                 </a>
               </div>
@@ -763,50 +772,44 @@ export default function BrokerDetailsPage() {
               
              
               {/* Lead Generation Support */}
-              <div className="bg-green-900 rounded-lg border border-gray-200 p-6 shadow-sm text-white">
-                <h3 className="text-lg font-semibold mb-3">Lead Generation Support</h3>
-                <p className="text-green-100 mb-4 text-sm">
+              <div className="bg-[#EDFDF4] rounded-[10px] p-6 shadow-sm" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                <h3 className=" text-[30px] leading-[36px] font-bold text-[#19191F] mb-3">Lead Generation Support</h3>
+                <p className="font-[Inter] text-[16px] leading-[26px] font-normal text-[#19191F] mb-4">
                   Join our exclusive broker network and get access to premium lead generation tools and support.
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg className="w-4 h-4 text-green-900" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                      </svg>
+                    <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <img src="/images/lucide-CircleCheckBig-Outlined.svg" alt="Verified" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
-                      <div className="font-semibold text-sm text-white">Verified Leads</div>
-                      <div className="text-xs text-green-100">Pre-qualified properties ready to buy</div>
+                      <div className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#19191F]">Verified Leads</div>
+                      <div className="font-[Inter] text-[14px] leading-[19px] font-normal text-[#19191FCC]">Pre-qualified properties ready to buy</div>
                     </div>
                   </div>
                   
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg className="w-4 h-4 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
+                    <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <img src="/images/lucide-GraduationCap-Outlined.svg" alt="Training" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
-                      <div className="font-semibold text-sm text-white">Exclusive Training</div>
-                      <div className="text-xs text-green-100">Advanced sales techniques & higher commissions</div>
+                      <div className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#19191F]">Exclusive Training</div>
+                      <div className="font-[Inter] text-[14px] leading-[19px] font-normal text-[#19191FCC]">Advanced sales techniques & higher commissions</div>
                     </div>
                   </div>
                   
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg className="w-4 h-4 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                      </svg>
+                    <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <img src="/images/lucide-DollarSign-Outlined.svg" alt="Commissions" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
-                      <div className="font-semibold text-sm text-white">Higher Commissions</div>
-                      <div className="text-xs text-green-100">Up to 10% more than standard rates</div>
+                      <div className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#19191F]">Higher Commissions</div>
+                      <div className="font-[Inter] text-[14px] leading-[19px] font-normal text-[#19191FCC]">Up to 10% more than standard rates</div>
                     </div>
                   </div>
                 </div>
                 
-                <button className="w-full mt-6 px-4 py-3 bg-white text-green-700 rounded-full font-semibold hover:bg-gray-100 transition-colors border border-green-700" id="join-network">
+                <button className="w-full h-[40px] px-3 mt-4 flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md" id="join-network">
                   Join Our Network
                 </button>
               </div>
@@ -817,8 +820,8 @@ export default function BrokerDetailsPage() {
             <section className="mt-12">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                  <h3 className="text-lg font-semibold text-gray-900">Similar Brokers</h3>
+                  {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
+                  <h3 className="text-[24px] leading-[36px] font-bold text-[#171A1F]">Similar Brokers</h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <Link href="/search?type=brokers" className="px-4 py-2 text-green-900 rounded-lg text-sm font-medium transition-colors">
@@ -834,19 +837,24 @@ export default function BrokerDetailsPage() {
                 {similarLoading ? (
                   // Loading state
                   Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 animate-pulse">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                    <div key={index} className="flex-shrink-0 w-80 h-[272px] bg-white rounded-[10px] p-6 animate-pulse flex flex-col" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                      <div className="flex items-start gap-3 mb-4">
+                        <div className="bg-gray-200 rounded-full flex-shrink-0" style={{ width: '60px', height: '60px' }}></div>
                         <div className="flex-1 space-y-2">
-                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                          <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                         </div>
                       </div>
-                      <div className="space-y-2 mb-4">
-                        <div className="h-3 bg-gray-200 rounded w-full"></div>
-                        <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                      <div className="flex items-center gap-1 mb-4">
+                        <div className="w-5 h-5 bg-gray-200 rounded"></div>
+                        <div className="h-4 bg-gray-200 rounded w-8"></div>
+                        <div className="h-3 bg-gray-200 rounded w-16"></div>
                       </div>
-                      <div className="h-8 bg-gray-200 rounded w-24"></div>
+                      <div className="space-y-2 mb-4 flex-1">
+                        <div className="h-5 bg-gray-200 rounded w-full"></div>
+                        <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+                      </div>
+                      <div className="h-10 bg-gray-200 rounded w-full mt-auto"></div>
                     </div>
                   ))
                 ) : similar.length > 0 ? (
@@ -881,35 +889,37 @@ export default function BrokerDetailsPage() {
                       const specs = Array.isArray(b?.specializations) ? b.specializations.slice(0, 2) : ['Real Estate', 'Property Sales'];
                       
                       return (
-                        <div key={id || index} className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-lg transition-shadow">
-                          <div className="flex items-center gap-3 mb-4">
-                            <img src={img} alt={name} className="w-12 h-12 rounded-full object-cover" />
+                        <div key={id || index} className="flex-shrink-0 w-80 h-[272px] bg-white rounded-[10px] p-6 hover:shadow-lg transition-shadow flex flex-col" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                          <div className="flex items-start gap-3 mb-4">
+                            <img src={img} alt={name} className="w-15 h-15 rounded-full object-cover flex-shrink-0" style={{ width: '60px', height: '60px' }} />
                             <div className="min-w-0 flex-1">
-                              <div className="font-semibold text-gray-900 truncate">{name}</div>
-                              <div className="text-sm text-gray-600 truncate">{firm || '-'}</div>
-                              <div className="flex items-center gap-1 mt-1">
-                                <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                </svg>
-                                <span className="text-sm font-medium text-gray-700">{rating.toFixed(1)}</span>
-                                <span className="text-xs text-gray-500">• {expYears}+ years</span>
-                              </div>
+                              <div className="text-[20px] leading-[28px] font-semibold text-[#171A1F] truncate mb-1">{name}</div>
+                              <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#565D6D] truncate">{firm || '-'}</div>
                             </div>
                           </div>
                           
-                          <div className="mb-4">
-                            <div className="flex flex-wrap gap-1">
+                          <div className="flex items-center gap-1 mb-4">
+                            <svg className="w-5 h-5 stroke-[#FDC700] fill-none" viewBox="0 0 24 24" strokeWidth="1.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                            </svg>
+                            <span className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#171A1F]">{rating.toFixed(1)}</span>
+                            <span className="mx-1 text-[16px] text-[#565D6D]">•</span>
+                            <span className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#565D6D]">{expYears}+ years</span>
+                          </div>
+                          
+                          <div className="mb-4 flex-1">
+                            <div className="flex flex-wrap gap-2">
                               {specs.map((spec, specIndex) => (
-                                <span key={specIndex} className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs border border-gray-200">
+                                <span key={specIndex} className="h-[22px] px-[6px] flex items-center justify-center rounded-full font-[Inter] text-[12px] leading-[20px] font-semibold bg-[#F3F4F6] opacity-100">
                                   {spec}
                                 </span>
                               ))}
                             </div>
                           </div>
                           
-                          <div className="flex gap-2">
+                          <div className="w-full mt-auto">
                             {id && (
-                              <Link href={`/broker-details/${id}`} className="inline-flex items-center justify-center px-4 py-2 text-sm rounded-lg border border-green-500 text-green-700 bg-green-50 hover:bg-green-100 transition-colors">
+                              <Link href={`/broker-details/${id}`} className="inline-flex items-center justify-center w-full px-4 py-2 text-sm rounded-lg border border-[#0D542B] text-[#0D542B] bg-white hover:bg-green-50 transition-colors font-medium">
                                 View Profile
                               </Link>
                             )}
@@ -966,7 +976,7 @@ export default function BrokerDetailsPage() {
       </div>
 
        {/* CTA Section */}
-       <div className="bg-white rounded-2xl mx-4 sm:mx-6 lg:mx-8 mb-8 shadow-xl mt-12 border-t-4 border-yellow-500">
+       <div className="bg-[#EDFDF4] rounded-[16px] mx-4 sm:mx-6 lg:mx-8 mb-8 shadow-xl mt-12">
          <div className="px-6 py-8 text-center relative overflow-hidden">
            {/* Decorative elements */}
            <div className="absolute top-0 left-0 w-full h-1 "></div>
@@ -974,18 +984,16 @@ export default function BrokerDetailsPage() {
           <div className="absolute bottom-3 left-3 w-10 h-10 bg-yellow-200 rounded-full opacity-30"></div>
           
           <div className="max-w-2xl mx-auto relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium mb-4">
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-              </svg>
-              Trusted Real Estate Expert
+            <div className="inline-flex items-center gap-2 h-[26px] px-3 bg-[#FDC700] border border-transparent rounded-full mb-4">
+              <img src="/images/lucide-CircleCheckBig-Outlined.svg" alt="Verified" className="w-3 h-3" style={{ filter: 'brightness(0)' }} />
+              <span className="font-[Inter] text-[12px] leading-[16px] font-medium text-[#19191F]">Trusted Real Estate Expert</span>
             </div>
             
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className=" text-[36px] leading-[40px] font-bold text-[#19191F] mb-4">
               Ready to Find Your Perfect Property?
             </h2>
-            <p className="text-gray-600 text-base mb-6 max-w-xl mx-auto leading-relaxed">
-              Connect with <span className="font-semibold text-yellow-600">{displayName}</span> and discover the best real estate opportunities in your area. 
+            <p className=" text-[20px] leading-[33px] font-normal text-[#19191F] mb-6 max-w-xl mx-auto">
+              Connect with <span className="font-semibold text-[#19191F]">{displayName}</span> and discover the best real estate opportunities in your area. 
               Get personalized assistance and expert guidance throughout your property journey.
             </p>
             
@@ -995,49 +1003,46 @@ export default function BrokerDetailsPage() {
                   const el = document.getElementById('send-message-prompt');
                   if (el) el.focus();
                 }}
-                className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold text-base hover:bg-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                className="h-[40px] px-3 flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium text-[#584500] bg-[#FDC700] hover:bg-[#E3B200] hover:active:bg-[#C79C00] disabled:opacity-40 border-none opacity-100 rounded-md"
               >
                 Send Message
               </button>
-              {phone && (
-                <a 
-                  href={`tel:${phone}`}
-                  className="px-6 py-3 border-2 border-yellow-500 text-yellow-600 rounded-lg font-semibold text-base hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                >
-                  Call Now
-                </a>
-              )}
+              <button 
+                disabled={!phone}
+                onClick={() => {
+                  if (phone) {
+                    window.location.href = `tel:${phone}`;
+                  }
+                }}
+                className="w-[92px] h-[40px] px-3 flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium text-[#FDC700] hover:text-[#FDC700] hover:active:text-[#FDC700] bg-transparent hover:bg-transparent hover:active:bg-transparent opacity-100 border-none rounded-[6px] disabled:opacity-40"
+              >
+                Call Now
+              </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              <div className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-yellow-50 transition-colors">
-                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+              <div className="flex flex-col items-center justify-center gap-2 p-6 h-[172px] bg-white rounded-[10px]" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                  <img src="/images/lucide-UserCheck-Outlined.svg" alt="Verified" className="w-6 h-6" style={{ filter: 'brightness(0)' }} />
                 </div>
-                <span className="font-semibold text-gray-900 text-sm">Verified Broker</span>
-                <span className="text-xs text-gray-600">Licensed & Certified</span>
+                <span className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#171A1F]">Verified Broker</span>
+                <span className="font-[Inter] text-[14px] leading-[20px] font-normal text-[#565D6D]">Licensed & Certified</span>
               </div>
               
-              <div className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-yellow-50 transition-colors">
-                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
+              <div className="flex flex-col items-center justify-center gap-2 p-6 h-[172px] bg-white rounded-[10px]" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                  <img src="/images/lucide-MessageCircle-Outlined.svg" alt="Consultation" className="w-6 h-6" style={{ filter: 'brightness(0)' }} />
                 </div>
-                <span className="font-semibold text-gray-900 text-sm">Free Consultation</span>
-                <span className="text-xs text-gray-600">No Obligation</span>
+                <span className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#171A1F]">Free Consultation</span>
+                <span className="font-[Inter] text-[14px] leading-[20px] font-normal text-[#565D6D]">No Obligation</span>
               </div>
               
-              <div className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-yellow-50 transition-colors">
-                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
+              <div className="flex flex-col items-center justify-center gap-2 p-6 h-[172px] bg-white rounded-[10px]" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                  <img src="/images/lucide-MapPin-Outlined.svg" alt="Guidance" className="w-6 h-6" style={{ filter: 'brightness(0)' }} />
                 </div>
-                <span className="font-semibold text-gray-900 text-sm">Expert Guidance</span>
-                <span className="text-xs text-gray-600">Personalized Service</span>
+                <span className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#171A1F]">Expert Guidance</span>
+                <span className="font-[Inter] text-[14px] leading-[20px] font-normal text-[#565D6D]">Personalized Service</span>
               </div>
             </div>
           </div>
@@ -1047,4 +1052,5 @@ export default function BrokerDetailsPage() {
     </div>
   );
 }
+
 
