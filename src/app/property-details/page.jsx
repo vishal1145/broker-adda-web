@@ -275,11 +275,16 @@ function PropertyDetailsPageInner() {
     if (!product) return ['/images/pexels-binyaminmellish-106399.jpg'];
     
     const images = product.images || [product.image];
+    // Return at least 6 images (1 main + 5 thumbnails)
+    // If we have fewer images, repeat them to ensure we always have enough
     const primary = images[0] || '/images/pexels-binyaminmellish-106399.jpg';
     const secondary = images[1] || primary;
     const tertiary = images[2] || primary;
+    const fourth = images[3] || primary;
+    const fifth = images[4] || primary;
+    const sixth = images[5] || primary;
     
-    return [primary, secondary, tertiary];
+    return [primary, secondary, tertiary, fourth, fifth, sixth];
   }, [product]);
 
   const price = product?.price || 0;
@@ -560,7 +565,7 @@ function PropertyDetailsPageInner() {
 
             {/* Property Overview Card */}
             <div className=" space-y-6">
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="inline-block h-0.5 w-8 rounded bg-yellow-400"></span>
                    <h2 className="text-xl font-semibold text-gray-900">Property Overview</h2>
@@ -569,136 +574,336 @@ function PropertyDetailsPageInner() {
                    <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">Available</span>
                    <span className="px-2 py-1 rounded-full bg-orange-100 text-orange-800 text-sm font-medium">New Listing</span>
             </div>
-          </div>
+          </div> */}
 
-              {/* Enhanced Gallery */}
-              <div className="grid grid-cols-12 gap-4">
-                <div className="col-span-8 bg-gray-50 rounded-2xl overflow-hidden relative group">
+            
+              <div className="space-y-4">
+                {/* Main Large Image */}
+                <div className="bg-gray-50 rounded-2xl overflow-hidden relative group">
                   <img src={gallery[0]} alt="Property" className="w-full h-[360px] md:h-[420px] object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute top-4 left-4 flex gap-2">
-                    <span className="px-3 py-1.5 bg-white/90 backdrop-blur-sm text-gray-800 text-sm font-semibold rounded-full shadow-lg">Featured</span>
-                    <span className="px-3 py-1.5 bg-green-500 text-white text-sm font-semibold rounded-full shadow-lg">Available</span>
+                    <span className="px-3 py-1.5  backdrop-blur-sm text-white text-sm font-medium rounded-lg ">Featured</span>
                   </div>
-                  <div className="absolute bottom-4 right-4 flex gap-2">
-                    <button className="p-2 bg-white/90 backdrop-blur-sm text-gray-800 rounded-full shadow-lg hover:bg-white transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                      </svg>
-                    </button>
-                    <button className="p-2 bg-white/90 backdrop-blur-sm text-gray-800 rounded-full shadow-lg hover:bg-white transition-colors">
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    <button className="w-[40px] h-[40px] px-[10px] flex items-center justify-center text-[#171A1F] bg-white/80 backdrop-blur-sm opacity-100 border-none rounded-full hover:text-[#171A1F] hover:bg-white/80 active:text-[#171A1F] active:bg-white/80 disabled:opacity-40 transition-colors">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
                       </svg>
                     </button>
-                  </div>
-            </div>
-                <div className="col-span-4 flex flex-col gap-4">
-                  <div className="bg-gray-50 rounded-2xl overflow-hidden relative group cursor-pointer">
-                    <img src={gallery[1]} alt="secondary" className="w-full h-[175px] md:h-[204px] object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
-              </div>
-                  <div className="bg-gray-50 rounded-2xl overflow-hidden relative group cursor-pointer">
-                    <img src={gallery[2]} alt="secondary" className="w-full h-[175px] md:h-[204px] object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
-                    <button className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm text-gray-700 text-sm px-4 py-2 rounded-xl shadow-lg hover:bg-white transition-colors font-medium">
-                      +12 More
+                    <button className="w-[40px] h-[40px] px-[10px] flex items-center justify-center text-[#171A1F] bg-white/80 backdrop-blur-sm opacity-100 border-none rounded-full hover:text-[#171A1F] hover:bg-white/80 active:text-[#171A1F] active:bg-white/80 disabled:opacity-40 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                      </svg>
                     </button>
+                  </div>
+                </div>
+
+                {/* Thumbnail Row */}
+                <div className="flex gap-3">
+                  {gallery.slice(1, 6).map((img, index) => (
+                    <div key={index} className="flex-1 bg-gray-50 overflow-hidden relative group cursor-pointer" style={{ borderRadius: '8px' }}>
+                      <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-[120px] object-cover group-hover:scale-105 transition-transform duration-300" style={{ borderRadius: '8px' }} />
+                    </div>
+                  ))}
+                  {/* If we have more than 5 images, show placeholder with count */}
+                  {gallery.length > 6 && (
+                    <div className="flex-1 bg-gray-50 overflow-hidden relative group cursor-pointer border-2 border-dashed border-gray-300 flex items-center justify-center" style={{ borderRadius: '8px' }}>
+                      <span className="text-sm font-medium text-gray-500">+{gallery.length - 6} More</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
 
               {/* Property Details Grid */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                  <h3 className="text-xl font-semibold text-gray-900">Property Details</h3>
+              <div className="space-y-4 w-[843px] h-[240px] bg-white rounded-[16px] shadow-xs border border-gray-200 p-4 px-8">
+                <div className="flex items-center gap-2 ">
+                  {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
+                  <h3 className="text-[20px] leading-[28px] font-semibold text-[#171A1F]">Property Details</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
                   <div className="flex items-start gap-3">
-                    <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="10" width="18" height="7" rx="1"/><path d="M7 10V7a2 2 0 012-2h6a2 2 0 012 2v3"/></svg>
+                    <span className="mt-3 justify-center">
+                      <svg className="w-[20px] h-[20px]  text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="10" width="18" height="7" rx="1"/><path d="M7 10V7a2 2 0 012-2h6a2 2 0 012 2v3"/></svg>
                     </span>
                     <div>
-                      <div className="text-gray-500">Bedrooms</div>
-                      <div className="font-medium text-gray-900">{product.bedrooms} BHK</div>
+                      <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Bedrooms</div>
+                      <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">{product.bedrooms} BHK</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg>
+                    <span className=" justify-center mt-3">
+                      <svg className="w-[20px] h-[20px]  text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg>
                     </span>
                     <div>
-                      <div className="text-gray-500">Property Size</div>
-                      <div className="font-medium text-gray-900">{product.areaSqft?.toLocaleString('en-IN')} sq.ft</div>
+                      <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Property Size</div>
+                      <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">{product.areaSqft?.toLocaleString('en-IN')} sq.ft</div>
+                    </div>
+                  </div>
+              {/* <div className="flex items-start gap-3">
+  <span className="mt-3 flex items-center justify-center">
+   
+    <img
+      src="/images/lucide-SquareStack-Outlined.svg"
+      alt="size icon"
+      className="w-[20px] h-[20px]"
+    />
+  </span>
+  <div>
+    <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Size</div>
+    <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">
+      {product?.createdAt ? new Date(product.createdAt).toLocaleDateString() : '3 days ago'}
+    </div>
+  </div>
+</div> */}
+                  <div className="flex items-start gap-3">
+                    <span className="mt-3 justify-center">
+                      <svg className="w-[20px] h-[20px]  text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                    </span>
+                    <div>
+                      <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Listed</div>
+                      <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">{product?.createdAt ? new Date(product.createdAt).toLocaleDateString() : '3 days ago'}</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                    <span className="mt-3 justify-center">
+                      <svg className="w-[20px] h-[20px]  text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     </span>
                     <div>
-                      <div className="text-gray-500">Listed</div>
-                      <div className="font-medium text-gray-900">{product?.createdAt ? new Date(product.createdAt).toLocaleDateString() : '3 days ago'}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                    </span>
-                    <div>
-                      <div className="text-gray-500">Price</div>
-                      <div className="font-medium text-gray-900">₹{Math.round(price).toLocaleString('en-IN')}</div>
+                      <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Price</div>
+                      <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">₹{Math.round(price).toLocaleString('en-IN')}</div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Divider */}
-              <div className="border-t border-gray-100"></div>
+              {/* <div className="border-t border-gray-100"></div> */}
           </div>
 
             {/* Neighborhood Section - Compact Design */}
-            <div className="">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-xl font-semibold text-gray-900">Nearby Amenities</h3>
+        <div className="w-full max-w-[860px] bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+  {/* Header */}
+  <h3 className="font-inter text-[20px] leading-[28px] font-semibold text-[#171A1F] mb-4">
+    Nearby Amenities
+  </h3>
+
+  {/* Amenities */}
+  {product?.nearbyAmenities?.length ? (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2">
+      {product.nearbyAmenities.map((item, idx) => (
+        <div key={idx} className="flex items-start gap-2">
+          <span className="mt-[7px] w-[6px] h-[6px] rounded-full bg-[#0D542B]" />
+          <span className="font-inter text-[14px] leading-[20px] text-[#171A1F]">
+            {item}
+          </span>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="text-sm text-gray-500">No nearby amenities listed.</div>
+  )}
               </div>
               
-              {/* Bind from API nearbyAmenities if available */}
-              <div className="space-y-2">
-                {(product?.nearbyAmenities && product.nearbyAmenities.length > 0 ? product.nearbyAmenities : []).map((name, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">{name}</span>
-                    </div>
-                    <div className="text-xs text-gray-500">0.5 km</div>
-                  </div>
+            {/* Property Details Tabs Section */}
+            <div className="mt-8 w-full max-w-[860px]">
+              {/* Tabs */}
+              <div className="inline-flex gap-2 mb-6 bg-gray-100 rounded-md border border-gray-200 ">
+                {TABS.map((tab, idx) => (
+                  <button
+                    key={tab.label}
+                    onClick={() => setActiveTab(idx)}
+                    className={`px-6 py-3 text-base font-medium focus:outline-none transition-all rounded-md ${
+                      activeTab === idx 
+                        ? 'text-[#171A1F] bg-[#E6F7ED]' 
+                        : 'text-[#565D6D] hover:text-[#171A1F]'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
                 ))}
-                {(!product?.nearbyAmenities || product.nearbyAmenities.length === 0) && (
-                  <div className="text-sm text-gray-500">No nearby amenities listed.</div>
+              </div>
+
+              {/* Tab Content */}
+              <div className=" rounded-2xl border border-gray-200 shadow-sm p-6">
+                <div className="pt-2">
+                  {activeTab === 0 && (
+                    <div className="space-y-8">
+                      <div>
+                        <div className="flex items-center gap-2 mb-6">
+                          {/* <span className="inline-block h-0.5 w-8 rounded bg-yellow-400"></span>
+                          <h3 className="text-xl font-bold text-gray-900">Property Description</h3> */}
+                        </div>
+                        <div className="prose prose-gray max-w-none">
+                          {(product?.propertyDescription || product?.description) && (
+                            <p className="w-[811px] font-inter text-[16px] leading-[24px] font-normal text-[#565D6D] mb-4">{product.propertyDescription || product.description}</p>
+                          )}
+                        </div>
+                  </div>
+                    </div>
+                  )}
+
+                  {activeTab === 1 && (<></>)}
+
+                  {activeTab === 1 && (
+                    <div className="space-y-8">
+                      <div>
+                        <div className="flex items-center gap-2 mb-6">
+                          <span className="inline-block h-0.5 w-8 rounded bg-yellow-400"></span>
+                          <h3 className="text-xl font-bold text-gray-900">Reviews & Ratings</h3>
+                        </div>
+                        
+                        {/* Overall Rating */}
+                        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-8 mb-8">
+                          <div className="flex flex-col md:flex-row gap-8 items-center">
+                            <div className="text-center md:text-left">
+                              <div className="text-6xl font-bold text-gray-900 mb-2">{(product?.rating || 4.7).toFixed(1)}</div>
+                              <div className="flex items-center justify-center md:justify-start gap-1 mb-2">
+                            {[...Array(5)].map((_, i) => (
+                                  <svg key={i} className={`w-6 h-6 ${i < Math.round((product?.rating || 4.7)) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                  </svg>
+                            ))}
+                          </div>
+                              <div className="text-lg text-gray-600 mb-1">Excellent</div>
+                              <div className="text-sm text-gray-500">Based on {product?.reviewCount || 245} reviews</div>
+                        </div>
+                        <div className="flex-1 w-full">
+                          {[5, 4, 3, 2, 1].map((star, idx) => {
+                            const barPercents = [90, 60, 25, 10, 5];
+                            return (
+                                  <div key={star} className="flex items-center gap-3 mb-3">
+                                    <span className="w-12 text-gray-700 text-sm font-medium">{star} Star</span>
+                                    <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                      <div className="h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full transition-all duration-500" style={{ width: `${barPercents[idx]}%` }}></div>
+                                </div>
+                                    <span className="text-sm text-gray-600 w-8 text-right">{barPercents[idx]}%</span>
+                              </div>
+                            );
+                          })}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Individual Reviews */}
+                        <div className="space-y-6">
+                          <h4 className="text-lg font-bold text-gray-900 mb-4">Recent Reviews</h4>
+                          {[
+                            {
+                              name: 'Rajesh Kumar',
+                              rating: 5,
+                              date: '2 days ago',
+                              comment: 'Excellent property with great amenities. The location is perfect with metro connectivity. Highly recommended!',
+                              verified: true
+                            },
+                            {
+                              name: 'Priya Sharma',
+                              rating: 4,
+                              date: '1 week ago',
+                              comment: 'Good property overall. The maintenance is well taken care of. Only minor issue is the parking space.',
+                              verified: true
+                            },
+                            {
+                              name: 'Amit Singh',
+                              rating: 5,
+                              date: '2 weeks ago',
+                              comment: 'Amazing property! The view from the balcony is breathtaking. The builder has maintained high quality standards.',
+                              verified: false
+                            }
+                          ].map((review, index) => (
+                            <div key={index} className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold">
+                                    {review.name.split(' ').map(n => n[0]).join('')}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <h5 className="font-semibold text-gray-900">{review.name}</h5>
+                                      {review.verified && (
+                                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Verified</span>
                 )}
               </div>
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-1">
+                                        {[...Array(5)].map((_, i) => (
+                                          <svg key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                          </svg>
+                                        ))}
             </div>
+                                      <span className="text-sm text-gray-500">{review.date}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <p className="text-gray-700 leading-6">{review.comment}</p>
+                            </div>
+                          ))}
+                          
+                          <button className="w-full py-3 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors">
+                            Load More Reviews
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Key Features and Location Benefits - Outside the tabs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full max-w-[860px]">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                <h4 className="font-bold text-gray-900 mb-6 text-lg">Key Features</h4>
+                <ul className="space-y-4">
+                  {(product?.features && product.features.length > 0 ? product.features : ['Corner Unit','Park Facing']).map((item) => (
+                    <li key={item} className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-[#0D542B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      <span className="text-sm text-gray-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                <h4 className="font-bold text-gray-900 mb-6 text-lg">Location Benefits</h4>
+                <ul className="space-y-4">
+                  {(product?.locationBenefits && product.locationBenefits.length > 0 ? product.locationBenefits : ['Near IT Park','Easy Highway Access']).map((item) => (
+                    <li key={item} className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-[#0D542B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      <span className="text-sm text-gray-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
           </section>
 
           {/* Right Sidebar - Enhanced Content */}
           <aside className="md:col-span-4 space-y-8">
            {/* Property Header - Lead Detail Style */}
-           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8">
-             <div className="flex items-center gap-2 mb-4">
-               <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-               <h3 className="text-base font-semibold text-gray-900">Property Details</h3>
+           <div className="bg-white rounded-[16px] border border-gray-200 shadow-xs p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+  {/* Left side - label and line */}
+  <div className="flex items-center gap-2">
+    {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
+    <h3 className=" top-[19px] left-[16px] font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F]">Property Details</h3>
+  </div>
+
+  {/* Right side - status badge */}
+  <span className="font-inter text-[12px] leading-[20px] font-normal opacity-100">
+    {product.status}
+  </span>
              </div>
              
              <div className="flex items-start gap-4 mb-6">
-               <div className="relative">
+               {/* <div className="relative">
                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
                    <svg className="w-8 h-8 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
@@ -710,51 +915,60 @@ function PropertyDetailsPageInner() {
                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                    </svg>
                  </div>
-               </div>
+               </div> */}
 
                  <div className="flex-1">
                    <div className="flex items-center gap-2 mb-2">
                      <h1 className="text-xl font-semibold text-gray-900">
                        {product?.name || 'Property'}
                      </h1>
-                     <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">
+                     {/* <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">
                        {product.status}
-                     </span>
+                     </span> */}
                    </div>
-                   <p className="text-sm text-gray-600 mb-1">
+                   <p className="top-[61px] left-[16px] font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">
                      {product.region}
                    </p>
-                   <p className="text-sm text-gray-500">
+                   <p className="top-[61px] left-[16px] font-inter text-[14px] leading-[20px] font-normal text-[#565D6D] mt-2">
                      • Listed {product?.createdAt ? new Date(product.createdAt).toLocaleDateString() : '3 days ago'}
-                   </p>
+             </p>
+             <p className="  text-[24px] leading-[32px] font-bold text-[#0D542B] mt-2">
+                ₹{Math.round(price).toLocaleString('en-IN')}
+             </p>
                  </div>
              </div>
-
+  
              {/* Actions - Below the content */}
              <div className="flex flex-col gap-3">
-               <button className="w-full px-6 py-3 bg-green-700 hover:bg-green-800 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all duration-200 shadow-sm">
+               <button className="w-[373.34px] h-[40px] px-[12px] flex items-center justify-center gap-[16px] font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-[6px] border-0 hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40">
+                 
+                 Contact Broker
                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                  </svg>
-                 Contact Broker
                </button>
-               <button className="w-full px-6 py-3 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 rounded-lg font-medium flex items-center justify-center gap-2 transition-all duration-200">
+               <button className="w-[373.34px] h-[40px] px-[12px] flex items-center justify-center gap-[16px] font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] rounded-[6px] hover:bg-white active:bg-white disabled:opacity-40">
+               
+                 Schedule Visit
                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                  </svg>
-                 Schedule Visit
                </button>
              </div>
            </div>
 
 
             {/* Agent Details */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-base font-semibold text-gray-900">Agent Details</h3>
+         <div className="border border-gray-200 p-6 w-[406px] h-[196px] bg-white rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
+  {/* Header */}
+  <div className="mb-4">
+    <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F]">
+      Agent Details
+    </h3>
               </div>
+
               {agentLoading ? (
+    /* Skeleton */
               <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" />
                   <div className="space-y-2">
@@ -763,88 +977,171 @@ function PropertyDetailsPageInner() {
                   </div>
                 </div>
               ) : agent ? (
+    <>
+      {/* Avatar + text */}
                 <div className="flex items-center gap-3">
-                  <img src={agent.image} alt="Agent" className="w-12 h-12 rounded-full object-cover" />
-                <div>
-                    <div className="font-medium text-gray-900">{agent.name}</div>
-                    {agent.phone && (<div className="text-sm text-gray-500">{agent.phone}</div>)}
-                    {agent.firm && (<div className="text-sm text-gray-500">{agent.firm}</div>)}
-                    <div className="text-xs text-gray-400">Expert Broker {agent.region ? `• ${agent.region}` : ''}</div>
+        <img
+          src={agent.image}
+          alt="Agent"
+          className="w-12 h-12 rounded-full object-cover"
+        />
+        <div className="leading-[20px]">
+          <div className="font-inter font-semibold text-gray-900">
+            {agent.name}
                     </div>
+          {/* Optional phone */}
+          {/* {agent.phone && (
+            <div className="text-sm text-gray-500">{agent.phone}</div>
+          )} */}
+          {agent.firm && (
+            <div className="text-sm text-gray-500">{agent.firm}</div>
+          )}
+          <div className="text-xs text-gray-400">
+          Expert Broker{agent.region ? ` • ${agent.region}` : ""}
                     </div>
+        </div>
+      </div>
+
+      {/* Chat button */}
+      <button
+        type="button"
+        className="mt-4 w-full h-10 flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#323742] bg-[#F3F4F6] rounded-[10px] hover:bg-[#E9EBEF] active:bg-[#D9DEE6] disabled:opacity-40"
+      >
+        Chat Now
+      </button>
+    </>
               ) : (
                 <div className="text-sm text-gray-500">Agent details not available.</div>
               )}
                   </div>
 
+
             {/* Property Rating */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
-                <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-base font-semibold text-gray-900">Property Rating</h3>
+                {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
+                <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F]">Property Rating</h3>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900">{(product?.rating || 4.6).toFixed(1)}</div>
-                <div className="flex items-center justify-center gap-1 mt-1">
+            <div className="flex items-center justify-center gap-2">
+  {/* Rating Number */}
+  <div className="text-[36px] leading-[40px] font-bold text-[#171A1F]">
+    {(product?.rating || 4.6).toFixed(1)}
+  </div>
+
+  {/* Stars */}
+  <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
-                    <svg key={i} className={`w-4 h-4 ${i < Math.round((product?.rating || 4.6)) ? 'text-yellow-400' : 'text-gray-300'}`} viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.786 1.4 8.164L12 18.896l-7.334 3.864 1.4-8.164L.132 9.21l8.2-1.192z"/>
+      <svg
+        key={i}
+        className={`w-[24px] h-[24px] ${
+          i < Math.round(product?.rating || 4.6)
+            ? 'text-yellow-400'
+            : 'text-gray-300'
+        }`}
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.786 1.4 8.164L12 18.896l-7.334 3.864 1.4-8.164L.132 9.21l8.2-1.192z" />
                     </svg>
                 ))}
               </div>
-                <div className="text-sm text-gray-500 mt-1">Based on 100 reviews</div>
             </div>
+
+<div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D] text-center  mt-2">
+  Based on 100 reviews
+</div>
+
           </div>
 
           
 
             {/* Inspection Times */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-base font-semibold text-gray-900">Inspection Times</h3>
+  {/* Header */}
+  <div className="mb-4">
+    <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F]">
+      Inspection Times
+    </h3>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-xl px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-semibold text-gray-900">Saturday</span>
+
+  {/* List */}
+  <div className="divide-y divide-gray-200">
+    {/* Saturday */}
+    <div className="flex items-start justify-between py-3">
+      <div>
+        <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">Saturday</div>
+        <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">
+          10:00 AM - 11:00 AM
                   </div>
-                  <span className="text-sm font-medium text-green-800">10:00 AM - 11:00 AM</span>
                 </div>
-                <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm font-semibold text-blue-900">Sunday</span>
+      <div className="font-inter text-[12px] leading-[20px] font-normal opacity-100">Available</div>
                   </div>
-                  <span className="text-sm font-medium text-blue-800">02:00 PM - 03:00 PM</span>
+
+    {/* Sunday */}
+    <div className="flex items-start justify-between py-3">
+      <div>
+        <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">Sunday</div>
+        <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">
+          02:00 PM - 03:00 PM
             </div>
-                <button className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl">
-                  Book Inspection
-                </button>
             </div>
+      <div className="font-inter text-[12px] leading-[20px] font-normal opacity-100">Available</div>
           </div>
 
+    {/* Monday (Past) */}
+    <div className="flex items-start justify-between py-3">
+      <div>
+        <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">Monday</div>
+        <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">
+          09:00 AM - 10:00 AM
+              </div>
+            </div>
+      <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-500 text-xs font-medium px-2.5 py-1">
+        Past
+      </span>
+              </div>
+            </div>
+
+  {/* CTA */}
+  <button
+    className="w-[373.34px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-[6px] border-0 hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40"
+  >
+    Book Inspection
+  </button>
+</div>
+
+
             {/* Virtual Tour */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                <h3 className="text-base font-semibold text-gray-900">Virtual Tour</h3>
-              </div>
-              <div className="space-y-3">
-                <div className="relative bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl p-4 text-center">
-                  <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                    </svg>
-            </div>
-                  <h4 className="font-semibold text-purple-900 mb-1">360° Virtual Tour</h4>
-                  <p className="text-sm text-purple-700 mb-3">Explore every corner of this property</p>
-                  <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors">
-                    Start Tour
-                  </button>
-              </div>
-            </div>
+       <div className="w-[406px] h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] flex flex-col items-center justify-center text-center">
+  {/* Video Icon */}
+  <svg
+    className="w-[48px] h-[48px] text-[#0D542B] mb-4"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+    />
+  </svg>
+
+  {/* Title */}
+  <h3 className="text-[18px] leading-[28px] font-semibold text-[#19191F]">
+    Virtual Tour
+  </h3>
+
+  {/* Subtitle */}
+  <p className="mt-1 font-inter text-[14px] leading-[20px] font-normal text-[#19191F]">
+    Experience every corner of the property
+  </p>
+
+  {/* Button */}
+  <button className="mt-4 w-[101.13px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white rounded-[6px] border border-[#0D542B] hover:bg-white active:bg-white disabled:opacity-40">
+    View Tour
+  </button>
           </div>
 
         
@@ -853,22 +1150,27 @@ function PropertyDetailsPageInner() {
       </div>
 
       {/* Property Details Tabs Section */}
-      <div className="mt-8 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200 justify-center">
+      {/* <div className="mt-8">
+      
+        <div className="inline-flex gap-2 mb-6 bg-white rounded-full border border-gray-200 p-1">
           {TABS.map((tab, idx) => (
             <button
               key={tab.label}
               onClick={() => setActiveTab(idx)}
-              className={`px-6 py-3 text-base font-medium focus:outline-none transition ${activeTab === idx ? 'text-gray-900 border-b-2 border-green-900' : 'text-gray-400 border-b-2 border-transparent hover:text-gray-900'}`}
+              className={`px-6 py-3 text-base font-medium focus:outline-none transition-all rounded-full ${
+                activeTab === idx 
+                  ? 'text-[#171A1F] bg-[#E6F7ED]' 
+                  : 'text-[#565D6D] hover:text-[#171A1F]'
+              }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-        {/* Tab Content */}
-        <div className="pt-6">
+
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <div className="pt-2">
           {activeTab === 0 && (
             <div className="space-y-8">
               <div>
@@ -932,7 +1234,6 @@ function PropertyDetailsPageInner() {
                   <h3 className="text-xl font-bold text-gray-900">Reviews & Ratings</h3>
                 </div>
                 
-                {/* Overall Rating */}
                 <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-8 mb-8">
                   <div className="flex flex-col md:flex-row gap-8 items-center">
                     <div className="text-center md:text-left">
@@ -964,7 +1265,7 @@ function PropertyDetailsPageInner() {
                   </div>
                 </div>
                 
-                {/* Individual Reviews */}
+              
                 <div className="space-y-6">
                   <h4 className="text-lg font-bold text-gray-900 mb-4">Recent Reviews</h4>
                   {[
@@ -1029,6 +1330,7 @@ function PropertyDetailsPageInner() {
           )}
         </div>
       </div>
+      </div> */}
 
       
         </div>
@@ -1038,8 +1340,8 @@ function PropertyDetailsPageInner() {
       <div className="mt-12 w-full">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-            <h3 className="text-xl font-semibold text-gray-900">Related Properties</h3>
+            {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
+            <h3 className="text-[24px] leading-[32px] font-semibold text-[#171A1F]">Related Properties</h3>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/search?tab=properties" className="px-4 py-2 text-green-900 rounded-lg text-sm font-medium transition-colors">
@@ -1161,7 +1463,7 @@ function PropertyDetailsPageInner() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-white rounded-2xl mx-4 sm:mx-6 lg:mx-8 mb-8 shadow-xl mt-12 border-t-4 border-yellow-500">
+      <div className=" w-[1299px] h-[336px] bg-[#FFF9E6] rounded-2xl shadow-xs mt-4">
         <div className="px-6 py-8 text-center relative overflow-hidden">
           {/* Decorative elements */}
           <div className="absolute top-0 left-0 w-full h-1 "></div>
@@ -1169,37 +1471,36 @@ function PropertyDetailsPageInner() {
           <div className="absolute bottom-3 left-3 w-10 h-10 bg-yellow-200 rounded-full opacity-30"></div>
           
           <div className="max-w-2xl mx-auto relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium mb-4">
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-              </svg>
-              Trusted by 1000+ Customers
+            <div className="inline-flex items-center mt-4">
+              <img src="/images/lucide-Sparkles-Outlined.svg" className="w-[32px] h-[32px]" style={{ filter: 'brightness(0) saturate(100%) invert(99%) sepia(89%) saturate(5066%) hue-rotate(315deg) brightness(99%) contrast(97%)' }} />
+              {/* Trusted by 1000+ Customers */}
             </div>
             
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-[30px] leading-[36px] font-bold text-[#19191F] mt-4">
               Ready to Find Your Perfect Property?
             </h2>
-            <p className="text-gray-600 text-base mb-6 max-w-xl mx-auto leading-relaxed">
+            <p className="w-[672px] font-inter text-[18px] leading-[28px] font-normal text-[#19191F] mt-4">
               Join thousands of satisfied customers who found their dream homes through our platform. 
               Get started today and let our expert brokers help you every step of the way.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
               <a 
                 href="/search?tab=properties" 
-                className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold text-base hover:bg-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                className="w-[176px] h-[40px] px-3 flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-md border-0 transition-colors duration-200 
+         hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40"
               >
                 Browse All Properties
               </a>
               <a 
                 href="/search?tab=brokers" 
-                className="px-6 py-3 border-2 border-yellow-500 text-yellow-600 rounded-lg font-semibold text-base hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                className="w-[118.078125px] h-[40px] px-3 flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white rounded-md border border-[#0D542B] transition-colors duration-200 hover:bg-white active:bg-white disabled:opacity-40"
               >
                 Find Brokers
               </a>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
               <div className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-yellow-50 transition-colors">
                 <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
                   <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
@@ -1229,7 +1530,7 @@ function PropertyDetailsPageInner() {
                 <span className="font-semibold text-gray-900 text-sm">Free Consultation</span>
                 <span className="text-xs text-gray-600">No Obligation</span>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
