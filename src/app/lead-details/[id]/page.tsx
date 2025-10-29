@@ -53,6 +53,8 @@ export default function LeadDetails() {
   const [sameLeads, setSameLeads] = useState<LeadItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   useEffect(() => {
     if (!id) return;
 
@@ -138,6 +140,24 @@ export default function LeadDetails() {
 
   useEffect(() => {
     setCurrentPage(1);
+  }, [sameLeads]);
+
+  // Update scroll button states when same leads change
+  useEffect(() => {
+    const carousel = document.getElementById('similar-leads-horizontal');
+    if (carousel) {
+      const updateScrollState = () => {
+        const { scrollLeft, scrollWidth, clientWidth } = carousel;
+        const maxScroll = scrollWidth - clientWidth;
+        setCanScrollLeft(scrollLeft > 10);
+        setCanScrollRight(scrollLeft < maxScroll - 10);
+      };
+      
+      // Small delay to ensure DOM is ready
+      setTimeout(updateScrollState, 100);
+      carousel.addEventListener('scroll', updateScrollState);
+      return () => carousel.removeEventListener('scroll', updateScrollState);
+    }
   }, [sameLeads]);
 
   if (loading) {
@@ -413,7 +433,18 @@ export default function LeadDetails() {
                 </div>
                 {sameLeads && sameLeads.filter((s) => s._id !== lead._id).length > 0 ? (
                   <div className="relative">
-                    <div id="similar-leads-horizontal" className="overflow-x-auto scroll-smooth" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    <div 
+                      id="similar-leads-horizontal" 
+                      className="overflow-x-auto scroll-smooth" 
+                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                      onScroll={(e) => {
+                        const carousel = e.currentTarget;
+                        const { scrollLeft, scrollWidth, clientWidth } = carousel;
+                        const maxScroll = scrollWidth - clientWidth;
+                        setCanScrollLeft(scrollLeft > 10);
+                        setCanScrollRight(scrollLeft < maxScroll - 10);
+                      }}
+                    >
                       <div className="flex gap-4 min-w-0 pb-2">
                         {sameLeads
                           .filter((s) => s._id !== lead._id)
@@ -604,9 +635,14 @@ export default function LeadDetails() {
                         type="button"
                         onClick={() => {
                           const c = document.getElementById('similar-leads-horizontal');
-                          if (c) c.scrollBy({ left: -320, behavior: 'smooth' });
+                          if (c && canScrollLeft) c.scrollBy({ left: -320, behavior: 'smooth' });
                         }}
-                        className="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center hover:bg-yellow-600 transition-colors"
+                        disabled={!canScrollLeft}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                          canScrollLeft 
+                            ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        }`}
                         title="Previous"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -615,9 +651,14 @@ export default function LeadDetails() {
                         type="button"
                         onClick={() => {
                           const c = document.getElementById('similar-leads-horizontal');
-                          if (c) c.scrollBy({ left: 320, behavior: 'smooth' });
+                          if (c && canScrollRight) c.scrollBy({ left: 320, behavior: 'smooth' });
                         }}
-                        className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                        disabled={!canScrollRight}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                          canScrollRight 
+                            ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        }`}
                         title="Next"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>

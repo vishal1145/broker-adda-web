@@ -31,6 +31,8 @@ function PropertyDetailsPageInner() {
   const [agentError, setAgentError] = useState('');
   const [similarProperties, setSimilarProperties] = useState([]);
   const [similarLoading, setSimilarLoading] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   // Fetch property details from API
   useEffect(() => {
@@ -271,6 +273,23 @@ function PropertyDetailsPageInner() {
     fetchSimilarProperties();
   }, [product]);
 
+  // Update scroll button states when similar properties change
+  useEffect(() => {
+    const carousel = document.getElementById('related-properties-carousel');
+    if (carousel) {
+      const updateScrollState = () => {
+        const { scrollLeft, scrollWidth, clientWidth } = carousel;
+        const maxScroll = scrollWidth - clientWidth;
+        setCanScrollLeft(scrollLeft > 10);
+        setCanScrollRight(scrollLeft < maxScroll - 10);
+      };
+      
+      updateScrollState();
+      carousel.addEventListener('scroll', updateScrollState);
+      return () => carousel.removeEventListener('scroll', updateScrollState);
+    }
+  }, [similarProperties]);
+
   const gallery = useMemo(() => {
     if (!product) return ['/images/pexels-binyaminmellish-106399.jpg'];
     
@@ -295,7 +314,6 @@ function PropertyDetailsPageInner() {
     title: 'Property Details',
     breadcrumb: [
       { label: 'Home', href: '/' },
-      { label: 'Properties', href: '/properties' },
       { label: 'Property Details', href: '/property-details' }
     ]
   };
@@ -559,7 +577,7 @@ function PropertyDetailsPageInner() {
         <div className="w-full mx-auto">
        
 
-        <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
           {/* Left Main Content */}
           <section className="md:col-span-8 space-y-12">
 
@@ -616,10 +634,10 @@ function PropertyDetailsPageInner() {
               </div>
 
               {/* Property Details Grid */}
-              <div className="space-y-4 w-[843px] h-[240px] bg-white rounded-[16px] shadow-xs border border-gray-200 p-4 px-8">
+              <div className="space-y-4 w-full bg-white rounded-[16px] shadow-xs border border-gray-200 p-4 px-8">
                 <div className="flex items-center gap-2 ">
                   {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
-                  <h3 className="text-[20px] leading-[28px] font-semibold text-[#171A1F]">Property Details</h3>
+                  <h3 className="text-[18px] leading-[28px] font-semibold text-[#171A1F]">Property Details</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
                   <div className="flex items-start gap-3">
@@ -627,8 +645,8 @@ function PropertyDetailsPageInner() {
                       <svg className="w-[20px] h-[20px]  text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="10" width="18" height="7" rx="1"/><path d="M7 10V7a2 2 0 012-2h6a2 2 0 012 2v3"/></svg>
                     </span>
                     <div>
-                      <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Bedrooms</div>
-                      <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">{product.bedrooms} BHK</div>
+                      <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">Bedrooms</div>
+                      <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">{product.bedrooms} BHK</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -636,8 +654,8 @@ function PropertyDetailsPageInner() {
                       <svg className="w-[20px] h-[20px]  text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg>
                     </span>
                     <div>
-                      <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Property Size</div>
-                      <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">{product.areaSqft?.toLocaleString('en-IN')} sq.ft</div>
+                      <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">Property Size</div>
+                      <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">{product.areaSqft?.toLocaleString('en-IN')} sq.ft</div>
                     </div>
                   </div>
               {/* <div className="flex items-start gap-3">
@@ -661,8 +679,8 @@ function PropertyDetailsPageInner() {
                       <svg className="w-[20px] h-[20px]  text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
                     </span>
                     <div>
-                      <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Listed</div>
-                      <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">{product?.createdAt ? new Date(product.createdAt).toLocaleDateString() : '3 days ago'}</div>
+                      <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">Listed</div>
+                      <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">{product?.createdAt ? new Date(product.createdAt).toLocaleDateString() : '3 days ago'}</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -670,8 +688,8 @@ function PropertyDetailsPageInner() {
                       <svg className="w-[20px] h-[20px]  text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     </span>
                     <div>
-                      <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Price</div>
-                      <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">₹{Math.round(price).toLocaleString('en-IN')}</div>
+                      <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">Price</div>
+                      <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">₹{Math.round(price).toLocaleString('en-IN')}</div>
                     </div>
                   </div>
                 </div>
@@ -682,9 +700,9 @@ function PropertyDetailsPageInner() {
           </div>
 
             {/* Neighborhood Section - Compact Design */}
-        <div className="w-full max-w-[860px] bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+        <div className="w-full bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
   {/* Header */}
-  <h3 className="font-inter text-[20px] leading-[28px] font-semibold text-[#171A1F] mb-4">
+  <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-4">
     Nearby Amenities
   </h3>
 
@@ -694,7 +712,7 @@ function PropertyDetailsPageInner() {
       {product.nearbyAmenities.map((item, idx) => (
         <div key={idx} className="flex items-start gap-2">
           <span className="mt-[7px] w-[6px] h-[6px] rounded-full bg-[#0D542B]" />
-          <span className="font-inter text-[14px] leading-[20px] text-[#171A1F]">
+          <span className="font-inter text-[12px] leading-[20px] text-[#171A1F]">
             {item}
           </span>
         </div>
@@ -706,7 +724,7 @@ function PropertyDetailsPageInner() {
               </div>
               
             {/* Property Details Tabs Section */}
-            <div className="mt-8 w-full max-w-[860px]">
+            <div className="mt-8 w-full">
               {/* Tabs */}
               <div className="inline-flex gap-2 mb-6 bg-gray-100 rounded-md border border-gray-200 ">
                 {TABS.map((tab, idx) => (
@@ -736,7 +754,7 @@ function PropertyDetailsPageInner() {
                         </div>
                         <div className="prose prose-gray max-w-none">
                           {(product?.propertyDescription || product?.description) && (
-                            <p className="w-[811px] font-inter text-[16px] leading-[24px] font-normal text-[#565D6D] mb-4">{product.propertyDescription || product.description}</p>
+                            <p className="w-full font-inter text-[12px] leading-[24px] font-normal text-[#565D6D] mb-4">{product.propertyDescription || product.description}</p>
                           )}
                         </div>
                   </div>
@@ -750,7 +768,7 @@ function PropertyDetailsPageInner() {
                       <div>
                         <div className="flex items-center gap-2 mb-6">
                           <span className="inline-block h-0.5 w-8 rounded bg-yellow-400"></span>
-                          <h3 className="text-xl font-bold text-gray-900">Reviews & Ratings</h3>
+                          <h3 className="text-[18px] font-bold text-gray-900">Reviews & Ratings</h3>
                         </div>
                         
                         {/* Overall Rating */}
@@ -765,19 +783,19 @@ function PropertyDetailsPageInner() {
                                   </svg>
                             ))}
                           </div>
-                              <div className="text-lg text-gray-600 mb-1">Excellent</div>
-                              <div className="text-sm text-gray-500">Based on {product?.reviewCount || 245} reviews</div>
+                              <div className="text-[14px] text-gray-600 mb-1">Excellent</div>
+                              <div className="text-[12px] text-gray-500">Based on {product?.reviewCount || 245} reviews</div>
                         </div>
                         <div className="flex-1 w-full">
                           {[5, 4, 3, 2, 1].map((star, idx) => {
                             const barPercents = [90, 60, 25, 10, 5];
                             return (
                                   <div key={star} className="flex items-center gap-3 mb-3">
-                                    <span className="w-12 text-gray-700 text-sm font-medium">{star} Star</span>
+                                    <span className="w-12 text-gray-700 text-[12px] font-medium">{star} Star</span>
                                     <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
                                       <div className="h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full transition-all duration-500" style={{ width: `${barPercents[idx]}%` }}></div>
                                 </div>
-                                    <span className="text-sm text-gray-600 w-8 text-right">{barPercents[idx]}%</span>
+                                    <span className="text-[12px] text-gray-600 w-8 text-right">{barPercents[idx]}%</span>
                               </div>
                             );
                           })}
@@ -787,7 +805,7 @@ function PropertyDetailsPageInner() {
                         
                         {/* Individual Reviews */}
                         <div className="space-y-6">
-                          <h4 className="text-lg font-bold text-gray-900 mb-4">Recent Reviews</h4>
+                          <h4 className="text-[18px] font-bold text-gray-900 mb-4">Recent Reviews</h4>
                           {[
                             {
                               name: 'Rajesh Kumar',
@@ -819,9 +837,9 @@ function PropertyDetailsPageInner() {
                                   </div>
                                   <div>
                                     <div className="flex items-center gap-2">
-                                      <h5 className="font-semibold text-gray-900">{review.name}</h5>
+                                      <h5 className="font-semibold text-[14px] text-gray-900">{review.name}</h5>
                                       {review.verified && (
-                                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Verified</span>
+                                        <span className="px-2 py-1 bg-green-100 text-green-800 text-[12px] font-medium rounded-full">Verified</span>
                 )}
               </div>
                                     <div className="flex items-center gap-2">
@@ -832,16 +850,16 @@ function PropertyDetailsPageInner() {
                                           </svg>
                                         ))}
             </div>
-                                      <span className="text-sm text-gray-500">{review.date}</span>
+                                      <span className="text-[12px] text-gray-500">{review.date}</span>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                              <p className="text-gray-700 leading-6">{review.comment}</p>
+                              <p className="text-[12px] text-gray-700 leading-6">{review.comment}</p>
                             </div>
                           ))}
                           
-                          <button className="w-full py-3 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors">
+                          <button className="w-full py-3 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-[12px] font-medium transition-colors">
                             Load More Reviews
                           </button>
                         </div>
@@ -853,30 +871,30 @@ function PropertyDetailsPageInner() {
             </div>
 
             {/* Key Features and Location Benefits - Outside the tabs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full max-w-[860px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full">
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <h4 className="font-bold text-gray-900 mb-6 text-lg">Key Features</h4>
+                <h4 className="font-bold text-gray-900 mb-6 text-[18px]">Key Features</h4>
                 <ul className="space-y-4">
                   {(product?.features && product.features.length > 0 ? product.features : ['Corner Unit','Park Facing']).map((item) => (
                     <li key={item} className="flex items-center gap-3">
                       <svg className="w-5 h-5 text-[#0D542B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
                       </svg>
-                      <span className="text-sm text-gray-700">{item}</span>
+                      <span className="text-[12px] text-gray-700">{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
               
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <h4 className="font-bold text-gray-900 mb-6 text-lg">Location Benefits</h4>
+                <h4 className="font-bold text-gray-900 mb-6 text-[18px]">Location Benefits</h4>
                 <ul className="space-y-4">
                   {(product?.locationBenefits && product.locationBenefits.length > 0 ? product.locationBenefits : ['Near IT Park','Easy Highway Access']).map((item) => (
                     <li key={item} className="flex items-center gap-3">
                       <svg className="w-5 h-5 text-[#0D542B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
                       </svg>
-                      <span className="text-sm text-gray-700">{item}</span>
+                      <span className="text-[12px] text-gray-700">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -919,20 +937,20 @@ function PropertyDetailsPageInner() {
 
                  <div className="flex-1">
                    <div className="flex items-center gap-2 mb-2">
-                     <h1 className="text-xl font-semibold text-gray-900">
+                     <h1 className="text-[16px] font-semibold text-gray-900">
                        {product?.name || 'Property'}
                      </h1>
                      {/* <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">
                        {product.status}
                      </span> */}
                    </div>
-                   <p className="top-[61px] left-[16px] font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">
+                   <p className="top-[61px] left-[16px] font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
                      {product.region}
                    </p>
-                   <p className="top-[61px] left-[16px] font-inter text-[14px] leading-[20px] font-normal text-[#565D6D] mt-2">
+                   <p className="top-[61px] left-[16px] font-inter text-[12px] leading-[20px] font-normal text-[#565D6D] mt-2">
                      • Listed {product?.createdAt ? new Date(product.createdAt).toLocaleDateString() : '3 days ago'}
              </p>
-             <p className="  text-[24px] leading-[32px] font-bold text-[#0D542B] mt-2">
+             <p className="  text-[18px] leading-[32px] font-bold text-[#0D542B] mt-2">
                 ₹{Math.round(price).toLocaleString('en-IN')}
              </p>
                  </div>
@@ -940,14 +958,14 @@ function PropertyDetailsPageInner() {
   
              {/* Actions - Below the content */}
              <div className="flex flex-col gap-3">
-               <button className="w-[373.34px] h-[40px] px-[12px] flex items-center justify-center gap-[16px] font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-[6px] border-0 hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40">
+               <button className="w-full h-[40px] px-[12px] flex items-center justify-center gap-[16px] font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-[6px] border-0 hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40">
                  
                  Contact Broker
                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                  </svg>
                </button>
-               <button className="w-[373.34px] h-[40px] px-[12px] flex items-center justify-center gap-[16px] font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] rounded-[6px] hover:bg-white active:bg-white disabled:opacity-40">
+               <button className="w-full h-[40px] px-[12px] flex items-center justify-center gap-[16px] font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] rounded-[6px] hover:bg-white active:bg-white disabled:opacity-40">
                
                  Schedule Visit
                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -959,7 +977,7 @@ function PropertyDetailsPageInner() {
 
 
             {/* Agent Details */}
-         <div className="border border-gray-200 p-6 w-[406px] h-[196px] bg-white rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
+         <div className="border border-gray-200 p-6 w-full bg-white rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
   {/* Header */}
   <div className="mb-4">
     <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F]">
@@ -994,9 +1012,9 @@ function PropertyDetailsPageInner() {
             <div className="text-sm text-gray-500">{agent.phone}</div>
           )} */}
           {agent.firm && (
-            <div className="text-sm text-gray-500">{agent.firm}</div>
+            <div className="text-[12px] text-gray-500">{agent.firm}</div>
           )}
-          <div className="text-xs text-gray-400">
+          <div className="text-[12px] text-gray-400">
           Expert Broker{agent.region ? ` • ${agent.region}` : ""}
                     </div>
         </div>
@@ -1047,7 +1065,7 @@ function PropertyDetailsPageInner() {
               </div>
             </div>
 
-<div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D] text-center  mt-2">
+<div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D] text-center  mt-2">
   Based on 100 reviews
 </div>
 
@@ -1069,8 +1087,8 @@ function PropertyDetailsPageInner() {
     {/* Saturday */}
     <div className="flex items-start justify-between py-3">
       <div>
-        <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">Saturday</div>
-        <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">
+        <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">Saturday</div>
+        <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
           10:00 AM - 11:00 AM
                   </div>
                 </div>
@@ -1080,8 +1098,8 @@ function PropertyDetailsPageInner() {
     {/* Sunday */}
     <div className="flex items-start justify-between py-3">
       <div>
-        <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">Sunday</div>
-        <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">
+        <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">Sunday</div>
+        <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
           02:00 PM - 03:00 PM
             </div>
             </div>
@@ -1091,12 +1109,12 @@ function PropertyDetailsPageInner() {
     {/* Monday (Past) */}
     <div className="flex items-start justify-between py-3">
       <div>
-        <div className="font-inter text-[16px] leading-[24px] font-medium text-[#171A1F]">Monday</div>
-        <div className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">
+        <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">Monday</div>
+        <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
           09:00 AM - 10:00 AM
               </div>
             </div>
-      <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-500 text-xs font-medium px-2.5 py-1">
+      <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-500 text-[12px] font-medium px-2.5 py-1">
         Past
       </span>
               </div>
@@ -1104,7 +1122,7 @@ function PropertyDetailsPageInner() {
 
   {/* CTA */}
   <button
-    className="w-[373.34px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-[6px] border-0 hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40"
+    className="w-full h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-[6px] border-0 hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40"
   >
     Book Inspection
   </button>
@@ -1112,7 +1130,7 @@ function PropertyDetailsPageInner() {
 
 
             {/* Virtual Tour */}
-       <div className="w-[406px] h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] flex flex-col items-center justify-center text-center">
+       <div className="w-full h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] flex flex-col items-center justify-center text-center">
   {/* Video Icon */}
   <svg
     className="w-[48px] h-[48px] text-[#0D542B] mb-4"
@@ -1134,7 +1152,7 @@ function PropertyDetailsPageInner() {
   </h3>
 
   {/* Subtitle */}
-  <p className="mt-1 font-inter text-[14px] leading-[20px] font-normal text-[#19191F]">
+  <p className="mt-1 font-inter text-[12px] leading-[20px] font-normal text-[#19191F]">
     Experience every corner of the property
   </p>
 
@@ -1341,7 +1359,7 @@ function PropertyDetailsPageInner() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
-            <h3 className="text-[24px] leading-[32px] font-semibold text-[#171A1F]">Related Properties</h3>
+            <h3 className="text-[18px] leading-[32px] font-semibold text-[#171A1F]">Related Properties</h3>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/search?tab=properties" className="px-4 py-2 text-green-900 rounded-lg text-sm font-medium transition-colors">
@@ -1351,7 +1369,18 @@ function PropertyDetailsPageInner() {
         </div>
         
         {/* Carousel with scrollable cards */}
-        <div id="related-properties-carousel" className="overflow-x-auto scroll-smooth" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div 
+          id="related-properties-carousel" 
+          className="overflow-x-auto scroll-smooth" 
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          onScroll={(e) => {
+            const carousel = e.currentTarget;
+            const { scrollLeft, scrollWidth, clientWidth } = carousel;
+            const maxScroll = scrollWidth - clientWidth;
+            setCanScrollLeft(scrollLeft > 10);
+            setCanScrollRight(scrollLeft < maxScroll - 10);
+          }}
+        >
           <div className="flex gap-6 min-w-0 pb-2">
             {similarLoading ? (
               // Loading state
@@ -1409,23 +1438,16 @@ function PropertyDetailsPageInner() {
             type="button" 
             onClick={() => {
               const carousel = document.getElementById('related-properties-carousel');
-              if (carousel) {
-                const scrollAmount = 320; // Width of one card + gap
-                const currentScroll = carousel.scrollLeft;
-                const maxScroll = carousel.scrollWidth - carousel.clientWidth;
-                
-                // Only show navigation if there are more cards than visible
-                if (maxScroll > 0) {
-                  if (currentScroll >= maxScroll - 10) {
-                    // If at the end, scroll to the beginning for infinite loop
-                    carousel.scrollTo({ left: 0, behavior: 'smooth' });
-                  } else {
-                    carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                  }
-                }
+              if (carousel && canScrollLeft) {
+                carousel.scrollBy({ left: -320, behavior: 'smooth' });
               }
             }}
-            className="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center hover:bg-yellow-600 transition-colors shadow-md"
+            disabled={!canScrollLeft}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${
+              canScrollLeft 
+                ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            }`}
             title="Previous"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1436,23 +1458,16 @@ function PropertyDetailsPageInner() {
             type="button" 
             onClick={() => {
               const carousel = document.getElementById('related-properties-carousel');
-              if (carousel) {
-                const scrollAmount = 320; // Width of one card + gap
-                const currentScroll = carousel.scrollLeft;
-                const maxScroll = carousel.scrollWidth - carousel.clientWidth;
-                
-                // Only show navigation if there are more cards than visible
-                if (maxScroll > 0) {
-                  if (currentScroll >= maxScroll - 10) {
-                    // If at the end, scroll to the beginning for infinite loop
-                    carousel.scrollTo({ left: 0, behavior: 'smooth' });
-                  } else {
-                    carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                  }
-                }
+              if (carousel && canScrollRight) {
+                carousel.scrollBy({ left: 320, behavior: 'smooth' });
               }
             }}
-            className="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center hover:bg-yellow-600 transition-colors shadow-md"
+            disabled={!canScrollRight}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${
+              canScrollRight 
+                ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            }`}
             title="Next"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1463,7 +1478,7 @@ function PropertyDetailsPageInner() {
       </div>
 
       {/* CTA Section */}
-      <div className=" w-[1299px] h-[336px] bg-[#FFF9E6] rounded-2xl shadow-xs mt-4">
+      <div className="w-full max-w-full bg-[#FFF9E6] rounded-2xl shadow-xs mt-4">
         <div className="px-6 py-8 text-center relative overflow-hidden">
           {/* Decorative elements */}
           <div className="absolute top-0 left-0 w-full h-1 "></div>
@@ -1476,10 +1491,10 @@ function PropertyDetailsPageInner() {
               {/* Trusted by 1000+ Customers */}
             </div>
             
-            <h2 className="text-[30px] leading-[36px] font-bold text-[#19191F] mt-4">
+            <h2 className="text-[18px] leading-[36px] font-bold text-[#19191F] mt-4">
               Ready to Find Your Perfect Property?
             </h2>
-            <p className="w-[672px] font-inter text-[18px] leading-[28px] font-normal text-[#19191F] mt-4">
+            <p className="w-full max-w-2xl mx-auto font-inter text-[12px] leading-[28px] font-normal text-[#19191F] mt-4">
               Join thousands of satisfied customers who found their dream homes through our platform. 
               Get started today and let our expert brokers help you every step of the way.
             </p>
