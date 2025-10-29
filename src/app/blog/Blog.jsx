@@ -55,7 +55,7 @@ const Blog = () => {
                   </div>
                 </div>
                 <div className="mt-4 mb-4 p-4 leading-5">
-                  <h3 className="text-[14px] font-medium text-gray-900 mb-2">
+                  <h3 className="text-[16px] font-medium text-gray-900 mb-2">
                     {blog.title}
                   </h3>
                   <p className="text-gray-600 text-[12px] mb-3">

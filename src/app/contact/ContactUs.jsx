@@ -31,7 +31,7 @@ const ContactUs = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Form */}
           <div>
-            <h2 className="text-[14px] leading-[32px] font-bold text-[#171A1FFF] mb-2">Get in Touch</h2>
+            <h2 className="text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-2">Get in Touch</h2>
             <p className="font-[Inter] text-[12px] leading-[20px] font-medium text-[#565D6D] mb-8">
               Your email address will not be published. Required fields are marked*
             </p>
@@ -99,20 +99,20 @@ const ContactUs = () => {
           <div className="bg-green-900 text-white p-8 rounded-[2rem] flex flex-col gap-8 min-h-[420px]">
             {/* Address */}
             <div>
-              <h3 className="text-[14px] font-medium mb-2">Address</h3>
+              <h3 className="text-[16px] font-medium mb-2">Address</h3>
               <p className="text-[12px">{contactData.address}</p>
             </div>
 
             {/* Contact */}
             <div>
-              <h3 className="text-[14px] font-medium mb-2">Contact</h3>
+              <h3 className="text-[16px] font-medium mb-2">Contact</h3>
               <p className="text-[12px]">Phone : {contactData.contact.phone}</p>
               <p className="text-[12px]">Email : {contactData.contact.email}</p>
             </div>
 
             {/* Open Time */}
             <div>
-              <h3 className="text-[14px] font-medium mb-2">Open Time</h3>
+              <h3 className="text-[16px] font-medium mb-2">Open Time</h3>
               <p className="text-[12px]">
                 Monday - Friday &nbsp; : &nbsp; {contactData.opening_hours.weekdays}
               </p>
@@ -123,7 +123,7 @@ const ContactUs = () => {
 
             {/* Social Icons */}
             <div>
-              <h3 className="text-[14px] font-medium mb-4">Stay Connected</h3>
+              <h3 className="text-[16px] font-medium mb-4">Stay Connected</h3>
               <div className="flex gap-6">
                 {contactData.social_icons.map((icon, index) => (
                   <a

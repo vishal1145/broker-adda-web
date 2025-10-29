@@ -45,7 +45,7 @@ const LegalCompliancePage = () => {
       <div className="mt-6 space-y-6">
         {subsections.map((subsection, idx) => (
           <div key={idx} className="">
-            <h2 className=" text-[14px] leading-[32px] font-bold text-[#171A1FFF] mb-3">{subsection.title}</h2>
+            <h2 className=" text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-3">{subsection.title}</h2>
             <p className=" font-[Inter] text-[12px] leading-[22px] font-medium text-[#565D6D]">{subsection.content}</p>
             {Array.isArray(subsection.items) && (
               <ul className="list-disc list-inside  space-y-1 font-[Inter] text-[12px] leading-[22px] font-normal text-[#565D6D]">
@@ -69,7 +69,7 @@ const LegalCompliancePage = () => {
             {/* Main Sections */}
             {sections.map((section, index) => (
               <div key={index} className="">
-                <h2 className=" text-[14px] leading-[32px] font-bold text-[#171A1FFF] mb-4">{section.title}</h2>
+                <h2 className=" text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-4">{section.title}</h2>
                 {renderContent(section)}
                 {renderSubsections(section.subsections)}
               </div>
@@ -77,13 +77,13 @@ const LegalCompliancePage = () => {
 
             {/* Compliance Checklist */}
             <div className="">
-              <h2 className=" text-[14px] leading-[32px] font-bold text-[#171A1FFF] mb-4">{complianceChecklist.title}</h2>
+              <h2 className=" text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-4">{complianceChecklist.title}</h2>
               <p className=" mb-6 font-[Inter] text-[12px] leading-[22px] font-medium text-[#565D6D]">{complianceChecklist.description}</p>
               
               <div className="grid md:grid-cols-3 gap-6">
                 {complianceChecklist.categories.map((category, idx) => (
                   <div key={idx} className="">
-                    <h3 className=" text-[14px] leading-[32px] font-bold text-[#171A1FFF] mb-3">{category.title}</h3>
+                    <h3 className=" text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-3">{category.title}</h3>
                     <ul className="space-y-2">
                       {category.items.map((item, itemIdx) => (
                         <li key={itemIdx} className="flex items-start space-x-2 font-[Inter] text-[12px] leading-[22px] font-normal text-[#565D6D]">
@@ -99,13 +99,13 @@ const LegalCompliancePage = () => {
 
             {/* Regulatory Bodies */}
             <div className="">
-              <h2 className=" text-[14px] leading-[32px] font-bold text-[#171A1FFF] mb-4">{regulatoryBodies.title}</h2>
+              <h2 className=" text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-4">{regulatoryBodies.title}</h2>
               <p className="font-[Inter] text-[12px] leading-[22px] font-medium mb-4 text-[#565D6D]">{regulatoryBodies.description}</p>
               
               <div className="grid md:grid-cols-2 gap-6">
                 {regulatoryBodies.bodies.map((body, idx) => (
                   <div key={idx} className="">
-                    <h2 className=" text-[14px] leading-[32px] font-bold text-[#171A1FFF] mb-2">{body.name}</h2>
+                    <h2 className=" text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-2">{body.name}</h2>
                     <p className=" mb-2 font-[Inter] text-[12px] leading-[22px] font-medium text-[#565D6D]">{body.role}</p>
                     <div className="space-y-1 font-[Inter] text-[12px] leading-[22px] font-normal text-[#565D6D]">
                       <p><strong>Website:</strong> <a href={body.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{body.website}</a></p>
@@ -118,7 +118,7 @@ const LegalCompliancePage = () => {
 
             {/* FAQ Section */}
             <div className="">
-              <h2 className=" text-[14px] leading-[32px] font-bold text-[#171A1FFF] mb-6">{frequentlyAskedQuestions.title}</h2>
+              <h2 className=" text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-6">{frequentlyAskedQuestions.title}</h2>
               
               <div className="space-y-6">
                 {frequentlyAskedQuestions.questions.map((faq, index) => (
@@ -136,7 +136,7 @@ const LegalCompliancePage = () => {
 
             {/* Contact Section */}
             <div className="bg-yellow-500 rounded-lg shadow-lg p-8 text-white text-center">
-              <h2 className=" text-[14px] leading-[32px] font-bold  mb-4">{contact.title}</h2>
+              <h2 className=" text-[16px] leading-[32px] font-bold  mb-4">{contact.title}</h2>
               <p className="text-white mb-6 max-w-2xl mx-auto font-[Inter] text-[12px] leading-[22px] font-normal ">
                 {contact.description}
               </p>

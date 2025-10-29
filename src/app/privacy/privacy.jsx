@@ -29,7 +29,7 @@ const Privacy = () => {
         <div className="space-y-10">
           {sections.map((section, index) => (
             <div key={index}>
-              <h2 className=" text-[14px] leading-8 font-bold text-gray-900 mb-2">
+              <h2 className=" text-[16px] leading-8 font-bold text-gray-900 mb-2">
                 {section.title}
               </h2>
               {Array.isArray(section.content) ? (
