@@ -198,11 +198,11 @@ export default function ViewModeProfile() {
               <div className="flex items-center gap-4">
                 <img src={profile.image} alt="Profile" className="w-14 h-14 rounded-full object-cover" />
                 <div>
-                  <div className="text-base font-semibold text-gray-900">{profile.name}</div>
-                  <div className="text-xs text-gray-500">{profile.firm || '-'}</div>
+                  <div className="text-[16px] font-semibold text-gray-900">{profile.name}</div>
+                  <div className="text-[12px] text-gray-500">{profile.firm || '-'}</div>
                 </div>
               </div>
-              <button type="button" onClick={() => router.push('/profile?mode=edit')} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-white bg-green-900 hover:bg-green-900 text-xs font-medium">
+              <button type="button" onClick={() => router.push('/profile?mode=edit')} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-white bg-green-900 hover:bg-green-900 text-[14px] font-medium">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 Edit Profile
               </button>
@@ -214,30 +214,30 @@ export default function ViewModeProfile() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                   <div className="text-gray-500 text-[12px]">Firm</div>
-                <div className="text-gray-900">{profile.firm || '-'}</div>
+                <div className="text-gray-900 text-[14px]">{profile.firm || '-'}</div>
               </div>
               <div>
                   <div className="text-gray-500 text-[12px]">Gender</div>
-                <div className="text-gray-900">{profile.gender || '-'}</div>
+                <div className="text-gray-900 text-[14px]">{profile.gender || '-'}</div>
               </div>
               <div>
                   <div className="text-gray-500 text-[12px]">Status</div>
-                  <div className="inline-flex items-center gap-2 text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">{profile.status || 'Active'}</div>
+                  <div className="inline-flex items-center gap-2 text-[12px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">{profile.status || 'Active'}</div>
                 </div>
               </div>
               {/* Row 2 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                   <div className="text-gray-500 text-[12px]">Joined Date</div>
-                <div className="text-gray-900">{profile.joinedDateFormatted || '-'}</div>
+                <div className="text-gray-900 text-[14px]">{profile.joinedDateFormatted || '-'}</div>
               </div>
               <div>
                   <div className="text-gray-500 text-[12px]">License</div>
-                <div className="text-gray-900">{profile.license || '-'}</div>
+                <div className="text-gray-900 text-[14px]">{profile.license || '-'}</div>
               </div>
               <div>
                   <div className="text-gray-500 text-[12px]">Regions</div>
-                <div className="text-gray-900">{profile.regions?.length ? profile.regions.join(', ') : '-'}</div>
+                <div className="text-gray-900 text-[14px]">{profile.regions?.length ? profile.regions.join(', ') : '-'}</div>
                 </div>
               </div>
               <div className="h-px bg-gray-200" />
@@ -246,10 +246,10 @@ export default function ViewModeProfile() {
                 <div className="flex flex-wrap gap-2">
                   {Array.isArray(data?.specializations) && data.specializations.length > 0 ? (
                     data.specializations.map((s) => (
-                      <span key={s} className="px-2.5 py-1 rounded-full bg-gray-50 border border-gray-200 text-xs text-gray-800">{s}</span>
+                      <span key={s} className="px-2.5 py-1 rounded-full bg-gray-50 border border-gray-200 text-[12px] text-gray-800">{s}</span>
                     ))
                   ) : (
-                    <span className="px-2.5 py-1 rounded-full bg-gray-50 border border-gray-200 text-xs text-gray-800">-</span>
+                    <span className="px-2.5 py-1 rounded-full bg-gray-50 border border-gray-200 text-[12px] text-gray-800">-</span>
                   )}
                 </div>
               </div>
@@ -262,7 +262,7 @@ export default function ViewModeProfile() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Contact Details */}
         <div className="lg:col-span-7 rounded-[10px] bg-white shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-6">
-          <div className="text-base font-semibold text-gray-900 mb-4">Contact Details</div>
+          <div className="text-[16px] font-semibold text-gray-900 mb-4">Contact Details</div>
           <div className="space-y-4 text-sm">
             <div className="flex items-start gap-3">
               <span className="w-4 h-4 flex items-center justify-center" style={{ color: '#565D6DFF' }}>
@@ -338,7 +338,7 @@ export default function ViewModeProfile() {
 
         {/* Documents */}
         <div className="lg:col-span-5 rounded-[10px] bg-white shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-6">
-          <div className="text-base font-semibold text-gray-900 mb-4">Documents</div>
+          <div className="text-[16px] font-semibold text-gray-900 mb-4">Documents</div>
           <div className="mb-2 grid grid-cols-2 text-[12px] text-gray-500 px-1">
             <span>Document</span>
             <span className="text-right pr-1">Actions</span>
@@ -359,7 +359,7 @@ export default function ViewModeProfile() {
       </div>
 
       {error && (
-        <div className="text-xs text-red-600 mt-6">{error}</div>
+        <div className="text-[12px] text-red-600 mt-6">{error}</div>
       )}
 
       {/* Preview Modal */}
@@ -367,7 +367,7 @@ export default function ViewModeProfile() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 mt-8" onClick={() => setPreview({ open: false, src: '', type: '' })}>
           <div className="bg-white rounded-xl max-w-4xl w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-4 py-3 border-b">
-              <div className="text-sm font-medium text-gray-900">Preview</div>
+              <div className="text-[14px] font-medium text-gray-900">Preview</div>
               <button className="text-gray-600 hover:text-gray-900" onClick={() => setPreview({ open: false, src: '', type: '' })}>✕</button>
             </div>
             <div className="p-4 max-h-[80vh] overflow-auto">
