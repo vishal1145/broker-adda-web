@@ -1857,10 +1857,12 @@ const Profile = () => {
                                       : "bg-white text-gray-600 border border-gray-300"
                                   }`}
                                 >
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                    <path d="M18 21V19C18 18.2044 17.6837 17.4415 17.1211 16.8789C16.6289 16.3867 15.9835 16.0829 15.2969 16.0146L15 16H9C8.20435 16 7.44152 16.3163 6.87891 16.8789C6.3163 17.4415 6 18.2044 6 19V21C6 21.5523 5.55228 22 5 22C4.44772 22 4 21.5523 4 21V19C4 17.6739 4.52716 16.4025 5.46484 15.4648C6.40253 14.5272 7.67392 14 9 14H15L15.248 14.0059C16.4838 14.0672 17.6561 14.5858 18.5352 15.4648C19.4728 16.4025 20 17.6739 20 19V21C20 21.5523 19.5523 22 19 22C18.4477 22 18 21.5523 18 21Z" fill={isMale ? "#FFFFFF" : "#686583"}/>
-                                    <path d="M15 7C15 5.34315 13.6569 4 12 4C10.3431 4 9 5.34315 9 7C9 8.65685 10.3431 10 12 10C13.6569 10 15 8.65685 15 7ZM17 7C17 9.76142 14.7614 12 12 12C9.23858 12 7 9.76142 7 7C7 4.23858 9.23858 2 12 2C14.7614 2 17 4.23858 17 7Z" fill={isMale ? "#FFFFFF" : "#686583"}/>
-                                  </svg>
+                                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <circle cx="12" cy="5" r="2" />
+                                      <path d="M9 9h6" />
+                                      <path d="M9 9l-3 6h12l-3-6z" />
+                                      <path d="M8 22v-6M16 22v-6" />
+                                    </svg>
                                   <span className="text-[12px] font-medium">Male</span>
                                 </button>
 
@@ -1874,10 +1876,12 @@ const Profile = () => {
                                       : "bg-white text-gray-500 border border-gray-300"
                                   }`}
                                 >
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                    <path d="M18 21V19C18 18.2044 17.6837 17.4415 17.1211 16.8789C16.6289 16.3867 15.9835 16.0829 15.2969 16.0146L15 16H9C8.20435 16 7.44152 16.3163 6.87891 16.8789C6.3163 17.4415 6 18.2044 6 19V21C6 21.5523 5.55228 22 5 22C4.44772 22 4 21.5523 4 21V19C4 17.6739 4.52716 16.4025 5.46484 15.4648C6.40253 14.5272 7.67392 14 9 14H15L15.248 14.0059C16.4838 14.0672 17.6561 14.5858 18.5352 15.4648C19.4728 16.4025 20 17.6739 20 19V21C20 21.5523 19.5523 22 19 22C18.4477 22 18 21.5523 18 21Z" fill={isFemale ? "#FFFFFF" : "#686583"}/>
-                                    <path d="M15 7C15 5.34315 13.6569 4 12 4C10.3431 4 9 5.34315 9 7C9 8.65685 10.3431 10 12 10C13.6569 10 15 8.65685 15 7ZM17 7C17 9.76142 14.7614 12 12 12C9.23858 12 7 9.76142 7 7C7 4.23858 9.23858 2 12 2C14.7614 2 17 4.23858 17 7Z" fill={isFemale ? "#FFFFFF" : "#686583"}/>
-                                  </svg>
+                                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <circle cx="12" cy="5" r="2" />
+                                      <path d="M9 9h6" />
+                                      <path d="M7 22V12a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v10" />
+                                      <path d="M10 22v-7M14 22v-7" />
+                                    </svg>
                                   <span className="text-[12px] font-medium">Female</span>
                                 </button>
                               </div>
@@ -3731,19 +3735,19 @@ const Profile = () => {
             {/* Combined Tips & Support Card */}
               {/* Tips for Profile Completion */}
               <div className="  rounded-[10px] F] border border-gray-200 bg-white p-4 shadow-xs">
-                <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-3">Tips for Profile Completion</h3>
+                <h3 className="font-inter text-[14px] leading-[28px] font-semibold text-[#171A1F] mb-3">Tips for Profile Completion</h3>
                 <ul className="text-sm text-gray-600 space-y-2">
                   <li className="flex items-start">
                     <span className="text-gray-600 mr-2">•</span>
-                    <span className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Fill personal Info first, then add region details.</span>
+                    <span className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">Fill personal Info first, then add region details.</span>
                   </li>
                   <li className="flex items-start">
                      <span className="text-gray-600 mr-2">•</span>
-                    <span className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Ensure all mandatory fields are completed for verification.</span>
+                    <span className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">Ensure all mandatory fields are completed for verification.</span>
                   </li>
                   <li className="flex items-start">
                     <span className="text-gray-600 mr-2">•</span>
-                    <span className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Keep KYC documents under 10MB per file for quick upload.</span>
+                    <span className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">Keep KYC documents under 10MB per file for quick upload.</span>
                   </li>
                   <li className="flex items-start">
                     <span className="text-gray-600 mr-2">•</span>
@@ -3751,15 +3755,15 @@ const Profile = () => {
                   </li>
                   <li className="flex items-start">
                      <span className="text-gray-600 mr-2">•</span>
-                    <span className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D]">Regularly update your profile to stay current with features.</span>
+                    <span className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">Regularly update your profile to stay current with features.</span>
                   </li>
                 </ul>
               </div>
 
               {/* Support & Documentation */}
               <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-              <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-3">Support & Documentation</h3>
-              <p className="font-inter text-[14px] leading-[20px] font-normal text-[#565D6D] mb-4">Need help or looking for more details? Our comprehensive resources and support team are here for you.</p>
+              <h3 className="font-inter text-[14px] leading-[28px] font-semibold text-[#171A1F] mb-3">Support & Documentation</h3>
+              <p className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D] mb-4">Need help or looking for more details? Our comprehensive resources and support team are here for you.</p>
               
               <div className="space-y-3">
                 {/* Visit Support Center */}
