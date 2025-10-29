@@ -26,14 +26,14 @@ const TrackOrder = () => {
       <section className="py-16">
         <div className=" mx-auto">
           {/* Instructional Text */}
-          <p className=" mb-8 text-left font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
+          <p className=" mb-8 text-left font-[Inter] text-[14px] leading-[26px] font-normal text-[#565D6D]">
             To track your order please enter your Order ID in the box below and press the "Track Order" button. This was given to you on your receipt and in the confirmation email you should have received.
           </p>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-gray-900 mb-2 text-left">
+              <label className="block text-gray-900 mb-2 text-left text-[14px] font-medium">
                 Order ID *
               </label>
               <input
@@ -41,12 +41,12 @@ const TrackOrder = () => {
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
                 placeholder="Enter Your Order ID"
-                className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-green-700 bg-white"
+                className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-green-700 bg-white text-[12px]"
               />
             </div>
 
             <div>
-              <label className="block text-gray-900 mb-2 text-left">
+              <label className="block text-gray-900 mb-2 text-left text-[14px] font-medium">
                 Billing Email *
               </label>
               <input
@@ -54,13 +54,13 @@ const TrackOrder = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter Email Address"
-                className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-green-700 bg-white"
+                className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-green-700 bg-white text-[12px]"
               />
             </div>
 
             <button
               type="submit"
-              className="bg-green-800 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-colors duration-200 font-medium"
+              className="bg-green-800 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-colors duration-200 font-medium text-[14px]"
             >
               Track Order
             </button>

@@ -17,17 +17,17 @@ const AboutUs = () => {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto text-center">
           {/* Main Heading */}
-          <p className="text-xl text-gray-900  text-center mb-2">
+          <p className="text-[16px] text-gray-900  text-center mb-2">
             <span className="text-yellow-500">—</span> Our Story
           </p>
-          <h2 className="text-4xl font-medium text-gray-900 mb-6 leading-tight">
+          <h2 className="text-[16px] font-medium text-gray-900 mb-6 leading-tight">
             Your Dream Home Awaits: Premium
             <br />
             <span className="text-green-800">Properties, Trusted Service</span>
           </h2>
 
           {/* Descriptive Paragraph */}
-          <p className="max-w-2xl mx-auto  mb-10 font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
+          <p className="max-w-2xl mx-auto  mb-10 font-[Inter] text-[12px] leading-[26px] font-normal text-[#565D6D]">
             At Broker Adda, we believe finding your perfect home should be effortless and exciting. 
             Since our founding, we've been dedicated to connecting you with the finest properties, 
             from luxury apartments to commercial spaces. Our expert brokers and comprehensive platform 
@@ -48,9 +48,9 @@ const AboutUs = () => {
               Ananya Sharma
             </p>
             <div className="flex items-center justify-center gap-2">
-              <span className="text-sm text-gray-700">Ananya Sharma</span>
+              <span className="text-[12px] text-gray-700">Ananya Sharma</span>
               <span className="w-1 h-1 bg-orange-500 rounded-full"></span>
-              <span className="text-sm text-gray-700">CEO & Founder</span>
+              <span className="text-[12px] text-gray-700">CEO & Founder</span>
             </div>
           </div>
 
@@ -85,23 +85,23 @@ const AboutUs = () => {
             <div className="grid grid-cols-5 gap-2 text-center">
               <div className="text-white">
                 <div className="text-3xl font-bold">10+</div>
-                <div className="text-sm opacity-90">Years</div>
+                <div className="text-[12px] opacity-90">Years</div>
               </div>
               <div className="text-white">
                 <div className="text-3xl font-bold">50+</div>
-                <div className="text-sm opacity-90">Stores</div>
+                <div className="text-[12px] opacity-90">Stores</div>
               </div>
               <div className="text-white">
                 <div className="text-3xl font-bold">20k+</div>
-                <div className="text-sm opacity-90">Customers</div>
+                <div className="text-[12px] opacity-90">Customers</div>
               </div>
               <div className="text-white">
                 <div className="text-3xl font-bold">12</div>
-                <div className="text-sm opacity-90">Awards</div>
+                <div className="text-[12px] opacity-90">Awards</div>
               </div>
               <div className="text-white">
                 <div className="text-3xl font-bold">99%</div>
-                <div className="text-sm opacity-90">Satisfied</div>
+                <div className="text-[12px] opacity-90">Satisfied</div>
               </div>
             </div>
           </div>
@@ -194,16 +194,16 @@ const AboutUs = () => {
                   <circle cx="100" cy="55" r="5" fill="#D1D5DB" />
                 </svg>
               </div>
-              <p className="text-xl text-gray-900 mt-4 text-left px-8">
+              <p className="text-[16px] text-gray-900 mt-4 text-left px-8">
                 <span className="text-yellow-500">—</span> Our Product Quality
               </p>
-              <h3 className="text-3xl font-medium px-8 mt-1 ">
+              <h3 className="text-[16px] font-medium px-8 mt-1 ">
                 Setting the{" "}
                 <span className="text-green-800">
                   Standard for Premium Real Estate
                 </span>
               </h3>
-              <p className="text-gray-600 mb-8 px-8 mt-1 text-sm">
+              <p className="text-gray-600 mb-8 px-8 mt-1 text-[12px]">
                 Every Broker Adda property is carefully selected from prime locations with modern amenities and 
                 superior construction quality. Our expert team conducts thorough due diligence on every property, 
                 from legal verification to quality inspection, so you invest in real estate that's not only 
@@ -219,10 +219,10 @@ const AboutUs = () => {
                     alt="Prime Location Properties"
                     className="w-20 h-20"
                   />
-                  <div className="font-semibold text-gray-900">
+                  <div className="font-semibold text-[16px] text-gray-900">
                     Prime Location Properties
                   </div>
-                  <div className="text-gray-500 text-sm max-w-xs">
+                  <div className="text-gray-500 text-[12px] max-w-xs">
                     We offer only strategically located properties with excellent connectivity, modern infrastructure, and high appreciation potential.
                   </div>
                 </div>
@@ -234,10 +234,10 @@ const AboutUs = () => {
                     alt="Expert Guidance"
                     className="w-20 h-20"
                   />
-                  <div className="font-semibold text-gray-900">
+                  <div className="font-semibold text-[16px] text-gray-900">
                     Expert Guidance
                   </div>
-                  <div className="text-gray-500 text-sm max-w-xs">
+                  <div className="text-gray-500 text-[12px] max-w-xs">
                     Our experienced brokers provide personalized assistance throughout your property journey, ensuring you make informed investment decisions.
                   </div>
                 </div>

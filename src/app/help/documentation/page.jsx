@@ -27,7 +27,7 @@ const DocumentationPage = () => {
     // If content is an array, treat it as a bullet list
     if (Array.isArray(section.content)) {
       return (
-        <ul className="list-disc list-inside  space-y-1 font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
+          <ul className="list-disc list-inside  space-y-1 font-[Inter] text-[12px] leading-[26px] font-normal text-[#565D6D]">
           {section.content.map((item, idx) => (
             <li key={idx}>{item}</li>
           ))}
@@ -39,10 +39,10 @@ const DocumentationPage = () => {
     return (
       <div>
         {section.content && (
-          <p className="font-[Inter] text-[18px] leading-[28px] font-medium text-[#565D6D] mb-2">{section.content}</p>
+          <p className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#565D6D] mb-2">{section.content}</p>
         )}
         {Array.isArray(section.bullets) && section.bullets.length > 0 && (
-          <ul className="list-disc list-inside  space-y-1 font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
+          <ul className="list-disc list-inside  space-y-1 font-[Inter] text-[12px] leading-[26px] font-normal text-[#565D6D]">
             {section.bullets.map((item, idx) => (
               <li key={idx}>{item}</li>
             ))}
@@ -59,10 +59,10 @@ const DocumentationPage = () => {
       <div className="mt-6 space-y-6">
         {subsections.map((subsection, idx) => (
           <div key={idx} className="">
-            <h4 className=" text-[24px] leading-[36px] font-bold text-[#171A1FFF] mb-3">{subsection.title}</h4>
-            <p className=" mb-3 font-[Inter] text-[18px] leading-[28px] font-medium text-[#565D6D]">{subsection.content}</p>
+            <h4 className=" text-[16px] leading-[24px] font-bold text-[#171A1FFF] mb-3">{subsection.title}</h4>
+            <p className=" mb-3 font-[Inter] text-[14px] leading-[24px] font-medium text-[#565D6D]">{subsection.content}</p>
             {Array.isArray(subsection.items) && (
-              <ul className="list-disc list-inside  space-y-1 font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
+              <ul className="list-disc list-inside  space-y-1 font-[Inter] text-[12px] leading-[26px] font-normal text-[#565D6D]">
                 {subsection.items.map((item, itemIdx) => (
                   <li key={itemIdx}>{item}</li>
                 ))}
@@ -82,7 +82,7 @@ const DocumentationPage = () => {
           <div className="space-y-10">
             {sortedSections.map((section, index) => (
               <div key={index} className="">
-                <h2 className="text-2xl font-bold  text-[#171A1FFF] leading-[36px] mb-4">{section.title}</h2>
+                <h2 className="text-[16px] font-bold  text-[#171A1FFF] leading-[24px] mb-4">{section.title}</h2>
                 {renderContent(section)}
                 {renderSubsections(section.subsections)}
               </div>

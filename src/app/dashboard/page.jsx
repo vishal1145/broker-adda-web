@@ -733,7 +733,7 @@ const Dashboard = () => {
           <div className="mt-6 flex flex-wrap justify-center items-center gap-4 text-[14px]">
             <button 
               className="px-5 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors inline-flex items-center justify-center gap-2"
-              onClick={() => setIsEnquiryModalOpen(true)}
+              // onClick={() => setIsEnquiryModalOpen(true)}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

@@ -25,13 +25,13 @@ const GettingStartedPage = () => {
                 <div key={idx}>
                   {/* Text section without card styling */}
                   <div className="p-0">
-                    <h2 className=" text-[24px] leading-[36px] font-bold text-[#171A1FFF] mb-3">{section.title}</h2>
-                    <p className="mb-4 font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">{section.description}</p>
+                    <h2 className=" text-[16px] leading-[24px] font-bold text-[#171A1FFF] mb-3">{section.title}</h2>
+                    <p className="mb-4 font-[Inter] text-[12px] leading-[26px] font-normal text-[#565D6D]">{section.description}</p>
                     {section.highlightsTitle && (
-                      <h3 className="text-gray-900 font-[Inter] text-[18px] leading-[28px] font-medium  mt-2">{section.highlightsTitle}</h3>
+                      <h3 className="text-gray-900 font-[Inter] text-[16px] leading-[24px] font-medium  mt-2">{section.highlightsTitle}</h3>
                     )}
                     {Array.isArray(section.highlights) && section.highlights.length > 0 && (
-                      <ul className="list-disc list-inside  mb-4 space-y-1 font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
+                      <ul className="list-disc list-inside  mb-4 space-y-1 font-[Inter] text-[12px] leading-[26px] font-normal text-[#565D6D]">
                         {section.highlights.map((point, i) => (
                           <li key={i}>{point}</li>
                         ))}
@@ -45,7 +45,7 @@ const GettingStartedPage = () => {
                       </div>
                     )}
                     {section.link && (
-                      <Link href={section.link.href} className="text-green-900 hover:text-green-900 font-medium inline-block">
+                      <Link href={section.link.href} className="text-gray-900 hover:text-gray-900 font-medium inline-block">
                         {section.link.text}
                       </Link>
                     )}
@@ -101,15 +101,15 @@ const GettingStartedPage = () => {
 
           {/* FAQ Section */}
           <div className="mb-8">
-            <h2 className=" text-[24px] leading-[36px] font-bold text-[#171A1FFF] mb-6">{data.faq.title}</h2>
+            <h2 className=" text-[16px] leading-[24px] font-bold text-[#171A1FFF] mb-6">{data.faq.title}</h2>
             
             <div className="space-y-6">
               {data.faq.questions.map((faq, index) => (
                 <div key={index}>
-                  <h3 className="font-[Inter] text-[18px] leading-[28px] font-medium text-gray-900 mb-2">
+                  <h3 className="font-[Inter] text-[14px] leading-[24px] font-medium text-gray-900 mb-2">
                     {faq.question}
                   </h3>
-                  <p className="font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
+                  <p className="font-[Inter] text-[12px] leading-[26px] font-normal text-[#565D6D]">
                     {faq.answer}
                   </p>
                 </div>
@@ -119,8 +119,8 @@ const GettingStartedPage = () => {
 
           {/* Contact Section */}
           <div className="bg-yellow-500 rounded-lg shadow-lg p-8 text-center text-white">
-            <h2 className=" text-[24px] leading-[36px] font-bold  mb-4">{data.contact.title}</h2>
-            <p className="text-white mb-6 max-w-2xl mx-auto font-[Inter] text-[16px] leading-[26px] font-normal ">
+            <h2 className=" text-[16px] leading-[24px] font-bold  mb-4">{data.contact.title}</h2>
+            <p className="text-white mb-6 max-w-2xl mx-auto font-[Inter] text-[12px] leading-[26px] font-normal ">
               {data.contact.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -128,7 +128,7 @@ const GettingStartedPage = () => {
                 <Link 
                   key={index}
                   href={button.href} 
-                  className={`px-6 py-3 rounded-lg font-medium transition-colors shadow-md ${
+                  className={`px-6 py-3 rounded-lg text-[16px] font-medium transition-colors shadow-md ${
                     button.type === 'primary' 
                       ? 'border-2 border-white text-white hover:bg-white hover:text-green-900'
                       : 'border-2 border-white text-white hover:bg-white hover:text-green-900'

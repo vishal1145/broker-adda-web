@@ -50,7 +50,7 @@ const Faq = () => {
                 <button
                   key={index}
                   onClick={() => setActiveCategory(index)}
-                  className={`w-full p-4 rounded-lg text-center font-medium transition-colors duration-200 ${
+                  className={`w-full p-4 rounded-lg text-center text-[14px] font-medium transition-colors duration-200 ${
                     activeCategory === index 
                       ? 'bg-yellow-400 text-black' 
                       : 'bg-gray-50 text-black border border-gray-200 hover:bg-gray-100'
@@ -78,7 +78,7 @@ const Faq = () => {
                     className="flex justify-between items-center cursor-pointer"
                     onClick={() => toggleFaq(index)}
                   >
-                    <div className={`font-medium ${activeIndex === index ? 'text-white' : 'text-black'}`}>
+                    <div className={`font-medium text-[14px] ${activeIndex === index ? 'text-white' : 'text-black'}`}>
                       {item.question}
                     </div>
                     <div className={`text-xl ${activeIndex === index ? 'text-white' : 'text-black'}`}>
@@ -86,7 +86,7 @@ const Faq = () => {
                     </div>
                   </div>
                   {activeIndex === index && (
-                    <div className={`mt-4 text-sm leading-relaxed ${activeIndex === index ? 'text-white' : 'text-gray-600'}`}>
+                    <div className={`mt-4 text-[12px] leading-relaxed ${activeIndex === index ? 'text-white' : 'text-gray-600'}`}>
                       {item.answer}
                     </div>
                   )}
