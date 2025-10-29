@@ -282,15 +282,15 @@ export default function BrokerDetailsPage() {
                 {/* Broker Info */}
                 <div>
                   <div className="flex items-center gap-3 mb-1 flex-wrap ">
-                    <h1 className="text-[48px] leading-[48px] font-extrabold text-[#171A1F] px-4">{displayName}</h1>
-                    <span className="h-[30px] px-6 rounded-full bg-[#FDC700] flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium opacity-100">
+                    <h1 className="text-[20px]  font-extrabold text-[#171A1F] px-4">{displayName}</h1>
+                    <span className=" px-6 rounded-full bg-[#FDC700] flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium opacity-100">
                       Top Rated Broker
                       {/* <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                       </svg> */}
                     </span>
                   </div>
-                  <p className="font-[Inter] text-[18px] leading-[28px] font-normal text-[#565D6D] mb-2 px-6 ">{firmDisplay} - {city}</p>
+                  <p className="font-[Inter] text-[14px]  font-normal text-[#565D6D] mb-2 px-4 ">{firmDisplay} - {city}</p>
                   
               {/* Social Media Icons - Only for platforms in the section */}
               {/* {(() => {
@@ -385,7 +385,7 @@ export default function BrokerDetailsPage() {
                 
 
                  {/* Chips row - spans full width starting from avatar's left edge */}
-                 <div className="col-span-2 mt-3 flex flex-wrap items-center gap-2 text-xs">
+                 <div className="col-span-2  flex flex-wrap items-center gap-2 text-xs">
                     <span className="inline-flex items-center  px-2.5 rounded-full  h-[26px] bg-[#F3F4F6] border border-transparent">
                      <img
   src="/images/lucide-Circle-Outlined (2).svg"
@@ -422,14 +422,14 @@ export default function BrokerDetailsPage() {
                <section className="bg-white">
                  <div className="flex items-center gap-2 mb-6">
                    {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
-                   <h2 className="text-[24px] leading-[36px] font-bold text-[#171A1F]">About {displayName}</h2>
+                   <h2 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">About {displayName}</h2>
                  </div>
                 {nonEmpty(about) ? (
                   <p className="text-gray-700 leading-relaxed">
                     {about}
                   </p>
                 ) : (
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-gray-700 leading-relaxed text-[14px]">
                     Welcome! I'm {displayName} at {firmDisplay}, a dedicated real estate professional specializing in Luxury Homes. With years of experience in the real estate market, I'm committed to helping you find the perfect property or sell your current one. My expertise covers residential and commercial properties, ensuring you get the best deals and guidance throughout your real estate journey. I believe in transparency, integrity, and providing personalized service to meet your unique needs.
                   </p>
                 )}
@@ -439,7 +439,7 @@ export default function BrokerDetailsPage() {
                <section className="">
                  <div className="flex items-center gap-2 mb-6">
                    {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
-                   <h3 className="text-[24px] leading-[36px] font-bold text-[#171A1F]">Professional Details</h3>
+                   <h3 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">Professional Details</h3>
                  </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3 p-4 w-[372px] h-[76px] bg-[#FAFAFB] rounded-[10px]">
@@ -447,8 +447,8 @@ export default function BrokerDetailsPage() {
                       <img src="/images/lucide-Briefcase-Outlined (1).svg" alt="Firm" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
-                      <div className="text-sm text-gray-500">Firm Name</div>
-                      <div className="font-medium text-gray-900">{firmDisplay}</div>
+                      <div className="text-[14px] text-gray-500">Firm Name</div>
+                      <div className="font-medium text-[12px] text-gray-900">{firmDisplay}</div>
                     </div>
                   </div>
                   
@@ -457,11 +457,11 @@ export default function BrokerDetailsPage() {
                       <img src="/images/lucide-Award-Outlined.svg" alt="License" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                      </div>
                     <div>
-                      <div className="text-sm text-gray-500">License Number</div>
+                      <div className="text-[14px] text-gray-500">License Number</div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-900">{licenseDisplay}</span>
+                        <span className="font-medium   text-[12px] text-gray-900">{licenseDisplay}</span>
                         {nonEmpty(licenseNumber) && (
-                          <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 font-medium">
+                          <span className="px-2 py-1 rounded-full  text-[12px] bg-green-100 text-green-800 font-medium">
                             Verified
                           </span>
                         )}
@@ -474,7 +474,7 @@ export default function BrokerDetailsPage() {
               <div className="">
                 <div className="flex items-center gap-2 mb-6">
                   {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
-                  <h3 className="text-[24px] leading-[36px] font-bold text-[#171A1F]">Leads posted by this broker</h3>
+                  <h3 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">Leads posted by this broker</h3>
                 </div>
                 
                 {leadsLoading ? (
@@ -530,7 +530,7 @@ export default function BrokerDetailsPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between mb-2">
-                                <h4 className="text-[20px] leading-[28px] font-semibold text-[#171A1F]">{title}</h4>
+                                <h4 className="text-[14px] leading-[28px] font-semibold text-[#171A1F]">{title}</h4>
                                 <span className={`h-[22px] px-3 py-0 flex items-center justify-center rounded-full text-xs font-[Inter] font-medium ${
                                   status === 'New' ? 'bg-[#0D542B] text-white' :
                                   status === 'Active' ? 'bg-[#0D542B] text-white' :
@@ -617,7 +617,7 @@ export default function BrokerDetailsPage() {
               <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 hidden">
                 <div className="flex items-center gap-2 mb-6">
                   <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
-                  <h3 className="text-lg font-semibold text-gray-900">Similar Brokers</h3>
+                  <h3 className="text-[18px] font-semibold text-gray-900">Similar Brokers</h3>
                 </div>
                 <div className="space-y-4">
                   {similarLoading ? (
@@ -738,33 +738,33 @@ export default function BrokerDetailsPage() {
               {/* Performance Metrics Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[#EDFDF4] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className=" text-[30px] leading-[36px] font-bold text-[#19191F]">{leads}</div>
-                  <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#19191F] mt-1">Properties Sold</div>
+                  <div className=" text-[24px] leading-[36px] font-bold text-[#19191F]">{leads}</div>
+                  <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Properties Sold</div>
                 </div>
                 <div className="bg-[#FFF9E6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className=" text-[30px] leading-[36px] font-bold text-[#19191F]">4.8</div>
-                  <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#19191F] mt-1">Client Rating</div>
+                  <div className=" text-[24px] leading-[36px] font-bold text-[#19191F]">4.8</div>
+                  <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Client Rating</div>
                 </div>
                  <div className="bg-[#FAFAFB] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                   <div className=" text-[30px] leading-[36px] font-bold text-[#19191F]">{years === '' ? '0' : (typeof years === 'number' ? `${years}+` : years)}</div>
-                   <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#19191F] mt-1">Years Experience</div>
+                   <div className=" text-[24px] leading-[36px] font-bold text-[#19191F]">{years === '' ? '0' : (typeof years === 'number' ? `${years}+` : years)}</div>
+                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Years Experience</div>
                  </div>
                 <div className="bg-[#F3F4F6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className=" text-[30px] leading-[36px] font-bold text-[#19191F]">98%</div>
-                  <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#19191F] mt-1">Satisfaction</div>
+                  <div className="text-[24px] leading-[36px] font-bold text-[#19191F]">98%</div>
+                  <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Satisfaction</div>
                 </div>
               </div>
 
               {/* Quick Contact */}
               <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <h3 className=" text-[20px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
+                <h3 className=" text-[18px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
                 <button type="button" onClick={() => {
                   const el = document.getElementById('send-message-prompt');
                   if (el) el.focus();
-                }} className="w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md">
+                }} className="w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md">
                   Send Message
                 </button>
-                <a href="#join-network" className="mt-3 w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium text-[#0D542B] bg-transparent hover:bg-transparent hover:active:bg-transparent disabled:opacity-40 border-none opacity-100 rounded-md">
+                <a href="#join-network" className="mt-3 w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-[#0D542B] bg-transparent hover:bg-transparent hover:active:bg-transparent disabled:opacity-40 border-none opacity-100 rounded-md">
                   Join Our Network
                 </a>
               </div>
@@ -773,8 +773,8 @@ export default function BrokerDetailsPage() {
              
               {/* Lead Generation Support */}
               <div className="bg-[#EDFDF4] rounded-[10px] p-6 shadow-sm" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                <h3 className=" text-[30px] leading-[36px] font-bold text-[#19191F] mb-3">Lead Generation Support</h3>
-                <p className="font-[Inter] text-[16px] leading-[26px] font-normal text-[#19191F] mb-4">
+                <h3 className=" text-[18px] leading-[36px] font-bold text-[#19191F] mb-3">Lead Generation Support</h3>
+                <p className="font-[Inter] text-[14px] leading-[26px] font-normal text-[#19191F] mb-4">
                   Join our exclusive broker network and get access to premium lead generation tools and support.
                 </p>
                 <div className="space-y-4">
@@ -783,8 +783,8 @@ export default function BrokerDetailsPage() {
                       <img src="/images/lucide-CircleCheckBig-Outlined.svg" alt="Verified" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
-                      <div className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#19191F]">Verified Leads</div>
-                      <div className="font-[Inter] text-[14px] leading-[19px] font-normal text-[#19191FCC]">Pre-qualified properties ready to buy</div>
+                      <div className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#19191F]">Verified Leads</div>
+                      <div className="font-[Inter] text-[12px] leading-[19px] font-normal text-[#19191FCC]">Pre-qualified properties ready to buy</div>
                     </div>
                   </div>
                   
@@ -793,8 +793,8 @@ export default function BrokerDetailsPage() {
                       <img src="/images/lucide-GraduationCap-Outlined.svg" alt="Training" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
-                      <div className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#19191F]">Exclusive Training</div>
-                      <div className="font-[Inter] text-[14px] leading-[19px] font-normal text-[#19191FCC]">Advanced sales techniques & higher commissions</div>
+                      <div className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#19191F]">Exclusive Training</div>
+                      <div className="font-[Inter] text-[12px] leading-[19px] font-normal text-[#19191FCC]">Advanced sales techniques & higher commissions</div>
                     </div>
                   </div>
                   
@@ -803,13 +803,13 @@ export default function BrokerDetailsPage() {
                       <img src="/images/lucide-DollarSign-Outlined.svg" alt="Commissions" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
-                      <div className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#19191F]">Higher Commissions</div>
-                      <div className="font-[Inter] text-[14px] leading-[19px] font-normal text-[#19191FCC]">Up to 10% more than standard rates</div>
+                      <div className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#19191F]">Higher Commissions</div>
+                      <div className="font-[Inter] text-[12px] leading-[19px] font-normal text-[#19191FCC]">Up to 10% more than standard rates</div>
                     </div>
                   </div>
                 </div>
                 
-                <button className="w-full h-[40px] px-3 mt-4 flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md" id="join-network">
+                <button className="w-full h-[40px] px-3 mt-4 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md" id="join-network">
                   Join Our Network
                 </button>
               </div>
@@ -821,7 +821,7 @@ export default function BrokerDetailsPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
-                  <h3 className="text-[24px] leading-[36px] font-bold text-[#171A1F]">Similar Brokers</h3>
+                  <h3 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">Similar Brokers</h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <Link href="/search?type=brokers" className="px-4 py-2 text-green-900 rounded-lg text-sm font-medium transition-colors">
@@ -893,8 +893,8 @@ export default function BrokerDetailsPage() {
                           <div className="flex items-start gap-3 mb-4">
                             <img src={img} alt={name} className="w-15 h-15 rounded-full object-cover flex-shrink-0" style={{ width: '60px', height: '60px' }} />
                             <div className="min-w-0 flex-1">
-                              <div className="text-[20px] leading-[28px] font-semibold text-[#171A1F] truncate mb-1">{name}</div>
-                              <div className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#565D6D] truncate">{firm || '-'}</div>
+                              <div className="text-[16px] leading-[28px] font-semibold text-[#171A1F] truncate mb-1">{name}</div>
+                              <div className="font-[Inter] text-[14px] leading-[24px] font-normal text-[#565D6D] truncate">{firm || '-'}</div>
                             </div>
                           </div>
                           
@@ -902,9 +902,9 @@ export default function BrokerDetailsPage() {
                             <svg className="w-5 h-5 stroke-[#FDC700] fill-none" viewBox="0 0 24 24" strokeWidth="1.5">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
                             </svg>
-                            <span className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#171A1F]">{rating.toFixed(1)}</span>
-                            <span className="mx-1 text-[16px] text-[#565D6D]">•</span>
-                            <span className="font-[Inter] text-[16px] leading-[24px] font-normal text-[#565D6D]">{expYears}+ years</span>
+                            <span className="font-[Inter] text-[14px] leading-[24px] font-normal text-[#171A1F]">{rating.toFixed(1)}</span>
+                            <span className="mx-1 text-[14px] text-[#565D6D]">•</span>
+                            <span className="font-[Inter] text-[14px] leading-[24px] font-normal text-[#565D6D]">{expYears}+ years</span>
                           </div>
                           
                           <div className="mb-4 flex-1">
@@ -989,10 +989,10 @@ export default function BrokerDetailsPage() {
               <span className="font-[Inter] text-[12px] leading-[16px] font-medium text-[#19191F]">Trusted Real Estate Expert</span>
             </div>
             
-            <h2 className=" text-[36px] leading-[40px] font-bold text-[#19191F] mb-4">
+            <h2 className=" text-[20px] leading-[40px] font-bold text-[#19191F] mb-4">
               Ready to Find Your Perfect Property?
             </h2>
-            <p className=" text-[20px] leading-[33px] font-normal text-[#19191F] mb-6 max-w-xl mx-auto">
+            <p className=" text-[18px] leading-[33px] font-normal text-[#19191F] mb-6 max-w-xl mx-auto">
               Connect with <span className="font-semibold text-[#19191F]">{displayName}</span> and discover the best real estate opportunities in your area. 
               Get personalized assistance and expert guidance throughout your property journey.
             </p>
@@ -1025,24 +1025,24 @@ export default function BrokerDetailsPage() {
                 <div className="w-8 h-8 rounded-full flex items-center justify-center">
                   <img src="/images/lucide-UserCheck-Outlined.svg" alt="Verified" className="w-6 h-6" style={{ filter: 'brightness(0)' }} />
                 </div>
-                <span className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#171A1F]">Verified Broker</span>
-                <span className="font-[Inter] text-[14px] leading-[20px] font-normal text-[#565D6D]">Licensed & Certified</span>
+                <span className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#171A1F]">Verified Broker</span>
+                <span className="font-[Inter] text-[12px] leading-[20px] font-normal text-[#565D6D]">Licensed & Certified</span>
               </div>
               
               <div className="flex flex-col items-center justify-center gap-2 p-6 h-[172px] bg-white rounded-[10px]" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center">
                   <img src="/images/lucide-MessageCircle-Outlined.svg" alt="Consultation" className="w-6 h-6" style={{ filter: 'brightness(0)' }} />
                 </div>
-                <span className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#171A1F]">Free Consultation</span>
-                <span className="font-[Inter] text-[14px] leading-[20px] font-normal text-[#565D6D]">No Obligation</span>
+                <span className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#171A1F]">Free Consultation</span>
+                <span className="font-[Inter] text-[12px] leading-[20px] font-normal text-[#565D6D]">No Obligation</span>
               </div>
               
               <div className="flex flex-col items-center justify-center gap-2 p-6 h-[172px] bg-white rounded-[10px]" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center">
                   <img src="/images/lucide-MapPin-Outlined.svg" alt="Guidance" className="w-6 h-6" style={{ filter: 'brightness(0)' }} />
                 </div>
-                <span className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#171A1F]">Expert Guidance</span>
-                <span className="font-[Inter] text-[14px] leading-[20px] font-normal text-[#565D6D]">Personalized Service</span>
+                <span className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#171A1F]">Expert Guidance</span>
+                <span className="font-[Inter] text-[12px] leading-[20px] font-normal text-[#565D6D]">Personalized Service</span>
               </div>
             </div>
           </div>
