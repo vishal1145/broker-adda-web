@@ -1846,42 +1846,48 @@ const Profile = () => {
                               }
                             };
                             return (
-                              <div className="flex gap-3 w-full">
+                              <div className="flex gap-6 w-full">
                                 {/* Male */}
-                                <button
-                                  type="button"
-                                  onClick={() => setGender("male")}
-                                  className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
-                                    isMale
-                                      ? "bg-[#0D542B] text-white"
-                                      : "bg-white text-gray-600 border border-gray-300"
-                                  }`}
-                                >
-                                   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <circle cx="12" cy="5" r="2" />
-                                      <path d="M9 9h6" />
-                                      <path d="M9 9l-3 6h12l-3-6z" />
-                                      <path d="M8 22v-6M16 22v-6" />
-                                    </svg>
-                                </button>
+                                <div className="flex flex-col items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => setGender("male")}
+                                    className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                                      isMale
+                                        ? "bg-[#0D542B] text-white"
+                                        : "bg-white text-gray-600 border border-gray-300"
+                                    }`}
+                                  >
+                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="5" r="2" />
+                                        <path d="M9 9h6" />
+                                        <path d="M9 9l-3 6h12l-3-6z" />
+                                        <path d="M8 22v-6M16 22v-6" />
+                                      </svg>
+                                  </button>
+                                  <span className="text-[12px] font-medium text-gray-900">Male</span>
+                                </div>
 
                                 {/* Female */}
-                                <button
-                                  type="button"
-                                  onClick={() => setGender("female")}
-                                  className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
-                                    isFemale
-                                      ? "bg-[#0D542B] text-white"
-                                      : "bg-white text-gray-500 border border-gray-300"
-                                  }`}
-                                >
-                                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <circle cx="12" cy="5" r="2" />
-                                      <path d="M9 9h6" />
-                                      <path d="M7 22V12a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v10" />
-                                      <path d="M10 22v-7M14 22v-7" />
-                                    </svg>
-                                </button>
+                                <div className="flex flex-col items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => setGender("female")}
+                                    className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                                      isFemale
+                                        ? "bg-[#0D542B] text-white"
+                                        : "bg-white text-gray-500 border border-gray-300"
+                                    }`}
+                                  >
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="5" r="2" />
+                                        <path d="M9 9h6" />
+                                        <path d="M7 22V12a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v10" />
+                                        <path d="M10 22v-7M14 22v-7" />
+                                      </svg>
+                                  </button>
+                                  <span className="text-[12px] font-medium text-gray-900">Female</span>
+                                </div>
                               </div>
                             );
                           })()}
