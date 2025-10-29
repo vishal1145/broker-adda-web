@@ -50,19 +50,19 @@ const Blog = () => {
                     alt={blog.title}
                     className="w-98 h-72 object-cover rounded-xl"
                   />
-                  <div className="absolute bottom-0 left-30 bg-yellow-500 text-gray-900 text-sm px-4 py-2 rounded-t-lg rounded-b-none shadow border-t-4 border-l-4 border-r-4 border-white">
+                  <div className="absolute bottom-0 left-30 bg-yellow-500 text-gray-900 text-[12px] px-4 py-2 rounded-t-lg rounded-b-none shadow border-t-4 border-l-4 border-r-4 border-white">
                     {blog.date}
                   </div>
                 </div>
-                <div className="mt-4 mb-4 p-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <div className="mt-4 mb-4 p-4 leading-5">
+                  <h3 className="text-[14px] font-medium text-gray-900 mb-2">
                     {blog.title}
                   </h3>
-                  <p className="text-gray-600 text-sm mb-3">
+                  <p className="text-gray-600 text-[12px] mb-3">
                     {blog.description}
                   </p>
                   <button
-                    className="text-green-700 text-sm font-semibold underline hover:text-green-900 transition"
+                    className="text-green-700 text-[12px] font-semibold underline hover:text-green-900 transition"
                     onClick={() => handleBlogClick(blog.slug)}
                   >
                     Read More

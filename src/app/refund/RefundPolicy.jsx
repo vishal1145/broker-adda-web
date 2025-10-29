@@ -14,9 +14,9 @@ export default function ReturnPolicy() {
           <div className="flex flex-col gap-10">
             {refundData.sections.map((section, index) => (
               <div key={index} className="flex flex-col gap-5">
-                <h2 className=" text-[24px] leading-[36px] font-bold text-green-900">{section.title}</h2>
+                <h2 className=" text-[14px] leading-[32px] font-bold text-gray-900">{section.title}</h2>
                 {section.content.map((paragraph, idx) => (
-                  <p key={idx} className="font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
+                  <p key={idx} className="font-[Inter] text-[12px] leading-[22px] font-normal text-[#565D6D]">
                     {paragraph}
                   </p>
                 ))}

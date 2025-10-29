@@ -98,7 +98,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "C:\\Users\\Varun\\OneDrive\\Desktop\\broker-adda-web",
+    "outputFileTracingRoot": "D:\\broker-adda-web",
     "experimental": {
       "useSkewCookie": false,
       "cacheLife": {
@@ -287,10 +287,10 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
     "turbopack": {
-      "root": "C:\\Users\\Varun\\OneDrive\\Desktop\\broker-adda-web"
+      "root": "D:\\broker-adda-web"
     }
   },
-  "appDir": "C:\\Users\\Varun\\OneDrive\\Desktop\\broker-adda-web",
+  "appDir": "D:\\broker-adda-web",
   "relativeAppDir": "",
   "files": [
     ".next\\routes-manifest.json",

@@ -31,31 +31,31 @@ const ContactUs = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Form */}
           <div>
-            <h2 className="text-[24px] leading-[36px] font-bold text-[#171A1FFF] mb-2">Get in Touch</h2>
-            <p className="font-[Inter] text-[18px] leading-[28px] font-medium text-[#565D6D] mb-8">
+            <h2 className="text-[14px] leading-[32px] font-bold text-[#171A1FFF] mb-2">Get in Touch</h2>
+            <p className="font-[Inter] text-[12px] leading-[20px] font-medium text-[#565D6D] mb-8">
               Your email address will not be published. Required fields are marked*
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Your Name *</label>
+                  <label className="block text-[12px] font-medium mb-1">Your Name *</label>
                   <input
                     type="text"
                     name="name"
                     placeholder="Ex. John Doe"
-                    className="w-full border border-gray-300 rounded-full px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
+                    className="w-full border text-[12px] border-gray-300 rounded-full px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
                     value={form.name}
                     onChange={handleChange}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Email *</label>
+                  <label className="block text-[12px] font-medium mb-1">Email *</label>
                   <input
                     type="email"
                     name="email"
                     placeholder="example@gmail.com"
-                    className="w-full border border-gray-300 rounded-full px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
+                    className="w-full border text-[12px] border-gray-300 rounded-full px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
                     value={form.email}
                     onChange={handleChange}
                   />
@@ -63,24 +63,24 @@ const ContactUs = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Subject *</label>
+                <label className="block text-[12px] font-medium mb-1">Subject *</label>
                 <input
                   type="text"
                   name="subject"
                   placeholder="Enter Subject"
-                  className="w-full border border-gray-300 rounded-full px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
+                  className="w-full border text-[12px] border-gray-300 rounded-full px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
                   value={form.subject}
                   onChange={handleChange}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Your Message *</label>
+                <label className="block text-[12px] font-medium mb-1">Your Message *</label>
                 <textarea
                   name="message"
                   placeholder="Enter here.."
                   rows="5"
-                  className="w-full border border-gray-300 rounded-2xl px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
+                  className="w-full border text-[12px] border-gray-300 rounded-2xl px-4 py-2 hover:border-green-500 focus:border-green-600 focus:outline-none focus:ring-0 transition-colors"
                   value={form.message}
                   onChange={handleChange}
                 />
@@ -88,7 +88,7 @@ const ContactUs = () => {
 
               <button
                 type="submit"
-                className="bg-green-900 text-white px-6 py-2 rounded-full font-medium"
+                className="bg-green-900 text-white px-6 py-2 rounded-full text-[12px] font-medium"
               >
                 Send Message
               </button>
@@ -99,31 +99,31 @@ const ContactUs = () => {
           <div className="bg-green-900 text-white p-8 rounded-[2rem] flex flex-col gap-8 min-h-[420px]">
             {/* Address */}
             <div>
-              <h3 className="text-2xl font-medium mb-2">Address</h3>
-              <p className="text-sm">{contactData.address}</p>
+              <h3 className="text-[14px] font-medium mb-2">Address</h3>
+              <p className="text-[12px">{contactData.address}</p>
             </div>
 
             {/* Contact */}
             <div>
-              <h3 className="text-2xl font-medium mb-2">Contact</h3>
-              <p className="text-sm">Phone : {contactData.contact.phone}</p>
-              <p className="text-sm">Email : {contactData.contact.email}</p>
+              <h3 className="text-[14px] font-medium mb-2">Contact</h3>
+              <p className="text-[12px]">Phone : {contactData.contact.phone}</p>
+              <p className="text-[12px]">Email : {contactData.contact.email}</p>
             </div>
 
             {/* Open Time */}
             <div>
-              <h3 className="text-2xl font-medium mb-2">Open Time</h3>
-              <p className="text-sm">
+              <h3 className="text-[14px] font-medium mb-2">Open Time</h3>
+              <p className="text-[12px]">
                 Monday - Friday &nbsp; : &nbsp; {contactData.opening_hours.weekdays}
               </p>
-              <p className="text-sm">
+              <p className="text-[12px]">
                 Saturday - Sunday : &nbsp; {contactData.opening_hours.weekends}
               </p>
             </div>
 
             {/* Social Icons */}
             <div>
-              <h3 className="text-2xl font-medium mb-4">Stay Connected</h3>
+              <h3 className="text-[14px] font-medium mb-4">Stay Connected</h3>
               <div className="flex gap-6">
                 {contactData.social_icons.map((icon, index) => (
                   <a
@@ -131,9 +131,9 @@ const ContactUs = () => {
                     href={icon.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-yellow-400 rounded-full flex items-center justify-center w-12 h-12"
+                    className="bg-yellow-400 rounded-full flex items-center justify-center w-10 h-10"
                   >
-                    <span className="flex items-center justify-center w-9 h-9 rounded-full text-black text-2xl">
+                    <span className="flex items-center justify-center w-9 h-9 rounded-full text-black text-[14px]">
                       <i className={icon.icon}></i>
                     </span>
                   </a>

@@ -15,7 +15,7 @@ const Privacy = () => {
   const renderContent = (section) => {
 
 
-    return <p className="font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">{section.content}</p>;
+    return <p className="font-[Inter] text-[12px] leading-[22px] font-normal text-[#565D6D]">{section.content}</p>;
   };
 
   return (
@@ -29,11 +29,11 @@ const Privacy = () => {
         <div className="space-y-10">
           {sections.map((section, index) => (
             <div key={index}>
-              <h2 className=" text-2xl leading-9 font-bold text-green-900 mb-2">
+              <h2 className=" text-[14px] leading-8 font-bold text-gray-900 mb-2">
                 {section.title}
               </h2>
               {Array.isArray(section.content) ? (
-                <ul className="font-[Inter] text-[16px] leading-[26px] font-normal text-[#565D6D]">
+                <ul className="font-[Inter] text-[12px] leading-[22px] font-normal text-[#565D6D]">
                   {section.content.map((item, idx) => (
                     <li key={idx}>{item}</li>
                   ))}
