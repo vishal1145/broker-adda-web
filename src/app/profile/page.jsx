@@ -1594,11 +1594,8 @@ const Profile = () => {
               </div>
             ) : (
               <div className="">
-                {/* Step 1: Personal Details */}
-                {currentStep === 1 && (
-                  <div className="w-full mx-auto">
-                    {/* Progress Card - Above Profile Image */}
-                      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm mb-6">
+                {/* Progress Bar - Common for all steps */}
+                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm mb-6">
                         <div className="flex items-start gap-3 mb-4">
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1620,9 +1617,9 @@ const Profile = () => {
                             const isActive = step === currentStep;
                             const isCompleted = step < currentStep;
                             const circleClass = isCompleted
-                              ? "bg-green-700 text-white"
-                              : isActive
                               ? "bg-green-900 text-white"
+                              : isActive
+                              ? "bg-green-700 text-white"
                               : "bg-gray-300 text-gray-500";
                             return (
                               <React.Fragment key={step}>
@@ -1637,7 +1634,7 @@ const Profile = () => {
                                 </button>
                                 {idx < totalSteps - 1 && (
                                   <div className={`flex-1 h-1 mx-1 ${
-                                    step < currentStep ? 'bg-green-700' : 'bg-gray-200'
+                                    step < currentStep ? 'bg-green-900' : 'bg-gray-200'
                                   }`} />
                                 )}
                               </React.Fragment>
@@ -1661,7 +1658,11 @@ const Profile = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                </div>
+
+                {/* Step 1: Personal Details */}
+                {currentStep === 1 && (
+                  <div className="w-full mx-auto">
                     {/* Profile Image Section - Top */}
                     <div className="flex justify-left mb-8">
                       <div className="relative inline-block">
@@ -1943,26 +1944,21 @@ const Profile = () => {
                       <>
                         {/* Professional Information Card */}
                         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                          <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-6 flex items-center">
                             <svg
-                              className="w-5 h-5 text-blue-600 mr-2"
+                              className="w-5 h-5 text-[#171A1F] mr-2"
                               fill="none"
-                              stroke="currentColor"
                               viewBox="0 0 24 24"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"
-                              />
+                              <path d="M18 21V19C18 18.2044 17.6837 17.4415 17.1211 16.8789C16.6289 16.3867 15.9835 16.0829 15.2969 16.0146L15 16H9C8.20435 16 7.44152 16.3163 6.87891 16.8789C6.3163 17.4415 6 18.2044 6 19V21C6 21.5523 5.55228 22 5 22C4.44772 22 4 21.5523 4 21V19C4 17.6739 4.52716 16.4025 5.46484 15.4648C6.40253 14.5272 7.67392 14 9 14H15L15.248 14.0059C16.4838 14.0672 17.6561 14.5858 18.5352 15.4648C19.4728 16.4025 20 17.6739 20 19V21C20 21.5523 19.5523 22 19 22C18.4477 22 18 21.5523 18 21Z" fill="#171A1F"/>
+                              <path d="M15 7C15 5.34315 13.6569 4 12 4C10.3431 4 9 5.34315 9 7C9 8.65685 10.3431 10 12 10C13.6569 10 15 8.65685 15 7ZM17 7C17 9.76142 14.7614 12 12 12C9.23858 12 7 9.76142 7 7C7 4.23858 9.23858 2 12 2C14.7614 2 17 4.23858 17 7Z" fill="#171A1F"/>
                             </svg>
                             Professional Information
                           </h3>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
                                 License Number{" "}
                                 <span className="text-red-500">*</span>
                               </label>
@@ -1971,14 +1967,20 @@ const Profile = () => {
                                   <svg
                                     className="h-5 w-5 text-gray-400"
                                     fill="none"
-                                    stroke="currentColor"
                                     viewBox="0 0 24 24"
+                                    stroke="currentColor"
                                   >
                                     <path
+                                      d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
+                                      strokeWidth="1.5"
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
-                                      strokeWidth="2"
-                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                    />
+                                    <path
+                                      d="M14 2V8H20"
+                                      strokeWidth="1.5"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
                                     />
                                   </svg>
                                 </div>
@@ -1988,13 +1990,15 @@ const Profile = () => {
                                   value={brokerFormData.licenseNumber}
                                   onChange={handleChange}
                                   placeholder="e.g., BRE #01234567"
-                                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
                               </div>
                             </div>
 
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Experience (years)</label>
+                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">Experience (years)
+                                   <span className="text-red-500"> * </span>
+                              </label>
                               <input
                                 type="number"
                                 min={0}
@@ -2006,44 +2010,17 @@ const Profile = () => {
                                   setBrokerFormData((prev) => ({ ...prev, experience: numeric }));
                                 }}
                                 placeholder="e.g., 15"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
                             <div className="md:col-span-2">
-                              <div className="flex items-center justify-between mb-2">
-                                <label className="block text-sm font-medium text-gray-700">
-                                  Address{" "}
-                                  <span className="text-red-500">*</span>
-                                </label>
-                                <button
-                                  type="button"
-                                  onClick={handleUseCurrentLocation}
-                                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200"
-                                >
-                                  <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth="2"
-                                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                    />
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth="2"
-                                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                    />
-                                  </svg>
-                                  Use Current Location
-                                </button>
-                              </div>
-                              <div className="relative">
+                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
+                                Address{" "}
+                                <span className="text-red-500">*</span>
+                              </label>
+                              <div className="flex gap-2">
+                                <div className="relative w-[750px]  px-3  font-[Inter] text-[14px] leading-[22px] font-normal bg-white border border-[#DEE1E6] rounded-md outline-none hover:text-[#171A1F] hover:border-[#DEE1E6] focus:text-[#171A1F] focus:border-[#DEE1E6] disabled:text-[#171A1F] disabled:bg-white disabled:border-[#DEE1E6]">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                                   <svg
                                     className="h-5 w-5 text-gray-400"
@@ -2086,17 +2063,12 @@ const Profile = () => {
                                   styles={{
                                     control: (provided, state) => ({
                                       ...provided,
-                                      minHeight: "48px",
+                                      minHeight: "40px",
+                                      height: "40px",
                                       paddingLeft: "40px",
-                                      border: state.isFocused
-                                        ? "2px solid #3b82f6"
-                                        : "1px solid #d1d5db",
-                                      boxShadow: state.isFocused
-                                        ? "0 0 0 3px rgba(59, 130, 246, 0.1)"
-                                        : "none",
-                                      "&:hover": {
-                                        border: "1px solid #9ca3af",
-                                      },
+                                      border: "0",
+                                      boxShadow: "none",
+                                      backgroundColor: "transparent",
                                     }),
                                     placeholder: (provided) => ({
                                       ...provided,
@@ -2115,9 +2087,7 @@ const Profile = () => {
                                     }),
                                     option: (provided, state) => ({
                                       ...provided,
-                                      backgroundColor: state.isFocused
-                                        ? "#f3f4f6"
-                                        : "white",
+                                      backgroundColor: state.isFocused ? "#f3f4f6" : "white",
                                       color: state.isSelected
                                         ? "white"
                                         : "#374151",
@@ -2139,12 +2109,39 @@ const Profile = () => {
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                                   </div>
                                 )}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={handleUseCurrentLocation}
+                                  className="flex items-center gap-2 px-3 py-3 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 whitespace-nowrap"
+                                >
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                    />
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
+                                  </svg>
+                                  Use Current Location
+                                </button>
                               </div>
                             </div>
 
                             {/* About (hardcoded, read-only) */}
                             <div className="md:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">About</label>
+                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">About  <span className="text-red-500">*</span></label>
                               <textarea
                                 rows={4}
                                 value={brokerFormData.about || ""}
@@ -2158,25 +2155,23 @@ const Profile = () => {
 
                         {/* Specializations Card */}
                         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                          <h3 className="font-[Inter] text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-6 flex items-center">
                             <svg
-                              className="w-5 h-5 text-blue-600 mr-2"
-                              fill="none"
-                              stroke="currentColor"
+                              className="w-5 h-5 mr-2"
+                              width="20"
+                              height="20"
                               viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                              />
+                              <path d="M9 3V5H15V3H9ZM17 5C17 6.10457 16.1046 7 15 7H9C7.89543 7 7 6.10457 7 5V3C7 1.89543 7.89543 1 9 1H15C16.1046 1 17 1.89543 17 3V5Z" fill="#171A1F"/>
+                              <path d="M3 20V6C3 5.20435 3.3163 4.44152 3.87891 3.87891C4.44152 3.3163 5.20435 3 6 3H8C8.55228 3 9 3.44772 9 4C9 4.55228 8.55228 5 8 5H6C5.73478 5 5.48051 5.10543 5.29297 5.29297C5.10543 5.48051 5 5.73478 5 6V20L5.00488 20.0986C5.02757 20.3276 5.12883 20.5429 5.29297 20.707C5.48051 20.8946 5.73478 21 6 21H18C18.2652 21 18.5195 20.8946 18.707 20.707C18.8946 20.5195 19 20.2652 19 20V6C19 5.73478 18.8946 5.48051 18.707 5.29297C18.5429 5.12883 18.3276 5.02757 18.0986 5.00488L18 5H16C15.4477 5 15 4.55228 15 4C15 3.44772 15.4477 3 16 3H18L18.2969 3.01465C18.9835 3.08291 19.6289 3.38671 20.1211 3.87891C20.6837 4.44152 21 5.20435 21 6V20C21 20.7957 20.6837 21.5585 20.1211 22.1211C19.5585 22.6837 18.7957 23 18 23H6C5.20435 23 4.44152 22.6837 3.87891 22.1211C3.38671 21.6289 3.08291 20.9835 3.01465 20.2969L3 20Z" fill="#171A1F"/>
                             </svg>
                             Specializations
                           </h3>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="font-[Inter] text-[14px] leading-[20px] font-medium text-[#171A1F] mb-2 block">
                               Select your specializations
                             </label>
                             <Select
@@ -2203,16 +2198,24 @@ const Profile = () => {
                               styles={{
                                 control: (provided, state) => ({
                                   ...provided,
-                                  minHeight: "48px",
+                                  width: "full",
+                                  height: "full",
+                                 
+                                  backgroundColor: "white",
+                                  borderRadius: "0.375rem",
                                   border: state.isFocused
-                                    ? "2px solid #3b82f6"
-                                    : "1px solid #d1d5db",
+                                    ? "1px solid #3b82f6"
+                                    : "1px solid #DEE1E6",
                                   boxShadow: state.isFocused
                                     ? "0 0 0 3px rgba(59, 130, 246, 0.1)"
                                     : "none",
                                   "&:hover": {
                                     border: "1px solid #3b82f6",
                                   },
+                                }),
+                                valueContainer: (provided) => ({
+                                  ...provided,
+                                  padding: "6px 12px",
                                 }),
                                 multiValue: (provided) => ({
                                   ...provided,
@@ -2238,32 +2241,36 @@ const Profile = () => {
 
                         {/* Social Media Card */}
                         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                          <h3 className="font-[Inter] text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-6 flex items-center">
                             <svg
-                              className="w-5 h-5 text-blue-600 mr-2"
-                              fill="none"
-                              stroke="currentColor"
+                              className="w-5 h-5 mr-2"
+                              width="20"
+                              height="20"
                               viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-9 0a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2M9 4h6"
-                              />
+                              <path d="M21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12ZM23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12Z" fill="#171A1F"/>
+                              <path d="M14.9961 11.6758C14.9245 8.69287 13.8664 5.82525 12 3.51562C10.0661 5.90881 9 8.90114 9 12L9.00391 12.3242C9.07549 15.3069 10.1339 18.1739 12 20.4834C13.9336 18.0903 15 15.0986 15 12L14.9961 11.6758ZM16.9951 12.373C16.9026 16.2184 15.3834 19.8976 12.7246 22.6895C12.5359 22.8876 12.2737 23 12 23C11.7263 23 11.4641 22.8876 11.2754 22.6895C8.61661 19.8976 7.09737 16.2184 7.00488 12.373L7 12C7 8.02012 8.53074 4.1926 11.2754 1.31055L11.3496 1.24023C11.5299 1.08586 11.7604 1 12 1C12.2737 1 12.5359 1.11237 12.7246 1.31055C15.4693 4.1926 17 8.02012 17 12L16.9951 12.373Z" fill="#171A1F"/>
+                              <path d="M22 11C22.5523 11 23 11.4477 23 12C23 12.5523 22.5523 13 22 13H2C1.44772 13 1 12.5523 1 12C1 11.4477 1.44772 11 2 11H22Z" fill="#171A1F"/>
                             </svg>
                             Social Media & Online Presence
                           </h3>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                              <label className="block font-[Inter] text-[14px] leading-[20px] font-medium text-[#171A1F] mb-2 flex items-center">
                                 <svg
-                                  className="w-4 h-4 text-blue-600 mr-2"
-                                  fill="currentColor"
+                                  className="w-4 h-4 mr-2"
+                                  width="16"
+                                  height="16"
                                   viewBox="0 0 24 24"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
                                 >
-                                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                  <path d="M21 14C21 12.6739 20.4728 11.4025 19.5352 10.4648C18.5975 9.52716 17.3261 9 16 9C14.6739 9 13.4025 9.52716 12.4648 10.4648C11.5272 11.4025 11 12.6739 11 14V20H13V14C13 13.2043 13.3163 12.4415 13.8789 11.8789C14.4415 11.3163 15.2043 11 16 11C16.7957 11 17.5585 11.3163 18.1211 11.8789C18.6837 12.4415 19 13.2043 19 14V20H21V14ZM23 21C23 21.5523 22.5523 22 22 22H18C17.4477 22 17 21.5523 17 21V14C17 13.7348 16.8946 13.4805 16.707 13.293C16.5195 13.1054 16.2652 13 16 13C15.7348 13 15.4805 13.1054 15.293 13.293C15.1054 13.4805 15 13.7348 15 14V21C15 21.5523 14.5523 22 14 22H10C9.44772 22 9 21.5523 9 21V14C9 12.1435 9.73705 10.3626 11.0498 9.0498C12.3626 7.73705 14.1435 7 16 7C17.8565 7 19.6374 7.73705 20.9502 9.0498C22.263 10.3626 23 12.1435 23 14V21Z" fill="#171A1F"/>
+                                  <path d="M6 8L6.10254 8.00488C6.60667 8.05621 7 8.48232 7 9V21C7 21.5523 6.55228 22 6 22H2C1.44772 22 1 21.5523 1 21V9L1.00488 8.89746C1.05621 8.39333 1.48232 8 2 8H6ZM3 20H5V10H3V20Z" fill="#171A1F"/>
+                                  <path d="M5 4C5 3.44772 4.55228 3 4 3C3.44772 3 3 3.44772 3 4C3 4.55228 3.44772 5 4 5C4.55228 5 5 4.55228 5 4ZM7 4C7 5.65685 5.65685 7 4 7C2.34315 7 1 5.65685 1 4C1 2.34315 2.34315 1 4 1C5.65685 1 7 2.34315 7 4Z" fill="#171A1F"/>
                                 </svg>
                                 LinkedIn
                               </label>
@@ -2273,18 +2280,21 @@ const Profile = () => {
                                 value={brokerFormData.linkedin}
                                 onChange={handleChange}
                                 placeholder="https://linkedin.com/in/yourprofile"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                              <label className="block font-[Inter] text-[14px] leading-[20px] font-medium text-[#171A1F] mb-2 flex items-center">
                                 <svg
-                                  className="w-4 h-4 text-blue-400 mr-2"
-                                  fill="currentColor"
+                                  className="w-4 h-4 mr-2"
+                                  width="16"
+                                  height="16"
                                   viewBox="0 0 24 24"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
                                 >
-                                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                                  <path d="M13.5752 3.58785C15.2923 2.69324 17.5324 2.74899 19.3115 4.15133C19.3985 4.13033 19.4992 4.10363 19.6123 4.06539C19.8904 3.9714 20.1894 3.84084 20.4727 3.70211C20.7535 3.56459 21.0049 3.42587 21.1865 3.32125C21.2769 3.26919 21.349 3.22562 21.3975 3.19625C21.4217 3.18158 21.4405 3.17025 21.4522 3.16305C21.4577 3.15961 21.4615 3.15671 21.4639 3.15524H21.4658L21.4668 3.15426H21.4658C21.8232 2.92856 22.2845 2.95217 22.6172 3.21285C22.908 3.4409 23.0457 3.8075 22.9863 4.16403L22.9483 4.31637V4.31832L22.9473 4.32028C22.9466 4.32223 22.9454 4.32513 22.9443 4.32809C22.9423 4.33397 22.9399 4.34187 22.9365 4.35153C22.9297 4.37112 22.9205 4.39847 22.9082 4.43258C22.8835 4.50106 22.8468 4.59812 22.7998 4.71676C22.7062 4.95344 22.5673 5.28148 22.3848 5.65328C22.0839 6.26615 21.6401 7.04085 21.0547 7.72555C22.3445 18.1499 11.0183 25.6897 1.88771 20.1132L1.44728 19.8339C1.07254 19.5856 0.910374 19.1168 1.04982 18.6894C1.18937 18.2624 1.59619 17.9808 2.04494 18.0009C3.40575 18.0628 4.75243 17.7802 5.91212 17.2002C1.55099 14.7939 -0.367632 9.10181 2.12111 4.52242L2.18654 4.41793C2.35225 4.18629 2.61124 4.03431 2.89845 4.00485C3.22665 3.97135 3.55058 4.1026 3.76369 4.35446C5.53242 6.44456 8.16475 7.75816 10.8916 7.97262C10.9026 5.97977 12.0241 4.39605 13.5752 3.58785ZM18.3174 5.93063C17.1474 4.83889 15.6363 4.77035 14.5 5.36227C13.3853 5.94302 12.6281 7.15838 12.9776 8.79C13.0397 9.0802 12.9702 9.38361 12.7871 9.61715C12.6039 9.85072 12.326 9.99124 12.0293 9.99996C8.85378 10.0933 5.68513 8.90712 3.334 6.77828C2.17413 10.5587 4.34448 14.859 8.28712 16.042C8.63564 16.1465 8.90039 16.4325 8.97755 16.788C9.04502 17.0992 8.95977 17.4211 8.75392 17.6572L8.65822 17.7529C7.727 18.5676 6.62472 19.1646 5.44435 19.54C12.655 21.7442 20.3027 15.6202 19.0127 7.55758C18.9622 7.24115 19.0665 6.91997 19.293 6.69332C19.4748 6.51154 19.6439 6.30513 19.8027 6.08883C19.5438 6.15261 19.2703 6.20016 19 6.20016C18.7467 6.20016 18.5026 6.10345 18.3174 5.93063Z" fill="#171A1F"/>
                                 </svg>
                                 Twitter
                               </label>
@@ -2294,18 +2304,23 @@ const Profile = () => {
                                 value={brokerFormData.twitter}
                                 onChange={handleChange}
                                 placeholder="https://twitter.com/yourprofile"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                              <label className="block font-[Inter] text-[14px] leading-[20px] font-medium text-[#171A1F] mb-2 flex items-center">
                                 <svg
-                                  className="w-4 h-4 text-pink-500 mr-2"
-                                  fill="currentColor"
+                                  className="w-4 h-4 mr-2"
+                                  width="16"
+                                  height="16"
                                   viewBox="0 0 24 24"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
                                 >
-                                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z" />
+                                  <path d="M21 7C21 4.79086 19.2091 3 17 3H7C4.79086 3 3 4.79086 3 7V17C3 19.2091 4.79086 21 7 21H17C19.2091 21 21 19.2091 21 17V7ZM23 17C23 20.3137 20.3137 23 17 23H7C3.68629 23 1 20.3137 1 17V7C1 3.68629 3.68629 1 7 1H17C20.3137 1 23 3.68629 23 7V17Z" fill="#171A1F"/>
+                                  <path d="M9.74052 7.51826C10.6739 7.03399 11.7365 6.85622 12.7766 7.01045L12.9749 7.04463C13.9599 7.23142 14.8673 7.71051 15.5784 8.42158C16.337 9.18014 16.8322 10.1622 16.9895 11.2233L17.014 11.4187C17.1198 12.3959 16.9357 13.3844 16.4817 14.2595C15.9974 15.1929 15.2306 15.9497 14.2913 16.4226C13.352 16.8953 12.2875 17.0602 11.2493 16.8933C10.211 16.7262 9.25175 16.2355 8.50809 15.4919C7.76444 14.7482 7.27381 13.789 7.10673 12.7507C6.93975 11.7125 7.10467 10.648 7.57743 9.70869C8.05026 8.76939 8.80709 8.0026 9.74052 7.51826ZM12.4837 8.98897C11.8595 8.89641 11.2215 9.00303 10.6614 9.29365C10.1013 9.58428 9.64726 10.0445 9.36356 10.6081C9.07991 11.1717 8.98111 11.8104 9.08134 12.4333C9.18158 13.0563 9.47597 13.6316 9.92216 14.0778C10.3683 14.524 10.9437 14.8184 11.5667 14.9187C12.1896 15.0189 12.8283 14.9201 13.3919 14.6364C13.9555 14.3527 14.4157 13.8987 14.7063 13.3386C14.9606 12.8486 15.0739 12.2993 15.0364 11.7517L15.011 11.5163C14.9166 10.8797 14.6194 10.2907 14.1643 9.83564C13.7662 9.43748 13.2655 9.16018 12.72 9.03389L12.4837 8.98897Z" fill="#171A1F"/>
+                                  <path d="M17.5098 5.5L17.6123 5.50488C18.1165 5.55611 18.5098 5.98224 18.5098 6.5C18.5098 7.01776 18.1165 7.44389 17.6123 7.49512L17.5098 7.5H17.5C16.9477 7.5 16.5 7.05228 16.5 6.5C16.5 5.94772 16.9477 5.5 17.5 5.5H17.5098Z" fill="#171A1F"/>
                                 </svg>
                                 Instagram
                               </label>
@@ -2315,18 +2330,21 @@ const Profile = () => {
                                 value={brokerFormData.instagram}
                                 onChange={handleChange}
                                 placeholder="https://instagram.com/yourprofile"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                              <label className="block tfont-[Inter] text-[14px] leading-[20px] font-medium text-[#171A1F] mb-2 flex items-center">
                                 <svg
-                                  className="w-4 h-4 text-blue-600 mr-2"
-                                  fill="currentColor"
+                                  className="w-4 h-4 mr-2"
+                                  width="16"
+                                  height="16"
                                   viewBox="0 0 24 24"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
                                 >
-                                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                  <path d="M13 7C13 6.46957 13.2109 5.96101 13.5859 5.58594C13.961 5.21087 14.4696 5 15 5H17V3H15C13.9391 3 12.922 3.42173 12.1719 4.17188C11.4217 4.92202 11 5.93913 11 7V10C11 10.5523 10.5523 11 10 11H8V13H10C10.5523 13 11 13.4477 11 14V21H13V14C13 13.4477 13.4477 13 14 13H16.2197L16.7197 11H14C13.4477 11 13 10.5523 13 10V7ZM15 9H18C18.3079 9 18.5986 9.14205 18.7881 9.38477C18.9775 9.62741 19.0443 9.94354 18.9697 10.2422L17.9697 14.2422C17.8584 14.6874 17.4589 15 17 15H15V22C15 22.5523 14.5523 23 14 23H10C9.44772 23 9 22.5523 9 22V15H7C6.44772 15 6 14.5523 6 14V10L6.00488 9.89746C6.05621 9.39333 6.48232 9 7 9H9V7C9 5.4087 9.63259 3.88303 10.7578 2.75781C11.883 1.63259 13.4087 1 15 1H18L18.1025 1.00488C18.6067 1.05621 19 1.48232 19 2V6C19 6.55228 18.5523 7 18 7H15V9Z" fill="#171A1F"/>
                                 </svg>
                                 Facebook
                               </label>
@@ -2336,24 +2354,23 @@ const Profile = () => {
                                 value={brokerFormData.facebook}
                                 onChange={handleChange}
                                 placeholder="https://facebook.com/yourprofile"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                              <label className="block font-[Inter] text-[14px] leading-[20px] font-medium text-[#171A1F] mb-2 flex items-center">
                                 <svg
-                                  className="w-4 h-4 text-blue-600 mr-2"
-                                  fill="none"
-                                  stroke="currentColor"
+                                  className="w-4 h-4 mr-2"
+                                  width="16"
+                                  height="16"
                                   viewBox="0 0 24 24"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"
-                                  />
+                                  <path d="M21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12ZM23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12Z" fill="#171A1F"/>
+                                  <path d="M14.9961 11.6758C14.9245 8.69287 13.8664 5.82525 12 3.51562C10.0661 5.90881 9 8.90114 9 12L9.00391 12.3242C9.07549 15.3069 10.1339 18.1739 12 20.4834C13.9336 18.0903 15 15.0986 15 12L14.9961 11.6758ZM16.9951 12.373C16.9026 16.2184 15.3834 19.8976 12.7246 22.6895C12.5359 22.8876 12.2737 23 12 23C11.7263 23 11.4641 22.8876 11.2754 22.6895C8.61661 19.8976 7.09737 16.2184 7.00488 12.373L7 12C7 8.02012 8.53074 4.1926 11.2754 1.31055L11.3496 1.24023C11.5299 1.08586 11.7604 1 12 1C12.2737 1 12.5359 1.11237 12.7246 1.31055C15.4693 4.1926 17 8.02012 17 12L16.9951 12.373Z" fill="#171A1F"/>
+                                  <path d="M22 11C22.5523 11 23 11.4477 23 12C23 12.5523 22.5523 13 22 13H2C1.44772 13 1 12.5523 1 12C1 11.4477 1.44772 11 2 11H22Z" fill="#171A1F"/>
                                 </svg>
                                 Website
                               </label>
@@ -2363,7 +2380,7 @@ const Profile = () => {
                                 value={brokerFormData.website}
                                 onChange={handleChange}
                                 placeholder="https://yourwebsite.com"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
                           </div>
@@ -2525,39 +2542,37 @@ const Profile = () => {
                 {/* Step 3: Regions (Only for Brokers) */}
                 {currentStep === 3 && userRole === "broker" && (
                   <div className="space-y-8">
-                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                       <div className="mb-6 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                        <h3 className="text-[20px] leading-[28px] font-semibold text-[#171A1F] flex items-center">
                           <svg
-                            className="w-5 h-5 text-blue-600 mr-2"
-                            fill="none"
-                            stroke="currentColor"
+                            className="w-5 h-5 mr-2"
+                            width="20"
+                            height="20"
                             viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
+                            <path d="M18.9912 9.65332C18.9055 7.92303 18.181 6.28061 16.9502 5.0498C15.7194 3.819 14.077 3.09452 12.3467 3.00879L12 3C10.1435 3 8.36256 3.73705 7.0498 5.0498C5.73705 6.36256 5 8.14348 5 10C5 12.1593 6.21679 14.4871 7.79785 16.5645C9.32566 18.5717 11.0795 20.1963 12 20.9951C12.9205 20.1963 14.6743 18.5717 16.2021 16.5645C17.7832 14.4871 19 12.1593 19 10L18.9912 9.65332ZM21 10C21 12.8337 19.4474 15.603 17.7939 17.7754C16.327 19.7028 14.6832 21.2859 13.6553 22.2041L13.2549 22.5557C13.2379 22.5704 13.2201 22.5851 13.2021 22.5986C12.899 22.8266 12.538 22.9626 12.1621 22.9932L12 23C11.6207 23 11.2504 22.8919 10.9316 22.6904L10.7979 22.5986L10.7451 22.5557C9.78983 21.7308 7.88248 19.978 6.20605 17.7754C4.55262 15.603 3 12.8337 3 10C3 7.61305 3.94791 5.32357 5.63574 3.63574C7.32357 1.94791 9.61305 1 12 1C14.3869 1 16.6764 1.94791 18.3643 3.63574C20.0521 5.32357 21 7.61305 21 10Z" fill="#171A1F"/>
+                            <path d="M14 10C14 8.89543 13.1046 8 12 8C10.8954 8 10 8.89543 10 10C10 11.1046 10.8954 12 12 12C13.1046 12 14 11.1046 14 10ZM16 10C16 12.2091 14.2091 14 12 14C9.79086 14 8 12.2091 8 10C8 7.79086 9.79086 6 12 6C14.2091 6 16 7.79086 16 10Z" fill="#171A1F"/>
                           </svg>
                           Preferred Regions{" "}
-                          <span className="text-red-500">*</span>
+                           <span className= "text-red-500"> * </span>
                         </h3>
                         <button
                           type="button"
                           onClick={() => setNearestMode((v) => !v)}
-                          className="inline-flex items-center px-3 py-1.5 text-xs rounded border border-gray-200 bg-white hover:bg-gray-50"
+                          className="w-[149.48px] h-[40px] px-3 
+         flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium
+         text-[#0D542B] bg-white border border-[#DEE1E6] rounded-md opacity-100
+         hover:text-[#0D542B] hover:bg-white
+         active:text-[#0D542B] active:bg-white
+         disabled:opacity-40"
                         >
                           {nearestMode ? "Choose manually" : "Use nearest"}
                         </button>
                       </div>
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                    
 
                       {!nearestMode && (
                         <div className="mb-6">
@@ -2574,7 +2589,7 @@ const Profile = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                           {/* State Selection */}
                           <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
                               State <span className="text-red-500">*</span>
                             </label>
                             <Select
@@ -2590,7 +2605,7 @@ const Profile = () => {
                                   ...provided,
                                   border: "1px solid #d1d5db",
                                   borderRadius: "0.5rem",
-                                  minHeight: "48px",
+                                  // minHeight: "48px",
                                   fontSize: "14px",
                                 }),
                               }}
@@ -2599,7 +2614,7 @@ const Profile = () => {
 
                           {/* City Selection */}
                           <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
                               City <span className="text-red-500">*</span>
                             </label>
                             <Select
@@ -2615,7 +2630,7 @@ const Profile = () => {
                                   ...provided,
                                   border: "1px solid #d1d5db",
                                   borderRadius: "0.5rem",
-                                  minHeight: "48px",
+                                  // minHeight: "48px",
                                   fontSize: "14px",
                                 }),
                               }}
@@ -2629,7 +2644,7 @@ const Profile = () => {
                       {/* Region Selection - Below */}
                       <div className="mb-4">
                         {!nearestMode && (
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
                             Regions <span className="text-red-500">*</span>
                           </label>
                         )}
@@ -2648,7 +2663,7 @@ const Profile = () => {
                           </div>
                         ) : nearestMode ? (
                           <div>
-                            <div className="mb-2 text-[13px] text-slate-600 flex items-center gap-2">
+                            <div className="mb-2 text-[14px] text-[#565D6D] flex items-center gap-2  font-normal    ">
                               Showing nearest regions based on your location.
                               Choose one.
                             </div>
@@ -2733,34 +2748,37 @@ const Profile = () => {
                                         }));
                                         setCanUploadDocs(!isSelected);
                                       }}
-                                      className={`relative text-left p-4 rounded-xl border transition-all ${
+                                      className={`relative text-left p-5 rounded-[10px] border transition-all ${
                                         isSelected
-                                          ? "border-sky-500 ring-2 ring-sky-100 shadow"
-                                          : "border-gray-200 hover:border-sky-400 hover:shadow-sm"
-                                      } bg-white`}
+                                          ? "border-[#9AEFBD] bg-[#E8F8F0]"
+                                          : "border-[#DEE1E6] bg-white hover:border-[#9AEFBD]"
+                                      }`}
                                     >
                                       <div className="flex items-start justify-between">
-                                        <div>
-                                          <div className="text-[14px] font-semibold text-slate-900">
+                                        <div className="flex-1">
+                                          <div className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#171A1F] mb-2">
                                             {label}
                                           </div>
-                                          {place ? (
-                                            <div className="text-[12px] text-slate-500">
-                                              {place}
-                                            </div>
-                                          ) : null}
+                                          <div className="mb-3 min-h-[40px]">
+                                            {place ? (
+                                              <div className="font-[Inter] text-[14px] leading-[20px] font-normal text-[#565D6D]">
+                                                {place}
+                                              </div>
+                                            ) : null}
+                                          </div>
                                           {(distanceText || brokersText) && (
-                                            <div className="text-[12px] text-slate-600 mt-1">
+                                            <div className="font-[Inter] text-[12px] leading-[16px] font-normal text-[#565D6D]">
                                               {[distanceText, brokersText]
                                                 .filter(Boolean)
                                                 .join(" / ")}
                                             </div>
                                           )}
-                                          {/* nearest badge removed per request */}
                                         </div>
                                         {isSelected && (
-                                          <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-sky-600 text-white flex items-center justify-center">
-                                            ✓
+                                          <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[#0D542B] text-white flex items-center justify-center flex-shrink-0">
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                            </svg>
                                           </div>
                                         )}
                                       </div>
