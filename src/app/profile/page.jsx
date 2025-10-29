@@ -2904,7 +2904,7 @@ const Profile = () => {
                   <div className="space-y-6">
                     <div className="flex items-center mb-6">
                       <svg
-                        className="w-6 h-6 text-gray-600 mr-3"
+                        className="w-6 h-6 text-gray-900 mr-3"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -2916,9 +2916,9 @@ const Profile = () => {
                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                         />
                       </svg>
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-[16px] font-semibold text-gray-900">
                         Documents{" "}
-                        <span className="text-sm font-normal text-gray-500">
+                        <span className="text-[12px] font-normal text-gray-500">
                           (Optional)
                         </span>
                       </h3>
@@ -2930,7 +2930,7 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                           Aadhar Card
                         </label>
-                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-blue-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
+                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
                             name="aadharFile"
@@ -2952,7 +2952,7 @@ const Profile = () => {
                                     href={getImageSrc(brokerFormData.aadharFile)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors shadow-lg"
+                                    className="absolute top-2 right-2 px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     View
@@ -3005,7 +3005,7 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                           PAN Card
                         </label>
-                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-blue-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
+                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
                             name="panFile"
@@ -3027,7 +3027,7 @@ const Profile = () => {
                                     href={getImageSrc(brokerFormData.panFile)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors shadow-lg"
+                                    className="absolute top-2 right-2 px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     View
@@ -3080,7 +3080,7 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                           GST Certificate
                         </label>
-                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-blue-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
+                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
                             name="gstFile"
@@ -3102,7 +3102,7 @@ const Profile = () => {
                                     href={getImageSrc(brokerFormData.gstFile)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors shadow-lg"
+                                    className="absolute top-2 right-2 px-2 py-1 bg-green-900 text-white text-xs rounded hover:green-900 transition-colors shadow-lg"
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     View
@@ -3155,7 +3155,7 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                           Broker License
                         </label>
-                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-blue-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
+                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
                             name="brokerLicenseFile"
@@ -3177,7 +3177,7 @@ const Profile = () => {
                                     href={getImageSrc(brokerFormData.brokerLicenseFile)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors shadow-lg"
+                                    className="absolute top-2 right-2 px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     View
@@ -3230,7 +3230,7 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                           Company Identification Details
                         </label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors flex-1 flex flex-col justify-center">
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
                           <input
                             type="file"
                             name="companyIdFile"
@@ -3773,7 +3773,7 @@ const Profile = () => {
                 {/* Visit Support Center */}
                 <div className="flex items-start gap-3 group cursor-pointer">
                   <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path d="M21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12ZM23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12Z" fill="#0D542B"/>
                       <path d="M9.89371 6.54728C10.708 6.0688 11.665 5.89357 12.5959 6.05314C13.5268 6.21282 14.3713 6.69686 14.9797 7.41936C15.5878 8.14175 15.9212 9.05616 15.9201 10.0004L15.9074 10.2807C15.7799 11.6553 14.7346 12.5759 13.9748 13.0824C13.5393 13.3727 13.1107 13.5857 12.7951 13.726C12.6358 13.7968 12.5011 13.8503 12.4045 13.8871C12.3562 13.9055 12.3168 13.92 12.2882 13.9301C12.2741 13.9351 12.2628 13.9398 12.2541 13.9428C12.2498 13.9443 12.2462 13.9457 12.2433 13.9467C12.242 13.9471 12.2404 13.9473 12.2394 13.9477L12.2375 13.9487H12.2365L12.1379 13.976C11.6432 14.087 11.1346 13.8071 10.9709 13.3158C10.7968 12.7926 11.0791 12.2265 11.6017 12.0512V12.0522L11.6037 12.0512C11.6063 12.0503 11.6113 12.0488 11.6183 12.0463C11.6336 12.0409 11.6591 12.0317 11.6925 12.019C11.76 11.9933 11.8606 11.953 11.9826 11.8988C12.2294 11.7892 12.5511 11.6279 12.8654 11.4184C13.5548 10.9588 13.9199 10.4694 13.9201 10.0004V9.99846L13.9123 9.82268C13.8768 9.41368 13.7165 9.0237 13.4504 8.70744C13.1462 8.34611 12.7235 8.1037 12.258 8.02385C11.7925 7.94406 11.3135 8.03164 10.9064 8.27092C10.4993 8.51017 10.1901 8.88607 10.0334 9.33146L9.9943 9.42619C9.77873 9.88503 9.24648 10.1156 8.75797 9.94377C8.23707 9.76051 7.96352 9.1893 8.14664 8.66838L8.20914 8.50236C8.53842 7.68397 9.13033 6.99593 9.89371 6.54728Z" fill="#0D542B"/>
                       <path d="M12.0098 16L12.1123 16.0049C12.6165 16.0561 13.0098 16.4822 13.0098 17C13.0098 17.5178 12.6165 17.9439 12.1123 17.9951L12.0098 18H12C11.4477 18 11 17.5523 11 17C11 16.4477 11.4477 16 12 16H12.0098Z" fill="#0D542B"/>
@@ -3788,7 +3788,7 @@ const Profile = () => {
                 {/* Read Documentation */}
                 <div className="flex items-start gap-3 group cursor-pointer">
                   <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path d="M11 21V7C11 6.44772 11.4477 6 12 6C12.5523 6 13 6.44772 13 7V21C13 21.5523 12.5523 22 12 22C11.4477 22 11 21.5523 11 21Z" fill="#0D542B"/>
                       <path d="M16 4C15.2044 4 14.4415 4.3163 13.8789 4.87891C13.3163 5.44152 13 6.20435 13 7L12.9951 7.10254C12.9438 7.60667 12.5177 8 12 8C11.4477 8 11 7.55228 11 7C11 6.20435 10.6837 5.44152 10.1211 4.87891C9.55848 4.3163 8.79565 4 8 4H3V17H9L9.19824 17.0049C10.1869 17.0539 11.1248 17.4686 11.8281 18.1719C11.8876 18.2314 11.9447 18.2927 12 18.3555C12.0553 18.2927 12.1124 18.2314 12.1719 18.1719C12.922 17.4217 13.9391 17 15 17H21V4H16ZM23 17C23 17.5304 22.7891 18.039 22.4141 18.4141C22.039 18.7891 21.5304 19 21 19H15C14.4696 19 13.961 19.2109 13.5859 19.5859C13.2109 19.961 13 20.4696 13 21C13 21.5523 12.5523 22 12 22C11.4477 22 11 21.5523 11 21C11 20.4696 10.7891 19.961 10.4141 19.5859C10.0858 19.2577 9.65526 19.0551 9.19727 19.0098L9 19H3C2.46957 19 1.96101 18.7891 1.58594 18.4141C1.25765 18.0858 1.05515 17.6553 1.00977 17.1973L1 17V4C1 3.46957 1.21086 2.96101 1.58594 2.58594C1.96101 2.21086 2.46957 2 3 2H8C9.32608 2 10.5975 2.52716 11.5352 3.46484C11.7036 3.63332 11.8587 3.81256 12 4.00098C12.1413 3.81256 12.2964 3.63332 12.4648 3.46484C13.4025 2.52716 14.6739 2 16 2H21C21.5304 2 22.039 2.21086 22.4141 2.58594C22.7891 2.96101 23 3.46957 23 4V17Z" fill="#0D542B"/>
                     </svg>
@@ -3802,7 +3802,7 @@ const Profile = () => {
                 {/* Email Support */}
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path d="M21.4629 6.15624C21.9287 5.85973 22.5471 5.99715 22.8437 6.46288C23.1402 6.92867 23.0028 7.54708 22.5371 7.84374L13.5459 13.5703C13.5345 13.5775 13.5233 13.585 13.5117 13.5918C13.1112 13.8244 12.6626 13.9608 12.2021 13.9912L12.0049 13.9971C11.4757 13.9971 10.9556 13.8575 10.498 13.5918C10.4864 13.585 10.4743 13.5776 10.4629 13.5703L1.46288 7.84374L1.37987 7.78417C0.981919 7.47025 0.878267 6.89971 1.15624 6.46288C1.43428 6.0261 1.99533 5.87783 2.44823 6.10546L2.5371 6.15624L11.5078 11.8652C11.659 11.9518 11.8306 11.9971 12.0049 11.9971L12.1357 11.9892C12.2637 11.9723 12.3872 11.9296 12.5 11.8652L21.4629 6.15624Z" fill="#0D542B"/>
                       <path d="M21 6C21 5.44772 20.5523 5 20 5H4C3.44772 5 3 5.44772 3 6V18C3 18.5523 3.44772 19 4 19H20C20.5523 19 21 18.5523 21 18V6ZM23 18C23 19.6569 21.6569 21 20 21H4C2.34315 21 1 19.6569 1 18V6C1 4.34315 2.34315 3 4 3H20C21.6569 3 23 4.34315 23 6V18Z" fill="#0D542B"/>
                     </svg>
@@ -3816,7 +3816,7 @@ const Profile = () => {
                 {/* Phone Support */}
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path d="M7.10991 0.999897C7.83437 0.995123 8.53603 1.25298 9.0855 1.72548C9.56837 2.14075 9.90549 2.69697 10.0503 3.3124L10.1001 3.57998L10.1011 3.58876L10.15 3.9208C10.2738 4.69087 10.4729 5.4473 10.7457 6.17861L10.814 6.38173C10.9559 6.86068 10.9763 7.36852 10.8716 7.85927C10.752 8.42016 10.4741 8.93486 10.0708 9.34267L10.0669 9.34755L9.35112 10.0624C10.527 11.9073 12.0923 13.4714 13.9371 14.6474L14.6568 13.9286L14.815 13.7841C15.1944 13.4591 15.6494 13.2325 16.1402 13.1278C16.7001 13.0084 17.2828 13.052 17.8189 13.2528C18.5509 13.526 19.3087 13.7266 20.0796 13.8505L20.4107 13.8983L20.4195 13.8993C21.148 14.0021 21.8139 14.3692 22.2896 14.9306C22.7599 15.4856 23.0106 16.1929 22.9986 16.9198L22.9996 19.9159L22.9966 20.0722C22.9791 20.4364 22.895 20.7948 22.7486 21.1298C22.5812 21.5125 22.3357 21.8562 22.0279 22.1386C21.7201 22.4209 21.3571 22.6366 20.9615 22.7704C20.6153 22.8875 20.2506 22.9395 19.8863 22.9257L19.73 22.9159C19.724 22.9154 19.7175 22.9146 19.7115 22.914C16.4791 22.5627 13.3741 21.4584 10.646 19.6894C8.10955 18.0759 5.9586 15.9239 4.34624 13.3866C2.57382 10.648 1.47009 7.53002 1.12554 4.28603L1.12358 4.27041C1.08611 3.85571 1.13623 3.43748 1.26909 3.04287C1.40202 2.6482 1.61529 2.28502 1.89604 1.97744C2.17684 1.66983 2.51897 1.42404 2.89995 1.25576C3.28084 1.08755 3.69255 1.0003 4.10894 0.999897H7.10991ZM4.00737 3.00576C3.9042 3.0166 3.80285 3.04277 3.70757 3.08486C3.5806 3.14095 3.46717 3.22355 3.37358 3.32607C3.28007 3.42851 3.20892 3.54913 3.1646 3.68056C3.12198 3.8071 3.1049 3.94107 3.11479 4.07412L3.1812 4.62294C3.52874 7.17771 4.39833 9.63358 5.73589 11.8378L6.02886 12.3065L6.03374 12.3134L6.31304 12.7392C7.64032 14.7062 9.33326 16.4001 11.3003 17.7274L11.7261 18.0058L11.7339 18.0106L12.2007 18.3036C14.547 19.7293 17.1792 20.6244 19.9126 20.9237C20.0505 20.9358 20.1898 20.9202 20.3208 20.8759C20.4526 20.8313 20.5738 20.759 20.6763 20.6649C20.7788 20.5709 20.8608 20.4565 20.9166 20.329C20.9723 20.2014 21.0001 20.063 20.9996 19.9237V16.9198L21.0005 16.8954C21.0066 16.6502 20.9218 16.4107 20.7632 16.2235C20.6066 16.0388 20.3883 15.9166 20.149 15.8808C19.1143 15.7443 18.0985 15.4917 17.1207 15.1269L17.1177 15.1259C16.939 15.0588 16.7448 15.0442 16.5582 15.0839C16.3712 15.1238 16.199 15.217 16.063 15.3515L14.7974 16.6171C14.4791 16.9354 13.9866 17.0017 13.5953 16.7792C10.9354 15.2667 8.73272 13.0641 7.22026 10.4042C6.99792 10.0129 7.0651 9.52127 7.38335 9.20302L8.648 7.93642C8.78242 7.80049 8.87569 7.62924 8.91558 7.44228C8.95545 7.2553 8.94085 7.0607 8.87358 6.88173L8.87261 6.87978C8.5088 5.90483 8.25646 4.89181 8.11968 3.86025L8.10308 3.77041C8.05477 3.5655 7.94253 3.38041 7.78179 3.24208C7.62082 3.10365 7.42057 3.01985 7.2105 3.00283L7.11968 2.9999H4.11089L4.00737 3.00576Z" fill="#0D542B"/>
                     </svg>
                   </div>
