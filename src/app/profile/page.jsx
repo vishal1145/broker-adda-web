@@ -1743,7 +1743,7 @@ const Profile = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-xs font-label text-gray-700 mb-2">
+                          <label className="block text-[14px] font-label text-gray-900 mb-2">
                             Full Name <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -1757,14 +1757,14 @@ const Profile = () => {
                             onChange={handleChange}
                             placeholder="Enter your full name"
                             disabled={isViewMode}
-                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-body ${
+                            className={`w-full px-3 py-2 border rounded-lg  text-[12px] focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-body ${
                               isViewMode ? 'bg-gray-100 border-gray-200 text-gray-600 cursor-not-allowed' : 'bg-gray-50 border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                             }`}
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-label text-gray-700 mb-2">
+                          <label className="block text-[14px] font-label text-gray-900 mb-2">
                             Email Address{" "}
                             <span className="text-red-500">*</span>
                           </label>
@@ -1779,7 +1779,7 @@ const Profile = () => {
                             onChange={handleChange}
                             placeholder="Enter your email address"
                             disabled={isViewMode}
-                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-body ${
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-[12px] font-body ${
                               isViewMode
                                 ? 'bg-gray-100 border-gray-200 text-gray-600 cursor-not-allowed'
                                 : emailError
@@ -1806,7 +1806,7 @@ const Profile = () => {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-label text-gray-700 mb-2">
+                          <label className="block text-[14px] font-label text-gray-900 mb-2">
                             Phone Number <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -1820,14 +1820,14 @@ const Profile = () => {
                             onChange={handleChange}
                             placeholder="Enter your phone number"
                             disabled
-                            className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-500 cursor-not-allowed text-sm font-body"
+                            className="w-full px-3 py-2 bg-gray-100 border text-[12px] border-gray-200 rounded-lg text-gray-500 cursor-not-allowed text-sm font-body"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-xs font-label text-gray-700 mb-2">
+                          <label className="block text-[14px] font-label text-gray-900 mb-2">
                             Gender <span className="text-red-500">*</span>
                           </label>
                           {/* Icon buttons for gender selection */}
@@ -1861,7 +1861,7 @@ const Profile = () => {
                                     <path d="M18 21V19C18 18.2044 17.6837 17.4415 17.1211 16.8789C16.6289 16.3867 15.9835 16.0829 15.2969 16.0146L15 16H9C8.20435 16 7.44152 16.3163 6.87891 16.8789C6.3163 17.4415 6 18.2044 6 19V21C6 21.5523 5.55228 22 5 22C4.44772 22 4 21.5523 4 21V19C4 17.6739 4.52716 16.4025 5.46484 15.4648C6.40253 14.5272 7.67392 14 9 14H15L15.248 14.0059C16.4838 14.0672 17.6561 14.5858 18.5352 15.4648C19.4728 16.4025 20 17.6739 20 19V21C20 21.5523 19.5523 22 19 22C18.4477 22 18 21.5523 18 21Z" fill={isMale ? "#FFFFFF" : "#686583"}/>
                                     <path d="M15 7C15 5.34315 13.6569 4 12 4C10.3431 4 9 5.34315 9 7C9 8.65685 10.3431 10 12 10C13.6569 10 15 8.65685 15 7ZM17 7C17 9.76142 14.7614 12 12 12C9.23858 12 7 9.76142 7 7C7 4.23858 9.23858 2 12 2C14.7614 2 17 4.23858 17 7Z" fill={isMale ? "#FFFFFF" : "#686583"}/>
                                   </svg>
-                                  <span className="text-sm font-medium">Male</span>
+                                  <span className="text-[12px] font-medium">Male</span>
                                 </button>
 
                                 {/* Female */}
@@ -1871,14 +1871,14 @@ const Profile = () => {
                                   className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all w-full ${
                                     isFemale
                                       ? "bg-[#0D542B] text-white"
-                                      : "bg-white text-gray-600 border border-gray-300"
+                                      : "bg-white text-gray-500 border border-gray-300"
                                   }`}
                                 >
                                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                                     <path d="M18 21V19C18 18.2044 17.6837 17.4415 17.1211 16.8789C16.6289 16.3867 15.9835 16.0829 15.2969 16.0146L15 16H9C8.20435 16 7.44152 16.3163 6.87891 16.8789C6.3163 17.4415 6 18.2044 6 19V21C6 21.5523 5.55228 22 5 22C4.44772 22 4 21.5523 4 21V19C4 17.6739 4.52716 16.4025 5.46484 15.4648C6.40253 14.5272 7.67392 14 9 14H15L15.248 14.0059C16.4838 14.0672 17.6561 14.5858 18.5352 15.4648C19.4728 16.4025 20 17.6739 20 19V21C20 21.5523 19.5523 22 19 22C18.4477 22 18 21.5523 18 21Z" fill={isFemale ? "#FFFFFF" : "#686583"}/>
                                     <path d="M15 7C15 5.34315 13.6569 4 12 4C10.3431 4 9 5.34315 9 7C9 8.65685 10.3431 10 12 10C13.6569 10 15 8.65685 15 7ZM17 7C17 9.76142 14.7614 12 12 12C9.23858 12 7 9.76142 7 7C7 4.23858 9.23858 2 12 2C14.7614 2 17 4.23858 17 7Z" fill={isFemale ? "#FFFFFF" : "#686583"}/>
                                   </svg>
-                                  <span className="text-sm font-medium">Female</span>
+                                  <span className="text-[12px] font-medium">Female</span>
                                 </button>
                               </div>
                             );
@@ -1887,7 +1887,7 @@ const Profile = () => {
 
                         {userRole === "broker" && (
                           <div>
-                            <label className="block text-xs font-label text-gray-700 mb-2">
+                            <label className="block text-[14px] font-label text-gray-900 mb-2">
                               Firm Name
                             </label>
                             <input
@@ -1896,14 +1896,14 @@ const Profile = () => {
                               value={brokerFormData.firmName}
                               onChange={handleChange}
                               placeholder="Enter your firm name"
-                              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                              className="w-full px-3 py-2 bg-gray-50 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
                             />
                           </div>
                         )}
 
                         {userRole === "broker" && (
                           <div>
-                            <label className="block text-xs font-label text-gray-700 mb-2 flex items-center">
+                            <label className="block text-[14px] font-label text-gray-900 mb-2 flex items-center">
                               <svg
                                 className="w-4 h-4 text-green-600 mr-2"
                                 fill="currentColor"
@@ -1928,7 +1928,7 @@ const Profile = () => {
                               }}
                               placeholder="Enter your WhatsApp number"
                               maxLength="10"
-                              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-body"
+                              className="w-full px-3 py-2 border border-gray-200 text-[12px] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-body"
                             />
                           </div>
                         )}
@@ -1990,7 +1990,7 @@ const Profile = () => {
                                   value={brokerFormData.licenseNumber}
                                   onChange={handleChange}
                                   placeholder="e.g., BRE #01234567"
-                                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  className="w-full pl-10 pr-4 py-2   text-[12px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
                               </div>
                             </div>
@@ -2010,7 +2010,7 @@ const Profile = () => {
                                   setBrokerFormData((prev) => ({ ...prev, experience: numeric }));
                                 }}
                                 placeholder="e.g., 15"
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full pl-10 pr-4 py-2 border  text-[12px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
@@ -2020,7 +2020,7 @@ const Profile = () => {
                                 <span className="text-red-500">*</span>
                               </label>
                               <div className="flex gap-2">
-                                <div className="relative w-[750px]  px-3  font-[Inter] text-[14px] leading-[22px] font-normal bg-white border border-[#DEE1E6] rounded-md outline-none hover:text-[#171A1F] hover:border-[#DEE1E6] focus:text-[#171A1F] focus:border-[#DEE1E6] disabled:text-[#171A1F] disabled:bg-white disabled:border-[#DEE1E6]">
+                                <div className="relative w-[750px]  px-3  font-[Inter]  text-[12px] leading-[22px] font-normal bg-white border border-[#DEE1E6] rounded-md outline-none hover:text-[#171A1F] hover:border-[#DEE1E6] focus:text-[#171A1F] focus:border-[#DEE1E6] disabled:text-[#171A1F] disabled:bg-white disabled:border-[#DEE1E6]">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                                   <svg
                                     className="h-5 w-5 text-gray-400"
@@ -2063,8 +2063,8 @@ const Profile = () => {
                                   styles={{
                                     control: (provided, state) => ({
                                       ...provided,
-                                      minHeight: "40px",
-                                      height: "40px",
+                                      // minHeight: "40px",
+                                      // height: "40px",
                                       paddingLeft: "40px",
                                       border: "0",
                                       boxShadow: "none",
@@ -2113,7 +2113,7 @@ const Profile = () => {
                                 <button
                                   type="button"
                                   onClick={handleUseCurrentLocation}
-                                  className="flex items-center gap-2 px-3 py-3 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 whitespace-nowrap"
+                                  className="flex items-center gap-2 px-3 py-3  text-[12px] font-medium text-gray-900 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-colors duration-200 whitespace-nowrap"
                                 >
                                   <svg
                                     className="w-4 h-4"
@@ -2146,7 +2146,7 @@ const Profile = () => {
                                 rows={4}
                                 value={brokerFormData.about || ""}
                                 onChange={(e) => setBrokerFormData((prev) => ({ ...prev, about: e.target.value }))}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                className="w-full px-4 py-3 border border-gray-300  text-[12px] rounded-lg bg-gray-50 text-gray-700"
                               />
                              
                             </div>
@@ -2219,18 +2219,18 @@ const Profile = () => {
                                 }),
                                 multiValue: (provided) => ({
                                   ...provided,
-                                  backgroundColor: "#dbeafe",
-                                  color: "#1e40af",
+                                  backgroundColor: "#DCFCE7",
+                                  color: "#171A1F",
                                 }),
                                 multiValueLabel: (provided) => ({
                                   ...provided,
-                                  color: "#1e40af",
+                                  color: "##171A1F",
                                 }),
                                 multiValueRemove: (provided) => ({
                                   ...provided,
-                                  color: "#1e40af",
+                                  color: "##171A1F",
                                   "&:hover": {
-                                    backgroundColor: "#bfdbfe",
+                                    backgroundColor: "#DCFCE7",
                                     color: "#1e3a8a",
                                   },
                                 }),
@@ -2280,7 +2280,7 @@ const Profile = () => {
                                 value={brokerFormData.linkedin}
                                 onChange={handleChange}
                                 placeholder="https://linkedin.com/in/yourprofile"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
@@ -2304,7 +2304,7 @@ const Profile = () => {
                                 value={brokerFormData.twitter}
                                 onChange={handleChange}
                                 placeholder="https://twitter.com/yourprofile"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
@@ -2330,7 +2330,7 @@ const Profile = () => {
                                 value={brokerFormData.instagram}
                                 onChange={handleChange}
                                 placeholder="https://instagram.com/yourprofile"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
@@ -2354,7 +2354,7 @@ const Profile = () => {
                                 value={brokerFormData.facebook}
                                 onChange={handleChange}
                                 placeholder="https://facebook.com/yourprofile"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
 
@@ -2380,7 +2380,7 @@ const Profile = () => {
                                 value={brokerFormData.website}
                                 onChange={handleChange}
                                 placeholder="https://yourwebsite.com"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 text-[12px] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </div>
                           </div>
@@ -2606,7 +2606,7 @@ const Profile = () => {
                                   border: "1px solid #d1d5db",
                                   borderRadius: "0.5rem",
                                   // minHeight: "48px",
-                                  fontSize: "14px",
+                                  fontSize: "12px",
                                 }),
                               }}
                             />
@@ -2631,7 +2631,7 @@ const Profile = () => {
                                   border: "1px solid #d1d5db",
                                   borderRadius: "0.5rem",
                                   // minHeight: "48px",
-                                  fontSize: "14px",
+                                  fontSize: "12px",
                                 }),
                               }}
                             />
@@ -2756,18 +2756,18 @@ const Profile = () => {
                                     >
                                       <div className="flex items-start justify-between">
                                         <div className="flex-1">
-                                          <div className="font-[Inter] text-[16px] leading-[24px] font-medium text-[#171A1F] mb-2">
+                                          <div className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#171A1F] mb-2">
                                             {label}
                                           </div>
                                           <div className="mb-3 min-h-[40px]">
                                             {place ? (
-                                              <div className="font-[Inter] text-[14px] leading-[20px] font-normal text-[#565D6D]">
+                                              <div className="font-[Inter] text-[12px] leading-[20px] font-normal text-[#565D6D]">
                                                 {place}
                                               </div>
                                             ) : null}
                                           </div>
                                           {(distanceText || brokersText) && (
-                                            <div className="font-[Inter] text-[12px] leading-[16px] font-normal text-[#565D6D]">
+                                            <div className="font-[Inter] text-[10px] leading-[16px] font-normal text-[#565D6D]">
                                               {[distanceText, brokersText]
                                                 .filter(Boolean)
                                                 .join(" / ")}
@@ -2839,7 +2839,19 @@ const Profile = () => {
                                 border: "1px solid #d1d5db",
                                 borderRadius: "0.5rem",
                                 minHeight: "48px",
-                                fontSize: "14px",
+                                fontSize: "12px",
+                              }),
+                              placeholder: (provided) => ({
+                                ...provided,
+                                fontSize: "12px",
+                              }),
+                              input: (provided) => ({
+                                ...provided,
+                                fontSize: "12px",
+                              }),
+                              singleValue: (provided) => ({
+                                ...provided,
+                                fontSize: "12px",
                               }),
                             }}
                           />
