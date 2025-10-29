@@ -623,8 +623,8 @@ export default function BrokerLeadsPage() {
       borderRadius: 10,
       border: "1px solid #e5e7eb",
       fontFamily: "var(--font-body, inherit)",
-      fontSize: 14,
-      boxShadow: s.isFocused ? "0 0 0 4px rgba(59,130,246,.1)" : "none",
+      fontSize: 12,
+      boxShadow: s.isFocused ? "0 0 0 4px rgba(59,130,246,.1)" : "0 0 1px #171a1f12, 0 0 2px #171a1f1F",
       borderColor: s.isFocused ? "#3b82f6" : "#e5e7eb",
       background: "white",
       ":hover": { borderColor: s.isFocused ? "#3b82f6" : "#d1d5db" },
@@ -633,7 +633,7 @@ export default function BrokerLeadsPage() {
       ...p,
       padding: "2px 10px",
       fontFamily: "var(--font-body, inherit)",
-      fontSize: 14,
+      fontSize: 12,
     }),
     indicatorSeparator: () => ({ display: "none" }),
     menuPortal: (p) => ({ ...p, zIndex: 99999 }),
@@ -656,28 +656,28 @@ export default function BrokerLeadsPage() {
       color: "#6b7280",
       fontWeight: 400,
       fontFamily: "var(--font-body, inherit)",
-      fontSize: 14,
+      fontSize: 12,
     }),
     input: (p) => ({
       ...p,
       color: "#6b7280",
       fontWeight: 400,
       fontFamily: "var(--font-body, inherit)",
-      fontSize: 14,
+      fontSize: 12,
     }),
     placeholder: (p) => ({
       ...p,
       color: "#6b7280",
       fontWeight: 400,
       fontFamily: "var(--font-body, inherit)",
-      fontSize: 14,
+      fontSize: 12,
     }),
     multiValueLabel: (p) => ({
       ...p,
       color: "#6b7280",
       fontWeight: 400,
       fontFamily: "var(--font-body, inherit)",
-      fontSize: 14,
+      fontSize: 12,
     }),
     menu: (p) => ({
       ...p,
@@ -686,7 +686,7 @@ export default function BrokerLeadsPage() {
       border: "1px solid #e5e7eb",
       borderRadius: 10,
       fontFamily: "var(--font-body, inherit)",
-      fontSize: 14,
+      fontSize: 12,
     }),
     menuList: (p) => ({
       ...p,
@@ -695,7 +695,7 @@ export default function BrokerLeadsPage() {
       overflowX: "hidden",
       paddingRight: 0,
       fontFamily: "var(--font-body, inherit)",
-      fontSize: 14,
+      fontSize: 12,
     }),
   };
 
@@ -1639,10 +1639,10 @@ export default function BrokerLeadsPage() {
               <div className="mb-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h1 className=" font-archivo text-[30px] leading-[36px] font-bold text-[#171A1FFF]">
+                    <h1 className=" font-archivo text-[18px] leading-[36px] font-bold text-[#171A1FFF]">
                       Lead Management
                     </h1>
-                    <p className="text-[14px] leading-[20px] font-normal text-[#565D6DFF]">
+                    <p className="text-[12px] leading-[20px] font-normal text-[#565D6DFF]">
                       Capture leads, share with brokers, and track progress —
                       all in one place.
                     </p>
@@ -1663,7 +1663,7 @@ export default function BrokerLeadsPage() {
                         setPage(1);
                         loadLeads(filters, 1, limit, debouncedQuery, next);
                       }}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 border ${
+                      className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors duration-200 border ${
                         leadViewMode === "transferred"
                           ? "bg-sky-600 border-sky-600"
                           : "bg-gray-200 border-gray-300"
@@ -1677,7 +1677,7 @@ export default function BrokerLeadsPage() {
                         }`}
                       />
                     </button>
-                    <span className="text-sm leading-5 font-normal text-[#565D6D]">
+                    <span className="text-[12px] leading-5 font-normal text-[#565D6D]">
                       {leadViewMode === "transferred"
                         ? "Transferred to Me"
                         : "My Leads"}
@@ -1690,20 +1690,20 @@ export default function BrokerLeadsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {/* Total Leads (Active Card with Purple Border) */}
                 <div className="border border-gray-200 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white rounded-lg p-4">
-                  <p className="text-sm text-[#565D6DFF] font-medium">
+                  <p className="text-[12px] text-[#565D6DFF] font-medium">
                     Total Leads
                   </p>
-                  <p className="text-2xl font-semibold text-gray-900 mt-1">
+                  <p className="text-[18px] font-semibold text-gray-900 mt-1">
                     {metricsLoading ? "—" : metrics.totalLeads.toLocaleString()}
                   </p>
                 </div>
 
                 {/* Shared With Me */}
                 <div className="border border-gray-200 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white rounded-lg p-4">
-                  <p className="text-sm text-[#565D6DFF] font-medium">
+                  <p className="text-[12px] text-[#565D6DFF] font-medium">
                     Shared With Me
                   </p>
-                  <p className="text-2xl font-semibold text-gray-900 mt-1">
+                  <p className="text-[18px] font-semibold text-gray-900 mt-1">
                     {metricsLoading
                       ? "—"
                       : Number(
@@ -1714,10 +1714,10 @@ export default function BrokerLeadsPage() {
 
                 {/* Shared By Me */}
                 <div className="border shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border-gray-200 bg-white rounded-lg p-4">
-                  <p className="text-sm text-[#565D6DFF] font-medium">
+                  <p className="text-[12px] text-[#565D6DFF] font-medium">
                     Shared By Me
                   </p>
-                  <p className="text-2xl font-semibold text-gray-900 mt-1">
+                  <p className="text-[18px] font-semibold text-gray-900 mt-1">
                     {metricsLoading
                       ? "—"
                       : Number(
@@ -1735,7 +1735,7 @@ export default function BrokerLeadsPage() {
               </div>
 
               {/* subtle divider before lead cards */}
-              <div className="h-px bg-gray-100 mt-4" />
+              <div className="mt-4" />
               {/* Search + status + buttons - Flexible layout */}
               <div className="mt-6 flex items-center gap-3">
                 {/* Search - Fixed width to match status dropdown */}
@@ -1747,8 +1747,8 @@ export default function BrokerLeadsPage() {
                     onChange={(e) =>
                       setFilters({ ...filters, query: e.target.value })
                     }
-                    className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white text-sm font-body placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500"
-                    style={{ minHeight: "40px", fontSize: "14px" }}
+                    className="w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white text-[12px] font-body placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500"
+                    style={{ minHeight: "40px", fontSize: "12px" }}
                   />
                   <svg
                     className="w-5 h-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"
@@ -1793,8 +1793,8 @@ export default function BrokerLeadsPage() {
                   <button
                     type="button"
                     onClick={() => setShowAdvanced(true)}
-                    className="px-3 py-2.5 rounded-xl text-sm font-body border border-gray-200 bg-white text-gray-500 hover:text-gray-600 hover:bg-white hover:border-gray-300 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center gap-2"
-                    style={{ minHeight: "40px", fontSize: "14px" }}
+                    className="px-3 py-2.5 rounded-xl text-[12px] font-body border border-gray-200 bg-white text-gray-500 hover:text-gray-600 hover:bg-white hover:border-gray-300 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center gap-2"
+                    style={{ minHeight: "40px", fontSize: "12px" }}
                   >
                     <svg
                       className="w-4 h-4"
@@ -1818,8 +1818,8 @@ export default function BrokerLeadsPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddLead(true)}
-                    className="px-3 py-2.5 rounded-xl text-sm border border-green-600 text-white bg-[#0D542B]  hover:bg-[#0B4624]  hover:border-green-700 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center gap-2"
-                    style={{ minHeight: "40px", fontSize: "14px" }}
+                    className="px-3 py-2.5 rounded-xl text-[12px] border border-green-600 text-white bg-[#0D542B]  hover:bg-[#0B4624]  hover:border-green-700 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center gap-2"
+                    style={{ minHeight: "40px", fontSize: "12px" }}
                   >
                     <svg
                       className="w-4 h-4"
@@ -1844,7 +1844,7 @@ export default function BrokerLeadsPage() {
                     <button
                       type="button"
                       onClick={clearAdvancedFilters}
-                      className="px-3 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer whitespace-nowrap"
+                      className="px-3 py-2.5 rounded-xl text-[12px] font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer whitespace-nowrap"
                       title="Clear advanced filters"
                     >
                       Clear Filters
@@ -1950,11 +1950,11 @@ export default function BrokerLeadsPage() {
                           {/* Status Badge - Horizontal Ribbon with Folded Corner */}
                           <div className="absolute top-0 right-0 z-10">
                             <div
-                              className="text-white text-xs font-bold px-4 py-2 relative"
+                              className="text-black text-[10px] leading-[20px] font-semibold px-[2x] py-[1px] rounded-full text-center shadow-md relative"
                               style={{
                                 background:
                                   row.status?.toLowerCase() === "new"
-                                    ? "linear-gradient(90deg, #f59e0b 0%, #dc2626 100%)"
+                                    ? "#FDC700"
                                     : row.status?.toLowerCase() === "assigned"
                                     ? "linear-gradient(90deg, #3b82f6 0%, #1e40af 100%)"
                                     : row.status?.toLowerCase() ===
@@ -1969,21 +1969,20 @@ export default function BrokerLeadsPage() {
                                     ? "linear-gradient(90deg, #f97316 0%, #ea580c 100%)"
                                     : row.status?.toLowerCase() === "active"
                                     ? "linear-gradient(90deg, #10b981 0%, #047857 100%)"
-                                    : "linear-gradient(90deg, #f59e0b 0%, #dc2626 100%)",
-                                minWidth: "60px",
-                                textAlign: "center",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%)",
+                                    : "#FDC700", // default yellow
+                                // clipPath:
+                                //   "polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%)",
+                                minWidth: "40px",
                               }}
                             >
                               {row.status ? row.status.toUpperCase() : "NEW"}
                             </div>
                           </div>
+
                           {/* Card Content */}
                           <div className="p-6 pt-8">
                             {/* Header Section */}
-                            <div className="flex items-start justify-between mb-6">
+                            <div className="flex items-start justify-between mb-4">
                               {/* Left Side - Avatar and Name */}
                               <div className="flex items-start gap-4">
                                 {(() => {
@@ -1991,7 +1990,7 @@ export default function BrokerLeadsPage() {
                                   const c = getAvatarColor(seed);
                                   return (
                                     <div
-                                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold ${c.bg} ${c.text}`}
+                                      className={`w-12 h-12 rounded-full flex items-center justify-center text-[12px] font-semibold ${c.bg} ${c.text}`}
                                     >
                                       {(row.customerName || row.name || "-")
                                         .split(" ")
@@ -2004,10 +2003,10 @@ export default function BrokerLeadsPage() {
                                   );
                                 })()}
                                 <div className="flex-1 pr-4">
-                                  <h3 className=" mb-1 break-words text-[16px] leading-[24px] font-semibold text-[#171A1F]">
+                                  <h3 className="break-words text-[14px] leading-[24px] font-semibold text-[#171A1F]">
                                     {row.customerName || row.name || "-"}
                                   </h3>
-                                  <p className="text-[14px] font-normal text-[#565D6D] break-words leading-tight">
+                                  <p className="text-[12px] font-normal text-[#565D6D] break-words leading-tight">
                                     {row.customerEmail ||
                                       row.customerPhone ||
                                       row.contact ||
@@ -2018,14 +2017,14 @@ export default function BrokerLeadsPage() {
                             </div>
 
                             {/* Lead Details Section - Two Rows */}
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                               {/* First Row */}
-                              <div className="flex justify-between items-center py-3  border-gray-100">
+                              <div className="flex justify-between items-center  border-gray-100">
                                 <div className="flex-1">
                                   <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     REQUIREMENT
                                   </div>
-                                  <div className="break-words text-[16px] leading-[16px]  font-medium text-[#171A1F]">
+                                  <div className="break-words text-[14px] leading-[16px]  font-medium text-[#171A1F]">
                                     {row.requirement || row.req || "—"}
                                   </div>
                                 </div>
@@ -2033,19 +2032,19 @@ export default function BrokerLeadsPage() {
                                   <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     PROPERTY TYPE
                                   </div>
-                                  <div className="break-words text-[16px] leading-[16px]  font-medium text-[#171A1F]">
+                                  <div className="break-words text-[14px] leading-[16px]  font-medium text-[#171A1F]">
                                     {row.propertyType || "—"}
                                   </div>
                                 </div>
                               </div>
 
                               {/* Second Row */}
-                              <div className="flex justify-between items-center py-3">
+                              <div className="flex justify-between items-top">
                                 <div className="flex-1">
                                   <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     BUDGET
                                   </div>
-                                  <div className="break-words text-[16px] leading-[16px]  font-medium  text-[#171A1F]">
+                                  <div className="break-words text-[14px] leading-[16px]  font-medium  text-[#171A1F]">
                                     {typeof row.budget === "number"
                                       ? `$${row.budget.toLocaleString()}`
                                       : row.budget || "—"}
@@ -2059,10 +2058,10 @@ export default function BrokerLeadsPage() {
                                     const { primary, secondary } =
                                       getRegionNames(row);
                                     return (
-                                      <div className="break-words text-[16px] leading-[16px] flex flex-col gap-2 font-medium text-[#171A1F]">
+                                      <div className="break-words text-[14px] leading-[16px] flex flex-col gap-2 font-medium text-[#171A1F]">
                                         <div>{primary || "—"}</div>
                                         {secondary && (
-                                          <div className="break-words text-[16px] leading-[16px]  font-medium text-[#171A1F]">
+                                          <div className="break-words text-[14px] leading-[16px]  font-medium text-[#171A1F]">
                                             {secondary}
                                           </div>
                                         )}
@@ -2074,10 +2073,10 @@ export default function BrokerLeadsPage() {
                             </div>
 
                             {/* Bottom Section - Shared With and Actions */}
-                            <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                            <div className="flex items-end justify-between  pt-4 ">
                               {/* Shared With */}
                               <div>
-                                <div className="uppercase tracking-wide mb-2 text-[14px] leading-[12px] font-normal text-[#565D6D]">
+                                <div className="uppercase tracking-wide mb-2 text-[12px] leading-[12px] font-normal text-[#565D6D]">
                                   SHARED WITH
                                 </div>
                                 {(() => {
@@ -2107,7 +2106,7 @@ export default function BrokerLeadsPage() {
 
                                   if (uniqueToBrokers.length === 0) {
                                     return (
-                                      <span className="text-[12px]  font-normal text-[#565D6D]">
+                                      <span className="text-[10px]  font-normal text-[#565D6D]">
                                         Not shared
                                       </span>
                                     );
@@ -2190,7 +2189,7 @@ export default function BrokerLeadsPage() {
                                 {/* View Button */}
                                 <button
                                   title="View Details"
-                                  className="flex items-center gap-1 text-[14px] font-medium text-[#565D6D] hover:text-green-900 transition-colors cursor-pointer"
+                                  className="flex items-center gap-1 text-[12px] font-medium text-[#565D6D] hover:text-green-900 transition-colors cursor-pointer"
                                   onClick={() => {
                                     setSelectedLead(row);
                                     setViewEditMode(false);
@@ -2266,13 +2265,15 @@ export default function BrokerLeadsPage() {
                                       d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                                     />
                                   </svg>
-                                  <span className="text-[14px] font-medium text-[#565D6D]">View</span>
+                                  <span className="text-[12px] font-medium text-[#565D6D]">
+                                    View
+                                  </span>
                                 </button>
 
                                 {/* Transfer Button */}
                                 <button
                                   title="Transfer Lead"
-                                  className="flex items-center gap-1 text-[14px] font-medium text-[#565D6D] hover:text-blue-800 transition-colors cursor-pointer"
+                                  className="flex items-center gap-1 text-[12px] font-medium text-[#565D6D] hover:text-blue-800 transition-colors cursor-pointer"
                                   onClick={() => openTransferForLead(row)}
                                 >
                                   <svg
@@ -2287,13 +2288,15 @@ export default function BrokerLeadsPage() {
                                     <line x1="22" y1="2" x2="11" y2="13" />
                                     <polygon points="22 2 15 22 11 13 2 9 22 2" />
                                   </svg>
-                                  <span className="text-[14px] font-medium text-[#565D6D]">Share</span>
+                                  <span className="text-[12px] font-medium text-[#565D6D]">
+                                    Share
+                                  </span>
                                 </button>
 
                                 {/* Delete Button */}
                                 <button
                                   title="Delete Lead"
-                                  className={`flex items-center gap-1 text-[14px] font-medium text-[#565D6D] transition-colors ${
+                                  className={`flex items-center gap-1 text-[12px] font-medium text-[#565D6D] transition-colors ${
                                     isTransferred
                                       ? "text-gray-300 cursor-not-allowed"
                                       : "text-[#565D6D] hover:text-[#565D6D] cursor-pointer"
@@ -2304,7 +2307,7 @@ export default function BrokerLeadsPage() {
                                   disabled={isTransferred}
                                 >
                                   <svg
-                                    className="w-5 h-5"
+                                    className="w-4 h-4"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -2316,7 +2319,9 @@ export default function BrokerLeadsPage() {
                                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                     />
                                   </svg>
-                                  <span className="flex items-center gap-1 text-[14px] font-medium text-[#565D6D]">Delete</span>
+                                  <span className="flex items-center gap-1 text-[12px] font-medium text-[#565D6D]">
+                                    Delete
+                                  </span>
                                 </button>
                               </div>
                             </div>
@@ -2356,10 +2361,10 @@ export default function BrokerLeadsPage() {
             <aside className="md:col-span-3 space-y-6 md:sticky md:top-6 self-start">
               {/* Recent Activity */}
               <div className="bg-white  p-4 rounded-[10px] border border-[#DEE1E6] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
-                <h4 className=" mb-3 flex items-center gap-2 text-base leading-6 font-semibold text-[#171A1F]">
+                <h4 className=" mb-3 flex items-center gap-2 text-[14px] leading-6 font-semibold text-[#171A1F]">
                   {/* clock-in-circle */}
                   <svg
-                    className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
+                    className="w-4 h-4 text-gray-600 shrink-0 overflow-visible"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -2395,10 +2400,10 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </span>
                     <div className="flex-1">
-                      <div className="text-sm leading-5 font-normal text-[#171A1F] mb-1">
+                      <div className="text-[12px] leading-5 font-normal text-[#171A1F]">
                         New lead created
                       </div>
-                      <div className="text-xs leading-5 font-normal text-[#565D6D]">
+                      <div className="text-[10px] leading-5 font-normal text-[#565D6D]">
                         Today, 10:45 AM
                       </div>
                     </div>
@@ -2423,10 +2428,10 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </span>
                     <div className="flex-1">
-                      <div className="text-sm leading-5 font-normal text-[#171A1F] mb-1">
+                      <div className="text-[12px] leading-5 font-normal text-[#171A1F]">
                         Follow-up email sent to Michael Chen
                       </div>
-                      <div className="text-xs leading-5 font-normal text-[#565D6D]">
+                      <div className="text-[10px] leading-5 font-normal text-[#565D6D]">
                         Yesterday, 3:20 PM
                       </div>
                     </div>
@@ -2450,10 +2455,10 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </span>
                     <div className="flex-1">
-                      <div className="text-sm leading-5 font-normal text-[#171A1F] mb-1">
+                      <div className="text-[12px] leading-5 font-normal text-[#171A1F]">
                         Lead status changed to Qualified
                       </div>
-                      <div className="text-xs leading-5 font-normal text-[#565D6D]">
+                      <div className="text-[10px] leading-5 font-normal text-[#565D6D]">
                         Yesterday, 11:15 AM
                       </div>
                     </div>
@@ -2464,10 +2469,10 @@ export default function BrokerLeadsPage() {
               {/* Lead Help & Resources */}
               <div className="bg-white  p-4 rounded-[10px] border border-[#DEE1E6] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="flex items-center gap-2 text-base leading-6 font-semibold text-[#171A1F]">
+                  <h4 className="flex items-center gap-2 text-[14px] leading-6 font-semibold text-[#171A1F]">
                     {/* chat/faq icon */}
                     <svg
-                      className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
+                      className="w-4 h-4 text-gray-600 shrink-0 overflow-visible"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -2487,20 +2492,20 @@ export default function BrokerLeadsPage() {
                     href="/faq"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className=" text-blue-600 hover:underline hover:text-sky-800 transition-colors text-sm leading-5 font-medium "
+                    className=" text-green-950 hover:underline hover:text-green-950 transition-colors text-[12px] leading-5 font-medium "
                   >
                     View all
                   </a>
                 </div>
 
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-[12px">
                   {/* FAQ 1 - tailored to leads */}
                   <details
                     className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors"
                     open
                   >
                     <summary className="list-none cursor-pointer flex items-center justify-between">
-                      <span className="text-sm leading-5 font-normal text-[#171A1F]">
+                      <span className="text-[12px] leading-5 font-normal text-[#171A1F]">
                         How do I add a new lead quickly?
                       </span>
                       <svg
@@ -2515,7 +2520,7 @@ export default function BrokerLeadsPage() {
                         <path d="m6 9 6 6 6-6" />
                       </svg>
                     </summary>
-                    <p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-gray-600 border-l-2 border-gray-300">
+                    <p className="mt-2 pl-3 md:pl-4 text-[10px] leading-4 text-gray-600 border-l-2 border-gray-300">
                       Use the Add Lead button, fill name, phone, requirement and
                       region. You can edit details later in Lead Details.
                     </p>
@@ -2524,7 +2529,7 @@ export default function BrokerLeadsPage() {
                   {/* FAQ 2 */}
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
-                      <span className="text-sm leading-5 font-normal text-[#171A1F]">
+                      <span className="text-[12px] leading-5 font-normal text-[#171A1F]">
                         How do I change a lead status?
                       </span>
                       <svg
@@ -2539,7 +2544,7 @@ export default function BrokerLeadsPage() {
                         <path d="m6 9 6 6 6-6" />
                       </svg>
                     </summary>
-                    <p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
+                    <p className="mt-2 pl-3 md:pl-4 text-[10px] leading-4 text-slate-600 border-l-2 border-gray-300">
                       Open a lead, click Edit Status in the drawer header, pick
                       the status and save.
                     </p>
@@ -2548,7 +2553,7 @@ export default function BrokerLeadsPage() {
                   {/* FAQ 3 */}
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
-                      <span className="text-sm leading-5 font-normal text-[#171A1F]">
+                      <span className="text-[12px] leading-5 font-normal text-[#171A1F]">
                         How do I share a lead with another broker?
                       </span>
                       <svg
@@ -2563,7 +2568,7 @@ export default function BrokerLeadsPage() {
                         <path d="m6 9 6 6 6-6" />
                       </svg>
                     </summary>
-                    <p className="mt-2 pl-3 md:pl-4 text-[13px] leading-6 text-slate-600 border-l-2 border-gray-300">
+                    <p className="mt-2 pl-3 md:pl-4 text-[10px] leading-4 text-slate-600 border-l-2 border-gray-300">
                       Use Share/Transfer, choose brokers, add notes and confirm.
                       The transfer history appears in Lead Details.
                     </p>
@@ -2574,10 +2579,10 @@ export default function BrokerLeadsPage() {
               {/* Help & Support */}
               <div className="bg-white  p-4 rounded-[10px] border border-[#DEE1E6] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
                 <div className="p-4">
-                  <h4 className="mb-3 flex items-center gap-2 text-base leading-6 font-semibold text-[#171A1F]">
+                  <h4 className="mb-3 flex items-center gap-2 text-[14px] leading-6 font-semibold text-[#171A1F]">
                     {/* Headset */}
                     <svg
-                      className="w-4 h-4 text-sky-600 shrink-0 overflow-visible"
+                      className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -2594,7 +2599,7 @@ export default function BrokerLeadsPage() {
                   </h4>
 
                   {/* Links */}
-                  <ul className="text-sm font-normal text-[#171A1F] space-y-2">
+                  <ul className="text-[12px] font-normal text-[#171A1F] space-y-1">
                     <li>
                       <a
                         href="/help/getting-started"
@@ -2604,7 +2609,7 @@ export default function BrokerLeadsPage() {
                       >
                         {/* Doc */}
                         <svg
-                          className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
+                          className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -2627,7 +2632,7 @@ export default function BrokerLeadsPage() {
                       >
                         {/* Docs list */}
                         <svg
-                          className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
+                          className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -2650,7 +2655,7 @@ export default function BrokerLeadsPage() {
                       >
                         {/* Docs list */}
                         <svg
-                          className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
+                          className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -2668,14 +2673,14 @@ export default function BrokerLeadsPage() {
                 </div>
 
                 {/* Divider like screenshot */}
-                <div className="h-px bg-slate-100 mx-4" />
+                {/* <div className="h-px bg-slate-100 mx-4" /> */}
 
                 {/* Contact */}
-                <div className="px-4 py-3 text-sm font-normal text-[#171A1F] space-y-2">
+                <div className="px-4 py-3 text-[12px] font-normal leading-6 text-[#171A1F] space-y-2">
                   <div className="flex items-center gap-3 pl-0.5">
                     {/* Mail */}
                     <svg
-                      className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
+                      className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -2691,7 +2696,7 @@ export default function BrokerLeadsPage() {
                   <div className="flex items-center gap-3 pl-0.5">
                     {/* Phone (handset) */}
                     <svg
-                      className="w-4 h-4 text-gray-500 shrink-0 overflow-visible"
+                      className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
