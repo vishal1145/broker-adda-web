@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import HeaderFile from "../../components/Header";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 // removed unused import
@@ -46,6 +46,7 @@ type LeadItem = {
 
 export default function LeadDetails() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id;
   const [lead, setLead] = useState<LeadItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -163,9 +164,15 @@ export default function LeadDetails() {
       <div className="py-8">
         <div className="w-full mx-auto">
          
-          {/* Top Header - Lead Title and Status */}
+       
+
+          {/* Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-16">
+            {/* Left Content - 8 columns */}
+            <section className="lg:col-span-8 space-y-6">
+               {/* Top Header - Lead Title and Status */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-[20px] font-bold text-gray-900 mb-2">
               {lead.propertyType } 
             </h1>
             <div className="flex items-center gap-4 text-[12px] leading-[20px] font-[400]" style={{ color: '#565D6DFF', fontFamily: 'Inter, sans-serif' }}>
@@ -174,15 +181,9 @@ export default function LeadDetails() {
               <span>Last contact {lead?.lastContact || "2 hours ago"}</span>
             </div>
           </div>
-
-          {/* Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Content - 8 columns */}
-            <section className="lg:col-span-8 space-y-6">
-            
               {/* Requirements Section */}
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Requirements</h2>
+              <div className="">
+                <h2 className="text-[18px] font-semibold text-gray-900 mb-6">Requirements</h2>
                 
                 <div className="space-y-4">
                   {/* Property Type Card */}
@@ -195,7 +196,7 @@ export default function LeadDetails() {
                       </div>
                       <div className="flex-1">
                         <div className="text-[12px] text-gray-500 mb-1">Property Type</div>
-                        <div className="text-[14px] font-semibold text-gray-900">{lead?.propertyType || "Residential"}</div>
+                        <div className="text-[12px] font-medium text-gray-900">{lead?.propertyType || "Residential"}</div>
                       </div>
                     </div>
                   </div>
@@ -211,7 +212,7 @@ export default function LeadDetails() {
                       </div>
                       <div className="flex-1">
                         <div className="text-[12px] text-gray-500 mb-1">Budget Range</div>
-                        <div className="text-[14px] font-semibold text-gray-900">
+                        <div className="text-[12px] font-medium text-gray-900">
                           ₹{typeof lead?.budget === 'number' ? lead.budget.toLocaleString('en-IN') : lead?.budget || "1,20,15,000"}
                         </div>
                       </div>
@@ -258,15 +259,15 @@ export default function LeadDetails() {
               </div>
 
               {/* Notes Section */}
-              <div>
+              <div className="pb-16">
                 <div className="bg-white rounded-[10px] p-5 border border-[#DEE1E6]">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900">Notes</h3>
-                    <span className="px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-medium">
+                    <h3 className="text-[18px] font-semibold text-gray-900">Notes</h3>
+                    <span className="px-2.5 py-1 rounded-full bg-yellow-500 text-black text-xs font-medium">
                     Important
                   </span>
                 </div>
-                  <p className="text-[14px] text-gray-700 leading-6 mb-4">
+                  <p className="text-[12px] text-gray-700 leading-6 mb-4">
                     {lead?.notes || "Looking for a modern apartment with good connectivity and schools nearby. Prefers Higher floors and east facing."}
                   </p>
                   <div className="flex items-center gap-5 text-[12px] text-gray-400">
@@ -293,7 +294,7 @@ export default function LeadDetails() {
               <aside className="lg:col-span-4 space-y-6">
                 {/* Broker Details Section */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Broker Details</h3>
+                  <h3 className="text-[18px] font-semibold text-gray-900 mb-4">Broker Details</h3>
                   
                   {lead?.createdBy ? (
                     <div>
@@ -304,10 +305,10 @@ export default function LeadDetails() {
                           className="w-12 h-12 rounded-full object-cover"
                         />
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 text-sm">
+                          <h4 className="font-semibold text-gray-900 text-[14px]">
                             {lead.createdBy.name || "Yash Gupta"}
                           </h4>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-[12px] text-gray-500">
                             {lead.createdBy.firmName || "Gupta Properties"}
                           </p>
                         </div>
@@ -316,8 +317,8 @@ export default function LeadDetails() {
                         <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                             </svg>
-                        <span className="font-semibold text-gray-900">4.0</span>
-                        <span className="text-gray-500">
+                        <span className="font-semibold text-gray-900 text-[12px]">4.0</span>
+                        <span className="text-gray-500 text-[12px]">
                           {typeof lead.createdBy.experience === 'number' ? `${lead.createdBy.experience}+` : lead.createdBy.experience || '11+'} years
                             </span>
                           </div>
@@ -348,8 +349,8 @@ export default function LeadDetails() {
 
                 {/* Lead Generation Support Section */}
                 <div className="rounded-[12px] bg-green-50  p-6">
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-3">Lead Generation Support</h3>
-                  <p className="text-sm text-gray-700 mb-6 max-w-md">
+                  <h3 className="text-[18px] font-semibold text-gray-900 mb-3">Lead Generation Support</h3>
+                  <p className="text-[12px] text-gray-700 mb-6 max-w-md">
                     Join our exclusive broker network and get access to premium lead generation tools
                     and support.
                   </p>
@@ -361,8 +362,8 @@ export default function LeadDetails() {
                       <img src="/images/lucide-CircleCheckBig-Outlined.svg" alt="Verified" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                       <div>
-                        <div className="text-sm font-semibold text-gray-900">Verified Leads</div>
-                        <div className="text-xs text-gray-600">Pre-qualified properties ready to buy</div>
+                        <div className="text-[14px] font-semibold text-gray-900">Verified Leads</div>
+                        <div className="text-[12px] text-gray-600">Pre-qualified properties ready to buy</div>
                       </div>
                     </div>
 
@@ -372,8 +373,8 @@ export default function LeadDetails() {
                       <img src="/images/lucide-GraduationCap-Outlined.svg" alt="Training" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                       <div>
-                        <div className="text-sm font-semibold text-gray-900">Exclusive Training</div>
-                        <div className="text-xs text-gray-600">Advanced sales techniques & higher commissions</div>
+                        <div className="text-[14px] font-semibold text-gray-900">Exclusive Training</div>
+                        <div className="text-[12px] text-gray-600">Advanced sales techniques & higher commissions</div>
                       </div>
                     </div>
 
@@ -383,8 +384,8 @@ export default function LeadDetails() {
                       <img src="/images/lucide-DollarSign-Outlined.svg" alt="Commissions" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                       <div>
-                        <div className="text-sm font-semibold text-gray-900">Higher Commissions</div>
-                        <div className="text-xs text-gray-600">Up to 10% more than standard rates</div>
+                        <div className="text-[14px] font-semibold text-gray-900">Higher Commissions</div>
+                        <div className="text-[12px] text-gray-600">Up to 10% more than standard rates</div>
                       </div>
                     </div>
                   </div>
@@ -396,8 +397,20 @@ export default function LeadDetails() {
             </aside>
           </div>
 {/* Similar Leads Section */}
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Similar Leads</h3>
+              <div className="pb-16">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[18px] font-semibold text-gray-900">Similar Leads</h3>
+                  <a 
+                    href="/search?tab=leads" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push('/search?tab=leads');
+                    }}
+                    className="text-[12px] text-green-900 font-medium cursor-pointer hover:underline"
+                  >
+                    View All
+                  </a>
+                </div>
                 {sameLeads && sameLeads.filter((s) => s._id !== lead._id).length > 0 ? (
                   <div className="relative">
                     <div id="similar-leads-horizontal" className="overflow-x-auto scroll-smooth" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
@@ -413,21 +426,21 @@ export default function LeadDetails() {
                               <div className="p-6">
                                 {/* Top Section - Main Title */}
                                 <div className="mb-4">
-                                  <h3 className="text-2xl font-bold mb-2" style={{ color: '#323743' }}>
+                                  <h3 className="text-[14px] leading-[20px] font-bold mb-2" style={{ color: '#323743' }}>
                                     {s.propertyType || "Property"} for {s.requirement || "inquiry"}
                                   </h3>
                                   
                                   {/* Tags and Time */}
                                   <div className="flex items-center justify-between gap-2 flex-nowrap">
                                     <div className="flex items-center gap-2 flex-nowrap">
-                                      <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                                      <span className="inline-flex items-center justify-center rounded-full h-[18px] px-[4px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
                                         {s.requirement || ""}
                                       </span>
-                                      <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                                      <span className="inline-flex items-center justify-center rounded-full h-[18px] px-[4px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
                                         {s.propertyType || ""}
                                       </span>
                                     </div>
-                                    <div className="flex items-center gap-1.5 text-sm leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
+                                    <div className="flex items-center gap-1.5 text-[12px] leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
                                       <svg
                                         className="h-4 w-4"
                                         viewBox="0 0 24 24"
@@ -462,10 +475,10 @@ export default function LeadDetails() {
                                         <circle cx="12" cy="10" r="3" />
                                       </svg>
                                       <div className="flex items-center flex-wrap gap-1">
-                                        <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">
+                                        <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
                                           Preferred:
                                         </span>
-                                        <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+                                        <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
                                           {s.primaryRegion.name || "—"}
                                         </span>
                                       </div>
@@ -486,8 +499,8 @@ export default function LeadDetails() {
                                         <circle cx="12" cy="10" r="3" />
                                       </svg>
                                       <div className="flex items-center flex-wrap gap-1">
-                                        <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Secondary:</span>{" "}
-                                        <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+                                        <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Secondary:</span>{" "}
+                                        <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
                                           {s.secondaryRegion.name}
                                         </span>
                                       </div>
@@ -508,8 +521,8 @@ export default function LeadDetails() {
                                       <path d="M3 12h18M9 8v8" />
                                     </svg>
                                     <div className="flex items-center flex-wrap gap-1">
-                                      <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
-                                      <span className="text-sm leading-5 font-normal" style={{ color: '#565D6D' }}>
+                                      <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
+                                      <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
                                         {typeof s.budget === "number"
                                           ? "₹" + s.budget.toLocaleString('en-IN')
                                           : s.budget || "—"}
@@ -542,7 +555,7 @@ export default function LeadDetails() {
                                         )}
 
                                         <div>
-                                          <p className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">
+                                          <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
                                             {s.createdBy.name || "Unknown"}
                                           </p>
 
@@ -593,7 +606,7 @@ export default function LeadDetails() {
                           const c = document.getElementById('similar-leads-horizontal');
                           if (c) c.scrollBy({ left: -320, behavior: 'smooth' });
                         }}
-                        className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                        className="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center hover:bg-yellow-600 transition-colors"
                         title="Previous"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -622,25 +635,25 @@ export default function LeadDetails() {
                 )}
               </div>
           {/* Footer Section */}
-          <div className="rounded-xl p-6 sm:p-7 lg:p-8 bg-[#FFF8E6] border border-yellow-100 mt-14">
+          <div className="rounded-xl p-6 sm:p-7 lg:p-8 bg-[#FFF8E6] border border-yellow-100 pb-16">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="max-w-3xl">
-                <div className="text-[11px] text-gray-500 mb-2">Funded by 1000+ Brokers</div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-3">Ready to Find Your Perfect Property?</h2>
-                <p className="text-sm text-gray-700 leading-6">
+                <div className="text-[12px] text-gray-600 mb-2">Funded by 1000+ Brokers</div>
+                <h2 className="text-[18px] font-bold text-gray-900 mb-3">Ready to Find Your Perfect Property?</h2>
+                <p className="text-[12px] text-gray-700 leading-6">
                   Join thousands of satisfied customers who found their dream homes through our platform. Get started today and let our expert brokers help you every step of the way.
                 </p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <a 
                   href="/search?type=leads" 
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-yellow-500 text-gray-900 font-medium text-sm hover:bg-yellow-600 transition-colors"
+                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-yellow-500 text-gray-900 font-medium text-[12px] hover:bg-yellow-600 transition-colors"
                 >
                   Discover All Leads
                 </a>
                 <a 
                   href="/search?type=brokers" 
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-md border border-yellow-500 text-yellow-600 font-medium text-sm hover:bg-yellow-50 transition-colors"
+                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-md border border-yellow-500 text-yellow-600 font-medium text-[12px] hover:bg-yellow-50 transition-colors"
                 >
                   Find Brokers
                 </a>

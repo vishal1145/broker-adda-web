@@ -423,7 +423,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   const reactSelectStyles = {
     control: (base, state) => ({
       ...base,
-      fontSize: 14,
+      fontSize: 12,
       borderColor: state.isFocused ? '#3b82f6' : '#d1d5db', // blue-500 focus
       boxShadow: 'none',
       minHeight: 38,
@@ -432,14 +432,14 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     }),
     option: (base, state) => ({
       ...base,
-      fontSize: 14,
+      fontSize: 12,
       backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white', // blue-50 focus
       color: state.isSelected ? 'white' : '#111827',
       cursor: 'pointer'
     }),
-    singleValue: (base) => ({ ...base, color: '#111827', fontSize: 14 }),
-    placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 14 }),
-    input: (base) => ({ ...base, fontSize: 14 }),
+    singleValue: (base) => ({ ...base, color: '#111827', fontSize: 12 }),
+    placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 12 }),
+    input: (base) => ({ ...base, fontSize: 12 }),
     indicatorSeparator: () => ({ display: 'none' }),
     multiValue: (base) => ({
       ...base,
@@ -448,7 +448,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     }),
     multiValueLabel: (base) => ({
       ...base,
-      fontSize: 14,
+      fontSize: 12,
       color: '#1e3a8a', // blue-900
       fontWeight: 600
     }),
@@ -761,7 +761,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Region/Area */}
           <div>
-            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Region/Area</label>
+            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Region/Area</label>
             {regionsLoading ? (
               <div className="h-9 bg-gray-100 rounded border border-gray-200 animate-pulse"></div>
             ) : regions.length === 0 ? (
@@ -786,7 +786,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Specialization/Property Type */}
           <div>
-            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Specialization/Property Type</label>
+            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Specialization/Property Type</label>
             <div className="grid grid-cols-2 gap-3">
               {['Residential', 'Commercial', 'Plot', 'Rental', 'Industrial'].map((type) => {
                 const selected = brokerFilters.brokerType.includes(type);
@@ -798,7 +798,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                       onChange={() => handleBrokerTypeChange(type)}
                       className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                     />
-                    <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>{type}</span>
+                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '400', color: '#171A1FFF' }}>{type}</span>
                   </label>
                 );
               })}
@@ -807,7 +807,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Rating */}
           <div>
-            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Rating</label>
+            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Rating</label>
             <Select
               instanceId="rating-select"
               styles={reactSelectStyles}
@@ -836,13 +836,13 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                 onChange={(e) => setBrokerFilters(prev => ({ ...prev, showVerifiedOnly: e.target.checked }))}
                 className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
               />
-              <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Show Verified Brokers Only</span>
+              <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '400', color: '#171A1FFF' }}>Show Verified Brokers Only</span>
             </label>
           </div>
 
           {/* Experience/Activity Level */}
           <div>
-            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Experience/Activity Level</label>
+            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Experience/Activity Level</label>
             <Select
               instanceId="experience-select"
               styles={reactSelectStyles}
@@ -864,7 +864,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Leads Closed/Deals Completed */}
           <div>
-            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Leads Closed/Deals Completed</label>
+            <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Leads Closed/Deals Completed</label>
             <Select
               instanceId="deals-select"
               styles={reactSelectStyles}
@@ -881,21 +881,21 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Badges */}
           <div>
-            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Badges</label>
+            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Badges</label>
             <div className="space-y-2">
               <label className="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                 />
-                <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Verified</span>
+                <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Verified</span>
               </label>
               <label className="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                 />
-                <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Top Badge</span>
+                <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Top Badge</span>
               </label>
             </div>
           </div>
@@ -904,7 +904,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           <div className="pt-4 border-t border-gray-200">
             <button
               onClick={() => setShowSecondaryFilters(!showSecondaryFilters)}
-              className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900"
+              className="flex items-center justify-between w-full text-[12px] font-medium text-gray-700 hover:text-gray-900"
             >
               <span>More Filters</span>
               <svg className="w-4 h-4 transition-transform" style={{ transform: showSecondaryFilters ? 'rotate(180deg)' : 'rotate(0deg)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -918,7 +918,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
             <div className="space-y-5 pt-4">
               {/* Firm/Company Name */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Firm/Company Name</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Firm/Company Name</label>
                 <input
                   type="text"
                   placeholder="e.g., ABC Realty"
@@ -930,7 +930,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Language Preference */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Language Preference</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Language Preference</label>
                 <Select
                   instanceId="language-select"
                   styles={reactSelectStyles}
@@ -948,7 +948,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Broker Status */}
               <div>
-                <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Broker Status</label>
+                <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Broker Status</label>
                 <div className="grid grid-cols-2 gap-3">
                   {['Online', 'Busy', 'Active', 'Offline'].map((status) => (
                     <label key={status} className="flex items-center cursor-pointer">
@@ -964,7 +964,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                         }}
                         className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                       />
-                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>{status}</span>
+                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '400', color: '#171A1FFF' }}>{status}</span>
                     </label>
                   ))}
                 </div>
@@ -972,7 +972,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Response Rate */}
               <div>
-                <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Response Rate</label>
+                <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Response Rate</label>
                 <div className="space-y-2">
                   {['Fast Responders', 'Highly Active'].map((rate) => (
                     <label key={rate} className="flex items-center cursor-pointer">
@@ -988,7 +988,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                         }}
                         className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                       />
-                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>{rate}</span>
+                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '400', color: '#171A1FFF' }}>{rate}</span>
                     </label>
                   ))}
                 </div>
@@ -996,7 +996,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Joined Date */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Joined Date</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Joined Date</label>
                 <Select
                   instanceId="joined-date-select"
                   styles={reactSelectStyles}
@@ -1014,7 +1014,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Sort By */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Sort By</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Sort By</label>
                 <Select
                   instanceId="sort-select"
                   styles={reactSelectStyles}
@@ -1093,7 +1093,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
         {/* Header with heading */}
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900">
+          <h2 className="text-[18px] font-semibold text-gray-900">
             Broker Search Results ({totalItems} Found)
           </h2>
         </div>
@@ -1226,16 +1226,16 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   {/* Header */}
   <div className="flex items-start gap-4 mb-5">
     {/* Avatar + Rating */}
-    <div className="flex flex-col items-center">
+    <div className="relative flex flex-col items-center">
       <img
         src={broker.profileImage}
         alt={broker.name}
         className="w-18 h-18 rounded-full object-cover"
       />
 
-      {/* Rating chip */}
+      {/* Rating chip - positioned above image */}
       <span
-        className={`mt-[-5] inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 border border-gray-200`}
+        className={`mt-[-20] inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 border border-gray-200`}
       >
         <svg
           className="w-3 h-3 text-yellow-500"
@@ -1244,7 +1244,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         >
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
-        <span className="text-xs font-semibold text-gray-800">
+        <span className="text-[12px] font-semibold text-gray-800">
           {(() => {
             let rating = 3.0;
             const leadsCount = broker.leadsCreated?.count || 0;
@@ -1262,7 +1262,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     <div className="flex-1">
       {/* Name + verified */}
       <div className="flex items-center gap-2 mb-1">
-        <h3 className="font-inter text-sm leading-[14px] font-semibold text-[#171A1FFF]">
+        <h3 className="font-inter text-[16px] leading-[22px] font-semibold text-[#171A1FFF]">
           {broker.name}
         </h3>
          {broker.approvedByAdmin === 'unblocked' && (
@@ -1285,7 +1285,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       </div>
 
       {/* Specialization */}
-      <div className="font-inter text-[12px] leading-[12px] font-normal text-[#565D6DFF] mb-1">
+      <div className="font-inter text-[12px] leading-[16px] font-normal text-[#565D6DFF] mb-1">
         {actualSpecializations.length > 0 ? (
           <>
             {actualSpecializations.slice(0, 1).map((type, i) => (
@@ -1308,7 +1308,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     <svg className="w-4 h-4 text-[#565D6DFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
     </svg>
-    <span className="font-inter text-[12px] leading-[12px] font-normal text-[#565D6DFF]">
+    <span className="font-inter text-[12px] leading-[16px] font-normal text-[#565D6DFF]">
       {actualFirmName || 'Independent Broker'}
     </span>
   </span>
@@ -1316,7 +1316,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   {/* Experience */}
   <span className="inline-flex items-center gap-1.5">
    
-    <span className="font-inter text-[12px] leading-[12px] font-normal text-[#565D6DFF]">
+    <span className="font-inter text-[12px] leading-[16px] font-normal text-[#565D6DFF]">
       {`${Math.max(0, parseInt(broker.experience ?? 0))} years experience`}
     </span>
   </span>
@@ -1345,7 +1345,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        <div className="font-inter text-[12px] leading-[15px] font-normal text-[#19191FFF]">
+        <div className="font-inter text-[12px] leading-[16px] font-normal text-[#19191FFF]">
           {broker.address}
         </div>
       </div>

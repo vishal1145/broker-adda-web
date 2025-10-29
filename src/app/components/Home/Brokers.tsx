@@ -293,7 +293,7 @@ const Brokers = () => {
               {/* Name with Green Arrow Icon */}
               <div className="flex items-start justify-between mb-3">
                 <Link href={`/broker-details/${brokerId}`} className="flex items-center gap-1 group/name" title="View details">
-                  <h3 className="text-xl leading-7 font-semibold text-gray-900 group-hover/name:text-gray-900">
+                  <h3 className="text-[18px] leading-7 font-semibold text-gray-900 group-hover/name:text-gray-900">
                     {typeof broker.name === 'string' ? broker.name : 
                      typeof broker.fullName === 'string' ? broker.fullName : 
                      broker.name?.name || broker.fullName?.name || 'Unknown Broker'}
@@ -313,7 +313,7 @@ const Brokers = () => {
 
               {/* Title */}
               <div className="mb-3">
-                <p className="text-sm leading-5 font-normal text-gray-600">
+                <p className="text-[12px] leading-5 font-normal text-gray-600">
                   {Array.isArray(broker.specializations) && broker.specializations.length > 0 ? broker.specializations[0] :
                    typeof broker.specialization === 'string' ? broker.specialization : 
                    typeof broker.expertise === 'string' ? broker.expertise : 
@@ -334,7 +334,7 @@ const Brokers = () => {
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                   <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                <p className="text-sm leading-5 font-normal text-gray-600">
+                <p className="text-[12px] leading-5 font-normal text-gray-600">
                   {(() => {
                     const r = broker.region;
                     if (Array.isArray(r) && r.length > 0) {
@@ -367,7 +367,7 @@ const Brokers = () => {
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                   <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                <p className="text-sm leading-5 font-normal text-gray-600">
+                <p className="text-[12px] leading-5 font-normal text-gray-600">
                   {broker.leadsCreated?.count || broker.leadCount || broker.totalLeads || broker.leads || 0} Leads Completed
                 </p>
               </div>

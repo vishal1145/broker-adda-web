@@ -38,7 +38,7 @@ export default function DashboardCharts() {
         {/* Leads by Month (shorter card, chunky rounded bars) */}
         <div className="bg-white rounded-[10px] border border-gray-200 p-4"
              style={{height: 230}}>
-          <div className="mb-2 text-[13px] font-medium text-gray-900">Leads by Month</div>
+          <div className="mb-2 text-[14px] font-medium text-gray-900">Leads by Month</div>
           <div className="h-[160px]">
             <Bar
               data={{
@@ -60,12 +60,12 @@ export default function DashboardCharts() {
                 scales: {
                   x: {
                     grid: { display: false },
-                    ticks: { color: '#64748b', font: { size: 11 } },
+                    ticks: { color: '#64748b', font: { size: 12 } },
                   },
                   y: {
                     beginAtZero: true,
                     grid: { color: '#eef2f7' },
-                    ticks: { color: '#9ca3af', font: { size: 10 }, stepSize: 55 },
+                    ticks: { color: '#9ca3af', font: { size: 12 }, stepSize: 55 },
                     suggestedMax: 220,           // tops around 220 like the image scale
                   },
                 },
@@ -77,7 +77,7 @@ export default function DashboardCharts() {
         {/* Lead Sources (tight donut ring, legend below) */}
         <div className="bg-white rounded-[10px] border border-gray-200 p-4"
              style={{height: 230}}>
-          <div className="mb-2 text-[13px] font-medium text-gray-900">Lead Sources</div>
+          <div className="mb-2 text-[14px] font-medium text-gray-900">Lead Sources</div>
           <div className="h-[180px]">
             <Pie
               data={{
@@ -95,7 +95,7 @@ export default function DashboardCharts() {
                 plugins: {
                   legend: {
                     position: 'bottom',
-                    labels: { padding: 8, usePointStyle: true, boxWidth: 6, font: { size: 11 } },
+                    labels: { padding: 8, usePointStyle: true, boxWidth: 6, font: { size: 12 } },
                   },
                   tooltip: { enabled: true },
                 },
@@ -107,7 +107,7 @@ export default function DashboardCharts() {
         {/* Closed Deal (slim sparkline style, short y-range) */}
         <div className="bg-white rounded-[10px] border border-gray-200 p-4"
              style={{height: 230}}>
-          <div className="mb-2 text-[13px] font-medium text-gray-900">Closed Deal</div>
+          <div className="mb-2 text-[14px] font-medium text-gray-900">Closed Deal</div>
           <div className="h-[180px]">
             <Line
               data={{
@@ -132,7 +132,7 @@ export default function DashboardCharts() {
                     grid: { display: false },
                     ticks: {
                       color: '#64748b',
-                      font: { size: 10 },
+                      font: { size: 12 },
                       maxRotation: 0,
                       autoSkip: true,
                       autoSkipPadding: 20,

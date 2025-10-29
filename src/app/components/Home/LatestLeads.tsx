@@ -275,7 +275,7 @@ const LatestLeads: React.FC = () => {
                     <div className="p-6">
                       {/* Top Section - Main Title */}
                       <div className="mb-4">
-                        <h3 className="text-[20px] leading-[28px] font-bold mb-2" style={{ color: '#323743' }}>
+                        <h3 className="text-[18px] leading-[20px] font-semibold mb-2" style={{ color: '#323743' }}>
                           {lead.propertyType || "Property"} for {lead.requirement || "inquiry"}
                         </h3>
                         
@@ -289,7 +289,7 @@ const LatestLeads: React.FC = () => {
                               {lead.propertyType || ""}
                             </span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-sm leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
+                          <div className="flex items-center gap-1.5 text-[12px] leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
                             <svg
                               className="h-4 w-4"
                               viewBox="0 0 24 24"
@@ -324,10 +324,10 @@ const LatestLeads: React.FC = () => {
   </svg>
 
   <div className="flex items-center flex-wrap gap-1">
-    <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">
+    <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
       Preferred:
     </span>
-    <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+    <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
       {regionName(lead.primaryRegion) || "—"}
     </span>
   </div>
@@ -349,8 +349,8 @@ const LatestLeads: React.FC = () => {
   </svg>
 
   <div className="flex items-center flex-wrap gap-1">
-    <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Secondary:</span>{" "}
-    <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+    <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Secondary:</span>{" "}
+    <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
                                 {regionName(lead.secondaryRegion)}
                               </span>
                             </div>
@@ -370,8 +370,8 @@ const LatestLeads: React.FC = () => {
                             <path d="M3 12h18M9 8v8" />
                           </svg>
                             <div className="flex items-center flex-wrap gap-1">
-    <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
-                            <span className="text-sm leading-5 font-normal" style={{ color: '#565D6D' }}>
+    <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
+                            <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
                               {typeof lead.budget === "number"
                                 ? "₹" + INR.format(lead.budget).replace("₹", "")
                                 : lead.budget || "—"}
@@ -449,7 +449,7 @@ const LatestLeads: React.FC = () => {
       {/* Name and icons */}
       <div>
         <div className="flex items-center gap-2">
-          <p className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">
+          <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
             {(() => {
               const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
               if (!createdBy) return "Unknown";
@@ -475,7 +475,7 @@ const LatestLeads: React.FC = () => {
             >
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
             </svg>
-            <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">
+            <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">
               Connect
             </span>
           </span>
@@ -488,7 +488,7 @@ const LatestLeads: React.FC = () => {
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
-            <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">
+            <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">
               Chat
             </span>
           </span>

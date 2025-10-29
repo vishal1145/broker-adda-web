@@ -137,6 +137,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const reactSelectStyles = {
     control: (base) => ({
       ...base,
+      fontSize: 12,
       borderColor: '#d1d5db',
       boxShadow: 'none',
       minHeight: 38,
@@ -144,11 +145,13 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     }),
     option: (base, state) => ({
       ...base,
+      fontSize: 12,
       backgroundColor: state.isSelected ? '#0A421E' : state.isFocused ? '#ECFDF5' : 'white',
       color: state.isSelected ? 'white' : '#111827'
     }),
-    singleValue: (base) => ({ ...base, color: '#111827' }),
-    placeholder: (base) => ({ ...base, color: '#6b7280' }),
+    singleValue: (base) => ({ ...base, color: '#111827', fontSize: 12 }),
+    placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 12 }),
+    input: (base) => ({ ...base, fontSize: 12 }),
     indicatorSeparator: () => ({ display: 'none' })
   };
 
@@ -303,7 +306,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Property Type Filter */}
           <div className="mb-5">
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Property Type</h3>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Property Type</h3>
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => {
                 const selected = filters.categories[0] === category;
@@ -314,10 +317,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     onClick={() => handleCategoryChange(category)}
                     style={{
                       fontFamily: 'Inter',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       lineHeight: '20px',
                       fontWeight: '500',
-                      color: '#323742FF',
+                      color: '#171A1FFF',
                       background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                       borderRadius: '6px',
                       transition: 'all 0.2s',
@@ -337,7 +340,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Transaction Type Filter */}
           <div className="mb-5">
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Transaction Type</h3>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Transaction Type</h3>
             <div className="flex flex-wrap gap-2">
               {transactionTypeOptions.map((type) => {
                 const selected = filters.transactionType[0] === type;
@@ -348,10 +351,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     onClick={() => handleTransactionTypeChange(type)}
                     style={{
                       fontFamily: 'Inter',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       lineHeight: '20px',
                       fontWeight: '500',
-                      color: '#323742FF',
+                      color: '#171A1FFF',
                       background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                       borderRadius: '6px',
                       transition: 'all 0.2s',
@@ -371,7 +374,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Region/Location Filter */}
           <div className="mb-5">
-            <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Region/Location</h3>
+            <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Region/Location</h3>
             <Select
               instanceId="property-region-select"
               styles={reactSelectStyles}
@@ -385,26 +388,26 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Price/Budget Range (INR) Filter */}
           <div className="mb-5">
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Price/Budget Range (INR)</h3>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Price/Budget Range (INR)</h3>
             <div className="flex gap-2">
               <input
                 type="number"
                 value={filters.priceRange[0]}
                 onChange={(e) => handlePriceChange(0, parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
               />
                   <input
                 type="number"
                 value={filters.priceRange[1]}
                 onChange={(e) => handlePriceChange(1, parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
               />
             </div>
           </div>
 
           {/* Bedrooms (BHK) Filter */}
           <div className="mb-5">
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Bedrooms (BHK)</h3>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Bedrooms (BHK)</h3>
             <div className="flex flex-wrap gap-2">
               {bedroomOptions.map((bedroom) => {
                 const selected = filters.bedrooms.includes(bedroom);
@@ -415,10 +418,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     onClick={() => handleBedroomChange(bedroom)}
                     style={{
                       fontFamily: 'Inter',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       lineHeight: '20px',
                       fontWeight: '500',
-                      color: '#323742FF',
+                      color: '#171A1FFF',
                       background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                       borderRadius: '6px',
                       transition: 'all 0.2s',
@@ -438,7 +441,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Status Filter */}
           <div className="mb-5">
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Status</h3>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Status</h3>
             <div className="flex flex-wrap gap-2">
               {statusOptions.map((status) => {
                 const selected = filters.status[0] === status;
@@ -449,10 +452,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     onClick={() => handleStatusChange(status)}
                   style={{
                       fontFamily: 'Inter',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       lineHeight: '20px',
                       fontWeight: '500',
-                      color: '#323742FF',
+                      color: '#171A1FFF',
                       background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                       borderRadius: '6px',
                       transition: 'all 0.2s',
@@ -475,7 +478,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             <button
               onClick={() => setShowSecondaryFilters(!showSecondaryFilters)}
               className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900"
-              style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}
+              style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}
             >
               <span>More Filters</span>
               <svg className="w-4 h-4 transition-transform" style={{ transform: showSecondaryFilters ? 'rotate(180deg)' : 'rotate(0deg)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -489,24 +492,24 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             <div className="space-y-5 pt-4">
               {/* Property Size/Area (Sq. Ft.) */}
               <div>
-                <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Property Size/Area (Sq. Ft.)</h3>
+                <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Property Size/Area (Sq. Ft.)</h3>
                 <div className="flex gap-2">
                   <input
                     type="number"
                     placeholder="1000"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                   />
                 <input
                     type="number"
                     placeholder="2500"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                 />
               </div>
               </div>
 
               {/* Bathrooms */}
               <div>
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Bathrooms</h3>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Bathrooms</h3>
                 <div className="flex flex-wrap gap-2">
                   {['1', '2', '3', '4+'].map((bath) => {
                     const selected = secondaryFilters.bathrooms === bath;
@@ -517,10 +520,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                         onClick={() => setSecondaryFilters(prev => ({ ...prev, bathrooms: prev.bathrooms === bath ? null : bath }))}
                         style={{
                           fontFamily: 'Inter',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           lineHeight: '20px',
                           fontWeight: '500',
-                          color: '#323742FF',
+                          color: '#171A1FFF',
                           background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                           borderRadius: '6px',
                           transition: 'all 0.2s',
@@ -540,7 +543,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Furnishing Type */}
               <div>
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Furnishing Type</h3>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Furnishing Type</h3>
                 <div className="flex flex-wrap gap-2">
                   {['Furnished', 'Semi-Furnished', 'Unfurnished'].map((type) => {
                     const selected = secondaryFilters.furnishingType === type;
@@ -551,10 +554,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                         onClick={() => setSecondaryFilters(prev => ({ ...prev, furnishingType: prev.furnishingType === type ? null : type }))}
                         style={{
                           fontFamily: 'Inter',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           lineHeight: '20px',
                           fontWeight: '500',
-                          color: '#323742FF',
+                          color: '#171A1FFF',
                           background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                           borderRadius: '6px',
                           transition: 'all 0.2s',
@@ -574,7 +577,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Amenities (Checkboxes) */}
           <div>
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Amenities</h3>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Amenities</h3>
                 <div className="grid grid-cols-2 gap-2">
                   {['Parking', 'Security', 'Power Backup', 'Gym', 'Lift', 'Water Supply', 'Garden', 'Swimming Pool'].map((amenity) => (
                 <label key={amenity} className="flex items-center cursor-pointer">
@@ -584,7 +587,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     onChange={() => handleAmenityChange(amenity)}
                     className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                   />
-                      <span className="ml-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>{amenity}</span>
+                      <span className="ml-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '400', color: '#171A1FFF' }}>{amenity}</span>
                 </label>
               ))}
                 </div>
@@ -592,7 +595,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Facing Direction */}
               <div>
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Facing Direction</h3>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Facing Direction</h3>
                 <div className="flex flex-wrap gap-2">
                   {['North', 'East', 'South', 'West'].map((direction) => {
                     const selected = secondaryFilters.facingDirection === direction;
@@ -603,10 +606,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                         onClick={() => setSecondaryFilters(prev => ({ ...prev, facingDirection: prev.facingDirection === direction ? null : direction }))}
                         style={{
                           fontFamily: 'Inter',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           lineHeight: '20px',
                           fontWeight: '500',
-                          color: '#323742FF',
+                          color: '#171A1FFF',
                           background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                           borderRadius: '6px',
                           transition: 'all 0.2s',
@@ -626,7 +629,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Possession Status */}
               <div>
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Possession Status</h3>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Possession Status</h3>
                 <div className="flex flex-wrap gap-2">
                   {['Ready to Move', 'Under Construction', 'Upcoming'].map((status) => {
                     const selected = secondaryFilters.possessionStatus === status;
@@ -637,10 +640,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                         onClick={() => setSecondaryFilters(prev => ({ ...prev, possessionStatus: prev.possessionStatus === status ? null : status }))}
                         style={{
                           fontFamily: 'Inter',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           lineHeight: '20px',
                           fontWeight: '500',
-                          color: '#323742FF',
+                          color: '#171A1FFF',
                           background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                           borderRadius: '6px',
                           transition: 'all 0.2s',
@@ -660,7 +663,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Posted By */}
               <div>
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Posted By</h3>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Posted By</h3>
                 <div className="flex flex-wrap gap-2">
                   {['Broker', 'Builder', 'Owner', 'Admin'].map((postedBy) => {
                     const selected = secondaryFilters.postedBy === postedBy;
@@ -671,10 +674,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                         onClick={() => setSecondaryFilters(prev => ({ ...prev, postedBy: prev.postedBy === postedBy ? null : postedBy }))}
                         style={{
                           fontFamily: 'Inter',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           lineHeight: '20px',
                           fontWeight: '500',
-                          color: '#323742FF',
+                          color: '#171A1FFF',
                           background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                           borderRadius: '6px',
                           transition: 'all 0.2s',
@@ -694,7 +697,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Date Posted */}
               <div>
-                <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Date Posted</h3>
+                <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Date Posted</h3>
                 <div className="relative">
                   <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -709,7 +712,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Verification Status */}
               <div>
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Verification Status</h3>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Verification Status</h3>
                 <div className="flex flex-wrap gap-2">
                   {['Verified', 'Unverified'].map((status) => {
                     const selected = secondaryFilters.verificationStatus === status;
@@ -720,10 +723,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                         onClick={() => setSecondaryFilters(prev => ({ ...prev, verificationStatus: prev.verificationStatus === status ? null : status }))}
                         style={{
                           fontFamily: 'Inter',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           lineHeight: '20px',
                           fontWeight: '500',
-                          color: '#323742FF',
+                          color: '#171A1FFF',
                           background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                           borderRadius: '6px',
                           transition: 'all 0.2s',
@@ -743,7 +746,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Property Age */}
               <div>
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Property Age</h3>
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Property Age</h3>
                 <div className="flex flex-wrap gap-2">
                   {['New', '<5 Years', '<10 Years', '>10 Years'].map((age) => {
                     const selected = secondaryFilters.propertyAge === age;
@@ -757,7 +760,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                           fontSize: '12px',
                           lineHeight: '20px',
                           fontWeight: '500',
-                          color: '#323742FF',
+                          color: '#171A1FFF',
                           background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                           borderRadius: '6px',
                           transition: 'all 0.2s',
@@ -868,7 +871,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           <>
           {/* Results Heading */}
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
+            <h2 className="text-[18px] font-semibold text-gray-900">
               Property Search Results ({propertyItems.length} Found)
             </h2>
           </div>
@@ -899,7 +902,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                 </div>
                     {/* Tag overlay - top-left */}
                     <div className="absolute top-4 left-4">
-                  <span className="bg-[#0A421E] text-white px-3 py-1 rounded-full text-xs font-medium">
+                  <span className="bg-[#0A421E] text-white px-2 py-0.5 rounded-full text-xs font-medium">
                     {property.type}
                   </span>
                 </div>
@@ -912,7 +915,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                 </div>
                 {/* Price pill bottom-left */}
                     <div className="absolute bottom-4 left-4 z-10">
-                      <span className="px-3 py-1 rounded-full text-sm font-semibold"
+                      <span className="px-2 py-0.5 rounded-full text-sm font-semibold"
                     style={{
                           backgroundColor: '#FDC700'
                     }}
@@ -931,7 +934,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   {/* Details Section - Right */}
                   <div className="flex-1 p-6 flex flex-col">
                     {/* Title */}
-                    <h3 className="mb-2 flex items-center gap-2" style={{  fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
+                    <h3 className="mb-2 flex items-center gap-2" style={{  fontSize: '16px', lineHeight: '22px', fontWeight: '600', color: '#171A1FFF' }}>
                       {property.name}
                       <svg className="w-3.5 h-3.5 text-[#0A421E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
                         <path d="M7 17l10-10M7 7h10v10" />
@@ -945,13 +948,13 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     
                     {/* Location Details */}
                     <div className="flex flex-col gap-2 mb-4">
-                      <div className="flex items-center text-xs text-gray-600">
+                      <div className="flex items-center text-[12px] text-gray-600">
                         <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                         {property.city || 'Agra'}
                 </div>
-                      <div className="flex items-center text-xs text-gray-600">
+                      <div className="flex items-center text-[12px] text-gray-600">
                         <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
                     <circle cx="12" cy="10" r="3" strokeWidth="2" />
@@ -964,7 +967,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
                     {/* Features */}
                     <div className="mb-3">
-                      <div className="text-xs font-semibold text-gray-900 mb-2">Features</div>
+                      <div className="text-[12px] font-semibold text-gray-900 mb-2">Features</div>
                       <div className="flex flex-wrap gap-2">
                         {property.bedrooms && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
@@ -987,12 +990,12 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
                     {/* Amenities */}
                     <div className="mt-auto">
-                      <div className="text-xs font-semibold text-gray-900 mb-2">Amenities</div>
+                      <div className="text-[12px] font-semibold text-gray-900 mb-2">Amenities</div>
                   <div className="flex flex-wrap gap-2 text-[11px]">
                         {(Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities : ['Gym', 'Parking', 'Security', 'Swimming Pool', 'Clubhouse']).map((amenity, idx) => (
                       <span
                         key={idx}
-                            className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+                            className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
                       >
                         {amenity}
                       </span>

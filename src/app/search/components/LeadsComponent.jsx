@@ -488,7 +488,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     control: (base, state) => ({
       ...base,
       minHeight: 38,
-      fontSize: 14,
+      fontSize: 12,
       borderColor: state.isFocused ? '#eab308' : '#d1d5db', // yellow-500 focus
       boxShadow: 'none',
       cursor: 'pointer',
@@ -496,7 +496,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     }),
     option: (base, state) => ({
       ...base,
-      fontSize: 14,
+      fontSize: 12,
       backgroundColor: state.isSelected
         ? '#14532d' // green-900
         : state.isFocused
@@ -505,9 +505,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       color: state.isSelected ? 'white' : '#111827',
       cursor: 'pointer'
     }),
-    singleValue: (base) => ({ ...base, color: '#111827', fontSize: 14 }),
-    placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 14 }),
-    input: (base) => ({ ...base, fontSize: 14 }),
+    singleValue: (base) => ({ ...base, color: '#111827', fontSize: 12 }),
+    placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 12 }),
+    input: (base) => ({ ...base, fontSize: 12 }),
     indicatorSeparator: () => ({ display: 'none' })
   };
 
@@ -771,8 +771,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Requirement Filter */}
           <div>
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Requirement</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Requirement</h3>
+            <div className="flex flex-wrap gap-2">
               {requirementOptions.map((req) => {
                 const selected = leadFilters.requirement?.includes(req);
                 return (
@@ -783,14 +783,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     style={{
                       fontFamily: 'Inter',
                       fontSize: '12px',
-                      lineHeight: '20px',
+                      lineHeight: '16px',
                       fontWeight: '500',
-                      color: '#323742FF',
+                      color: '#171A1FFF',
                       background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-3 py-2 w-full transition-colors ${
+                    className={`px-2 py-1.5 inline-block transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -805,8 +805,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Property Type Filter */}
               <div>
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Property Type</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Property Type</h3>
+            <div className="flex flex-wrap gap-2">
               {leadTypeOptions.map((type) => {
                 const selected = leadFilters.leadType?.includes(type);
                 return (
@@ -817,14 +817,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     style={{
                       fontFamily: 'Inter',
                       fontSize: '12px',
-                      lineHeight: '20px',
+                      lineHeight: '16px',
                       fontWeight: '500',
-                      color: '#323742FF',
+                      color: '#171A1FFF',
                       background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-3 py-2 w-full transition-colors ${
+                    className={`px-2 py-1.5 inline-block transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -839,7 +839,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Region/Area Filter */}
               <div>
-            <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Region/Area</h3>
+            <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Region/Area</h3>
                   <Select
                     instanceId="leads-region-select"
                     styles={reactSelectStyles}
@@ -862,8 +862,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Status Filter */}
           <div>
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Status</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Status</h3>
+            <div className="flex flex-wrap gap-2">
               {['New', 'Assigned', 'In Progress', 'Closed', 'Rejected'].map((status) => {
                 const selected = leadFilters.leadStatus?.includes(status);
                 return (
@@ -877,14 +877,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     style={{
                       fontFamily: 'Inter',
                       fontSize: '12px',
-                      lineHeight: '20px',
+                      lineHeight: '16px',
                       fontWeight: '500',
-                      color: '#323742FF',
+                      color: '#171A1FFF',
                       background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-3 py-2 w-full transition-colors ${
+                    className={`px-2 py-1.5 inline-block transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -899,7 +899,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Budget Range Filter */}
           <div>
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Budget Range</h3>
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Budget Range</h3>
               <div className="relative">
               <div className="flex justify-between text-sm text-gray-700 mb-2">
                 <span>${leadFilters.budgetRange[0].toLocaleString()}</span>
@@ -949,8 +949,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Date Posted Filter */}
           <div>
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Date Posted</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Date Posted</h3>
+            <div className="flex flex-wrap gap-2">
               {['Today', 'Last 7 Days', 'Last 30 Days', 'Custom Range'].map((dateOption) => {
                 const selected = leadFilters.datePosted === dateOption;
                 return (
@@ -967,14 +967,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     style={{
                       fontFamily: 'Inter',
                       fontSize: '12px',
-                      lineHeight: '20px',
+                      lineHeight: '16px',
                       fontWeight: '500',
-                      color: '#323742FF',
+                      color: '#171A1FFF',
                       background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-3 py-2 w-full transition-colors flex items-center justify-center gap-2 ${
+                    className={`px-3 py-1.5 inline-flex whitespace-nowrap transition-colors items-center justify-center gap-2 focus:outline-none focus:ring-0 ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -982,7 +982,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   >
                     {dateOption}
                     {dateOption === 'Custom Range' && (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     )}
@@ -996,7 +996,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           <div className="pt-4 border-t border-gray-200">
             <button
               onClick={() => setShowSecondaryFilters(!showSecondaryFilters)}
-              className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900"
+              className="flex items-center justify-between w-full text-[12px] font-medium text-gray-700 hover:text-gray-900"
             >
               <span>Secondary Filters</span>
               <svg className="w-4 h-4 transition-transform" style={{ transform: showSecondaryFilters ? 'rotate(180deg)' : 'rotate(0deg)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1010,27 +1010,27 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             <div className="space-y-5 pt-4">
               {/* Preferred Location (Primary) */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Preferred Location (Primary)</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Preferred Location (Primary)</label>
                 <input
                   type="text"
                   placeholder="e.g., Downtown, Financial District"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                 />
               </div>
 
               {/* Preferred Location (Secondary) (Optional) */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Preferred Location (Secondary) (Optional)</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Preferred Location (Secondary) (Optional)</label>
                 <input
                   type="text"
                   placeholder="e.g., Mid-levels, Causeway Bay"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                 />
               </div>
 
               {/* Broker Assigned */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Broker Assigned</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Broker Assigned</label>
             {(() => {
               if (brokersLoading) return <div className="h-8 bg-gray-200 rounded animate-pulse" />;
               return (
@@ -1056,17 +1056,17 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Customer Name/Contact */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Customer Name/Contact</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Customer Name/Contact</label>
                 <input
                   type="text"
                   placeholder="Search by name or contact"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                 />
               </div>
 
               {/* Lead Source */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Lead Source</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Lead Source</label>
               <button
                   className="w-full px-3 py-2 text-sm text-left border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
               >
@@ -1078,7 +1078,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Verification Status */}
               <div className="flex items-center justify-between">
-                <label className="block" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Verification Status: Verified</label>
+                <label className="block" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Verification Status: Verified</label>
                 <div className="relative inline-block w-[44px] h-6">
                   <input
                     type="checkbox"
@@ -1093,7 +1093,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           
               {/* Sort By */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '14px', lineHeight: '20px', fontWeight: '500', color: '#171A1FFF' }}>Sort By</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Sort By</label>
             <Select
                   instanceId="sort-select"
                   styles={reactSelectStyles}
@@ -1171,7 +1171,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
         {/* Header with heading */}
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900">
+            <h2 className="text-[18px] font-semibold text-gray-900">
             Lead Search Results ({totalLeads} Found)
           </h2>
         </div>
@@ -1326,22 +1326,22 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     <div className="p-6">
                     {/* Top Section - Main Title */}
                     <div className="mb-4">
-                      <h3 className="text-[20px] leading-[28px] font-bold mb-2" style={{  color: '#323743' }}>
+                      <h3 className="text-[16px] leading-[22px] font-bold mb-2" style={{  color: '#323743' }}>
                         {lead.propertyType || "Property"} for {lead.requirement || lead.req || "inquiry"}
                       </h3>
                       
                       {/* Tags and Time */}
                       <div className="flex items-center justify-between gap-2 flex-nowrap">
-                        <div className="flex items-center gap-2 flex-nowrap">
-                          <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center justify-center rounded-full h-[18px] px-[4px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
                             {lead.requirement || lead.req || ""}
                           </span>
-                          <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                          <span className="inline-flex items-center justify-center rounded-full h-[18px] px-[4px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
                             {lead.propertyType || ""}
                           </span>
                       </div>
                         {lead.createdAt && (
-                          <div className="flex items-center gap-1.5 text-sm leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
+                          <div className="flex items-center gap-1.5 text-[12px] leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
                             <svg
                               className="h-4 w-4"
                               viewBox="0 0 24 24"
@@ -1376,8 +1376,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           <circle cx="12" cy="10" r="3" />
                         </svg>
                         <div className="flex items-center flex-wrap gap-1">
-                          <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Preferred:</span>
-                          <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+                          <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Preferred:</span>
+                          <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
                             {regionName(lead.primaryRegion) || primary || "—"}
                   </span>
                 </div>
@@ -1397,8 +1397,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                             <circle cx="12" cy="10" r="3" />
                           </svg>
                           <div className="flex items-center flex-wrap gap-1">
-                            <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Secondary:</span>
-                            <span className="font-inter text-sm leading-5 font-normal capitalize text-[#565D6DFF]">
+                            <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Secondary:</span>
+                            <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
                               {regionName(lead.secondaryRegion) || secondary || "—"}
                             </span>
                 </div>
@@ -1418,8 +1418,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           <path d="M3 12h18M9 8v8" />
                         </svg>
                         <div className="flex items-center flex-wrap gap-1">
-                          <span className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">Budget:</span>
-                          <span className="text-sm leading-5 font-normal" style={{ color: '#565D6D' }}>
+                          <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>
+                          <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
                             {typeof lead.budget === "number"
                               ? "₹" + INR.format(lead.budget).replace("₹", "")
                               : lead.budget || "—"}
@@ -1466,7 +1466,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           {/* Name and icons */}
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="font-inter text-sm leading-5 font-medium text-[#171A1FFF]">
+                              <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
                                 {brokerName}
                               </p>
                             </div>
