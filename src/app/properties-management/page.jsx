@@ -863,27 +863,10 @@ const PropertiesManagement = () => {
             
             {/* Right column - 3/12 width - match lead details right cards style */}
             <div className="w-full lg:w-3/12">
-              {/* Quick Actions - move to top */}
-              <div className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5">
-                <h4 className="text-[14px] font-medium text-gray-800 mb-3">Quick Actions</h4>
-                <div className="space-y-2">
-                  <Link href="/properties-management/new" className="flex items-center gap-2 text-[12px] text-green-900 hover:text-green-800">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    Add New Property
-                  </Link>
-                  <Link href="/properties-management/post-property" className="flex items-center gap-2 text-[12px] text-green-900 hover:text-green-800">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Post Property
-                  </Link>
-                </div>
-              </div>
+             
 
               {/* Tips - now below quick actions */}
-              <div className="mt-6 bg-green-50 rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5">
+              <div className="bg-green-50 rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5">
                 <h3 className="text-[14px] font-semibold text-gray-900 mb-3">Property Management Tips</h3>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
