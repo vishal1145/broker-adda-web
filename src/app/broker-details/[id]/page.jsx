@@ -429,7 +429,7 @@ export default function BrokerDetailsPage() {
                     {about}
                   </p>
                 ) : (
-                  <p className="text-gray-700 leading-relaxed text-[14px]">
+                  <p className="text-gray-700 leading-relaxed text-[12px]">
                     Welcome! I'm {displayName} at {firmDisplay}, a dedicated real estate professional specializing in Luxury Homes. With years of experience in the real estate market, I'm committed to helping you find the perfect property or sell your current one. My expertise covers residential and commercial properties, ensuring you get the best deals and guidance throughout your real estate journey. I believe in transparency, integrity, and providing personalized service to meet your unique needs.
                   </p>
                 )}
@@ -738,19 +738,19 @@ export default function BrokerDetailsPage() {
               {/* Performance Metrics Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[#EDFDF4] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className=" text-[24px] leading-[36px] font-bold text-[#19191F]">{leads}</div>
+                  <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{leads}</div>
                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Properties Sold</div>
                 </div>
                 <div className="bg-[#FFF9E6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className=" text-[24px] leading-[36px] font-bold text-[#19191F]">4.8</div>
+                  <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">4.8</div>
                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Client Rating</div>
                 </div>
                  <div className="bg-[#FAFAFB] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                   <div className=" text-[24px] leading-[36px] font-bold text-[#19191F]">{years === '' ? '0' : (typeof years === 'number' ? `${years}+` : years)}</div>
+                   <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{years === '' ? '0' : (typeof years === 'number' ? `${years}+` : years)}</div>
                    <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Years Experience</div>
                  </div>
                 <div className="bg-[#F3F4F6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className="text-[24px] leading-[36px] font-bold text-[#19191F]">98%</div>
+                  <div className="text-[20px] leading-[36px] font-bold text-[#19191F]">98%</div>
                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Satisfaction</div>
                 </div>
               </div>
