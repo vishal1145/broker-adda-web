@@ -134,26 +134,30 @@ const LegalCompliancePage = () => {
               </div>
             </div>
 
-            {/* Contact Section */}
-            <div className="bg-yellow-500 rounded-lg shadow-lg p-8 text-white text-center">
-              <h2 className=" text-[16px] leading-[32px] font-bold  mb-4">{contact.title}</h2>
-              <p className="text-white mb-6 max-w-2xl mx-auto font-[Inter] text-[12px] leading-[22px] font-normal ">
-                {contact.description}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {contact.buttons.map((button, index) => (
-                  <Link 
-                    key={index}
-                    href={button.href} 
-                    className={`px-6 py-3 rounded-xl text-[12px] font-medium transition-colors shadow-md ${
-                      button.type === 'primary' 
-                        ? 'bg-white text-green-900 hover:bg-green-100'
-                        : 'border-2 border-white text-white hover:bg-white hover:text-green-900'
-                    }`}
-                  >
-                    {button.text}
-                  </Link>
-                ))}
+            {/* Contact Section - soft amber banner with right-aligned CTAs */}
+            <div className="rounded-xl bg-amber-50 border border-amber-200 p-6 md:p-8 shadow-sm">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6">
+                <div className="max-w-3xl">
+                  <h2 className=" text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-1">{contact.title}</h2>
+                  <p className="font-[Inter] text-[12px] leading-[22px] font-normal text-[#565D6D]">
+                    {contact.description}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 md:gap-4 self-stretch md:self-auto md:justify-end">
+                  {contact.buttons.map((button, index) => (
+                    <Link
+                      key={index}
+                      href={button.href}
+                      className={`px-5 py-2.5 rounded-lg text-[12px] font-semibold transition-colors border ${
+                        button.type === 'primary'
+                          ? 'bg-yellow-500 hover:bg-yellow-600 text-[#19191F] border-yellow-500'
+                          : 'bg-white text-[#19191F] hover:bg-amber-100 border-yellow-300'
+                      }`}
+                    >
+                      {button.text}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

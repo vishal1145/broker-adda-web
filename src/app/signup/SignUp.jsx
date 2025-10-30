@@ -297,11 +297,11 @@ const SignUp = () => {
                 <>
                   {/* Header */}
                   <div className="text-left mb-14">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3 flex items-left justify-left gap-3" style={{ fontFamily: 'Inria Serif, serif' }}>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-3 flex items-left justify-left gap-3 font-[Inter]" >
                       Let's Get Started
                       <span className="text-3xl">🚀</span>
                     </h1>
-                    <p className="text-lg text-gray-600" style={{ fontFamily: 'Inria Serif, serif' }}>Sign up your account</p>
+                    <p className="text-lg text-gray-600 font-[Inter]" >Sign up your account</p>
                   </div>
 
                   {/* Social Login Buttons */}

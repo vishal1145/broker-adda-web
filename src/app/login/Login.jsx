@@ -313,11 +313,11 @@ const Login = () => {
                 <>
                   {/* Header */}
                   <div className="text-left mb-14">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3 flex items-left justify-left gap-3" style={{ fontFamily: 'Inria Serif, serif' }}>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-3 flex items-left justify-left gap-3 font-[Inter]" >
                       Welcome back
                       <span className="text-3xl">👋</span>
                     </h1>
-                    <p className="text-lg text-gray-600" style={{ fontFamily: 'Inria Serif, serif' }}>Log in your account</p>
+                    <p className="text-lg text-gray-600 font-[Inter]" >Log in your account</p>
                   </div>
 
                   {/* Social Login Buttons */}
@@ -339,7 +339,7 @@ const Login = () => {
                       onClick={() => handleSocialLogin('Google')}
                       className="w-full flex items-center justify-center px-4 py-3 border rounded-lg font-medium text-base hover:bg-gray-50 focus:outline-none transition-all duration-200 cursor-pointer"
                       style={{ 
-                        fontFamily: 'Open Sans, sans-serif',
+                       
                         borderColor: '#ea4335',
                         color: '#ea4335'
                       }}
@@ -384,11 +384,11 @@ const Login = () => {
                     >
                       ← Back
                     </button>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-left justify-left gap-2" style={{ fontFamily: 'Inria Serif, serif' }}>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-left justify-left gap-2 font-[Inter]">
                       Welcome back
                       <span className="text-2xl">👋</span>
                     </h1>
-                    <p className="text-gray-600" style={{ fontFamily: 'Inria Serif, serif' }}>Log in your account</p>
+                    <p className="text-gray-600 font-[Inter]" >Log in your account</p>
             </div>
 
                   {/* Number Form */}

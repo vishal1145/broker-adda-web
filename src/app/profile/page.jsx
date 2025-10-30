@@ -1595,20 +1595,20 @@ const Profile = () => {
             ) : (
               <div className="">
                 {/* Progress Bar - Common for all steps */}
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm mb-6">
+                <div className=" bg-white   mb-6">
                         <div className="flex items-start gap-3 mb-4">
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                          {/* <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                               <path d="M3 20.9996C3.00003 21.5518 2.55228 21.9995 2 21.9996C1.4479 21.9996 1.00029 21.5526 1 21.0005L3 20.9996ZM6.29688 12.7964C7.87562 12.0838 9.62701 11.8423 11.3398 12.1001C13.0526 12.358 14.6542 13.1048 15.9531 14.2505C16.3673 14.6159 16.4073 15.2475 16.042 15.6617C15.6766 16.0758 15.045 16.1149 14.6309 15.7496C13.6205 14.8584 12.3742 14.2782 11.042 14.0777C9.70979 13.8772 8.34803 14.0654 7.12012 14.6197C5.89221 15.1739 4.84995 16.0709 4.11914 17.2027C3.38856 18.3343 3 19.6526 3 20.9996L1 21.0005C0.999905 19.2684 1.49989 17.5728 2.43945 16.1177C3.37903 14.6626 4.71822 13.5091 6.29688 12.7964Z" fill="#0D542B"/>
                               <path d="M14 8C14 5.79086 12.2091 4 10 4C7.79086 4 6 5.79086 6 8C6 10.2091 7.79086 12 10 12C12.2091 12 14 10.2091 14 8ZM16 8C16 11.3137 13.3137 14 10 14C6.68629 14 4 11.3137 4 8C4 4.68629 6.68629 2 10 2C13.3137 2 16 4.68629 16 8Z" fill="#0D542B"/>
                               <path d="M18 22V16C18 15.4477 18.4477 15 19 15C19.5523 15 20 15.4477 20 16V22C20 22.5523 19.5523 23 19 23C18.4477 23 18 22.5523 18 22Z" fill="#0D542B"/>
                               <path d="M22 18C22.5523 18 23 18.4477 23 19C23 19.5523 22.5523 20 22 20H16C15.4477 20 15 19.5523 15 19C15 18.4477 15.4477 18 16 18H22Z" fill="#0D542B"/>
                             </svg>
-                          </div>
-                          <div className="flex-1 min-w-0">
+                          </div> */}
+                          {/* <div className="flex-1 min-w-0">
                             <h3 className="text-sm font-semibold text-gray-900 mb-1">Create broker profile</h3>
                             <p className="text-xs text-gray-600">Finish basic details and choose your nearest region to get started.</p>
-                          </div>
+                          </div> */}
                         </div>
                       {/* Progress Bar */}
                       <div className="space-y-3">
@@ -2081,17 +2081,17 @@ const Profile = () => {
                                     placeholder: (provided) => ({
                                       ...provided,
                                       color: "#9ca3af",
-                                      fontSize: "0.875rem",
+                                      fontSize: "12px",
                                     }),
                                     input: (provided) => ({
                                       ...provided,
                                       color: "#374151",
-                                      fontSize: "0.875rem",
+                                      fontSize: "12px",
                                     }),
                                     singleValue: (provided) => ({
                                       ...provided,
                                       color: "#374151",
-                                      fontSize: "0.875rem",
+                                      fontSize: "12px",
                                     }),
                                     option: (provided, state) => ({
                                       ...provided,
@@ -2099,7 +2099,7 @@ const Profile = () => {
                                       color: state.isSelected
                                         ? "white"
                                         : "#374151",
-                                      fontSize: "0.875rem",
+                                      fontSize: "12px",
                                       padding: "0.75rem 1rem",
                                     }),
                                     menu: (provided) => ({
@@ -2225,18 +2225,35 @@ const Profile = () => {
                                   ...provided,
                                   padding: "6px 12px",
                                 }),
+                                placeholder: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
+                                input: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
+                                singleValue: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
+                                option: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
                                 multiValue: (provided) => ({
                                   ...provided,
                                   backgroundColor: "#DCFCE7",
                                   color: "#171A1F",
+                                  borderRadius: "9999px",
                                 }),
                                 multiValueLabel: (provided) => ({
                                   ...provided,
-                                  color: "##171A1F",
+                                  color: "#171A1F",
                                 }),
                                 multiValueRemove: (provided) => ({
                                   ...provided,
-                                  color: "##171A1F",
+                                  color: "#171A1F",
                                   "&:hover": {
                                     backgroundColor: "#DCFCE7",
                                     color: "#1e3a8a",
@@ -2463,6 +2480,7 @@ const Profile = () => {
                                     ...provided,
                                     backgroundColor: "#dbeafe",
                                     color: "#1e40af",
+                                    borderRadius: "9999px",
                                   }),
                                   multiValueLabel: (provided) => ({
                                     ...provided,
@@ -2616,6 +2634,22 @@ const Profile = () => {
                                   // minHeight: "48px",
                                   fontSize: "12px",
                                 }),
+                                placeholder: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
+                                input: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
+                                singleValue: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
+                                option: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
                               }}
                             />
                           </div>
@@ -2639,6 +2673,22 @@ const Profile = () => {
                                   border: "1px solid #d1d5db",
                                   borderRadius: "0.5rem",
                                   // minHeight: "48px",
+                                  fontSize: "12px",
+                                }),
+                                placeholder: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
+                                input: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
+                                singleValue: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
+                                option: (provided) => ({
+                                  ...provided,
                                   fontSize: "12px",
                                 }),
                               }}
@@ -2861,6 +2911,10 @@ const Profile = () => {
                                 ...provided,
                                 fontSize: "12px",
                               }),
+                                option: (provided) => ({
+                                  ...provided,
+                                  fontSize: "12px",
+                                }),
                             }}
                           />
                         )}

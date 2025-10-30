@@ -116,12 +116,12 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
 
         <div className="p-8">
           {/* Title */}
-          <h2 className="text-2xl font-bold text-center text-gray-900 mb-2" style={{ fontFamily: 'Inria Serif, serif' }}>
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-2 font-[Inter]" >
             Almost done
           </h2>
 
           {/* Instruction */}
-          <p className="text-gray-600 text-center mb-8" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+          <p className="text-gray-600 text-center mb-8 font-[Inter]" >
             Please type the code we sent you in your email
           </p>
 

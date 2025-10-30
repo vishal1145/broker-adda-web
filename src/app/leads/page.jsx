@@ -645,7 +645,7 @@ export default function BrokerLeadsPage() {
         ? "#f1f5f9"
         : "transparent",
       color: s.isSelected ? "white" : s.isFocused ? "#111827" : "#4b5563",
-      fontSize: 14,
+      fontSize: 12,
       fontFamily: "var(--font-body, inherit)",
       borderRadius: 6,
       margin: "2px 6px",
@@ -1665,7 +1665,7 @@ export default function BrokerLeadsPage() {
                       }}
                       className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors duration-200 border ${
                         leadViewMode === "transferred"
-                          ? "bg-sky-600 border-sky-600"
+                          ? "bg-green-900 border-green-900"
                           : "bg-gray-200 border-gray-300"
                       }`}
                     >
@@ -1735,7 +1735,9 @@ export default function BrokerLeadsPage() {
               </div>
 
               {/* subtle divider before lead cards */}
-              <div className="mt-4" />
+              <div className="pt-4">
+                <div className="h-px bg-gray-100" />
+              </div>
               {/* Search + status + buttons - Flexible layout */}
               <div className="mt-6 flex items-center gap-3">
                 {/* Search - Fixed width to match status dropdown */}
@@ -2024,7 +2026,7 @@ export default function BrokerLeadsPage() {
                                   <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     REQUIREMENT
                                   </div>
-                                  <div className="break-words text-[14px] leading-[16px]  font-medium text-[#171A1F]">
+                                  <div className="break-words text-[12px] leading-[16px]  font-medium text-[#171A1F]">
                                     {row.requirement || row.req || "—"}
                                   </div>
                                 </div>
@@ -2032,7 +2034,7 @@ export default function BrokerLeadsPage() {
                                   <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     PROPERTY TYPE
                                   </div>
-                                  <div className="break-words text-[14px] leading-[16px]  font-medium text-[#171A1F]">
+                                  <div className="break-words text-[12px] leading-[16px]  font-medium text-[#171A1F]">
                                     {row.propertyType || "—"}
                                   </div>
                                 </div>
@@ -2044,7 +2046,7 @@ export default function BrokerLeadsPage() {
                                   <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
                                     BUDGET
                                   </div>
-                                  <div className="break-words text-[14px] leading-[16px]  font-medium  text-[#171A1F]">
+                                  <div className="break-words text-[12px] leading-[16px]  font-medium  text-[#171A1F]">
                                     {typeof row.budget === "number"
                                       ? `$${row.budget.toLocaleString()}`
                                       : row.budget || "—"}
@@ -2058,10 +2060,10 @@ export default function BrokerLeadsPage() {
                                     const { primary, secondary } =
                                       getRegionNames(row);
                                     return (
-                                      <div className="break-words text-[14px] leading-[16px] flex flex-col gap-2 font-medium text-[#171A1F]">
+                                      <div className="break-words text-[12px] leading-[16px] flex flex-col gap-2 font-medium text-[#171A1F]">
                                         <div>{primary || "—"}</div>
                                         {secondary && (
-                                          <div className="break-words text-[14px] leading-[16px]  font-medium text-[#171A1F]">
+                                          <div className="break-words text-[12px] leading-[16px]  font-medium text-[#171A1F]">
                                             {secondary}
                                           </div>
                                         )}
@@ -2863,7 +2865,7 @@ export default function BrokerLeadsPage() {
                 <div>
                   <label className="block text-xs font-label text-gray-700 mb-4">
                     Max Budget:{" "}
-                    <span className="text-sky-700 font-semibold">
+                    <span className="text-green-900 font-semibold">
                       ${filters.budgetMax.toLocaleString()}
                     </span>
                   </label>
@@ -2879,7 +2881,7 @@ export default function BrokerLeadsPage() {
                         budgetMax: Number(e.target.value),
                       })
                     }
-                    className="w-full accent-sky-600"
+                    className="w-full accent-green-900"
                   />
                 </div>
               </div>
@@ -3076,7 +3078,7 @@ export default function BrokerLeadsPage() {
                               }
                               className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${
                                 isSelected
-                                  ? "bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-100 shadow-sm"
+                                  ? "bg-green-50 text-green-900 border-green-200 ring-1 ring-green-100 shadow-sm"
                                   : "bg-white text-slate-700 border-gray-200 hover:border-gray-300 hover:bg-slate-50"
                               }`}
                             >
@@ -3108,7 +3110,7 @@ export default function BrokerLeadsPage() {
                               }
                               className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${
                                 isSelected
-                                  ? "bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-100 shadow-sm"
+                                  ? "bg-green-50 text-green-900 border-green-200 ring-1 ring-green-100 shadow-sm"
                                   : "bg-white text-slate-700 border-gray-200 hover:border-gray-300 hover:bg-slate-50"
                               }`}
                             >
@@ -3168,13 +3170,13 @@ export default function BrokerLeadsPage() {
                                 budget: Number(e.target.value),
                               })
                             }
-                            className="w-full h-2 rounded-full appearance-none focus:outline-none"
+                            className="w-full h-2 rounded-full appearance-none focus:outline-none accent-green-900"
                             style={{
-                              background: `linear-gradient(to right, #2563eb 0%, #2563eb ${fillPct}%, #e5e7eb ${fillPct}%, #e5e7eb 100%)`,
+                              background: `linear-gradient(to right, #14532d 0%, #14532d ${fillPct}%, #e5e7eb ${fillPct}%, #e5e7eb 100%)`,
                             }}
                           />
-                          <div className="absolute -top-6 right-0 flex items-center border border-blue-200 rounded-full bg-blue-50 px-2 py-0.5">
-                            <span className="text-[11px] font-semibold text-blue-600 mr-1">
+                          <div className="absolute -top-6 right-0 flex items-center border border-green-200 rounded-full bg-green-50 px-2 py-0.5">
+                            <span className="text-[11px] font-semibold text-green-900 mr-1">
                               ₹
                             </span>
                             <input
@@ -3190,7 +3192,7 @@ export default function BrokerLeadsPage() {
                                   : Math.min(budgetMax, Math.max(budgetMin, n));
                                 setNewLead({ ...newLead, budget: clamped });
                               }}
-                              className="w-[2ch] text-[11px] font-semibold text-blue-700 bg-transparent text-right focus:outline-none font-mono tabular-nums"
+                              className="w-[2ch] text-[11px] font-semibold text-green-900 bg-transparent text-right focus:outline-none font-mono tabular-nums"
                               style={{
                                 width: `calc(${Math.max(
                                   3,
