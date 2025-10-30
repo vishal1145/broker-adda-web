@@ -3580,7 +3580,7 @@ export default function BrokerLeadsPage() {
               <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-white">
                 <h4 className="text-[18px] font-semibold text-slate-900 flex items-center gap-2">
                   <svg
-                    className="w-5 h-5 text-sky-600"
+                    className="w-5 h-5 text-green-900"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
