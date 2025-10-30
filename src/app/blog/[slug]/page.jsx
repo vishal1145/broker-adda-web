@@ -27,7 +27,7 @@ const BlogDetails = () => {
       
       {/* Hero Image */}
       <div className="flex justify-center mt-6">
-        <div className="max-w-7xl w-full rounded-2xl overflow-hidden">
+        <div className=" w-full rounded-2xl overflow-hidden">
           <img
             src={blog.heroImage}
             alt={blog.title}
@@ -36,11 +36,11 @@ const BlogDetails = () => {
         </div>
       </div>
       
-      <div className="max-w-7xl mx-auto px-4 py-16 grid lg:grid-cols-12 gap-10">
+      <div className=" mx-auto px-4 py-16 grid lg:grid-cols-12 gap-10">
         {/* Left Share Sidebar */}
         <div className="lg:col-span-1">
           <div className="sticky top-8">
-            <h3 className="text-sm font-bold text-gray-400 mb-4 uppercase">Share</h3>
+            <h3 className="text-[14px] font-bold text-gray-400 mb-4 uppercase">Share</h3>
            
             <div className="flex flex-col gap-3">
               {/* Facebook */}
@@ -94,7 +94,7 @@ const BlogDetails = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl font-medium text-gray-900 mb-6 text-center">
+          <h1 className="text-[20px] font-medium text-gray-900 mb-6 text-center">
             {blog.title}
           </h1>
 
@@ -118,13 +118,13 @@ const BlogDetails = () => {
 
           {/* Introduction Paragraph with Drop Cap */}
           <div className="mb-8">
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-[12px] text-gray-700 leading-relaxed">
               <span className="float-left w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center text-5xl font-bold text-black mr-4 leading-none">
                 {blog.introduction.dropCap}
               </span>
               {blog.introduction.firstParagraph}
             </p>
-            <p className="text-gray-600 leading-relaxed mt-4">
+            <p className="text-[12px] text-gray-600 leading-relaxed mt-4">
               {blog.introduction.secondParagraph}
             </p>
           </div>
@@ -132,12 +132,12 @@ const BlogDetails = () => {
           {/* Body Sections */}
           {blog.content.body.map((section, index) => (
             <div key={index} className="mb-10">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-[14px] font-semibold text-gray-900 mb-4">
                 {section.heading}
               </h2>
               
               {/* Regular text content */}
-              <p className="text-gray-600 leading-relaxed mb-4">{section.text}</p>
+              <p className="text-[12px] text-gray-600 leading-relaxed mb-4">{section.text}</p>
 
               {/* Images if any */}
               {section.images && (
@@ -166,7 +166,7 @@ const BlogDetails = () => {
               </div>
               <div className="flex items-center">
                 <div className="w-1 h-6 bg-yellow-400 mr-3"></div>
-                <span className="text-green-100 text-lg font-medium">
+                <span className="text-green-100 text-[14px] font-medium">
                   {`"${blogData.alsoRead}"`}
                 </span>
               </div>
@@ -176,7 +176,7 @@ const BlogDetails = () => {
           {/* Cleaning and Maintenance Tips */}
           {blog.content.cleaningTips && (
             <div className="mb-10">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-[14px] font-semibold text-gray-900 mb-4">
                 {blog.content.cleaningTips.heading}
               </h2>
               
@@ -186,7 +186,7 @@ const BlogDetails = () => {
                     <div className="relative w-4 h-4 bg-green-800 rounded-full mt-2 flex-shrink-0">
                       <div className="absolute left-0 w-2 h-2 bg-yellow-400 rounded-full top-0.5"></div>
                     </div>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-[12px] text-gray-600 leading-relaxed">
                       {tip}
                     </p>
                   </div>
@@ -198,10 +198,10 @@ const BlogDetails = () => {
           {/* Protecting Your Investment */}
           {blog.content.protectingInvestment && (
             <div className="mb-10">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-[14px] font-semibold text-gray-900 mb-4">
                 {blog.content.protectingInvestment.heading}
               </h2>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-[12px] text-gray-600 leading-relaxed">
                 {blog.content.protectingInvestment.text}
               </p>
             </div>
@@ -210,7 +210,7 @@ const BlogDetails = () => {
           {/* Testimonial/Quote Block */}
           {blog.content.testimonial && (
             <div className="mb-10">
-              <div className="bg-yellow-500 rounded-2xl p-6">
+              <div className="bg-yellow-100 border border-yellow-200 rounded-2xl p-6">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0">
                     <img
@@ -220,10 +220,10 @@ const BlogDetails = () => {
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    <h3 className="text-[14px] font-bold text-gray-900 mb-2">
                       {blog.content.testimonial.name}
                     </h3>
-                    <p className="text-gray-700 leading-relaxed">
+                    <p className="text-[12px] text-gray-700 leading-relaxed">
                       {blog.content.testimonial.text}
                     </p>
                   </div>
@@ -240,7 +240,7 @@ const BlogDetails = () => {
           
           {/* Filter by Categories */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Filter by Categories</h3>
+            <h3 className="text-[14px] font-semibold mb-4 text-gray-900">Filter by Categories</h3>
             <div className="grid grid-cols-3 gap-2">
               {[
                 "Apartments", "Villas", "Commercial", "Investment", "Luxury", "Modern", 
@@ -248,7 +248,7 @@ const BlogDetails = () => {
               ].map((cat, idx) => (
                 <span
                   key={idx}
-                  className="bg-gray-100 text-sm text-gray-700 px-3 py-2 rounded-full hover:bg-gray-200 transition-colors cursor-pointer text-center"
+                  className="bg-gray-100 text-[12px] text-gray-700 px-3 py-2 rounded-full hover:bg-gray-200 transition-colors cursor-pointer text-center"
                 >
                   {cat}
                 </span>
@@ -258,10 +258,10 @@ const BlogDetails = () => {
 
           {/* Table of Content */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Property Guide Sections</h3>
+            <h3 className="text-[14px] font-semibold mb-4 text-gray-900">Property Guide Sections</h3>
             <div className="space-y-3">
               {blog.content.body.map((section, index) => (
-                <div key={index} className="text-sm text-gray-600 hover:text-green-700 cursor-pointer transition-colors">
+                <div key={index} className="text-[12px] text-gray-600 hover:text-green-700 cursor-pointer transition-colors">
                   {section.heading}
                 </div>
               ))}
@@ -276,13 +276,13 @@ const BlogDetails = () => {
               alt="Offer"
             />
             <div className="absolute inset-0  bg-opacity-50 rounded-2xl"></div>
-            <div className="absolute bottom-4 left-28 text-white text-center">
-              <p className="text-sm font-medium"> — Latest Listings</p>
-              <p className="text-lg font-bold mt-1">Hot <span className="text-yellow-400">Property Deals</span></p>
-              <p className="text-lg font-bold">in Your City</p>
+            <div className="absolute bottom-4 left-44 text-white text-center">
+              <p className="text-[12px] font-medium"> — Latest Listings</p>
+              <p className="text-[14px] font-bold mt-1">Hot <span className="text-yellow-400">Property Deals</span></p>
+              <p className="text-[14px] font-bold">in Your City</p>
               <a
                 href="/properties"
-                className="mt-3 inline-block bg-yellow-500 text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-yellow-600 transition-colors"
+                className="mt-3 inline-block bg-yellow-500 text-black px-4 py-2 rounded-full text-[12px] font-medium hover:bg-yellow-600 transition-colors"
               >
                 Explore Now
               </a>
