@@ -1,3 +1,0 @@
-module.exports=[55539,a=>{"use strict";a.s(["default",()=>e]);var b=a.i(87924),c=a.i(72131),d=a.i(50944);let e=()=>{let a=(0,d.useRouter)();return(0,c.useEffect)(()=>{a.replace("/help/documentation")},[a]),(0,b.jsx)("div",{className:"min-h-screen bg-white flex items-center justify-center",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("div",{className:"animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"}),(0,b.jsx)("p",{className:"text-gray-600",children:"Redirecting to documentation..."})]})})}}];
-
-//# sourceMappingURL=src_app_documentation_page_jsx_00c29a12._.js.map

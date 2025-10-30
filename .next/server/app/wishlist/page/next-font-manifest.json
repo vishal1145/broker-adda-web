@@ -1,8 +1,0 @@
-{
-  "pages": {},
-  "app": {
-    "[project]/src/app/wishlist/page": []
-  },
-  "appUsingSizeAdjust": true,
-  "pagesUsingSizeAdjust": false
-}

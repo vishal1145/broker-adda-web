@@ -1,3 +1,0 @@
-module.exports=[32414,a=>{"use strict";a.s(["default",()=>e]);var b=a.i(87924),c=a.i(72131),d=a.i(50944);let e=()=>{let a=(0,d.useRouter)();return(0,c.useEffect)(()=>{a.replace("/help/legal-compliance")},[a]),(0,b.jsx)("div",{className:"min-h-screen bg-white flex items-center justify-center",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("div",{className:"animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"}),(0,b.jsx)("p",{className:"text-gray-600",children:"Redirecting to legal compliance guide..."})]})})}}];
-
-//# sourceMappingURL=src_app_legal-compliance_page_jsx_2af3e6ed._.js.map
