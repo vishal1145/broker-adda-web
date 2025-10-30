@@ -102,33 +102,12 @@ const DocumentationPage = () => {
                     <div className="text-[14px] font-semibold text-[#171A1FFF]">Quick Tips</div>
                   </div>
                 </div>
-                <ul className="space-y-2">
-                  {sortedSections.map((section, idx) => {
-                    // Derive a short hint for tooltip
-                    const hint = Array.isArray(section.content)
-                      ? section.content[0]
-                      : (section.content || (Array.isArray(section.bullets) && section.bullets[0]) || 'View details');
-                    return (
-                      <li key={idx} className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2">
-                        <span className="text-[12px] leading-[20px] text-[#565D6D]">{section.title}</span>
-                        <span
-                          className="shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full border border-gray-300 text-gray-600 text-[11px] cursor-help"
-                          title={typeof hint === 'string' ? hint : ''}
-                          aria-label="info"
-                        >i</span>
-                      </li>
-                    );
-                  })}
-                  {/* Extra quick tips */}
-                  {[
-                    { t: 'Complete Your Profile', tip: 'Fill personal, regions and documents for best results' },
-                    { t: 'Enable Notifications', tip: 'Turn on notifications to never miss updates' },
-                  ].map((x, i) => (
-                    <li key={`doc-qt-${i}`} className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2">
-                      <span className="text-[12px] leading-[20px] text-[#565D6D]">{x.t}</span>
-                      <span className="shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full border border-gray-300 text-gray-600 text-[11px] cursor-help" title={x.tip} aria-label="info">i</span>
-                    </li>
-                  ))}
+                <ul className="list-disc list-inside space-y-2">
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Start with account basics, then review security preferences.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Keep documents clear and under 10MB for smooth uploads.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Use nearest regions for quick setup; refine later if needed.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Check notifications to stay updated on lead activity.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Visit Help → Documentation for step‑by‑step guides.</li>
                 </ul>
               </div>
               <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
@@ -138,32 +117,12 @@ const DocumentationPage = () => {
                     <div className="text-[14px] font-semibold text-[#171A1FFF]">Popular Topics</div>
                   </div>
                 </div>
-                <ul className="space-y-2">
-                  {sortedSections.slice(0, 3).map((section, idx) => {
-                    const hint = Array.isArray(section.bullets) && section.bullets.length > 0
-                      ? section.bullets[0]
-                      : (Array.isArray(section.content) ? section.content[0] : section.content) || 'View details';
-                    return (
-                      <li key={idx} className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2">
-                        <span className="text-[12px] leading-[20px] text-[#565D6D]">{section.title}</span>
-                        <span
-                          className="shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full border border-gray-300 text-gray-600 text-[11px] cursor-help"
-                          title={typeof hint === 'string' ? hint : ''}
-                          aria-label="info"
-                        >i</span>
-                      </li>
-                    );
-                  })}
-                  {/* Extra popular topics */}
-                  {[
-                    { t: 'Verify Your Account', tip: 'KYC documents and verification steps' },
-                    { t: 'Manage Leads', tip: 'Create, share and track leads efficiently' },
-                  ].map((x, i) => (
-                    <li key={`doc-pt-${i}`} className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2">
-                      <span className="text-[12px] leading-[20px] text-[#565D6D]">{x.t}</span>
-                      <span className="shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full border border-gray-300 text-gray-600 text-[11px] cursor-help" title={x.tip} aria-label="info">i</span>
-                    </li>
-                  ))}
+                <ul className="list-disc list-inside space-y-2">
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Profile verification and KYC overview.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">How to create and manage leads effectively.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Assign regions and optimize search results.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Sharing leads securely with other brokers.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Privacy settings and two‑factor authentication.</li>
                 </ul>
               </div>
               <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
@@ -173,21 +132,11 @@ const DocumentationPage = () => {
                     <div className="text-[14px] font-semibold text-[#171A1FFF]">Need Help?</div>
                   </div>
                 </div>
-                <ul className="space-y-2">
-                  {[
-                    { label: 'Account Issues', tip: 'Reset password, update profile, verification' },
-                    { label: 'Managing Leads', tip: 'Import, assign, and track lead status' },
-                    { label: 'Privacy & Security', tip: 'Two-factor auth and data protection' },
-                  ].map((item, idx) => (
-                    <li key={idx} className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2">
-                      <span className="text-[12px] leading-[20px] text-[#565D6D]">{item.label}</span>
-                      <span
-                        className="shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full border border-gray-300 text-gray-600 text-[11px] cursor-help"
-                        title={item.tip}
-                        aria-label="info"
-                      >i</span>
-                    </li>
-                  ))}
+                <ul className="list-disc list-inside space-y-2">
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Reset password, update profile, and verification steps.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Import, assign, and track lead status efficiently.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Enable 2FA and review privacy controls.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Contact support for billing or access issues.</li>
                 </ul>
               </div>
               {/* Support & Documentation (like profile page) */}

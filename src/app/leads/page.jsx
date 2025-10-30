@@ -489,7 +489,7 @@ export default function BrokerLeadsPage() {
   /* ───────────── Status styles to match screenshot ───────────── */
   const getStatusBadgeClasses = (status) => {
     const s = (status || "").toString().toLowerCase();
-    if (s === "new") return "bg-sky-100 text-sky-700";
+    if (s === "new") return "bg-green-50 text-green-900";
     if (s === "contacted" || s === "in progress")
       return "bg-amber-100 text-amber-700";
     if (s === "qualified" || s === "closed")
@@ -497,7 +497,7 @@ export default function BrokerLeadsPage() {
     if (s === "rejected") return "bg-rose-100 text-rose-700";
     return "bg-gray-100 text-gray-700";
   };
-  const getStatusAvatarClasses = (status) => "bg-sky-50 text-sky-700";
+  const getStatusAvatarClasses = (status) => "bg-green-50 text-green-900";
 
   const getInitials = (name) => {
     if (!name || typeof name !== "string") return "?";
@@ -1772,7 +1772,7 @@ export default function BrokerLeadsPage() {
                   {/* Search indicator */}
                   {isSearching && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <div className="w-4 h-4 border-2 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
                     </div>
                   )}
                 </div>
@@ -1960,7 +1960,7 @@ export default function BrokerLeadsPage() {
                               style={{
                                 background:
                                   row.status?.toLowerCase() === "new"
-                                    ? "#FDC700"
+                                    ? "#E8F8F0"
                                     : row.status?.toLowerCase() === "assigned"
                                     ? "linear-gradient(90deg, #3b82f6 0%, #1e40af 100%)"
                                     : row.status?.toLowerCase() ===
@@ -3623,7 +3623,7 @@ export default function BrokerLeadsPage() {
                 {/* Profile Header */}
                 <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-white bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-semibold">
+                    <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-white bg-green-50 text-green-900 flex items-center justify-center text-sm font-semibold">
                       {getInitials(
                         selectedLead.name || selectedLead.customerName || "?"
                       )}
@@ -4250,7 +4250,7 @@ export default function BrokerLeadsPage() {
                                     });
                                     setViewEditMode(true);
                                   }}
-                                  className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950"
+                                  className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-green-900 hover:bg-green-950"
                                 >
                                   {(selectedLead?.createdBy &&
                                     (selectedLead.createdBy._id ||
@@ -4266,13 +4266,13 @@ export default function BrokerLeadsPage() {
                                 <>
                                   <button
                                     onClick={saveViewEdits}
-                                    className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950"
+                                    className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-green-900 hover:bg-green-950"
                                   >
                                     Save
                                   </button>
                                   <button
                                     onClick={() => setViewEditMode(false)}
-                                    className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200"
+                                    className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-slate-700 bg-gray-100 hover:bg-gray-200 border border-gray-200"
                                   >
                                     Cancel
                                   </button>

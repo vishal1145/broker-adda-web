@@ -78,24 +78,12 @@ const GettingStartedPage = () => {
                 <div className="mb-3 flex items-center">
                   <div className="text-[14px] font-semibold text-[#171A1FFF]">Quick Tips</div>
                 </div>
-                <ul className="space-y-2">
-                  {(data.customSections || []).slice(0, 5).map((section, idx) => {
-                    const hint = section.description || (Array.isArray(section.highlights) && section.highlights[0]) || 'View details';
-                    return (
-                      <li key={idx} className="flex items-center gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2">
-                        <span className="text-[12px] leading-[20px] text-[#565D6D]" title={typeof hint === 'string' ? hint : ''}>{section.title}</span>
-                      </li>
-                    );
-                  })}
-                  {/* Extra quick tips */}
-                  {[
-                    { t: 'Complete Your Profile', tip: 'Fill personal, regions and documents for best results' },
-                    { t: 'Enable Notifications', tip: 'Turn on notifications to never miss updates' },
-                  ].map((x, i) => (
-                    <li key={`qt-extra-${i}`} className="flex items-center gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2">
-                      <span className="text-[12px] leading-[20px] text-[#565D6D]" title={x.tip}>{x.t}</span>
-                    </li>
-                  ))}
+                <ul className="list-disc list-inside space-y-2">
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Watch the intro video and follow the highlights.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Complete profile basics before exploring features.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Use nearest regions for faster onboarding.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Keep documents under 10MB for quick uploads.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Enable notifications to stay updated.</li>
                 </ul>
               </div>
 
@@ -103,24 +91,11 @@ const GettingStartedPage = () => {
                 <div className="mb-3 flex items-center">
                   <div className="text-[14px] font-semibold text-[#171A1FFF]">Popular Topics</div>
                 </div>
-                <ul className="space-y-2">
-                  {(data.customSections || []).slice(0, 3).map((section, idx) => {
-                    const hint = (Array.isArray(section.highlights) && section.highlights[0]) || section.description || 'View details';
-                    return (
-                      <li key={idx} className="flex items-center gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2" title={typeof hint === 'string' ? hint : ''}>
-                        <span className="text-[12px] leading-[20px] text-[#565D6D]">{section.title}</span>
-                      </li>
-                    );
-                  })}
-                  {/* Extra popular topics */}
-                  {[
-                    { t: 'Verify Your Account', tip: 'KYC documents and verification steps' },
-                    { t: 'Manage Leads', tip: 'Create, share and track leads efficiently' },
-                  ].map((x, i) => (
-                    <li key={`pt-extra-${i}`} className="flex items-center gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2" title={x.tip}>
-                      <span className="text-[12px] leading-[20px] text-[#565D6D]">{x.t}</span>
-                    </li>
-                  ))}
+                <ul className="list-disc list-inside space-y-2">
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Verification steps and KYC overview.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Creating and managing leads effectively.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Optimizing regions and search filters.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Sharing leads securely with your network.</li>
                 </ul>
               </div>
 
@@ -128,18 +103,12 @@ const GettingStartedPage = () => {
                 <div className="mb-3 flex items-center">
                   <div className="text-[14px] font-semibold text-[#171A1FFF]">Need Help?</div>
                 </div>
-                <ul className="space-y-2">
-                  {[
-                    { label: 'Getting Started', tip: 'Watch the intro video and follow highlights' },
-                    { label: 'Explore Features', tip: 'Use the key features to speed setup' },
-                    { label: 'Contact Support', tip: 'Reach us if you get stuck' },
-                    { label: 'FAQs', tip: 'Find answers to common questions' },
-                    { label: 'Best Practices', tip: 'Recommended steps to onboard faster' },
-                  ].map((item, idx) => (
-                    <li key={idx} className="flex items-center gap-3 rounded-lg border border-slate-100 bg-gray-50 px-3 py-2" title={item.tip}>
-                      <span className="text-[12px] leading-[20px] text-[#565D6D]">{item.label}</span>
-                    </li>
-                  ))}
+                <ul className="list-disc list-inside space-y-2">
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Intro video and quick highlights.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Feature overview to speed up setup.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Reach support if you get stuck.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">FAQs for common questions.</li>
+                  <li className="text-[12px] leading-[20px] text-[#565D6D]">Onboarding best practices.</li>
                 </ul>
               </div>
 
