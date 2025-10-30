@@ -1960,7 +1960,7 @@ export default function BrokerLeadsPage() {
                               style={{
                                 background:
                                   row.status?.toLowerCase() === "new"
-                                    ? "#E8F8F0"
+                                    ? "#FDC700"
                                     : row.status?.toLowerCase() === "assigned"
                                     ? "linear-gradient(90deg, #3b82f6 0%, #1e40af 100%)"
                                     : row.status?.toLowerCase() ===
