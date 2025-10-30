@@ -624,10 +624,10 @@ export default function BrokerLeadsPage() {
       border: "1px solid #e5e7eb",
       fontFamily: "var(--font-body, inherit)",
       fontSize: 12,
-      boxShadow: s.isFocused ? "0 0 0 4px rgba(59,130,246,.1)" : "0 0 1px #171a1f12, 0 0 2px #171a1f1F",
-      borderColor: s.isFocused ? "#3b82f6" : "#e5e7eb",
+      boxShadow: s.isFocused ? "0 0 0 4px rgba(13,84,43,0.12)" : "0 0 1px #171a1f12, 0 0 2px #171a1f1F",
+      borderColor: s.isFocused ? "#0D542B" : "#e5e7eb",
       background: "white",
-      ":hover": { borderColor: s.isFocused ? "#3b82f6" : "#d1d5db" },
+      ":hover": { borderColor: s.isFocused ? "#0D542B" : "#0D542B" },
     }),
     valueContainer: (p) => ({
       ...p,
@@ -640,16 +640,20 @@ export default function BrokerLeadsPage() {
     option: (p, s) => ({
       ...p,
       backgroundColor: s.isSelected
-        ? "#3b82f6"
+        ? "#0D542B"
         : s.isFocused
-        ? "#f1f5f9"
+        ? "#E8F8F0"
         : "transparent",
-      color: s.isSelected ? "white" : s.isFocused ? "#111827" : "#4b5563",
+      color: s.isSelected ? "#ffffff" : s.isFocused ? "#0D542B" : "#4b5563",
       fontSize: 12,
       fontFamily: "var(--font-body, inherit)",
       borderRadius: 6,
       margin: "2px 6px",
       padding: "8px 12px",
+      ":active": {
+        backgroundColor: s.isSelected ? "#0D542B" : "#C8F1DC",
+        color: s.isSelected ? "#ffffff" : "#0D542B",
+      },
     }),
     singleValue: (p) => ({
       ...p,
@@ -1749,7 +1753,7 @@ export default function BrokerLeadsPage() {
                     onChange={(e) =>
                       setFilters({ ...filters, query: e.target.value })
                     }
-                    className="w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white text-[12px] font-body placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500"
+                    className="w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white text-[12px] font-body placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-green-100 focus:border-green-600"
                     style={{ minHeight: "40px", fontSize: "12px" }}
                   />
                   <svg
@@ -1952,7 +1956,7 @@ export default function BrokerLeadsPage() {
                           {/* Status Badge - Horizontal Ribbon with Folded Corner */}
                           <div className="absolute top-0 right-0 z-10">
                             <div
-                              className="text-black text-[10px] leading-[20px] font-semibold px-[2x] py-[1px] rounded-full text-center shadow-md relative"
+                              className="text-black text-[10px] leading-[20px] font-semibold px-[8px] py-[1px] rounded-full text-center shadow-md relative"
                               style={{
                                 background:
                                   row.status?.toLowerCase() === "new"
@@ -2989,10 +2993,10 @@ export default function BrokerLeadsPage() {
                     onChange={handleNewLeadChange}
                     type="text"
                     placeholder="Enter customer's full name"
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-4 text-sm bg-white ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-4 focus:bg-green-50 selection:bg-green-100 selection:text-green-900 caret-green-900 text-sm bg-white ${
                       validationErrors.customerName
                         ? "border-red-300 focus:ring-red-100 focus:border-red-500"
-                        : "border-gray-200 focus:ring-sky-100 focus:border-sky-600"
+                        : "border-gray-200 focus:ring-green-100 focus:border-green-600"
                     }`}
                   />
                   {validationErrors.customerName && (
@@ -3014,10 +3018,10 @@ export default function BrokerLeadsPage() {
                       type="tel"
                       placeholder="Enter 10-digit phone number"
                       maxLength="10"
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-4 text-sm bg-white ${
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-4 focus:bg-green-50 selection:bg-green-100 selection:text-green-900 caret-green-900 text-sm bg-white ${
                         validationErrors.customerPhone
                           ? "border-red-300 focus:ring-red-100 focus:border-red-500"
-                          : "border-gray-200 focus:ring-sky-100 focus:border-sky-600"
+                          : "border-gray-200 focus:ring-green-100 focus:border-green-600"
                       }`}
                     />
                     {validationErrors.customerPhone && (
@@ -3036,10 +3040,10 @@ export default function BrokerLeadsPage() {
                       onChange={handleNewLeadChange}
                       type="email"
                       placeholder="e.g., john.doe@example.com"
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-4 text-sm bg-white ${
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-4 focus:bg-green-50 selection:bg-green-100 selection:text-green-900 caret-green-900 text-sm bg-white ${
                         validationErrors.customerEmail
                           ? "border-red-300 focus:ring-red-100 focus:border-red-500"
-                          : "border-gray-200 focus:ring-sky-100 focus:border-sky-600"
+                          : "border-gray-200 focus:ring-green-100 focus:border-green-600"
                       }`}
                     />
                     {validationErrors.customerEmail && (
@@ -3331,10 +3335,10 @@ export default function BrokerLeadsPage() {
                 {/* Share mode toggles (radio) */}
                 <div className="space-y-3">
                   <label className="inline-flex items-center gap-2 cursor-pointer select-none">
-                    <input
+                      <input
                       type="radio"
                       name="transferMode"
-                      className="h-4 w-4 accent-blue-600 cursor-pointer"
+                        className="h-4 w-4 accent-green-900 cursor-pointer"
                       checked={transferMode === "all"}
                       onChange={() => setTransferMode("all")}
                     />
@@ -3347,7 +3351,7 @@ export default function BrokerLeadsPage() {
                       <input
                         type="radio"
                         name="transferMode"
-                        className="h-4 w-4 accent-blue-600 cursor-pointer"
+                        className="h-4 w-4 accent-green-900 cursor-pointer"
                         checked={transferMode === "region"}
                         onChange={() => setTransferMode("region")}
                       />
@@ -3360,7 +3364,7 @@ export default function BrokerLeadsPage() {
                     <input
                       type="radio"
                       name="transferMode"
-                      className="h-4 w-4 accent-blue-600 cursor-pointer"
+                      className="h-4 w-4 accent-green-900 cursor-pointer"
                       checked={transferMode === "select"}
                       onChange={() => setTransferMode("select")}
                     />
@@ -3506,7 +3510,7 @@ export default function BrokerLeadsPage() {
                       })
                     }
                     placeholder="Add any specific instructions or context..."
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-600 text-sm bg-white"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-green-100 focus:border-green-600 text-sm bg-white"
                   />
                 </div>
               </div>
@@ -3688,9 +3692,9 @@ export default function BrokerLeadsPage() {
                         {/* Contact Details */}
                         <div className="rounded-xl border border-gray-200 bg-white p-4">
                           <div className="flex items-center justify-between mb-3">
-                            <h5 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2">
+                            <h5 className="text-[14px] font-semibold text-slate-900 flex items-center gap-2">
                               <svg
-                                className="w-4 h-4 text-sky-600"
+                                className="w-4 h-4 text-green-900"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -3705,7 +3709,7 @@ export default function BrokerLeadsPage() {
                               Contact Details
                             </h5>
                           </div>
-                          <div className="space-y-3 text-[14px]">
+                          <div className="space-y-3 text-[12px]">
                             {(() => {
                               const isOwner = !!(
                                 (selectedLead?.createdBy &&
@@ -3751,7 +3755,7 @@ export default function BrokerLeadsPage() {
                                       "")
                                   }
                                   onChange={handleViewFieldChange}
-                                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
+                                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600 text-[12px]"
                                   placeholder="Phone number"
                                 />
                               ) : (
@@ -3761,7 +3765,7 @@ export default function BrokerLeadsPage() {
                               )}
                             </div>
                             <div className="flex items-center gap-2 text-slate-700">
-                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-green-50">
                                 <svg
                                   className="w-3.5 h-3.5 text-gray-500"
                                   viewBox="0 0 24 24"
@@ -3791,7 +3795,7 @@ export default function BrokerLeadsPage() {
                                     (selectedLead.customerEmail || "")
                                   }
                                   onChange={handleViewFieldChange}
-                                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
+                                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600 text-[12px]"
                                   placeholder="Email address"
                                 />
                               ) : (
@@ -3804,9 +3808,9 @@ export default function BrokerLeadsPage() {
                         {/* Property Preferences */}
                         <div className="rounded-xl border border-gray-200 bg-white p-4">
                           <div className="flex items-center justify-between mb-3">
-                            <h5 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2">
+                            <h5 className="text-[14px] font-semibold text-slate-900 flex items-center gap-2">
                               <svg
-                                className="w-4 h-4 text-sky-600"
+                                className="w-4 h-4 text-green-900"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -3821,9 +3825,9 @@ export default function BrokerLeadsPage() {
                               Property Preferences
                             </h5>
                           </div>
-                          <div className="space-y-3 text-[14px]">
+                          <div className="space-y-3 text-[12px]">
                             <div className="flex items-center gap-2 text-slate-700">
-                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-green-50">
                                 <svg
                                   className="w-3 h-3 text-slate-400"
                                   fill="none"
@@ -3901,7 +3905,7 @@ export default function BrokerLeadsPage() {
                               )}
                             </div>
                             <div className="flex items-center gap-2 text-slate-700">
-                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-green-50">
                                 <svg
                                   className="w-3 h-3 text-slate-400"
                                   fill="currentColor"
@@ -3927,7 +3931,7 @@ export default function BrokerLeadsPage() {
                                     viewForm.budget ?? selectedLead.budget ?? ""
                                   }
                                   onChange={handleViewFieldChange}
-                                  className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-600 text-[14px]"
+                                  className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600 text-[12px]"
                                   placeholder="Budget"
                                 />
                               ) : (
@@ -3939,7 +3943,7 @@ export default function BrokerLeadsPage() {
                               )}
                             </div>
                             <div className="flex items-center gap-2 text-slate-700">
-                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-green-50">
                                 <svg
                                   className="w-3 h-3 text-slate-400"
                                   fill="none"
@@ -4017,7 +4021,7 @@ export default function BrokerLeadsPage() {
                             </div>
                             {/* Regions */}
                             <div className="flex items-center gap-2 text-slate-700">
-                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-green-50">
                                 <svg
                                   className="w-3 h-3 text-slate-400"
                                   fill="none"
@@ -4059,6 +4063,10 @@ export default function BrokerLeadsPage() {
                                     }))
                                   }
                                   classNamePrefix="react-select"
+                                styles={customSelectStyles}
+                                menuPlacement="top"
+                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                menuPosition="fixed"
                                 />
                               ) : (
                                 <span className="text-slate-900">
@@ -4070,7 +4078,7 @@ export default function BrokerLeadsPage() {
                               )}
                             </div>
                             <div className="flex items-center gap-2 text-slate-700">
-                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-sky-50">
+                              <span className="w-5 h-5 inline-flex items-center justify-center rounded bg-green-50">
                                 <svg
                                   className="w-3 h-3 text-slate-400"
                                   fill="none"
@@ -4112,6 +4120,10 @@ export default function BrokerLeadsPage() {
                                     }))
                                   }
                                   classNamePrefix="react-select"
+                                styles={customSelectStyles}
+                                menuPlacement="top"
+                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                menuPosition="fixed"
                                 />
                               ) : (
                                 <span className="text-slate-900">
@@ -4157,6 +4169,9 @@ export default function BrokerLeadsPage() {
                                     }
                                     classNamePrefix="react-select"
                                     styles={customSelectStyles}
+                                  menuPlacement="top"
+                                  menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                  menuPosition="fixed"
                                   />
                                 ) : (
                                   <span
@@ -4251,7 +4266,7 @@ export default function BrokerLeadsPage() {
                                 <>
                                   <button
                                     onClick={saveViewEdits}
-                                    className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700"
+                                    className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-900 hover:bg-green-950"
                                   >
                                     Save
                                   </button>
@@ -4281,7 +4296,7 @@ export default function BrokerLeadsPage() {
                         <div className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
                           <h5 className="text-[16px] font-semibold text-slate-900 mb-3 flex items-center gap-2">
                             <svg
-                              className="w-4 h-4 text-sky-600"
+                              className="w-4 h-4 text-green-900"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -4378,7 +4393,7 @@ export default function BrokerLeadsPage() {
                                     >
                                       <div className="flex items-center gap-2">
                                         <div
-                                          className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[11px] text-gray-700"
+                                          className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden ring-2 ring-white flex items-center justify-center text-[12px] text-gray-700"
                                           title={
                                             typeof toName === "string"
                                               ? toName

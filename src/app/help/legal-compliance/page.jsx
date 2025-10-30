@@ -135,7 +135,7 @@ const LegalCompliancePage = () => {
             </div>
 
             {/* Contact Section - soft amber banner with right-aligned CTAs */}
-            <div className="rounded-xl bg-amber-50 border border-amber-200 p-6 md:p-8 shadow-sm">
+            <div className="rounded-xl bg-yellow-50  p-6 md:p-8 shadow-sm">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6">
                 <div className="max-w-3xl">
                   <h2 className=" text-[16px] leading-[32px] font-bold text-[#171A1FFF] mb-1">{contact.title}</h2>

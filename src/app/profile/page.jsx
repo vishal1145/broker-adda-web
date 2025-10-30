@@ -1586,7 +1586,7 @@ const Profile = () => {
             {profileLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-6"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-6"></div>
                   <p className="text-lg text-gray-600 font-medium">
                     Loading profile data...
                   </p>
@@ -1758,7 +1758,7 @@ const Profile = () => {
                             placeholder="Enter your full name"
                             disabled={isViewMode}
                             className={`w-full px-3 py-2 border rounded-lg  text-[12px] focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-body ${
-                              isViewMode ? 'bg-gray-100 border-gray-200 text-gray-600 cursor-not-allowed' : 'bg-gray-50 border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                              isViewMode ? 'bg-gray-100 border-gray-200 text-gray-600 cursor-not-allowed' : 'bg-gray-50 border-gray-200 focus:ring-green-100 focus:border-green-600'
                             }`}
                           />
                         </div>
@@ -1784,7 +1784,7 @@ const Profile = () => {
                                 ? 'bg-gray-100 border-gray-200 text-gray-600 cursor-not-allowed'
                                 : emailError
                                   ? 'bg-gray-50 border-red-300 focus:ring-red-100 focus:border-red-500'
-                                  : 'bg-gray-50 border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                                  : 'bg-gray-50 border-gray-200 focus:ring-green-100 focus:border-green-600'
                             }`}
                           />
                           {emailError && (
@@ -1904,7 +1904,7 @@ const Profile = () => {
                               value={brokerFormData.firmName}
                               onChange={handleChange}
                               placeholder="Enter your firm name"
-                              className="w-full px-3 py-2 bg-gray-50 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-sm font-body"
+                              className="w-full px-3 py-2 bg-gray-50 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600 transition-all duration-200 text-sm font-body"
                             />
                           </div>
                         )}
@@ -1936,7 +1936,7 @@ const Profile = () => {
                               }}
                               placeholder="Enter your WhatsApp number"
                               maxLength="10"
-                              className="w-full px-3 py-2 border border-gray-200 text-[12px] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-body"
+                              className="w-full px-3 py-2 border border-gray-200 text-[12px] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600 text-sm font-body"
                             />
                           </div>
                         )}
@@ -1998,7 +1998,7 @@ const Profile = () => {
                                   value={brokerFormData.licenseNumber}
                                   onChange={handleChange}
                                   placeholder="e.g., BRE #01234567"
-                                  className="w-full pl-10 pr-4 py-2   text-[12px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  className="w-full pl-10 pr-4 py-2   text-[12px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
                                 />
                               </div>
                             </div>
@@ -2018,7 +2018,7 @@ const Profile = () => {
                                   setBrokerFormData((prev) => ({ ...prev, experience: numeric }));
                                 }}
                                 placeholder="e.g., 15"
-                                className="w-full pl-10 pr-4 py-2 border  text-[12px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full pl-10 pr-4 py-2 border  text-[12px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
                               />
                             </div>
 
@@ -2114,7 +2114,7 @@ const Profile = () => {
                                 />
                                 {!googleLoaded && (
                                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
                                   </div>
                                 )}
                                 </div>
@@ -2212,13 +2212,13 @@ const Profile = () => {
                                   backgroundColor: "white",
                                   borderRadius: "0.375rem",
                                   border: state.isFocused
-                                    ? "1px solid #3b82f6"
+                                    ? "1px solid #0D542B"
                                     : "1px solid #DEE1E6",
                                   boxShadow: state.isFocused
-                                    ? "0 0 0 3px rgba(59, 130, 246, 0.1)"
+                                    ? "0 0 0 3px rgba(13, 84, 43, 0.1)"
                                     : "none",
                                   "&:hover": {
-                                    border: "1px solid #3b82f6",
+                                    border: "1px solid #0D542B",
                                   },
                                 }),
                                 valueContainer: (provided) => ({
@@ -2237,9 +2237,15 @@ const Profile = () => {
                                   ...provided,
                                   fontSize: "12px",
                                 }),
-                                option: (provided) => ({
+                                option: (provided, state) => ({
                                   ...provided,
                                   fontSize: "12px",
+                                  backgroundColor: state.isSelected
+                                    ? "#0D542B"
+                                    : state.isFocused
+                                    ? "#E8F8F0"
+                                    : "white",
+                                  color: state.isSelected ? "#ffffff" : "#171A1F",
                                 }),
                                 multiValue: (provided) => ({
                                   ...provided,
@@ -2250,10 +2256,15 @@ const Profile = () => {
                                 multiValueLabel: (provided) => ({
                                   ...provided,
                                   color: "#171A1F",
+                                  paddingLeft: "8px",
+                                  paddingRight: "6px",
                                 }),
                                 multiValueRemove: (provided) => ({
                                   ...provided,
                                   color: "#171A1F",
+                                  marginLeft: "-4px",
+                                  paddingLeft: "4px",
+                                  paddingRight: "6px",
                                   "&:hover": {
                                     backgroundColor: "#DCFCE7",
                                     color: "#1e3a8a",
@@ -2305,7 +2316,7 @@ const Profile = () => {
                                 value={brokerFormData.linkedin}
                                 onChange={handleChange}
                                 placeholder="https://linkedin.com/in/yourprofile"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
                               />
                             </div>
 
@@ -2329,7 +2340,7 @@ const Profile = () => {
                                 value={brokerFormData.twitter}
                                 onChange={handleChange}
                                 placeholder="https://twitter.com/yourprofile"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
                               />
                             </div>
 
@@ -2355,7 +2366,7 @@ const Profile = () => {
                                 value={brokerFormData.instagram}
                                 onChange={handleChange}
                                 placeholder="https://instagram.com/yourprofile"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
                               />
                             </div>
 
@@ -2379,7 +2390,7 @@ const Profile = () => {
                                 value={brokerFormData.facebook}
                                 onChange={handleChange}
                                 placeholder="https://facebook.com/yourprofile"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
                               />
                             </div>
 
@@ -2405,7 +2416,7 @@ const Profile = () => {
                                 value={brokerFormData.website}
                                 onChange={handleChange}
                                 placeholder="https://yourwebsite.com"
-                                className="w-full px-4 py-2 border border-gray-300 text-[12px] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 text-[12px] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
                               />
                             </div>
                           </div>
@@ -2485,10 +2496,15 @@ const Profile = () => {
                                   multiValueLabel: (provided) => ({
                                     ...provided,
                                     color: "#1e40af",
+                                    paddingLeft: "10px",
+                                    paddingRight: "8px",
                                   }),
                                   multiValueRemove: (provided) => ({
                                     ...provided,
                                     color: "#1e40af",
+                                    marginLeft: "-4px",
+                                    paddingLeft: "4px",
+                                    paddingRight: "6px",
                                     "&:hover": {
                                       backgroundColor: "#bfdbfe",
                                       color: "#1e3a8a",
@@ -2512,7 +2528,7 @@ const Profile = () => {
                                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
                                     budgetError
                                       ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                                      : "border-gray-300 focus:ring-green-500 focus:border-green-600"
                                   }`}
                                 />
                               </div>
@@ -2529,7 +2545,7 @@ const Profile = () => {
                                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
                                     budgetError
                                       ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                                      : "border-gray-300 focus:ring-green-500 focus:border-green-600"
                                   }`}
                                 />
                               </div>
@@ -2627,12 +2643,20 @@ const Profile = () => {
                               className="react-select-container"
                               classNamePrefix="react-select"
                               styles={{
-                                control: (provided) => ({
+                                control: (provided, state) => ({
                                   ...provided,
-                                  border: "1px solid #d1d5db",
+                                  border: state.isFocused
+                                    ? "1px solid #0D542B"
+                                    : "1px solid #d1d5db",
                                   borderRadius: "0.5rem",
                                   // minHeight: "48px",
                                   fontSize: "12px",
+                                  boxShadow: state.isFocused
+                                    ? "0 0 0 3px rgba(13, 84, 43, 0.1)"
+                                    : "none",
+                                  "&:hover": {
+                                    border: "1px solid #0D542B",
+                                  },
                                 }),
                                 placeholder: (provided) => ({
                                   ...provided,
@@ -2646,11 +2670,30 @@ const Profile = () => {
                                   ...provided,
                                   fontSize: "12px",
                                 }),
-                                option: (provided) => ({
+                                option: (provided, state) => ({
                                   ...provided,
                                   fontSize: "12px",
+                                  backgroundColor: state.isSelected
+                                    ? "#0D542B"
+                                    : state.isFocused
+                                    ? "#E8F8F0"
+                                    : "white",
+                                  color: state.isSelected
+                                    ? "#ffffff"
+                                    : state.isFocused
+                                    ? "#0D542B"
+                                    : "#171A1F",
                                 }),
                               }}
+                              theme={(t) => ({
+                                ...t,
+                                colors: {
+                                  ...t.colors,
+                                  primary: "#0D542B",
+                                  primary25: "#E8F8F0",
+                                  primary50: "#C8F1DC",
+                                },
+                              })}
                             />
                           </div>
 
@@ -2668,12 +2711,20 @@ const Profile = () => {
                               className="react-select-container"
                               classNamePrefix="react-select"
                               styles={{
-                                control: (provided) => ({
+                                control: (provided, state) => ({
                                   ...provided,
-                                  border: "1px solid #d1d5db",
+                                  border: state.isFocused
+                                    ? "1px solid #0D542B"
+                                    : "1px solid #d1d5db",
                                   borderRadius: "0.5rem",
                                   // minHeight: "48px",
                                   fontSize: "12px",
+                                  boxShadow: state.isFocused
+                                    ? "0 0 0 3px rgba(13, 84, 43, 0.1)"
+                                    : "none",
+                                  "&:hover": {
+                                    border: "1px solid #0D542B",
+                                  },
                                 }),
                                 placeholder: (provided) => ({
                                   ...provided,
@@ -2687,11 +2738,30 @@ const Profile = () => {
                                   ...provided,
                                   fontSize: "12px",
                                 }),
-                                option: (provided) => ({
+                                option: (provided, state) => ({
                                   ...provided,
                                   fontSize: "12px",
+                                  backgroundColor: state.isSelected
+                                    ? "#0D542B"
+                                    : state.isFocused
+                                    ? "#E8F8F0"
+                                    : "white",
+                                  color: state.isSelected
+                                    ? "#ffffff"
+                                    : state.isFocused
+                                    ? "#0D542B"
+                                    : "#171A1F",
                                 }),
                               }}
+                              theme={(t) => ({
+                                ...t,
+                                colors: {
+                                  ...t.colors,
+                                  primary: "#0D542B",
+                                  primary25: "#E8F8F0",
+                                  primary50: "#C8F1DC",
+                                },
+                              })}
                             />
                           </div>
                         </div>
@@ -2708,7 +2778,7 @@ const Profile = () => {
                         )}
                         {regionsLoading ? (
                           <div className="flex items-center justify-center py-4">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
                             <span className="ml-3 text-gray-600">
                               Loading regions...
                             </span>
@@ -2892,12 +2962,20 @@ const Profile = () => {
                             className="react-select-container"
                             classNamePrefix="react-select"
                             styles={{
-                              control: (provided) => ({
+                              control: (provided, state) => ({
                                 ...provided,
-                                border: "1px solid #d1d5db",
+                                border: state.isFocused
+                                  ? "1px solid #0D542B"
+                                  : "1px solid #d1d5db",
                                 borderRadius: "0.5rem",
                                 minHeight: "48px",
                                 fontSize: "12px",
+                                boxShadow: state.isFocused
+                                  ? "0 0 0 3px rgba(13, 84, 43, 0.1)"
+                                  : "none",
+                                "&:hover": {
+                                  border: "1px solid #0D542B",
+                                },
                               }),
                               placeholder: (provided) => ({
                                 ...provided,
@@ -2911,11 +2989,30 @@ const Profile = () => {
                                 ...provided,
                                 fontSize: "12px",
                               }),
-                                option: (provided) => ({
-                                  ...provided,
-                                  fontSize: "12px",
-                                }),
+                              option: (provided, state) => ({
+                                ...provided,
+                                fontSize: "12px",
+                                backgroundColor: state.isSelected
+                                  ? "#0D542B"
+                                  : state.isFocused
+                                  ? "#E8F8F0"
+                                  : "white",
+                                color: state.isSelected
+                                  ? "#ffffff"
+                                  : state.isFocused
+                                  ? "#0D542B"
+                                  : "#171A1F",
+                              }),
                             }}
+                            theme={(t) => ({
+                              ...t,
+                              colors: {
+                                ...t.colors,
+                                primary: "#0D542B",
+                                primary25: "#E8F8F0",
+                                primary50: "#C8F1DC",
+                              },
+                            })}
                           />
                         )}
                       </div>
@@ -3809,7 +3906,7 @@ const Profile = () => {
                   </li>
                   <li className="flex items-start">
                     <span className="text-gray-600 mr-2">•</span>
-                    <span>Use nearest regions for a faster setup process.</span>
+                    <span className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">Use nearest regions for a faster setup process.</span>
                   </li>
                   <li className="flex items-start">
                      <span className="text-gray-600 mr-2">•</span>
