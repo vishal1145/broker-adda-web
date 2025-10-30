@@ -110,15 +110,35 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
           <div className="text-left">
             <h3 className="text-lg mb-4 mt-4">Contact Info</h3>
             <ul className="space-y-2 text-sm text-gray-300 cursor-pointer">
-              {contactLinks.map((link, index) => (
-                <li key={index}>
-                  {link.href.startsWith('tel:') || link.href.startsWith('mailto:') ? (
-                    <a href={link.href}>{link.name}</a>
-                  ) : (
-                    <span>{link.name}</span>
-                  )}
-                </li>
-              ))}
+              {contactLinks.map((link, index) => {
+                const rawHref = link?.href || '';
+                const isMailByName = typeof link?.name === 'string' && /@/.test(link.name);
+                const isTelByName = typeof link?.name === 'string' && /\d{6,}/.test(link.name.replace(/\s+/g, ''));
+                let href = rawHref;
+                if (!href) {
+                  href = isMailByName
+                    ? `mailto:${link.name}`
+                    : isTelByName
+                    ? `tel:${link.name.replace(/\s+/g, '')}`
+                    : '';
+                } else if (!/^mailto:|^tel:|^https?:\//i.test(href)) {
+                  // If href exists but lacks protocol, infer
+                  href = /@/.test(href)
+                    ? `mailto:${href}`
+                    : /\d{6,}/.test(href.replace(/\s+/g, ''))
+                    ? `tel:${href.replace(/\s+/g, '')}`
+                    : href;
+                }
+                return (
+                  <li key={index}>
+                    {href ? (
+                      <a href={href}>{link.name}</a>
+                    ) : (
+                      <span>{link.name}</span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
