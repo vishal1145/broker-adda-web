@@ -35,7 +35,7 @@ const Blog = () => {
       <HeaderFile data={blogData} />
 
       <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto ">
+        <div className="mx-auto ">
           {/* Blog Cards */}
           <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-10">
             {selectedBlogs.map((blog, index) => (
@@ -48,9 +48,9 @@ const Blog = () => {
                   <img
                     src={blog.image}
                     alt={blog.title}
-                    className="w-98 h-72 object-cover rounded-xl"
+                    className="w-full h-56 object-cover rounded-xl"
                   />
-                  <div className="absolute bottom-0 left-30 bg-yellow-500 text-gray-900 text-[12px] px-4 py-2 rounded-t-lg rounded-b-none shadow border-t-4 border-l-4 border-r-4 border-white">
+                  <div className="absolute bottom-0 left-52 bg-yellow-500 text-gray-900 text-[12px] px-3 py-1 rounded-tr-lg  rounded-tl-lg shadow">
                     {blog.date}
                   </div>
                 </div>
