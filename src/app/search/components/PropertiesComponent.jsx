@@ -325,7 +325,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-3 py-2 transition-colors ${
+                    className={`p-[10px] transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -359,7 +359,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-3 py-2 transition-colors ${
+                    className={`p-[10px] transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -426,7 +426,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-3 py-2 transition-colors ${
+                    className={`p-[10px] transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -460,7 +460,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-3 py-2 transition-colors ${
+                    className={`p-[10px] transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -497,12 +497,12 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   <input
                     type="number"
                     placeholder="1000"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                    className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                   />
                 <input
                     type="number"
                     placeholder="2500"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                    className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                 />
               </div>
               </div>
@@ -528,7 +528,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                           borderRadius: '6px',
                           transition: 'all 0.2s',
                         }}
-                        className={`px-3 py-2 transition-colors ${
+                        className={`p-[10px] transition-colors ${
                           selected 
                             ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                             : 'hover:bg-[#B8BECAFF]'
@@ -562,7 +562,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                           borderRadius: '6px',
                           transition: 'all 0.2s',
                         }}
-                        className={`px-3 py-2 transition-colors ${
+                        className={`p-[10px] transition-colors ${
                           selected 
                             ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                             : 'hover:bg-[#B8BECAFF]'
@@ -614,7 +614,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                           borderRadius: '6px',
                           transition: 'all 0.2s',
                         }}
-                        className={`px-3 py-2 transition-colors ${
+                        className={`p-[10px] transition-colors ${
                           selected 
                             ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                             : 'hover:bg-[#B8BECAFF]'
@@ -648,7 +648,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                           borderRadius: '6px',
                           transition: 'all 0.2s',
                         }}
-                        className={`px-3 py-2 transition-colors ${
+                        className={`p-[10px] transition-colors ${
                           selected 
                             ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                             : 'hover:bg-[#B8BECAFF]'
@@ -682,7 +682,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                           borderRadius: '6px',
                           transition: 'all 0.2s',
                         }}
-                        className={`px-3 py-2 transition-colors ${
+                        className={`p-[10px] transition-colors ${
                           selected 
                             ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                             : 'hover:bg-[#B8BECAFF]'
@@ -731,7 +731,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                           borderRadius: '6px',
                           transition: 'all 0.2s',
                         }}
-                        className={`px-3 py-2 transition-colors ${
+                        className={`p-[10px] transition-colors ${
                           selected 
                             ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                             : 'hover:bg-[#B8BECAFF]'
@@ -765,7 +765,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                           borderRadius: '6px',
                           transition: 'all 0.2s',
                         }}
-                        className={`px-3 py-2 transition-colors ${
+                        className={`p-[10px] transition-colors ${
                           selected 
                             ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                             : 'hover:bg-[#B8BECAFF]'
@@ -805,12 +805,12 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                 }}
                 style={{
                   fontFamily: 'Inter',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   lineHeight: '22px',
                   fontWeight: '500',
                   color: '#171A1FFF'
                 }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
+                className="flex-1  py-1 border border-gray-300 text-[12px] font-medium rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
               >
                 Reset
               </button>
@@ -819,10 +819,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   setShowSecondaryFilters(false);
                   // Apply filters logic here
                 }}
-                className="flex-1 px-3 py-2 bg-green-900 rounded-lg text-sm font-medium text-white hover:bg-green-800 transition-colors"
+                className="flex-1 py-1 bg-green-900 rounded-lg text-[12px] font-medium text-white hover:bg-green-800 transition-colors"
                 style={{
                   fontFamily: 'Inter',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   lineHeight: '22px',
                   fontWeight: '500'
                 }}

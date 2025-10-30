@@ -282,16 +282,16 @@ const LatestLeads: React.FC = () => {
                         {/* Tags and Time */}
                         <div className="flex items-center justify-between gap-2 flex-nowrap">
                           <div className="flex items-center gap-2 flex-nowrap">
-                            <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                            <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
                               {lead.requirement || ""}
                             </span>
-                            <span className="inline-flex items-center justify-center rounded-full h-[22px] px-[6px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                            <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
                               {lead.propertyType || ""}
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5 text-[12px] leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
                             <svg
-                              className="h-4 w-4"
+                              className="h-3 w-3"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
@@ -313,7 +313,7 @@ const LatestLeads: React.FC = () => {
                         {/* Preferred Location */}
                         <div className="flex items-center gap-2">
   <svg
-    className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+    className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -338,7 +338,7 @@ const LatestLeads: React.FC = () => {
                         {lead.secondaryRegion && (
                            <div className="flex items-center gap-2">
   <svg
-    className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+    className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -469,7 +469,7 @@ const LatestLeads: React.FC = () => {
         <div className="flex items-center gap-3 mt-1">
           <span className="flex items-center gap-2">
             <svg
-              className="w-5 h-5 fill-none stroke-[#171A1FFF]"
+              className="w-3 h-3 fill-none stroke-[#171A1FFF]"
               viewBox="0 0 24 24"
               strokeWidth="2"
             >
@@ -482,7 +482,7 @@ const LatestLeads: React.FC = () => {
 
           <span className="flex items-center gap-2">
             <svg
-              className="w-5 h-5 fill-none stroke-[#171A1FFF]"
+              className="w-3 h-3 fill-none stroke-[#171A1FFF]"
               viewBox="0 0 24 24"
               strokeWidth="2"
             >

@@ -735,6 +735,27 @@ export default function BrokerDetailsPage() {
 
             {/* Right Sidebar - 4 columns */}
             <div className="lg:col-span-4 space-y-8">
+
+{/* Quick Contact */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                <h3 className=" text-[18px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
+                <button type="button" onClick={() => {
+                  const el = document.getElementById('send-message-prompt');
+                  if (el) el.focus();
+                }} className="w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md">
+                  Send Message
+                </button>
+                <a href="#join-network"className="mt-3 w-full h-[40px] px-3 flex items-center justify-center 
+             font-[Inter] text-[12px] leading-[22px] font-medium text-[#0D542B]
+             bg-transparent border border-[#E5E7EB] rounded-md
+             hover:border-[#D1D5DB] active:border-[#C0C4CC]
+             hover:bg-transparent active:bg-transparent
+            
+             transition-colors duration-200">
+                  Join Our Network
+                </a>
+              </div>
+
               {/* Performance Metrics Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[#EDFDF4] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
@@ -755,19 +776,7 @@ export default function BrokerDetailsPage() {
                 </div>
               </div>
 
-              {/* Quick Contact */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <h3 className=" text-[18px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
-                <button type="button" onClick={() => {
-                  const el = document.getElementById('send-message-prompt');
-                  if (el) el.focus();
-                }} className="w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md">
-                  Send Message
-                </button>
-                <a href="#join-network" className="mt-3 w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-[#0D542B] bg-transparent hover:bg-transparent hover:active:bg-transparent disabled:opacity-40 border-none opacity-100 rounded-md">
-                  Join Our Network
-                </a>
-              </div>
+              
 
               
              
@@ -824,7 +833,7 @@ export default function BrokerDetailsPage() {
                   <h3 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">Similar Brokers</h3>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Link href="/search?type=brokers" className="px-4 py-2 text-green-900 rounded-lg text-sm font-medium transition-colors">
+                  <Link href="/search?type=brokers" className="px-4 py-2 text-gray-600 rounded-lg text-sm font-medium transition-colors">
                     View All
                   </Link>
                   
@@ -989,10 +998,10 @@ export default function BrokerDetailsPage() {
               <span className="font-[Inter] text-[12px] leading-[16px] font-medium text-[#19191F]">Trusted Real Estate Expert</span>
             </div>
             
-            <h2 className=" text-[18px] leading-[40px] font-bold text-[#19191F] mb-4">
+            <h2 className=" text-[18px] leading-[30px] font-bold text-[#19191F] mb-1">
               Ready to Find Your Perfect Property?
             </h2>
-            <p className=" text-[12px] leading-[33px] font-normal text-[#19191F] mb-6 max-w-xl mx-auto">
+            <p className=" text-[12px] leading-[30px] font-normal text-[#19191F] mb-3 max-w-xl mx-auto">
               Connect with <span className="font-semibold text-[#19191F]">{displayName}</span> and discover the best real estate opportunities in your area. 
               Get personalized assistance and expert guidance throughout your property journey.
             </p>
@@ -1014,7 +1023,14 @@ export default function BrokerDetailsPage() {
                     window.location.href = `tel:${phone}`;
                   }
                 }}
-                className="w-[92px] h-[40px] px-3 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-[#FDC700] hover:text-[#FDC700] hover:active:text-[#FDC700] bg-transparent hover:bg-transparent hover:active:bg-transparent opacity-100 border-none rounded-[6px] disabled:opacity-40"
+                  className="w-[92px] h-[40px] px-3 flex items-center justify-center
+             font-[Inter] text-[12px] leading-[22px] font-medium
+             text-[#FDC700] hover:text-[#FDC700] active:text-[#FDC700]
+             bg-transparent border border-[#E5E7EB] rounded-[6px]
+             hover:border-[#D1D5DB] active:border-[#C0C4CC]
+              transition-colors duration-200
+             appearance-none"
+
               >
                 Call Now
               </button>

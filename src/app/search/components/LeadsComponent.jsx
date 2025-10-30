@@ -789,8 +789,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       background: selected ? '#B8BECAFF' : '#F3F4F6FF',
                       borderRadius: '6px',
                       transition: 'all 0.2s',
+
                     }}
-                    className={`px-2 py-1.5 inline-block transition-colors ${
+                    className={`p-[10px] inline-block transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -824,7 +825,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-2 py-1.5 inline-block transition-colors ${
+                    className={`p-[10px] inline-block transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -884,7 +885,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-2 py-1.5 inline-block transition-colors ${
+                    className={`p-[10px] inline-block transition-colors ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -974,7 +975,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       borderRadius: '6px',
                       transition: 'all 0.2s',
                     }}
-                    className={`px-3 py-1.5 inline-flex whitespace-nowrap transition-colors items-center justify-center gap-2 focus:outline-none focus:ring-0 ${
+                    className={`p-[10px] inline-flex whitespace-nowrap transition-colors items-center justify-center gap-2 focus:outline-none focus:ring-0 ${
                       selected 
                         ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
                         : 'hover:bg-[#B8BECAFF]'
@@ -1014,7 +1015,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 <input
                   type="text"
                   placeholder="e.g., Downtown, Financial District"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                  className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                 />
               </div>
 
@@ -1024,7 +1025,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 <input
                   type="text"
                   placeholder="e.g., Mid-levels, Causeway Bay"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                  className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                 />
               </div>
 
@@ -1060,7 +1061,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 <input
                   type="text"
                   placeholder="Search by name or contact"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                  className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
                 />
               </div>
 
@@ -1068,7 +1069,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               <div>
                 <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Lead Source</label>
               <button
-                  className="w-full px-3 py-2 text-sm text-left border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
+                  className="w-full p-[10px] text-sm text-left border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
               >
                   Select Lead Sources
               </button>
@@ -1134,12 +1135,12 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 }}
                 style={{
                   fontFamily: 'Inter',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   lineHeight: '22px',
                   fontWeight: '500',
                   color: '#171A1FFF'
                 }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
+                className="flex-1 py-1 border border-gray-300 text-[12px] font-medium rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
               >
                 Reset
               </button>
@@ -1148,10 +1149,10 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   // Apply filters logic here
                   setShowSecondaryFilters(false);
                 }}
-                className="flex-1 px-3 py-2 bg-green-900 rounded-lg text-sm font-medium text-white hover:bg-green-800 transition-colors"
+                className="flex-1  py-1 bg-green-900 rounded-lg text-[12px] font-medium text-white hover:bg-green-800 transition-colors"
                 style={{
                   fontFamily: 'Inter',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   lineHeight: '22px',
                   fontWeight: '500'
                 }}
@@ -1333,10 +1334,10 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       {/* Tags and Time */}
                       <div className="flex items-center justify-between gap-2 flex-nowrap">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="inline-flex items-center justify-center rounded-full h-[18px] px-[4px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                          <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
                             {lead.requirement || lead.req || ""}
                           </span>
-                          <span className="inline-flex items-center justify-center rounded-full h-[18px] px-[4px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                          <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
                             {lead.propertyType || ""}
                           </span>
                       </div>
@@ -1366,7 +1367,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       {/* Preferred Location */}
                       <div className="flex items-center gap-2">
                         <svg
-                          className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+                          className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -1387,7 +1388,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       {(lead.secondaryRegion || secondary) && (
                         <div className="flex items-center gap-2">
                           <svg
-                            className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+                            className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -1408,7 +1409,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       {/* Budget */}
                       <div className="flex items-center gap-2">
                         <svg
-                          className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+                          className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -1474,14 +1475,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                             {/* Connect / Chat */}
                             <div className="flex items-center gap-3 mt-1">
                               <span className="flex items-center gap-2">
-                                <svg className="w-5 h-5 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
+                                <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
                                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                                 </svg>
                                 <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Connect</span>
                     </span>
 
                               <span className="flex items-center gap-2">
-                                <svg className="w-5 h-5 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
+                                <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
                                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                 </svg>
                                 <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Chat</span>

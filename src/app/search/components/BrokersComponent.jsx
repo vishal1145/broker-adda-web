@@ -1056,12 +1056,12 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                 }}
                 style={{
                   fontFamily: 'Inter',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   lineHeight: '22px',
                   fontWeight: '500',
                   color: '#171A1FFF'
                 }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
+                className="flex-1 text-[12px]  py-1 border border-gray-300 font-medium rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
               >
                 Reset
               </button>
@@ -1070,10 +1070,10 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                   // Apply filters logic here
                   setShowSecondaryFilters(false);
                 }}
-                className="flex-1 px-3 py-2 bg-green-900 rounded-lg text-sm font-medium text-white hover:bg-green-800 transition-colors"
+                className="flex-1 bg-green-900 rounded-lg py-1 text-[12px] font-medium text-white hover:bg-green-800 transition-colors"
                 style={{
                   fontFamily: 'Inter',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   lineHeight: '22px',
                   fontWeight: '500'
                 }}
@@ -1235,7 +1235,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
       {/* Rating chip - positioned above image */}
       <span
-        className={`mt-[-20] inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 border border-gray-200`}
+        className={`mt-[-20] inline-flex items-center gap-1 px-1 text-[6px]  rounded-lg bg-gray-100 border border-gray-200`}
       >
         <svg
           className="w-3 h-3 text-yellow-500"

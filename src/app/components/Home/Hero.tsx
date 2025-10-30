@@ -341,7 +341,7 @@ onClick={() => {
                 <div
                   key={index}
                   onClick={() => openProductDetails(card.id)}
-                  className="hero-card bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition relative group w-full max-w-xs md:min-w-[260px] mx-auto md:mx-2 cursor-pointer"
+                  className="hero-card bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition relative group w-full max-w-xs md:min-w-[260px] mx-auto md:mx-2 cursor-pointer min-h-[260px]"
                 >
                   {card.image && card.image.trim().length > 0 ? (
                     <img
@@ -369,7 +369,7 @@ onClick={() => {
                   <p className="text-gray-500 text-xs text-left">{card.items}</p>
 
                   <div
-                    className={`absolute bottom-3 right-3 bg-green-900 hover:bg-green-800 text-white p-2 rounded-full shadow-lg pointer-events-none`}
+                    className={`absolute bottom-3 right-3 bg-green-900 hover:bg-green-800  text-white p-2 rounded-full shadow-lg pointer-events-none`}
                   >
                     <svg
                       className="w-4 h-4 -rotate-45"

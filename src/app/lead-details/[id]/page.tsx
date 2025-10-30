@@ -426,7 +426,7 @@ export default function LeadDetails() {
                       e.preventDefault();
                       router.push('/search?tab=leads');
                     }}
-                    className="text-[12px] text-green-900 font-medium cursor-pointer hover:underline"
+                    className="text-[12px] text-gray-600 font-medium cursor-pointer hover:underline"
                   >
                     View All
                   </a>
@@ -464,10 +464,10 @@ export default function LeadDetails() {
                                   {/* Tags and Time */}
                                   <div className="flex items-center justify-between gap-2 flex-nowrap">
                                     <div className="flex items-center gap-2 flex-nowrap">
-                                      <span className="inline-flex items-center justify-center rounded-full h-[18px] px-[4px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                                      <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
                                         {s.requirement || ""}
                                       </span>
-                                      <span className="inline-flex items-center justify-center rounded-full h-[18px] px-[4px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                                      <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
                                         {s.propertyType || ""}
                                       </span>
                                     </div>
@@ -496,7 +496,7 @@ export default function LeadDetails() {
                                   {s.primaryRegion?.name && (
                                     <div className="flex items-center gap-2">
                                       <svg
-                                        className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+                                        className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="currentColor"
@@ -520,7 +520,7 @@ export default function LeadDetails() {
                                   {s.secondaryRegion?.name && (
                                     <div className="flex items-center gap-2">
                                       <svg
-                                        className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+                                        className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="currentColor"
@@ -541,7 +541,7 @@ export default function LeadDetails() {
                                   {/* Budget */}
                                   <div className="flex items-start gap-2">
                                     <svg
-                                      className="h-4 w-4 flex-shrink-0 text-[#565D6D]"
+                                      className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
                                       style={{ color: '#565D6D' }}
                                       viewBox="0 0 24 24"
                                       fill="none"
@@ -594,7 +594,7 @@ export default function LeadDetails() {
                                           <div className="flex items-center gap-3 mt-1">
                                             <span className="flex items-center gap-2">
                                               <svg
-                                                className="w-5 h-5 fill-none stroke-[#171A1FFF]"
+                                                className="w-3 h-3 fill-none stroke-[#171A1FFF]"
                                                 viewBox="0 0 24 24"
                                                 strokeWidth="2"
                                               >
@@ -607,7 +607,7 @@ export default function LeadDetails() {
 
                                             <span className="flex items-center gap-2">
                                               <svg
-                                                className="w-5 h-5 fill-none stroke-[#171A1FFF]"
+                                                className="w-3 h-3 fill-none stroke-[#171A1FFF]"
                                                 viewBox="0 0 24 24"
                                                 strokeWidth="2"
                                               >

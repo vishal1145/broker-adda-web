@@ -182,7 +182,7 @@ const Brokers = () => {
     <>
   
 
-<section id="popular-brokers" className="relative py-16   ">
+<section id="popular-brokers" className="relative py-8 ">
   <div className="w-full mx-auto ">
     <div className="mb-10 text-center">
       <div className="flex items-center justify-center gap-2 text-sm ">
@@ -299,15 +299,17 @@ const Brokers = () => {
                      broker.name?.name || broker.fullName?.name || 'Unknown Broker'}
                   </h3>
                   <svg
-                    className="h-5 w-5 text-emerald-600 mt-1"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
+      className="h-5 w-5 text-emerald-600 transition-transform group-hover/name:translate-x-1 group-hover/name:-translate-y-1"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M7 17L17 7" />
+      <path d="M7 7h10v10" />
+    </svg>
                 </Link>
               </div>
 
@@ -325,7 +327,7 @@ const Brokers = () => {
               {/* Location with Map Pin Icon */}
               <div className="flex items-center gap-2 mb-3">
                 <svg
-                  className="h-4 w-4 text-gray-600"
+                  className="h-3 w-3 text-gray-600"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -356,7 +358,7 @@ const Brokers = () => {
               {/* Leads Completed with User Group Icon */}
               <div className="flex items-center gap-2">
                 <svg
-                  className="h-4 w-4 text-gray-600"
+                  className="h-3 w-3 text-gray-600"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"

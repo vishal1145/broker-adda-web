@@ -1362,7 +1362,7 @@ function PropertyDetailsPageInner() {
             <h3 className="text-[18px] leading-[32px] font-semibold text-[#171A1F]">Related Properties</h3>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/search?tab=properties" className="px-4 py-2 text-green-900 rounded-lg text-sm font-medium transition-colors">
+            <Link href="/search?tab=properties" className="px-4 py-2 text-gray-900 rounded-lg text-sm font-medium transition-colors">
               View All
             </Link>
           </div>
