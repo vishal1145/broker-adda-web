@@ -206,7 +206,7 @@ const GettingStartedPage = () => {
           </div> */}
 
           {/* FAQ Section */}
-          <div className="mb-8">
+          {/* <div className="mb-8">
             <h2 className=" text-[16px] leading-[24px] font-bold text-[#171A1FFF] mb-6">{data.faq.title}</h2>
             
             <div className="space-y-6">
@@ -221,7 +221,7 @@ const GettingStartedPage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Contact Section (restyled only; content unchanged) */}
           <div className="rounded-xl bg-yellow-50  p-6 md:p-8 shadow-sm">
