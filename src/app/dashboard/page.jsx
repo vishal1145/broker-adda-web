@@ -36,8 +36,21 @@ const Dashboard = () => {
     { icon: '👤', text: 'Added new broker connection: Justin Cox', time: '4 days ago' },
     { icon: '🏠', text: 'Scheduled showing for Suburban Retreat', time: '4 days ago' },
   ]);
+  const [activityLoading, setActivityLoading] = useState(true);
 
+  const getTimeAgo = (date) => {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
 
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} ${diffMins === 1 ? 'minute' : 'minutes'} ago`;
+    if (diffHours < 24) return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+    if (diffDays < 7) return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+    return `${Math.floor(diffDays / 7)} ${Math.floor(diffDays / 7) === 1 ? 'week' : 'weeks'} ago`;
+  };
 
   useEffect(() => {
     const getBrokerIdFromToken = () => {
@@ -101,7 +114,11 @@ const Dashboard = () => {
           connections: payload?.connections ?? 45,
         });
       } catch (e) {
-        setMetrics(prev => ({ ...prev, totalLeads: 0, propertiesListed: 0 }));
+        setMetrics(prev => ({ 
+          ...prev, 
+          totalLeads: prev.totalLeads ?? 0, 
+          propertiesListed: prev.propertiesListed ?? 0 
+        }));
       } finally {
         setMetricsLoading(false);
       }
@@ -193,6 +210,95 @@ const Dashboard = () => {
       }
     };
     fetchProfile();
+
+    const fetchRecentActivity = async () => {
+      try {
+        setActivityLoading(true);
+        const { brokerId, baseApi, token } = await resolveBrokerId();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        // Fetch recent leads and properties to generate activity
+        const [leadsRes, propsRes] = await Promise.all([
+          fetch(`${baseApi}/leads?createdBy=${encodeURIComponent(brokerId)}&limit=10&page=1&sort=-createdAt`, { headers }),
+          fetch(`${baseApi}/properties?limit=10&page=1&brokerId=${encodeURIComponent(brokerId)}&sort=-createdAt`, { headers })
+        ]);
+
+        const activities = [];
+
+        // Process leads
+        if (leadsRes.ok) {
+          const lj = await leadsRes.json().catch(() => ({}));
+          let leads = [];
+          if (Array.isArray(lj?.data?.items)) leads = lj.data.items;
+          else if (Array.isArray(lj?.data?.leads)) leads = lj.data.leads;
+          else if (Array.isArray(lj?.data)) leads = lj.data;
+          else if (Array.isArray(lj?.leads)) leads = lj.leads;
+          else if (Array.isArray(lj)) leads = lj;
+
+          leads.slice(0, 5).forEach((lead) => {
+            const createdAt = lead.createdAt ? new Date(lead.createdAt) : null;
+            const timeAgo = createdAt ? getTimeAgo(createdAt) : '';
+            const leadName = lead.name || lead.createdBy?.name || 'a lead';
+            const propertyType = lead.propertyType || 'property';
+            
+            activities.push({
+              icon: '🔍',
+              text: `Received new inquiry from ${leadName} for ${propertyType}`,
+              time: timeAgo || 'Recently',
+              timestamp: createdAt?.getTime() || 0,
+            });
+
+            if (lead.status === 'Confirmed' || lead.status === 'confirmed') {
+              activities.push({
+                icon: '↑',
+                text: `Updated lead status for ${leadName} to 'Confirmed'`,
+                time: timeAgo || 'Recently',
+                timestamp: (createdAt?.getTime() || 0) - 1000,
+              });
+            }
+          });
+        }
+
+        // Process properties
+        if (propsRes.ok) {
+          const pj = await propsRes.json().catch(() => ({}));
+          let properties = [];
+          if (Array.isArray(pj?.data?.items)) properties = pj.data.items;
+          else if (Array.isArray(pj?.data?.properties)) properties = pj.data.properties;
+          else if (Array.isArray(pj?.data)) properties = pj.data;
+          else if (Array.isArray(pj?.properties)) properties = pj.properties;
+          else if (Array.isArray(pj)) properties = pj;
+
+          properties.slice(0, 5).forEach((property) => {
+            const createdAt = property.createdAt ? new Date(property.createdAt) : null;
+            const timeAgo = createdAt ? getTimeAgo(createdAt) : '';
+            const propertyName = property.title || property.name || 'a property';
+            
+            activities.push({
+              icon: '📄',
+              text: `Submitted new property listing: ${propertyName}`,
+              time: timeAgo || 'Recently',
+              timestamp: createdAt?.getTime() || 0,
+            });
+          });
+        }
+
+        // Sort by timestamp and take most recent 6
+        activities.sort((a, b) => b.timestamp - a.timestamp);
+        // Only update if we have activities from API, otherwise keep hardcoded fallback
+        if (activities.length > 0) {
+          setRecentActivity(activities.slice(0, 6));
+        }
+        // If no activities from API, keep hardcoded fallback (already set in initial state)
+      } catch (e) {
+        console.error('Error fetching recent activity:', e);
+        // Keep hardcoded fallback on error (already set in initial state, don't clear it)
+      } finally {
+        setActivityLoading(false);
+      }
+    };
+
+    fetchRecentActivity();
   }, [user]);
 
   const fmt = (n) => {
@@ -276,15 +382,24 @@ const Dashboard = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">
-                  {metricsLoading ? '—' : fmt(metrics.totalLeads)}
-                </div>
-                <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                  </svg>
-                  12.5%
-                </div>
+                {metricsLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded w-16 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-12"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">
+                      {fmt(metrics.totalLeads)}
+                    </div>
+                    <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                      </svg>
+                      12.5%
+                    </div>
+                  </>
+                )}
               </div>
           </div>
 
@@ -299,15 +414,24 @@ const Dashboard = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">
-                  {metricsLoading ? '—' : fmt(metrics.propertiesListed)}
-                </div>
-                <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                  </svg>
-                  8.2%
-                </div>
+                {metricsLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded w-16 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-12"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">
+                      {fmt(metrics.propertiesListed)}
+                    </div>
+                    <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                      </svg>
+                      8.2%
+                    </div>
+                  </>
+                )}
               </div>
           </div>
 
@@ -582,11 +706,11 @@ const Dashboard = () => {
                 </div>
               )) : (
                 <div className="col-span-4 flex flex-col items-center justify-center py-16 px-4">
-                  <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-16 h-16 text-gray-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">No recent leads found</h3>
-                  <p className="text-sm text-gray-500 text-center">We couldn't find any recent leads in your account.</p>
+                  <h3 className="text-lg font-semibold text-gray-600 mb-1">No recent leads found</h3>
+                  <p className="text-sm text-gray-600 text-center">We couldn't find any recent leads in your account.</p>
                 </div>
               )}
             </div>
@@ -798,11 +922,11 @@ const Dashboard = () => {
       </div>
       ) : (
         <div className="flex-1 bg-white border border-gray-200 rounded-xl flex flex-col items-center justify-center py-16 px-4">
-          <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-16 h-16 text-gray-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">No properties found</h3>
-          <p className="text-sm text-gray-500 text-center">We couldn't find any properties in your account.</p>
+          <h3 className="text-lg font-semibold text-gray-600 mb-1">No properties found</h3>
+          <p className="text-sm text-gray-600 text-center">We couldn't find any properties in your account.</p>
         </div>
       )}
     </div>
@@ -838,9 +962,9 @@ const Dashboard = () => {
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-medium text-gray-800 truncate">{activity.text}</p>
                       <p className="text-[11px] text-gray-400 mt-0.5">{activity.time}</p>
-                      </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             </div>
 
