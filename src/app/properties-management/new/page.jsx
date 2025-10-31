@@ -671,9 +671,9 @@ const NewPropertyPage = () => {
           </div>
 
           {/* Layout: form + right sidebar like profile page */}
-          <div className="grid grid-cols-1 grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left header progress bar (profile-style card) */}
-          <div className="col-span-9 ">
+          <div className="col-span-12 lg:col-span-8 ">
           <div className="">
             <div className="mb-4">
               <div className="flex items-center justify-between">
@@ -1480,7 +1480,7 @@ const NewPropertyPage = () => {
           </div>
 
           {/* Right Sidebar - Tips and Support (match profile style) */}
-          <div className="lg:col-span-3 space-y-4 order-1 lg:sticky lg:top-4 self-start">
+          <div className="col-span-12 lg:col-span-4 space-y-4 order-1 lg:sticky lg:top-4 self-start">
             <div className="bg-white rounded-2xl shadow border border-gray-100 p-5 sticky top-4">
               <h4 className="text-sm font-semibold text-gray-900 mb-3">Tips for Property Creation</h4>
               <ul className="text-[13px] text-gray-700 list-disc pl-5 space-y-2">

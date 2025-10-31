@@ -735,8 +735,8 @@ const PropertiesManagement = () => {
         
         {loading || brokerIdLoading ? (
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left column - 9/12 width for property cards */}
-            <div className="w-full lg:w-9/12">
+            {/* Left column - 8/12 width for property cards */}
+            <div className="w-full lg:w-8/12">
               <div className="space-y-6">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
@@ -812,8 +812,8 @@ const PropertiesManagement = () => {
               </div>
             </div>
             
-            {/* Right column - 3/12 width */}
-            <div className="w-full lg:w-3/12">
+            {/* Right column - 4/12 width */}
+            <div className="w-full lg:w-4/12">
               {/* Tips Section Skeleton */}
               <div className="bg-green-50 rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5">
                 <ContentLoader
@@ -887,8 +887,8 @@ const PropertiesManagement = () => {
           </div>
         ) : items.length === 0 && pagination.total > 0 ? (
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left column - 9/12 width for property cards */}
-            <div className="w-full lg:w-9/12">
+            {/* Left column - 8/12 width for property cards */}
+            <div className="w-full lg:w-8/12">
               <div className="space-y-6">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
@@ -964,8 +964,8 @@ const PropertiesManagement = () => {
               </div>
             </div>
             
-            {/* Right column - 3/12 width */}
-            <div className="w-full lg:w-3/12">
+            {/* Right column - 4/12 width */}
+            <div className="w-full lg:w-4/12">
               {/* Tips Section Skeleton */}
               <div className="bg-green-50 rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5">
                 <ContentLoader
@@ -994,8 +994,8 @@ const PropertiesManagement = () => {
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left column - 9/12 width for property cards */}
-            <div className="w-full lg:w-9/12">
+            {/* Left column - 8/12 width for property cards */}
+            <div className="w-full lg:w-8/12">
               <div className="space-y-6">
                 {items.map((property) => (
                 <Link key={property.id} href={`/property-details/${property.id}`} className="block">
@@ -1201,8 +1201,8 @@ const PropertiesManagement = () => {
               )}
             </div>
             
-            {/* Right column - 3/12 width - match lead details right cards style */}
-            <div className="w-full lg:w-3/12">
+            {/* Right column - 4/12 width - match lead details right cards style */}
+            <div className="w-full lg:w-4/12">
              
 
               {/* Tips - now below quick actions */}

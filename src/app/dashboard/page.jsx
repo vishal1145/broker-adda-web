@@ -1045,7 +1045,7 @@ const Dashboard = () => {
               </section>
 
           {/* Profile Section */}
-          <section className="mt-8 pb-16">
+          <section className="mt-8 pb-16 hidden">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-[18px] font-semibold text-gray-900">Profile Information</h3>
               <a
