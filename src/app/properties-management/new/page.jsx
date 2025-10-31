@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
+import Select from "react-select";
+import { toast, Toaster } from "react-hot-toast";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import HeaderFile from "../../components/Header";
 import Link from "next/link";
@@ -46,6 +48,7 @@ const NewPropertyPage = () => {
   const [propertyAgeYears, setPropertyAgeYears] = useState("");
   const addressInputRef = useRef(null);
   const [coordinates, setCoordinates] = useState({ lat: "", lng: "" });
+  const regionInputRef = useRef(null);
   const [bedrooms, setBedrooms] = useState("");
   const [bathrooms, setBathrooms] = useState("");
   const [furnishing, setFurnishing] = useState("Furnished");
@@ -53,11 +56,104 @@ const NewPropertyPage = () => {
   const [isFeatured, setIsFeatured] = useState(false);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [error, setError] = useState("");
   // Wizard steps (match profile page flow style)
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
+
+  // Load Google Places API script
+  useEffect(() => {
+    const loadGooglePlaces = () => {
+      try {
+        if (window.google && window.google.maps && window.google.maps.places) {
+          setGoogleLoaded(true);
+          return;
+        }
+      } catch {}
+
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+      if (existingScript) {
+        existingScript.onload = () => setGoogleLoaded(true);
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => setGoogleLoaded(true);
+      script.onerror = () => {
+        console.error("Google Places API failed to load");
+      };
+      document.head.appendChild(script);
+    };
+
+    loadGooglePlaces();
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, []);
+
+  const handleAddressInputChange = (inputValue) => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (!googleLoaded || !window.google || !inputValue || inputValue.length < 1) {
+      setAddressOptions([]);
+      return;
+    }
+    searchTimeoutRef.current = setTimeout(() => {
+      setIsLoadingAddresses(true);
+      const service = new window.google.maps.places.AutocompleteService();
+      service.getPlacePredictions(
+        {
+          input: inputValue,
+          types: ["establishment", "geocode"],
+          componentRestrictions: { country: "in" },
+        },
+        (predictions, status) => {
+          setIsLoadingAddresses(false);
+          if (
+            status === window.google.maps.places.PlacesServiceStatus.OK &&
+            predictions
+          ) {
+            const options = predictions.map((p) => ({
+              value: p.place_id,
+              label: p.description,
+              placeId: p.place_id,
+              description: p.description,
+            }));
+            setAddressOptions(options);
+          } else {
+            setAddressOptions([]);
+          }
+        }
+      );
+    }, 300);
+  };
+
+  const handleAddressChange = (selectedOption) => {
+    setSelectedAddress(selectedOption);
+    setForm((prev) => ({ ...prev, address: selectedOption ? selectedOption.description : "" }));
+    // Try to resolve coordinates for later use
+    try {
+      if (window.google && window.google.maps && selectedOption?.placeId) {
+        const service = new window.google.maps.places.PlacesService(document.createElement("div"));
+        service.getDetails({ placeId: selectedOption.placeId }, (place, status) => {
+          if (
+            status === window.google.maps.places.PlacesServiceStatus.OK &&
+            place && place.geometry && place.geometry.location
+          ) {
+            setCoordinates({ lat: place.geometry.location.lat(), lng: place.geometry.location.lng() });
+          }
+        });
+      }
+    } catch {}
+  };
+
+  // Google Places Autocomplete for Address (reuse profile pattern)
+  const [googleLoaded, setGoogleLoaded] = useState(false);
+  const [addressOptions, setAddressOptions] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const searchTimeoutRef = useRef(null);
   const progressPercent = Math.round((currentStep / totalSteps) * 100);
 
   // Regions API state
@@ -301,7 +397,8 @@ const NewPropertyPage = () => {
   const handleRegionSelect = (region) => {
     const regionValue = formatRegionValue(region);
     setForm(prev => ({ ...prev, region: regionValue }));
-    setRegionSearchQuery(regionValue);
+    // Clear search query so dropdown shows all regions when reopened
+    setRegionSearchQuery("");
     setIsRegionDropdownOpen(false);
     // Track region id to submit to API
     setSelectedRegionId(region?._id || "");
@@ -309,9 +406,17 @@ const NewPropertyPage = () => {
     if (region && region.city) {
       setForm(prev => ({ ...prev, city: region.city }));
     }
+    // Blur input to prevent dropdown reopening and ensure value visible
+    try { regionInputRef.current && regionInputRef.current.blur(); } catch {}
   };
 
   const handleRegionInputFocus = () => {
+    // Clear search query to show all regions when opening dropdown
+    setRegionSearchQuery("");
+    // Ensure all regions are shown immediately
+    if (regions.length > 0) {
+      setFilteredRegions(regions);
+    }
     setIsRegionDropdownOpen(true);
   };
 
@@ -331,18 +436,17 @@ const NewPropertyPage = () => {
     if (currentStep !== 3) {
       console.log('Form submitted but not on Step 4, current step:', currentStep);
       console.log('Preventing form submission - not on step 4');
-      setError(`Please complete all steps. Currently on step ${currentStep} of 3.`);
+      toast.error(`Please complete all steps. Currently on step ${currentStep} of 3.`);
       return;
     }
     
     console.log('Create Property button clicked - starting property creation');
     setSubmitting(true);
-    setError("");
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("Please login to create a property");
+        toast.error("Please login to create a property");
         setSubmitting(false);
         return;
       }
@@ -367,7 +471,7 @@ const NewPropertyPage = () => {
       }
 
       if (!userId) {
-        setError("Failed to extract user ID from token. Please re-login.");
+        toast.error("Failed to extract user ID from token. Please re-login.");
         setSubmitting(false);
         return;
       }
@@ -398,7 +502,7 @@ const NewPropertyPage = () => {
       }
 
       if (!brokerId) {
-        setError("Broker not found for this account.");
+        toast.error("Broker not found for this account.");
         setSubmitting(false);
         return;
       }
@@ -425,15 +529,13 @@ const NewPropertyPage = () => {
         }
       }
       if (!regionIdToSend) {
-        setError("Please select a valid region from the list.");
+        toast.error("Please select a valid region from the list.");
         setSubmitting(false);
         return;
       }
       formData.append("region", regionIdToSend);
 
-      // Coordinates
-      if (coordinates.lat) formData.append("coordinates[lat]", coordinates.lat);
-      if (coordinates.lng) formData.append("coordinates[lng]", coordinates.lng);
+      // Coordinates - removed as not allowed by API validation
 
       // Property details
       formData.append("bedrooms", bedrooms || "0");
@@ -492,14 +594,17 @@ const NewPropertyPage = () => {
       }
 
       const result = await response.json();
-      setSuccessMessage("Property created successfully!");
+      toast.success("Property created successfully!", {
+        duration: 3000,
+        icon: '✅',
+      });
 
       // ✅ Navigate to properties management page after success
       setTimeout(() => {
         router.push("/properties-management");
       }, 2000); // Navigate after 2 seconds to show success message
     } catch (err) {
-      setError(err.message || "Failed to create property. Please try again.");
+      toast.error(err.message || "Failed to create property. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -509,6 +614,30 @@ const NewPropertyPage = () => {
     <ProtectedRoute>
       {/* Google Places dropdown styles */}
       <link rel="stylesheet" href="/google-places.css" />
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <HeaderFile
         data={{
           title: "Add New Property",
@@ -539,45 +668,6 @@ const NewPropertyPage = () => {
                 Back to Properties
               </Link>
             </div>
-            
-            {/* Status Messages */}
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-sm text-red-700">{error}</p>
-                  <button onClick={() => setError("")} className="ml-auto text-red-500 hover:text-red-700">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-        </div>
-          </div>
-            )}
-            
-            {successMessage && currentStep === 3 && (
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p className="text-sm text-green-700">{successMessage}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-green-900">Redirecting in 2 seconds...</p>
-                    <Link
-                      href="/properties-management"
-                      className="px-3 py-1 bg-green-900 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      View Properties
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Layout: form + right sidebar like profile page */}
@@ -670,20 +760,52 @@ const NewPropertyPage = () => {
                   
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">Address *</label>
-        <input
-          name="address"
-          ref={addressInputRef}
-          value={form.address}
-          onChange={handleChange}
-          onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
-          autoComplete="off"
-          className={`w-full rounded-xl text-[13px] px-3 py-2 focus:outline-none transition-all duration-200 ${
-            isNonEmpty(form.address)
-              ? 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
-              : 'border border-red-300 focus:ring-2 focus:ring-red-400'
-          }`}
-          placeholder="Start typing address..."
-          required
+        <Select
+          value={selectedAddress || (form.address ? { value: form.address, label: form.address, description: form.address } : null)}
+          onChange={handleAddressChange}
+          onInputChange={handleAddressInputChange}
+          options={addressOptions}
+          placeholder={googleLoaded ? "Search address..." : "Loading address search..."}
+          isClearable
+          isSearchable
+          isLoading={isLoadingAddresses}
+          noOptionsMessage={() => "No addresses found"}
+          loadingMessage={() => "Searching addresses..."}
+          classNamePrefix="react-select"
+          styles={{
+            control: (base, state) => ({
+              ...base,
+              minHeight: 42,
+              borderRadius: 12,
+              borderColor: isNonEmpty(form.address) ? '#D1D5DB' : '#FCA5A5',
+              boxShadow: state.isFocused ? (isNonEmpty(form.address) ? '0 0 0 2px #9CA3AF' : '0 0 0 2px #FCA5A5') : 'none',
+              '&:hover': { borderColor: isNonEmpty(form.address) ? '#9CA3AF' : '#FCA5A5' },
+              fontSize: 13,
+            }),
+            menu: (base) => ({ ...base, zIndex: 50 }),
+            option: (base, state) => ({
+              ...base,
+              fontSize: '12px',
+              padding: '8px 12px',
+              color: state.isSelected || state.isFocused ? '#065f46' : '#374151',
+              backgroundColor: state.isSelected 
+                ? '#d1fae5' 
+                : state.isFocused 
+                ? '#f0fdf4' 
+                : '#ffffff',
+              '&:active': {
+                backgroundColor: '#d1fae5',
+              },
+            }),
+            singleValue: (base) => ({
+              ...base,
+              fontSize: '13px',
+            }),
+            input: (base) => ({
+              ...base,
+              fontSize: '13px',
+            }),
+          }}
         />
         {!isNonEmpty(form.address) && (<p className="text-xs text-red-600">Address is required.</p>)}
       </div>
@@ -697,10 +819,12 @@ const NewPropertyPage = () => {
                       <input
                         type="text"
                         name="region"
-                        value={regionSearchQuery || form.region}
+                        value={regionSearchQuery !== "" ? regionSearchQuery : form.region}
+                        ref={regionInputRef}
                         onChange={handleRegionInputChange}
                         onFocus={handleRegionInputFocus}
                         onKeyDown={handleRegionInputKeyDown}
+                        onClick={handleRegionInputFocus}
             className={`w-full rounded-xl text-[13px] px-3 py-2 focus:outline-none transition-all duration-200 ${
                           !isNonEmpty(form.region) 
                             ? 'border border-red-300 focus:ring-2 focus:ring-red-400' 
@@ -729,9 +853,17 @@ const NewPropertyPage = () => {
                             </div>
                           ) : regionsError ? (
                 <div className="px-4 py-3 text-sm text-red-600">{regionsError}</div>
+                          ) : filteredRegions.length === 0 && regions.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-gray-500">
+                              No regions available
+                            </div>
+                          ) : filteredRegions.length === 0 && regionSearchQuery ? (
+                            <div className="px-4 py-3 text-sm text-gray-500">
+                              No regions found
+                            </div>
                           ) : filteredRegions.length === 0 ? (
                             <div className="px-4 py-3 text-sm text-gray-500">
-                              {regionSearchQuery ? "No regions found" : "No regions available"}
+                              Loading regions...
                             </div>
                           ) : (
                             <ul className="py-1">
@@ -1337,14 +1469,7 @@ const NewPropertyPage = () => {
                       disabled={submitting}
                       className="w-full py-3 bg-green-900 text-white rounded-xl font-semibold hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      {submitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          Saving...
-                        </>
-                      ) : (
-                        'Create Property'
-                      )}
+                      Create Property
                     </button>
                   </div>
                 )}
