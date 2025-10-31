@@ -945,7 +945,7 @@ function PropertyDetailsPageInner() {
                      </span> */}
                    </div>
                    <p className="top-[61px] left-[16px] font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
-                     {product.region}
+                     {typeof product.region === 'object' ? (product.region?.name || [product.region?.city, product.region?.state].filter(Boolean).join(', ')) : product.region}
                    </p>
                    <p className="top-[61px] left-[16px] font-inter text-[12px] leading-[20px] font-normal text-[#565D6D] mt-2">
                      • Listed {product?.createdAt ? new Date(product.createdAt).toLocaleDateString() : '3 days ago'}
@@ -1015,8 +1015,8 @@ function PropertyDetailsPageInner() {
             <div className="text-[12px] text-gray-500">{agent.firm}</div>
           )}
           <div className="text-[12px] text-gray-400">
-          Expert Broker{agent.region ? ` • ${agent.region}` : ""}
-                    </div>
+            {`Expert Broker${agent?.region ? ' • ' + (typeof agent.region === 'object' ? (agent.region?.name || [agent.region?.city, agent.region?.state].filter(Boolean).join(', ')) : agent.region) : ''}`}
+          </div>
         </div>
       </div>
 
@@ -1412,7 +1412,7 @@ function PropertyDetailsPageInner() {
                           <span className="text-xs text-gray-500 line-through">₹{Math.round(p.originalPrice).toLocaleString('en-IN')}</span>
                         )}
                       </div>
-                      <div className="text-xs text-gray-500">{p.city} • {p.region}</div>
+                      <div className="text-xs text-gray-500">{p.city} • {typeof p.region === 'object' ? (p.region?.name || [p.region?.city, p.region?.state].filter(Boolean).join(', ')) : p.region}</div>
                     </div>
                   </Link>
                 </div>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Link from "next/link";
 import HeaderFile from "../components/Header";
@@ -120,23 +120,107 @@ const PropertiesManagement = () => {
   const [status, setStatus] = useState("Pending Approval");
   const [isFeatured, setIsFeatured] = useState(false);
   const [notes, setNotes] = useState("");
-  const [brokerId, setBrokerId] = useState("");
   const [allProperties, setAllProperties] = useState([]); // Store all properties for pagination
   
   // Debug flag - set to true to temporarily disable broker filtering
   const DEBUG_DISABLE_BROKER_FILTER = false;
   
-  // Function to extract broker ID from JWT token
-  const getCurrentUserIdFromToken = (token) => {
+  // Get token and API URL
+  const token = typeof window !== 'undefined' 
+    ? localStorage.getItem('token') || localStorage.getItem('authToken')
+    : null;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  
+  // Get current user ID from token
+  const getCurrentUserIdFromToken = (jwtToken) => {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      // Try different possible field names for broker ID
-      return payload.brokerId || payload.userId || payload.id || payload.sub;
-    } catch (error) {
-      console.error('Error decoding token:', error);
-      return null;
+      if (!jwtToken || typeof window === "undefined") return "";
+      const base64Url = jwtToken.split(".")[1];
+      if (!base64Url) return "";
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
+      );
+      const payload = JSON.parse(jsonPayload);
+      // Use brokerId if available, otherwise fall back to userId
+      return (
+        payload.brokerId || payload.userId || payload.id || payload.sub || ""
+      );
+    } catch {
+      return "";
     }
   };
+  
+  const currentUserId = useMemo(
+    () => getCurrentUserIdFromToken(token),
+    [token]
+  );
+
+  // State to store the actual broker ID (might be different from token userId)
+  const [brokerId, setBrokerId] = useState("");
+  const [brokerIdLoading, setBrokerIdLoading] = useState(false);
+
+  // Function to get broker details and extract the correct broker ID
+  const getBrokerId = useCallback(async () => {
+    if (!currentUserId || !token) {
+      // missing auth
+      return;
+    }
+
+    // No hardcoded mapping. Always resolve via API only.
+    try {
+      setBrokerIdLoading(true);
+      // fetch broker details for user
+
+      // Try the most likely endpoint first
+      const res = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // status read
+      if (res.ok) {
+        const data = await res.json();
+        // raw data
+
+        // Try different possible data structures
+        const brokerData =
+          data?.data?.broker || data?.broker || data?.data || data;
+        // processed data
+
+        // Use the broker's _id for filtering properties
+        if (brokerData && brokerData._id) {
+          setBrokerId(brokerData._id);
+          // set broker id
+        } else {
+          // no id in response
+          // Fallback: do not guess. Keep brokerId empty and log for visibility
+          // leave brokerId empty
+        }
+      } else {
+        // failed to fetch broker details
+        const errorText = await res.text();
+        // Do not fallback to userId; keep brokerId empty so queries won't filter wrongly
+      }
+    } catch (error) {
+      // error fetching broker details
+      // Do not fallback to userId; keep brokerId empty so queries won't filter wrongly
+    } finally {
+      setBrokerIdLoading(false);
+    }
+  }, [currentUserId, token, apiUrl]);
+
+  // Get broker ID when currentUserId changes
+  useEffect(() => {
+    if (currentUserId) {
+      getBrokerId();
+    }
+  }, [currentUserId, getBrokerId]);
   
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -150,45 +234,35 @@ const PropertiesManagement = () => {
 
   // Fetch properties from API
   const fetchProperties = useCallback(async (page = 1, limit = 9) => {
+    // Don't load properties if we don't have brokerId yet
+    if (!brokerId && !brokerIdLoading) return;
+    
     try {
       setLoading(true);
       setError('');
-      
-      const token = typeof window !== 'undefined' 
-        ? localStorage.getItem('token') || localStorage.getItem('authToken')
-        : null;
       
       if (!token) {
         setError('Please login to view properties');
         setLoading(false);
         return;
       }
-      
-      // Extract broker ID from token
-      const currentBrokerId = getCurrentUserIdFromToken(token);
-      console.log('Extracted broker ID from token:', currentBrokerId);
-      if (!currentBrokerId) {
-        console.error('Failed to extract broker ID from token');
-        setError('Failed to extract broker ID from token. Please re-login.');
+
+      if (!brokerId) {
+        // Wait for broker ID to be loaded
         setLoading(false);
         return;
       }
-      
-      // Use the broker ID from state if available, otherwise use the extracted one
-      const brokerIdToUse = brokerId || currentBrokerId;
+
+      const brokerIdToUse = brokerId;
       console.log('Using broker ID:', brokerIdToUse);
-      
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       
       const headers = {
         'Content-Type': 'application/json',
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       };
 
-      // Use broker endpoint to get broker's properties
-      const apiUrlWithParams = DEBUG_DISABLE_BROKER_FILTER 
-        ? `${apiUrl}/properties?page=${page}&limit=${limit}`
-        : `${apiUrl}/brokers/${brokerIdToUse}`;
+      // Fetch properties via properties endpoint filtered by broker for consistent shape
+      const apiUrlWithParams = `${apiUrl}/properties?broker=${encodeURIComponent(String(brokerIdToUse))}&page=${page}&limit=${limit}`;
       console.log('API URL with broker filter:', apiUrlWithParams);
       console.log('Debug mode (no broker filter):', DEBUG_DISABLE_BROKER_FILTER);
       
@@ -212,70 +286,74 @@ const PropertiesManagement = () => {
           hasPrevPage: false
         };
 
-        if (DEBUG_DISABLE_BROKER_FILTER) {
-          // Handle properties endpoint response
-          if (data.pagination) {
-            paginationData = {
-              total: data.pagination.total || 0,
-              page: data.pagination.page || 1,
-              limit: data.pagination.limit || 10,
-              totalPages: data.pagination.totalPages || 0,
-              hasNextPage: data.pagination.hasNextPage || false,
-              hasPrevPage: data.pagination.hasPrevPage || false
-            };
-          }
-          
-          // Handle different response structures for properties endpoint
-          if (Array.isArray(data?.data?.items)) {
-            properties = data.data.items;
-          } else if (Array.isArray(data?.data?.properties)) {
-            properties = data.data.properties;
-          } else if (Array.isArray(data?.data)) {
-            properties = data.data;
-          } else if (Array.isArray(data?.properties)) {
-            properties = data.properties;
-          } else if (Array.isArray(data)) {
-            properties = data;
-          }
-        } else {
-          // Handle broker endpoint response
-          if (data?.data?.broker) {
-            const broker = data.data.broker;
-            const brokerProperties = broker.properties || broker.propertiesListed?.items || [];
-            
-            // Store all properties for pagination
-            setAllProperties(brokerProperties);
-            
-            // Implement client-side pagination
-            const totalProperties = broker.propertyCount || brokerProperties.length;
-            const totalPages = Math.ceil(totalProperties / limit);
-            const startIndex = (page - 1) * limit;
-            const endIndex = startIndex + limit;
-            
-            // Get properties for current page
-            properties = brokerProperties.slice(startIndex, endIndex);
-            
-            // Set pagination data
-            paginationData = {
-              total: totalProperties,
-              page: page,
-              limit: limit,
-              totalPages: totalPages,
-              hasNextPage: page < totalPages,
-              hasPrevPage: page > 1
-            };
-          }
+        // Handle properties endpoint response
+        if (data.pagination) {
+          paginationData = {
+            total: data.pagination.total || 0,
+            page: data.pagination.page || 1,
+            limit: data.pagination.limit || 10,
+            totalPages: data.pagination.totalPages || 0,
+            hasNextPage: data.pagination.hasNextPage || false,
+            hasPrevPage: data.pagination.hasPrevPage || false
+          };
+        }
+        // Accept common shapes
+        if (Array.isArray(data?.data?.items)) {
+          properties = data.data.items;
+        } else if (Array.isArray(data?.data?.properties)) {
+          properties = data.data.properties;
+        } else if (Array.isArray(data?.data)) {
+          properties = data.data;
+        } else if (Array.isArray(data?.properties)) {
+          properties = data.properties;
+        } else if (Array.isArray(data)) {
+          properties = data;
         }
 
         setPagination(paginationData);
 
         // Map API response to expected format
-        const mappedProperties = properties.map((property) => ({
+        const mappedProperties = properties.map((property) => {
+          // Safely convert region to string - handle all cases
+          let regionDisplay = '';
+          try {
+            if (property && property.region) {
+              if (typeof property.region === 'object' && property.region !== null && !Array.isArray(property.region)) {
+                // Region is an object, extract name, city, state
+                const parts = [
+                  property.region.name,
+                  property.region.city,
+                  property.region.state
+                ].filter(Boolean).filter(part => typeof part === 'string');
+                regionDisplay = parts.length > 0 ? parts.join(', ') : '';
+              } else if (typeof property.region === 'string') {
+                regionDisplay = property.region;
+              } else {
+                // Fallback: convert to string if it's something else
+                regionDisplay = String(property.region || '');
+              }
+            }
+          } catch (e) {
+            console.warn('Error processing region:', e, property?.region);
+            regionDisplay = '';
+          }
+          
+          // Fallback to city if region is empty
+          if (!regionDisplay || regionDisplay.trim() === '') {
+            regionDisplay = property.city || '';
+          }
+          
+          // Final safety check - ensure it's always a string
+          regionDisplay = String(regionDisplay || '');
+          
+          const imagesArray = Array.isArray(property.images) ? property.images : [];
+          const firstNonEmptyImage = imagesArray.find((u) => typeof u === 'string' && u.trim().length > 0);
+          return ({
           id: property._id || property.id || `api-${Date.now()}-${Math.random()}`,
           title: property.title || property.name || 'Untitled Property',
           description: property.description || property.propertyDescription || '',
           propertyDescription: property.propertyDescription || property.description || '',
-          region: property.region || property.city || '',
+          region: regionDisplay,
           address: property.address || '',
           city: property.city || '',
           price: property.price || 0,
@@ -289,7 +367,8 @@ const PropertiesManagement = () => {
           nearbyAmenities: Array.isArray(property.nearbyAmenities) ? property.nearbyAmenities : [],
           features: Array.isArray(property.features) ? property.features : [],
           locationBenefits: Array.isArray(property.locationBenefits) ? property.locationBenefits : [],
-          images: Array.isArray(property.images) && property.images.length > 0 ? property.images : [DEFAULT_IMAGE],
+          images: imagesArray.length > 0 ? imagesArray : [DEFAULT_IMAGE],
+          coverImage: firstNonEmptyImage || DEFAULT_IMAGE,
           videos: Array.isArray(property.videos) ? property.videos : [],
           propertyType: property.propertyType || property.type || 'Residential',
           subType: property.subType || 'Apartment',
@@ -303,10 +382,17 @@ const PropertiesManagement = () => {
             currency: 'INR', 
             maximumFractionDigits: 0 
           }).format(property.price) : '-'
-        }));
+          });
+        });
 
         // Since we're using the broker endpoint, all properties should belong to the current broker
         let finalProperties = mappedProperties;
+        
+        // Final validation: ensure all regions are strings (safety check)
+        finalProperties = finalProperties.map(p => ({
+          ...p,
+          region: typeof p.region === 'string' ? p.region : String(p.region || p.city || 'Location')
+        }));
         
         if (DEBUG_DISABLE_BROKER_FILTER) {
           console.log('Debug mode: Showing all properties without broker filtering');
@@ -331,7 +417,7 @@ const PropertiesManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [brokerId, brokerIdLoading, token, apiUrl]);
 
   // Create new property via API
   const createProperty = async (propertyData) => {
@@ -383,12 +469,47 @@ const PropertiesManagement = () => {
         const pageProperties = allProperties.slice(startIndex, endIndex);
         
         // Map properties for display
-        const mappedProperties = pageProperties.map((property) => ({
+        const mappedProperties = pageProperties.map((property) => {
+          // Safely convert region to string - handle all cases
+          let regionDisplay = '';
+          try {
+            if (property && property.region) {
+              if (typeof property.region === 'object' && property.region !== null && !Array.isArray(property.region)) {
+                // Region is an object, extract name, city, state
+                const parts = [
+                  property.region.name,
+                  property.region.city,
+                  property.region.state
+                ].filter(Boolean).filter(part => typeof part === 'string');
+                regionDisplay = parts.length > 0 ? parts.join(', ') : '';
+              } else if (typeof property.region === 'string') {
+                regionDisplay = property.region;
+              } else {
+                // Fallback: convert to string if it's something else
+                regionDisplay = String(property.region || '');
+              }
+            }
+          } catch (e) {
+            console.warn('Error processing region:', e, property?.region);
+            regionDisplay = '';
+          }
+          
+          // Fallback to city if region is empty
+          if (!regionDisplay || regionDisplay.trim() === '') {
+            regionDisplay = property.city || '';
+          }
+          
+          // Final safety check - ensure it's always a string
+          regionDisplay = String(regionDisplay || '');
+          
+          const imagesArray = Array.isArray(property.images) ? property.images : [];
+          const firstNonEmptyImage = imagesArray.find((u) => typeof u === 'string' && u.trim().length > 0);
+          return ({
           id: property._id || property.id || `api-${Date.now()}-${Math.random()}`,
           title: property.title || property.name || 'Untitled Property',
           description: property.description || property.propertyDescription || '',
           propertyDescription: property.propertyDescription || property.description || '',
-          region: property.region || property.city || '',
+          region: regionDisplay,
           address: property.address || '',
           city: property.city || '',
           price: property.price || 0,
@@ -402,7 +523,8 @@ const PropertiesManagement = () => {
           nearbyAmenities: Array.isArray(property.nearbyAmenities) ? property.nearbyAmenities : [],
           features: Array.isArray(property.features) ? property.features : [],
           locationBenefits: Array.isArray(property.locationBenefits) ? property.locationBenefits : [],
-          images: Array.isArray(property.images) && property.images.length > 0 ? property.images : [DEFAULT_IMAGE],
+          images: imagesArray.length > 0 ? imagesArray : [DEFAULT_IMAGE],
+          coverImage: firstNonEmptyImage || DEFAULT_IMAGE,
           videos: Array.isArray(property.videos) ? property.videos : [],
           propertyType: property.propertyType || property.type || 'Residential',
           subType: property.subType || 'Apartment',
@@ -416,9 +538,16 @@ const PropertiesManagement = () => {
             currency: 'INR', 
             maximumFractionDigits: 0 
           }).format(property.price) : '-'
+          });
+        });
+        
+        // Final validation: ensure all regions are strings (safety check)
+        const validatedProperties = mappedProperties.map(p => ({
+          ...p,
+          region: typeof p.region === 'string' ? p.region : String(p.region || p.city || 'Location')
         }));
         
-        setItems(mappedProperties);
+        setItems(validatedProperties);
         
         // Update pagination state
         setPagination(prev => ({
@@ -439,39 +568,12 @@ const PropertiesManagement = () => {
     }
   };
 
-  // Set broker ID from token on component mount
+  // Load properties when brokerId is available
   useEffect(() => {
-    const token = typeof window !== 'undefined' 
-      ? localStorage.getItem('token') || localStorage.getItem('authToken')
-      : null;
-    
-    console.log('Token found:', !!token);
-    if (token) {
-      console.log('Token:', token.substring(0, 50) + '...');
-      const currentBrokerId = getCurrentUserIdFromToken(token);
-      console.log('Extracted broker ID in useEffect:', currentBrokerId);
-      if (currentBrokerId) {
-        setBrokerId(currentBrokerId);
-        console.log('Set broker ID state to:', currentBrokerId);
-      } else {
-        console.error('Failed to extract broker ID from token');
-      }
-    } else {
-      console.error('No token found in localStorage');
-    }
-  }, []);
-
-  // Load properties on component mount
-  useEffect(() => {
-    console.log('useEffect triggered - brokerId:', brokerId);
-    // Only fetch properties if we have a broker ID
-    if (brokerId) {
-      console.log('Fetching properties for broker ID:', brokerId);
+    if (brokerId && !brokerIdLoading) {
       fetchProperties(pagination.page, pagination.limit);
-    } else {
-      console.log('No broker ID, not fetching properties');
     }
-  }, [fetchProperties, brokerId]);
+  }, [brokerId, brokerIdLoading, fetchProperties, pagination.page, pagination.limit]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -540,7 +642,6 @@ const PropertiesManagement = () => {
       setStatus("Pending Approval");
       setIsFeatured(false);
       setNotes("");
-      setBrokerId("");
       setIsModalOpen(false);
       
     } catch (err) {
@@ -579,8 +680,7 @@ const PropertiesManagement = () => {
       <div className=" mx-auto  py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Properties Management</h1>
-            <p className="text-gray-600 text-sm">Manage your properties and add new ones.</p>
+            <h1 className="text-2xl font-semibold text-gray-900">Property Search Results ({items?.length || 0} Found)</h1>
             {error && (
               <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-600">{error}</p>
@@ -607,7 +707,7 @@ const PropertiesManagement = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => brokerId && fetchProperties(pagination.page, pagination.limit)}
-              disabled={loading || !brokerId}
+              disabled={loading || brokerIdLoading || !brokerId}
               className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -632,11 +732,11 @@ const PropertiesManagement = () => {
           return null;
         })()}
         
-        {loading ? (
+        {loading || brokerIdLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-              <span className="text-gray-600">Loading properties...</span>
+              <span className="text-gray-600">{brokerIdLoading ? 'Loading broker information...' : 'Loading properties...'}</span>
             </div>
           </div>
         ) : !brokerId ? (
@@ -647,16 +747,41 @@ const PropertiesManagement = () => {
             </div>
           </div>
         ) : items.length === 0 && pagination.total === 0 ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="text-gray-500 text-lg mb-2">No properties found</div>
-              <div className="text-gray-400 text-sm">You haven't created any properties yet</div>
-              <Link
-                href="/properties-management/new"
-                className="inline-block mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Create Your First Property
-              </Link>
+          <div className="flex items-center justify-center py-16">
+            <div className="w-full mx-auto px-6 py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+              <div className="flex flex-col items-center justify-center text-center">
+                {/* Icon */}
+                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                  <svg
+                    className="w-8 h-8 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    />
+                  </svg>
+                </div>
+                {/* Primary Message */}
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No properties found
+                </h3>
+                {/* Secondary Message */}
+                <p className="text-sm text-gray-500 mb-6 max-w-sm">
+                  We couldn't find any properties matching your criteria.
+                </p>
+                {/* Add New Property Button */}
+                <Link
+                  href="/properties-management/new"
+                  className="inline-block px-6 py-2.5 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
+                >
+                  Add New Property
+                </Link>
+              </div>
             </div>
           </div>
         ) : items.length === 0 && pagination.total > 0 ? (
@@ -680,7 +805,7 @@ const PropertiesManagement = () => {
                         {/* Image carousel */}
                         <div className="relative w-full h-full overflow-hidden rounded-l-xl">
                           <div className="absolute inset-0 transition-opacity duration-700 ease-in-out opacity-100">
-                            <img src={(property.images && property.images[0]) || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover" />
+                            <img src={property.coverImage || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover" />
                           </div>
                         </div>
                         {/* Tag overlay - top-left */}
@@ -742,7 +867,21 @@ const PropertiesManagement = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
                               <circle cx="12" cy="10" r="3" strokeWidth="2" />
                             </svg>
-                            {property.region || 'Location'}
+                            {(() => {
+                              // Region should always be a string after mapping, but add defensive check
+                              if (typeof property.region === 'string') {
+                                return property.region;
+                              }
+                              // Fallback for edge cases
+                              if (typeof property.region === 'object' && property.region !== null && !Array.isArray(property.region)) {
+                                const parts = [property.region.name, property.region.city, property.region.state]
+                                  .filter(Boolean)
+                                  .filter(part => typeof part === 'string');
+                                return parts.length > 0 ? parts.join(', ') : (property.city || 'Location');
+                              }
+                              // Final fallback - convert to string
+                              return String(property.region || property.city || 'Location');
+                            })()}
                           </div>
                         </div>
 

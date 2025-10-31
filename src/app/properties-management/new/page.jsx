@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import ProtectedRoute from "../../components/ProtectedRoute";
+import HeaderFile from "../../components/Header";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -35,6 +36,15 @@ const NewPropertyPage = () => {
   const fileInputRef = useRef(null);
   const [videoFiles, setVideoFiles] = useState([]);
   const videoFileInputRef = useRef(null);
+  // New property meta fields
+  const amenityPresetOptions = [
+    "Parking","Power Backup","Lift","Garden","Security","Gym","Water Supply","Swimming Pool"
+  ];
+  const [facingDirection, setFacingDirection] = useState("");
+  const [possessionStatus, setPossessionStatus] = useState("");
+  const [propertyAge, setPropertyAge] = useState("");
+  const [propertyAgeYears, setPropertyAgeYears] = useState("");
+  const addressInputRef = useRef(null);
   const [coordinates, setCoordinates] = useState({ lat: "", lng: "" });
   const [bedrooms, setBedrooms] = useState("");
   const [bathrooms, setBathrooms] = useState("");
@@ -47,7 +57,8 @@ const NewPropertyPage = () => {
   const [error, setError] = useState("");
   // Wizard steps (match profile page flow style)
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 3;
+  const progressPercent = Math.round((currentStep / totalSteps) * 100);
 
   // Regions API state
   const [regions, setRegions] = useState([]);
@@ -56,6 +67,17 @@ const NewPropertyPage = () => {
   const [regionSearchQuery, setRegionSearchQuery] = useState("");
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [regionsError, setRegionsError] = useState("");
+  const [selectedRegionId, setSelectedRegionId] = useState("");
+  const PRICE_MIN = 0;
+  const PRICE_MAX = 100000000; // 10 cr cap, adjust as needed
+  const PRICE_STEP = 10000;
+
+  const formatCurrencyINR = (v) => {
+    if (v === undefined || v === null || v === "") return "₹0";
+    const num = Number(v);
+    if (Number.isNaN(num)) return "₹0";
+    return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(num);
+  };
 
   // Regions API functions
   const fetchRegions = async () => {
@@ -115,6 +137,54 @@ const NewPropertyPage = () => {
     fetchRegions();
   }, []);
 
+  // Load Google Places script if not present
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.google && window.google.maps && window.google.maps.places) return;
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) return;
+    const existing = document.getElementById('google-places-script');
+    if (existing) return; 
+    const script = document.createElement('script');
+    script.id = 'google-places-script';
+    script.async = true;
+    script.defer = true;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    document.head.appendChild(script);
+  }, []);
+
+  // Initialize Google Places Autocomplete for address if available
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && window.google && window.google.maps && window.google.maps.places && addressInputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(addressInputRef.current, { types: ['geocode'] });
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          const formattedAddress = place?.formatted_address || addressInputRef.current.value || '';
+          // Parse city and state from address components
+          let detectedCity = '';
+          let detectedState = '';
+          const comps = place?.address_components || [];
+          comps.forEach((c) => {
+            if ((c.types || []).includes('locality')) detectedCity = c.long_name || c.short_name || detectedCity;
+            if ((c.types || []).includes('administrative_area_level_1')) detectedState = c.long_name || c.short_name || detectedState;
+          });
+
+          setForm((prev) => ({ ...prev, address: formattedAddress, city: detectedCity || prev.city }));
+
+          // Filter regions based on detected city
+          if (detectedCity) {
+            const matches = regions.filter((r) => (r.city || '').toLowerCase() === detectedCity.toLowerCase());
+            setFilteredRegions(matches.length ? matches : regions);
+          }
+        });
+      }
+    } catch (err) {
+      // Fail silently if Google is not available
+      console.warn('Address autocomplete init failed:', err);
+    }
+  }, [regions]);
+
   // Filter regions based on search query
   useEffect(() => {
     searchRegions(regionSearchQuery);
@@ -139,26 +209,32 @@ const NewPropertyPage = () => {
   const isPositiveNumber = (v) => v !== '' && !Number.isNaN(Number(v)) && Number(v) > 0;
 
   const isStep1Valid = () => {
-    return isNonEmpty(form.title) && isNonEmpty(form.region);
+    return (
+      isNonEmpty(form.title) &&
+      isNonEmpty(form.region) &&
+      isNonEmpty(form.address) &&
+      isPositiveNumber(form.price) &&
+      isNonEmpty(form.city) &&
+      isPositiveNumber(form.propertySize) &&
+      isPositiveNumber(bedrooms) &&
+      isPositiveNumber(bathrooms) &&
+      isNonEmpty(form.propertyType) &&
+      isNonEmpty(form.subType)
+    );
   };
 
   const isStep2Valid = () => {
-    return isPositiveNumber(form.price) && isNonEmpty(form.priceUnit) && isNonEmpty(form.city);
+    return true; // amenities optional
   };
 
   const isStep3Valid = () => {
-    return isPositiveNumber(form.propertySize) && isPositiveNumber(bedrooms) && isPositiveNumber(bathrooms) && isNonEmpty(form.propertyType) && isNonEmpty(form.subType);
-  };
-
-  const isStep4Valid = () => {
-    return (images.length + imageFiles.length) > 0; // require at least one image
+    return (images.length + imageFiles.length) >= 3; // require at least 3 images
   };
 
   const isCurrentStepValid = () => {
     if (currentStep === 1) return isStep1Valid();
     if (currentStep === 2) return isStep2Valid();
     if (currentStep === 3) return isStep3Valid();
-    if (currentStep === 4) return isStep4Valid();
     return false;
   };
 
@@ -218,6 +294,8 @@ const NewPropertyPage = () => {
     
     // Update form region value as user types
     setForm(prev => ({ ...prev, region: query }));
+    // Clear previously selected region id when user types manually
+    setSelectedRegionId("");
   };
 
   const handleRegionSelect = (region) => {
@@ -225,6 +303,12 @@ const NewPropertyPage = () => {
     setForm(prev => ({ ...prev, region: regionValue }));
     setRegionSearchQuery(regionValue);
     setIsRegionDropdownOpen(false);
+    // Track region id to submit to API
+    setSelectedRegionId(region?._id || "");
+    // Auto-fill city from selected region
+    if (region && region.city) {
+      setForm(prev => ({ ...prev, city: region.city }));
+    }
   };
 
   const handleRegionInputFocus = () => {
@@ -243,11 +327,11 @@ const NewPropertyPage = () => {
     console.log('Form submitted - current step:', currentStep);
     console.log('Form submitted - submitting state:', submitting);
     
-    // Only proceed if we're on the last step (Step 4)
-    if (currentStep !== 4) {
+    // Only proceed if we're on the last step (Step 3)
+    if (currentStep !== 3) {
       console.log('Form submitted but not on Step 4, current step:', currentStep);
       console.log('Preventing form submission - not on step 4');
-      setError(`Please complete all steps. Currently on step ${currentStep} of 4.`);
+      setError(`Please complete all steps. Currently on step ${currentStep} of 3.`);
       return;
     }
     
@@ -331,7 +415,21 @@ const NewPropertyPage = () => {
       formData.append("priceUnit", form.priceUnit);
       formData.append("address", form.address || "");
       formData.append("city", form.city);
-      formData.append("region", form.region);
+      // Resolve region to a valid ObjectId for API
+      let regionIdToSend = selectedRegionId;
+      if (!regionIdToSend && form.region) {
+        const match = regions.find((r) => formatRegionValue(r) === form.region);
+        if (match && match._id) {
+          regionIdToSend = match._id;
+          setSelectedRegionId(match._id);
+        }
+      }
+      if (!regionIdToSend) {
+        setError("Please select a valid region from the list.");
+        setSubmitting(false);
+        return;
+      }
+      formData.append("region", regionIdToSend);
 
       // Coordinates
       if (coordinates.lat) formData.append("coordinates[lat]", coordinates.lat);
@@ -356,6 +454,22 @@ const NewPropertyPage = () => {
       formData.append("status", status);
       formData.append("isFeatured", isFeatured.toString());
       formData.append("notes", notes || "");
+      if (facingDirection) formData.append("facingDirection", facingDirection);
+      if (possessionStatus) formData.append("possessionStatus", possessionStatus);
+      // Map UI selection to numeric years for backend
+      let ageYearsToSend = propertyAgeYears;
+      if (!ageYearsToSend && propertyAge) {
+        if (propertyAge === "New") ageYearsToSend = "0";
+        else if (propertyAge === "<5 Years") ageYearsToSend = "3";
+        else if (propertyAge === "<10 Years") ageYearsToSend = "8";
+        else if (propertyAge === ">10 Years") ageYearsToSend = "11";
+      }
+      if (ageYearsToSend !== undefined && ageYearsToSend !== null && `${ageYearsToSend}` !== "") {
+        formData.append("propertyAgeYears", `${ageYearsToSend}`);
+      }
+      // optionally send postedBy and verificationStatus defaults
+      formData.append("postedBy", "Broker");
+      formData.append("verificationStatus", "Unverified");
 
       // ✅ Append valid broker ID
       formData.append("broker", brokerId);
@@ -393,6 +507,18 @@ const NewPropertyPage = () => {
 
   return (
     <ProtectedRoute>
+      {/* Google Places dropdown styles */}
+      <link rel="stylesheet" href="/google-places.css" />
+      <HeaderFile
+        data={{
+          title: "Add New Property",
+          breadcrumb: [
+            { label: "Home", href: "/" },
+            { label: "Properties", href: "/properties-management" },
+            { label: "Add New", href: "/properties-management/new" },
+          ],
+        }}
+      />
       <div className="min-h-screen bg-white">
         <div className="w-full px-0 sm:px-0 lg:px-0 py-8 max-w-none">
           {/* Header */}
@@ -401,9 +527,7 @@ const NewPropertyPage = () => {
                <div>
                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New Property</h1>
                  <p className="text-gray-600">Create a new property listing with all the details</p>
-                 <div className="mt-2 text-sm text-blue-600 font-medium">
-                   Step {currentStep} of {totalSteps}
-                 </div>
+               
                </div>
               <Link 
                 href="/properties-management" 
@@ -433,7 +557,7 @@ const NewPropertyPage = () => {
           </div>
             )}
             
-            {successMessage && currentStep === 4 && (
+            {successMessage && currentStep === 3 && (
               <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -443,10 +567,10 @@ const NewPropertyPage = () => {
                     <p className="text-sm text-green-700">{successMessage}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-xs text-green-600">Redirecting in 2 seconds...</p>
+                    <p className="text-xs text-green-900">Redirecting in 2 seconds...</p>
                     <Link
                       href="/properties-management"
-                      className="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
+                      className="px-3 py-1 bg-green-900 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
                     >
                       View Properties
                     </Link>
@@ -457,34 +581,74 @@ const NewPropertyPage = () => {
           </div>
 
           {/* Layout: form + right sidebar like profile page */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Form */}
+          <div className="grid grid-cols-1 grid-cols-12 gap-6 items-start">
+          {/* Left header progress bar (profile-style card) */}
+          <div className="col-span-9 ">
+          <div className="">
+            <div className="mb-4">
+              <div className="flex items-center justify-between">
+                  {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step, idx) => {
+                    const isActive = step === currentStep;
+                    const isCompleted = step < currentStep;
+                    const circleClass = isCompleted
+                      ? "bg-green-900 text-white"
+                      : isActive
+                      ? "bg-green-700 text-white"
+                      : "bg-gray-300 text-gray-500";
+                    return (
+                      <React.Fragment key={step}>
+                        <button
+                          type="button"
+                          onClick={() => goToStep(step)}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${circleClass} transition-all ${isActive || isCompleted ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                        >
+                          {step}
+                        </button>
+                        {idx < totalSteps - 1 && (
+                          <div className={`${step < currentStep ? 'bg-green-900' : 'bg-gray-200'} flex-1 h-1 mx-1`} />
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center justify-between text-xs mt-2">
+                  <span className="text-gray-600">{progressPercent}% Completed</span>
+                </div>
+                <div className="w-full h-7 relative">
+                  <div className="absolute top-2.5 left-0 w-full h-2 bg-[#9AEFBD] rounded-md overflow-hidden">
+                    <div className="absolute left-0 top-0 h-full bg-[#0D542B] transition-all duration-300 ease-in-out" style={{ width: `${(currentStep / totalSteps) * 100}%` }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Form (left) */}
           <form onSubmit={(e) => {
             console.log('Form onSubmit triggered - current step:', currentStep);
-            if (currentStep !== 4) {
+            if (currentStep !== 3) {
               console.log('Form submission prevented - not on step 4');
               e.preventDefault();
               e.stopPropagation();
               return false;
             }
             return handleSubmit(e);
-          }} className="lg:col-span-9 bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
+          }} className="  ">
             
             {/* Stepper moved to right sidebar */}
 
-            <div className="p-8 space-y-8">
+            <div className=" space-y-8">
               {/* Basic Information Section */}
               {currentStep === 1 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
-                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="w-5 h-5 flex items-center justify-center">
+        <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <h3 className="text-base font-semibold text-gray-900">Basic Information</h3>
                 </div>
                 
+    {/* Title and Address (Address above Region) */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Property Title *</label>
@@ -493,13 +657,40 @@ const NewPropertyPage = () => {
                       value={form.title} 
                       onChange={handleChange} 
                       onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
-                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.title) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
+          className={`w-full rounded-xl text-[13px] px-3 py-2 focus:outline-none transition-all duration-200 ${
+            isNonEmpty(form.title)
+              ? 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
+              : 'border border-red-300 focus:ring-2 focus:ring-red-400'
+          }`}
                       placeholder="Enter property title" 
                       required
                     />
                     {!isNonEmpty(form.title) && (<p className="text-xs text-red-600">Title is required.</p>)}
                   </div>
                   
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">Address *</label>
+        <input
+          name="address"
+          ref={addressInputRef}
+          value={form.address}
+          onChange={handleChange}
+          onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
+          autoComplete="off"
+          className={`w-full rounded-xl text-[13px] px-3 py-2 focus:outline-none transition-all duration-200 ${
+            isNonEmpty(form.address)
+              ? 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
+              : 'border border-red-300 focus:ring-2 focus:ring-red-400'
+          }`}
+          placeholder="Start typing address..."
+          required
+        />
+        {!isNonEmpty(form.address) && (<p className="text-xs text-red-600">Address is required.</p>)}
+      </div>
+    </div>
+
+    {/* Region and City in one row */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Region *</label>
                     <div className="relative region-dropdown">
@@ -510,47 +701,34 @@ const NewPropertyPage = () => {
                         onChange={handleRegionInputChange}
                         onFocus={handleRegionInputFocus}
                         onKeyDown={handleRegionInputKeyDown}
-                        className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${
+            className={`w-full rounded-xl text-[13px] px-3 py-2 focus:outline-none transition-all duration-200 ${
                           !isNonEmpty(form.region) 
                             ? 'border border-red-300 focus:ring-2 focus:ring-red-400' 
-                            : 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                : 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
                         }`}
                         placeholder="Select a region..."
                         required
                         autoComplete="off"
                       />
-                      
-                      {/* Dropdown arrow */}
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                         <svg
-                          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                            isRegionDropdownOpen ? "rotate-180" : ""
-                          }`}
+              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isRegionDropdownOpen ? "rotate-180" : ""}`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
-
-                      {/* Dropdown menu */}
                       {isRegionDropdownOpen && (
                         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg max-h-60 overflow-y-auto">
                           {regionsLoading ? (
                             <div className="px-4 py-3 text-sm text-gray-500 flex items-center gap-2">
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
                               Loading regions...
                             </div>
                           ) : regionsError ? (
-                            <div className="px-4 py-3 text-sm text-red-600">
-                              {regionsError}
-                            </div>
+                <div className="px-4 py-3 text-sm text-red-600">{regionsError}</div>
                           ) : filteredRegions.length === 0 ? (
                             <div className="px-4 py-3 text-sm text-gray-500">
                               {regionSearchQuery ? "No regions found" : "No regions available"}
@@ -564,17 +742,8 @@ const NewPropertyPage = () => {
                                     onClick={() => handleRegionSelect(region)}
                                     className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none cursor-pointer"
                                   >
-                                    <div className="font-medium text-gray-900">
-                                      {region.name}
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                      {region.city}, {region.state}
-                                    </div>
-                                    {/* {region.description && (
-                                      <div className="text-xs text-gray-400 mt-1">
-                                        {region.description}
-                                      </div>
-                                    )} */}
+                        <div className="font-medium text-gray-900">{region.name}</div>
+                        <div className="text-xs text-gray-500">{region.city}, {region.state}</div>
                                   </button>
                                 </li>
                               ))}
@@ -583,125 +752,131 @@ const NewPropertyPage = () => {
                         </div>
                       )}
                     </div>
-                    {!isNonEmpty(form.region) && (
-                      <p className="text-xs text-red-600">Region is required.</p>
-                    )}
-                  </div>
+        {!isNonEmpty(form.region) && (<p className="text-xs text-red-600">Region is required.</p>)}
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Short Description</label>
-                  <textarea 
-                    name="description" 
-                    value={form.description} 
-                    onChange={handleChange} 
-                    rows={3} 
-                    className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none" 
-                    placeholder="Brief description of the property"
-                  />
+        <label className="block text-sm font-medium text-gray-700">City (auto)</label>
+        <input
+          name="city"
+          value={form.city}
+          readOnly
+          className="w-full rounded-xl text-[13px] px-3 py-2 border border-gray-200 bg-gray-50 text-gray-700"
+          placeholder="Auto-filled from address/region"
+        />
+      </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Detailed Description</label>
-                  <textarea 
-                    name="propertyDescription" 
-                    value={form.propertyDescription} 
-                    onChange={handleChange} 
-                    rows={4} 
-                    className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none" 
-                    placeholder="Comprehensive description with all details"
-                  />
+    {/* Property meta quick picks */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Facing Direction</label>
+        <div className="flex flex-wrap gap-2">
+          {["North","East","South","West"].map(opt => (
+            <button
+              key={opt}
+              type="button"
+              onClick={()=>setFacingDirection(opt)}
+              className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+                facingDirection===opt
+                  ? 'bg-gray-200 text-gray-900 border-gray-300'
+                  : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
                 </div>
-                {/* Step navigation removed; use global bottom controls */}
               </div>
-              )}
-              {/* Location & Pricing Section */}
-              {currentStep === 2 && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Possession Status</label>
+        <div className="flex flex-wrap gap-2">
+          {["Ready to Move","Under Construction","Upcoming"].map(opt => (
+            <button
+              key={opt}
+              type="button"
+              onClick={()=>setPossessionStatus(opt)}
+              className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+                possessionStatus===opt
+                  ? 'bg-gray-200 text-gray-900 border-gray-300'
+                  : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
                   </div>
-                  <h3 className="text-base font-semibold text-gray-900">Location & Pricing</h3>
                 </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Address</label>
-                    <input 
-                      name="address" 
-                      value={form.address} 
-                      onChange={handleChange} 
-                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
-                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.address) || form.address === '' ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
-                      placeholder="Street address" 
-                    />
-            </div>
-                  
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">City</label>
-                    <input 
-                      name="city" 
-                      value={form.city}
-                      onChange={handleChange} 
-                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
-                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.city) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
-                      placeholder="City" 
-                    />
-                    {!isNonEmpty(form.city) && (<p className="text-xs text-red-600">City is required.</p>)}
-                  </div>
+       
           </div>
                 
+    {/* Property Details & Pricing Section (Step 1) */}
+    <div className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Price *</label>
+          <div className="flex items-center justify-between">
+                    
+            <div className="w-full">
+              <div className="relative">
+                <span className="absolute inset-y-0 left-2 flex items-center text-gray-500">₹</span>
                     <input 
-                      type="number" 
-                      name="price" 
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                       value={form.price} 
-                      onChange={handleChange} 
-                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
-                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isPositiveNumber(form.price) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`} 
-                      placeholder="e.g. 42000000" 
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    if (raw === "" || /^[0-9]+$/.test(raw)) {
+                      setForm((prev) => ({ ...prev, price: raw }));
+                    }
+                  }}
+                  className={`pl-6 pr-3 py-2 text-[13px] rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-200 ${!isPositiveNumber(form.price) ? 'border border-red-300 bg-white' : 'border border-gray-300 bg-white'}`}
+                  aria-label="Price"
+                      name="price" 
                       required
                     />
+              </div>
+              <input 
+                type="range" 
+                min={PRICE_MIN} 
+                max={PRICE_MAX} 
+                step={PRICE_STEP}
+                value={Number(form.price || 0)}
+                onChange={(e)=> setForm(prev=> ({...prev, price: String(Number(e.target.value)) }))}
+                className="w-full mt-2 accent-green-900"
+              />
+            </div>
+                  </div>
                     {!isPositiveNumber(form.price) && (<p className="text-xs text-red-600">Enter a valid price.</p>)}
                   </div>
                   
+         {/* Property Age on the right of Price */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Currency</label>
-                    <select 
-                      name="priceUnit" 
-                      value={form.priceUnit} 
-                      onChange={handleChange} 
-                      className={`w-full rounded-xl text-sm px-4 py-3 focus:outline-none transition-all duration-200 ${isNonEmpty(form.priceUnit) ? 'border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent' : 'border border-red-300 focus:ring-2 focus:ring-red-400'}`}
-                    >
-                      <option>INR</option>
-                      <option>USD</option>
-                    </select>
+           <label className="block text-sm font-medium text-gray-700">Property Age</label>
+           <div className="flex flex-wrap gap-2">
+             {["New","<5 Years","<10 Years",">10 Years"].map(opt => (
+               <button
+                 key={opt}
+                 type="button"
+                 onClick={()=>setPropertyAge(opt)}
+                 className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+                   propertyAge===opt
+                     ? 'bg-gray-200 text-gray-900 border-gray-300'
+                     : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                 }`}
+               >
+                 {opt}
+               </button>
+             ))}
                   </div>
           </div>
-                {/* Coordinates removed per request */}
-                {/* Step navigation removed; use global bottom controls */}
-              </div>
-              )}
-              {/* Property Details Section */}
-              {currentStep === 3 && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-base font-semibold text-gray-900">Property Details</h3>
                 </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+       {/* Property detail fields */}
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Property Size (sqft)</label>
                     <input 
@@ -710,60 +885,84 @@ const NewPropertyPage = () => {
                       value={form.propertySize} 
                       onChange={handleChange} 
                       onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
+            className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200"
                       placeholder="e.g. 1200"
                     />
             </div>
                   
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Bedrooms</label>
-                    <input 
-                      type="number" 
-                      value={bedrooms} 
-                      onChange={(e)=>setBedrooms(e.target.value)} 
-                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
-                      placeholder="e.g. 3"
-                    />
+          <label className="block text-sm font-medium text-gray-700">Bedrooms (BHK)</label>
+          <div className="flex flex-wrap gap-2">
+            {["1","2","3","4","5+"].map(opt => {
+              const on = (bedrooms === opt) || (opt==='5+' && Number(bedrooms) >= 5);
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={()=>setBedrooms(opt === '5+' ? '5' : opt)}
+                  className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+                    on ? 'bg-gray-200 text-gray-900 border-gray-300' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
             </div>
                   
+       </div>
+
+       {/* Bathrooms + Property Type */}
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Bathrooms</label>
-                    <input 
-                      type="number" 
-                      value={bathrooms} 
-                      onChange={(e)=>setBathrooms(e.target.value)} 
-                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
-                      placeholder="e.g. 2"
-                    />
+           <div className="flex flex-wrap gap-2">
+             {["1","2","3","4","5+"].map(opt => {
+               const on = (bathrooms === opt) || (opt==='5+' && Number(bathrooms) >= 5);
+               return (
+                 <button
+                   key={opt}
+                   type="button"
+                   onClick={()=>setBathrooms(opt === '5+' ? '5' : opt)}
+                   className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+                     on ? 'bg-gray-200 text-gray-900 border-gray-300' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                   }`}
+                 >
+                   {opt}
+                 </button>
+               );
+             })}
             </div>
           </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Property Type *</label>
                     <select 
                       name="propertyType" 
                       value={form.propertyType} 
                       onChange={handleChange} 
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+            className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200"
                       required
                     >
                 <option>Residential</option>
                 <option>Commercial</option>
-                <option>Industrial</option>
-                <option>Land</option>
+                <option>Plot</option>
+                <option>Other</option>
               </select>
             </div>
                   
+       </div>
+
+       {/* Sub Type + Furnishing */}
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Sub Type</label>
                     <select 
                       name="subType" 
                       value={form.subType} 
                       onChange={handleChange} 
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+             className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200"
                     >
                 <option>Apartment</option>
                 <option>Villa</option>
@@ -779,7 +978,7 @@ const NewPropertyPage = () => {
                     <select 
                       value={furnishing} 
                       onChange={(e)=>setFurnishing(e.target.value)} 
-                      className="w-full border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+             className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200"
                     >
                 <option>Furnished</option>
                 <option>Semi-Furnished</option>
@@ -787,225 +986,345 @@ const NewPropertyPage = () => {
               </select>
             </div>
           </div>
-                {/* Step navigation removed; use global bottom controls */}
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">Short Description</label>
+        <textarea
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          rows={2}
+          className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200 resize-none"
+          placeholder="Brief description of the property"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">Detailed Description</label>
+        <textarea
+          name="propertyDescription"
+          value={form.propertyDescription}
+          onChange={handleChange}
+          rows={3}
+          className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200 resize-none"
+          placeholder="Comprehensive description with all details"
+        />
+      </div>
+    </div>
             </div>
               )}
-              {/* Amenities Section */}
-              {currentStep === 3 && (
+
+              {/* Amenities Section (Step 2) */}
+              {currentStep === 2 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
-                  <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                     </svg>
             </div>
                   <h3 className="text-base font-semibold text-gray-900">Amenities & Features</h3>
           </div>
                 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Property Amenities</label>
-                    <div className="flex gap-3">
-                      <input 
-                        value={amenityInput} 
-                        onChange={(e)=>setAmenityInput(e.target.value)} 
-                        onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addAmenity(); } }} 
-                        className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
-                        placeholder="Type amenity and press Add or Enter" 
+                {/* Property Amenities with preset chips */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-semibold text-gray-900">Property Amenities</label>
+                  
+                  {/* Preset amenities as clickable chips */}
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {amenityPresetOptions.map((preset) => {
+                      const isSelected = amenities.includes(preset);
+                      return (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              removeFrom(preset, setAmenities);
+                            } else {
+                              if (!amenities.includes(preset)) {
+                                setAmenities(prev => [...prev, preset]);
+                              }
+                            }
+                          }}
+                          className={`px-3 py-1.5 rounded-full text-[12px] border transition-colors ${
+                            isSelected
+                              ? 'bg-green-900 text-white border-green-900'
+                              : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                          }`}
+                        >
+                          {preset}
+                          {isSelected && <span className="ml-1">✓</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Custom input field - type and press Enter to add */}
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      value={amenityInput}
+                      onChange={(e) => setAmenityInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addAmenity();
+                        }
+                      }}
+                      className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      placeholder="Type amenity and press Enter to add"
                       />
+                    </div>
+                  
+                  {/* Selected amenities as chips */}
+                  {amenities.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {amenities.map(a => (
+                        <span key={a} className="inline-flex items-center gap-1 text-[12px] bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">
+                          {a}
                       <button 
                         type="button" 
-                        onClick={addAmenity} 
-                        className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium cursor-pointer"
+                            onClick={() => removeFrom(a, setAmenities)} 
+                            className="text-green-900 hover:text-green-800 cursor-pointer"
                       >
-                        Add
+                            ×
                       </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+        
+                
+              
+                {/* Step navigation removed; use global bottom controls */}
             </div>
-            {amenities.length>0 && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                {amenities.map((a)=> (
-                          <span key={a} className="inline-flex items-center gap-2 text-sm bg-green-50 text-green-700 px-3 py-2 rounded-full border border-green-200">
-                            {a}
-                            <button 
-                              type="button" 
-                              onClick={()=>removeFrom(a, setAmenities)} 
-                              className="text-green-500 hover:text-green-700 transition-colors cursor-pointer"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              )}
+              {/* Images (Step 3) - 3-Step Media Upload */}
+              {currentStep === 3 && (
+              <div className=" gap-6">
+                {/* Left Side - 3 Steps Interface */}
+                <div className="lg:col-span-2 space-y-6">
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A2 2 0 0122 9.528v4.944a2 2 0 01-2.447 1.804L15 14m0-4v4m0-4L9 6m6 8l-6 4m0-12v8m0 0L3.447 9.528A2 2 0 013 7.724V2.78A2 2 0 015.447.976L9 2.5" />
                               </svg>
+                  </div>
+                  <h3 className="text-base font-semibold text-gray-900">Media & Publishing</h3>
+                </div>
+
+
+                  {/* Step 1: Add Images */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-sm font-semibold text-gray-900">Step 1: Add Images (min 3)</label>
+                      <span className="text-xs text-gray-500">{images.length + imageFiles.length} / 3 minimum</span>
+                    </div>
+                    {/* Clickable upload area */}
+                    <div 
+                      onClick={()=>{ fileInputRef.current && fileInputRef.current.click(); }}
+                      className="border-2 border-dashed border-gray-300 rounded-xl bg-white hover:border-green-500 hover:bg-green-50 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center py-12 px-4"
+                    >
+                      <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      <span className="text-sm font-medium text-gray-600">Add Images</span>
+                      <span className="text-xs text-gray-400 mt-1">Click to upload or drag and drop</span>
+                    <input 
+                      ref={fileInputRef}
+                      type="file" 
+                      multiple 
+                      accept="image/*" 
+                      onChange={(e)=>{ const files = Array.from(e.target.files || []); if(files.length){ setImageFiles((prev)=>[...prev, ...files]); } }} 
+                      className="hidden" 
+                    />
+            </div>
+                    
+                    {/* Image Gallery Grid */}
+                    {(images.length > 0 || imageFiles.length > 0) && (
+                      <div className="grid grid-cols-3 gap-3 mt-4">
+                        {/* URL Images */}
+                        {images.map((url, idx) => (
+                          <div key={`url-${idx}`} className="relative group aspect-square">
+                            <img 
+                              src={url} 
+                              alt={`Image ${idx + 1}`} 
+                              className="w-full h-full object-cover rounded-lg border border-gray-200"
+                              onError={(e) => { e.target.src = '/images/placeholder-image.png'; }}
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); removeFrom(url, setImages); }}
+                              className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs shadow-lg"
+                            >
+                              ×
                             </button>
-                          </span>
+                </div>
+                        ))}
+                        {/* File Images */}
+                        {imageFiles.map((file, idx) => {
+                          const url = URL.createObjectURL(file);
+                          return (
+                            <div key={`file-${idx}`} className="relative group aspect-square">
+                              <img 
+                                src={url} 
+                                alt={file.name} 
+                                className="w-full h-full object-cover rounded-lg border border-gray-200"
+                              />
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setImageFiles((prev) => prev.filter((_, i) => i !== idx)); }}
+                                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs shadow-lg"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Step 2: Add Videos */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-sm font-semibold text-gray-900">Step 2: Add Videos (optional)</label>
+                      <span className="text-xs text-gray-500">{videos.length + videoFiles.length} added</span>
+                    </div>
+                    {/* Clickable upload area for videos */}
+                    <div 
+                      onClick={()=>{ videoFileInputRef.current && videoFileInputRef.current.click(); }}
+                      className="border-2 border-dashed border-gray-300 rounded-xl bg-white hover:border-green-500 hover:bg-green-50 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center py-12 px-4"
+                    >
+                      <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A2 2 0 0122 9.528v4.944a2 2 0 01-2.447 1.804L15 14m0-4v4m0-4L9 6m6 8l-6 4m0-12v8m0 0L3.447 9.528A2 2 0 013 7.724V2.78A2 2 0 015.447.976L9 2.5" />
+                      </svg>
+                      <span className="text-sm font-medium text-gray-600">Add Videos</span>
+                      <span className="text-xs text-gray-400 mt-1">Click to upload video files</span>
+                      <input 
+                        ref={videoFileInputRef}
+                        type="file" 
+                        multiple 
+                        accept="video/*" 
+                        onChange={(e)=>{ const files = Array.from(e.target.files || []); if(files.length){ setVideoFiles((prev)=>[...prev, ...files]); } }} 
+                        className="hidden" 
+                      />
+                    </div>
+                    
+                    {/* Video Preview List */}
+                    {(videos.length > 0 || videoFiles.length > 0) && (
+                      <div className="grid grid-cols-1 gap-2 mt-4">
+                        {/* URL Videos */}
+                        {videos.map((url, idx) => (
+                          <div key={`video-url-${idx}`} className="relative group bg-gray-100 rounded-lg p-3 flex items-center gap-3">
+                            <svg className="w-8 h-8 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-xs text-gray-600 truncate flex-1">{url}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); removeFrom(url, setVideos); }}
+                              className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs flex-shrink-0"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                        {/* File Videos */}
+                        {videoFiles.map((file, idx) => (
+                          <div key={`video-file-${idx}`} className="relative group bg-gray-100 rounded-lg p-3 flex items-center gap-3">
+                            <svg className="w-8 h-8 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-xs text-gray-600 truncate flex-1">{file.name}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setVideoFiles((prev) => prev.filter((_, i) => i !== idx)); }}
+                              className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs flex-shrink-0"
+                            >
+                              ×
+                            </button>
+                          </div>
                 ))}
               </div>
             )}
           </div>
+
+                  {/* Step 3: Notes */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Notes</label>
+                    <textarea 
+                      value={notes} 
+                      onChange={(e)=>setNotes(e.target.value)} 
+                      rows={2} 
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none" 
+                      placeholder="Internal notes (optional)" 
+                    />
+                  </div>
                 </div>
+
+               
               </div>
               )}
-          {currentStep === 3 && (
+          {currentStep === 2 && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Nearby Amenities</label>
             <div className="flex gap-2">
-              <input value={nearbyAmenityInput} onChange={(e)=>setNearbyAmenityInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(nearbyAmenityInput, setNearbyAmenities, nearbyAmenities, setNearbyAmenityInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Add nearby amenity" />
-              <button type="button" onClick={()=>addTag(nearbyAmenityInput, setNearbyAmenities, nearbyAmenities, setNearbyAmenityInput)} className="cursor-pointer px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium">Add</button>
+              <input value={nearbyAmenityInput} onChange={(e)=>setNearbyAmenityInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(nearbyAmenityInput, setNearbyAmenities, nearbyAmenities, setNearbyAmenityInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Type nearby amenity and press Enter to add" />
             </div>
             {nearbyAmenities.length>0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {nearbyAmenities.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700  px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setNearbyAmenities)} className="text-green-600 hover:text-green-800 cursor-pointer">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700  px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setNearbyAmenities)} className="text-green-900 hover:text-green-800 cursor-pointer">×</button></span>
                 ))}
               </div>
             )}
           </div>
           )}
-          {currentStep === 3 && (
+          {currentStep === 2 && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Features</label>
             <div className="flex gap-2">
-              <input value={featureInput} onChange={(e)=>setFeatureInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(featureInput, setFeatures, features, setFeatureInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Add feature" />
-              <button type="button" onClick={()=>addTag(featureInput, setFeatures, features, setFeatureInput)} className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium cursor-pointer">Add</button>
+              <input value={featureInput} onChange={(e)=>setFeatureInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(featureInput, setFeatures, features, setFeatureInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Type feature and press Enter to add" />
             </div>
             {features.length>0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {features.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setFeatures)} className="text-green-600 hover:text-green-800 cursor-pointer">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setFeatures)} className="text-green-900 hover:text-green-800 cursor-pointer">×</button></span>
                 ))}
               </div>
             )}
           </div>
           )}
-          {currentStep === 3 && (
+          {currentStep === 2 && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Location Benefits</label>
             <div className="flex gap-2">
-              <input value={locationBenefitInput} onChange={(e)=>setLocationBenefitInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(locationBenefitInput, setLocationBenefits, locationBenefits, setLocationBenefitInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Add location benefit" />
-              <button type="button" onClick={()=>addTag(locationBenefitInput, setLocationBenefits, locationBenefits, setLocationBenefitInput)} className="px-6 py-3 bg-green-600 text-white rounded-xl cursor-pointer hover:bg-green-700 transition-colors duration-200 font-medium">Add</button>
+              <input value={locationBenefitInput} onChange={(e)=>setLocationBenefitInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(locationBenefitInput, setLocationBenefits, locationBenefits, setLocationBenefitInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Type location benefit and press Enter to add" />
             </div>
             {locationBenefits.length>0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {locationBenefits.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setLocationBenefits)} className="cursor-pointer text-green-600 hover:text-green-800">×</button></span>
+                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setLocationBenefits)} className="cursor-pointer text-green-900 hover:text-green-800">×</button></span>
                 ))}
               </div>
             )}
           </div>
-          )}
-          {currentStep === 4 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Images</label>
-            <div className="flex items-center gap-2">
-              <div className="border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-green-500 focus-within:border-transparent transition-all duration-200 flex items-center overflow-hidden flex-1">
-                <input 
-                  value={imageInput} 
-                  onChange={(e)=>setImageInput(e.target.value)} 
-                  onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(imageInput, setImages, images, setImageInput); } }} 
-                  onClick={()=>{ fileInputRef.current && fileInputRef.current.click(); }}
-                  className="flex-1 px-4 py-3 outline-none text-sm" 
-                  placeholder="Paste image URL or click to choose files" 
-                />
-                <input 
-                  ref={fileInputRef}
-                  type="file" 
-                  multiple 
-                  accept="image/*" 
-                  onChange={(e)=>{ const files = Array.from(e.target.files || []); if(files.length){ setImageFiles((prev)=>[...prev, ...files]); } }} 
-                  className="hidden" 
-                />
-              </div>
-              <button type="button" onClick={()=>addTag(imageInput, setImages, images, setImageInput)} className="px-4 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors duration-200 cursor-pointer">Add</button>
-            </div>
-            {(images.length>0 || imageFiles.length>0) && (
-              <div className="mt-3 space-y-2">
-            {images.length>0 && (
-                  <div className="flex flex-wrap gap-2">
-                {images.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setImages)} className="text-green-600 hover:text-green-800 cursor-pointer">×</button></span>
-                ))}
-                  </div>
-                )}
-                {imageFiles.length>0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {imageFiles.map((f, idx)=> (
-                      <span key={`${f.name}-${idx}`} className="inline-flex items-center gap-2 text-xs bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-200">
-                        {f.name}
-                        <button type="button" onClick={()=> setImageFiles((prev)=> prev.filter((_, i)=> i!==idx))} className="text-green-600 hover:text-green-800">×</button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          )}
-          {currentStep === 4 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Videos</label>
-            <div className="flex items-center gap-2">
-              <div className="border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-green-500 focus-within:border-transparent transition-all duration-200 flex items-center overflow-hidden flex-1">
-                <input 
-                  value={videoInput} 
-                  onChange={(e)=>setVideoInput(e.target.value)} 
-                  onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(videoInput, setVideos, videos, setVideoInput); } }} 
-                  onClick={()=>{ videoFileInputRef.current && videoFileInputRef.current.click(); }}
-                  className="flex-1 px-4 py-3 outline-none text-sm" 
-                  placeholder="Paste video URL or click to choose files" 
-                />
-                <input 
-                  ref={videoFileInputRef}
-                  type="file" 
-                  multiple 
-                  accept="video/*" 
-                  onChange={(e)=>{ const files = Array.from(e.target.files || []); if(files.length){ setVideoFiles((prev)=>[...prev, ...files]); } }} 
-                  className="hidden" 
-                />
-              </div>
-              <button type="button" onClick={()=>addTag(videoInput, setVideos, videos, setVideoInput)} className="px-4 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors duration-200">Add</button>
-            </div>
-            {(videos.length>0 || videoFiles.length>0) && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {videos.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{a}<button type="button" onClick={()=>removeFrom(a, setVideos)} className="text-gray-500 hover:text-gray-700">×</button></span>
-                ))}
-                {videoFiles.map((f, idx)=> (
-                  <span key={`${f.name}-${idx}`} className="inline-flex items-center gap-2 text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200">
-                    {f.name}
-                    <button type="button" onClick={()=> setVideoFiles((prev)=> prev.filter((_, i)=> i!==idx))} className="text-blue-600 hover:text-blue-800">×</button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          )}
-          {currentStep === 4 && (
-          <>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select value={status} onChange={(e)=>setStatus(e.target.value)} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
-                <option>Active</option>
-                <option>Sold</option>
-                <option>Expired</option>
-                <option>Pending Approval</option>
-                <option>Rejected</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-            <textarea value={notes} onChange={(e)=>setNotes(e.target.value)} rows={2} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none" placeholder="Internal notes" />
-          </div>
-          </>
           )}
               {/* Submit Section */}
               <div className="pt-8 border-t border-gray-100">
-                {currentStep < 4 ? (
+                {currentStep < 3 ? (
                   <div className="max-w-3xl mx-auto">
                     <button 
                       type="button" 
                       onClick={nextStep} 
                       disabled={!isCurrentStepValid() || submitting} 
-                      className={`w-full py-4 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${isCurrentStepValid() && !submitting ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-blue-100 hover:shadow-xl' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                      className={`w-full py-3 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${isCurrentStepValid() && !submitting ? 'bg-green-900 text-white hover:bg-green-700 focus:ring-green-100 hover:shadow-xl' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
                     >
                       Continue
                       <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
@@ -1016,7 +1335,7 @@ const NewPropertyPage = () => {
                     <button 
                       type="submit" 
                       disabled={submitting}
-                      className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-green-900 text-white rounded-xl font-semibold hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {submitting ? (
                         <>
@@ -1033,86 +1352,91 @@ const NewPropertyPage = () => {
             </div>
           </form>
 
-          {/* Right Sidebar - Stepper */}
-          <div className="lg:col-span-3">
+          </div>
+
+          {/* Right Sidebar - Tips and Support (match profile style) */}
+          <div className="lg:col-span-3 space-y-4 order-1 lg:sticky lg:top-4 self-start">
             <div className="bg-white rounded-2xl shadow border border-gray-100 p-5 sticky top-4">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A7 7 0 0112 15a7 7 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-900">Create property</h4>
-                  <p className="text-xs text-gray-600">Finish basic details and choose your nearest region to get started.</p>
-                </div>
-              </div>
-              {/* Horizontal stepper like profile sidebar */}
-              <div className="flex items-center gap-2">
-                {(() => {
-                  const steps = [1,2,3,4];
-                  return (
-                    <>
-                      {steps.map((n, idx) => {
-                        const isActive = n === currentStep;
-                        const isCompleted = n < currentStep;
-                        const circle = isActive
-                          ? "bg-blue-600 text-white"
-                          : isCompleted
-                          ? "bg-green-50 text-green-700 border border-green-200"
-                          : "bg-gray-100 text-gray-600 border border-gray-200";
-                        return (
-                          <React.Fragment key={n}>
-                            <button type="button" onClick={() => goToStep(n)} className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${circle}`}>{n}</button>
-                            {idx < steps.length - 1 && (
-                              <span className={`w-6 h-[2px] ${n < currentStep ? 'bg-green-200' : 'bg-gray-200'}`}></span>
-                            )}
-                          </React.Fragment>
-                        );
-                      })}
-                    </>
-                  );
-                })()}
-              </div>
-              {/* Sidebar controls removed to avoid duplicate nav; use bottom controls only */}
-            </div>
-
-            {/* Property summary */}
-            <div className="mt-4 bg-white rounded-2xl shadow border border-gray-100 p-5">
-              <h4 className="text-sm font-semibold text-gray-900 mb-4">Property summary</h4>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-gray-600">Status</span><span className="font-medium">{status}</span></div>
-                <div className="flex justify-between"><span className="text-gray-600">Title</span><span className="font-medium truncate max-w-[160px]" title={form.title || "Untitled"}>{form.title || "Untitled"}</span></div>
-                <div className="flex justify-between"><span className="text-gray-600">City</span><span className="font-medium">{form.city || "-"}</span></div>
-                <div className="flex justify-between"><span className="text-gray-600">Region</span><span className="font-medium truncate max-w-[160px]" title={form.region || "-"}>{form.region || "-"}</span></div>
-                <div className="flex justify-between"><span className="text-gray-600">Price</span><span className="font-medium">{form.price ? `${form.priceUnit} ${form.price}` : '-'}</span></div>
-              </div>
-            </div>
-
-          {/* Nearest regions (static preview like profile) */}
-          <div className="mt-4 bg-white rounded-2xl shadow border border-gray-100 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-gray-900">Nearest regions</h4>
-              <button type="button" className="text-xs text-blue-600 hover:underline">Use nearest</button>
-            </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-gray-700">{form.city || 'Your city'}</span><span className="text-gray-500">0 km</span></div>
-              <div className="flex justify-between"><span className="text-gray-700">Agra</span><span className="text-gray-500">316 km</span></div>
-              <div className="flex justify-between"><span className="text-gray-700">Delhi</span><span className="text-gray-500">350 km</span></div>
-            </div>
-          </div>
-
-            {/* Tips */}
-            <div className="mt-4 bg-white rounded-2xl shadow border border-gray-100 p-5">
-              <h4 className="text-sm font-semibold text-gray-900 mb-3">Tips</h4>
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">Tips for Property Creation</h4>
               <ul className="text-[13px] text-gray-700 list-disc pl-5 space-y-2">
-                <li>Fill basic info first, then details.</li>
-                <li>Use realistic price and clear title.</li>
-                <li>Add at least 3 good images and one video link.</li>
+                <li>Fill basic info first, then add region details.</li>
+                <li>Use address autocomplete to quickly pick exact locations.</li>
+                <li>Add at least 3 clear images and one video link.</li>
+                <li>Use nearest regions for faster setup.</li>
               </ul>
+                </div>
+
+         <div className="bg-white rounded-2xl shadow border border-gray-100 p-5 sticky top-[260px]">
+  <h4 className="text-sm font-semibold text-gray-900 mb-3">Support & Documentation</h4>
+
+  <div className="space-y-3 text-[13px]">
+    {/* Support Center */}
+    <div className="flex items-start gap-3">
+      <span className="w-6 h-6 rounded-full bg-green-50 border border-green-200 text-green-700 flex items-center justify-center">
+        <svg
+          className="w-3.5 h-3.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9.09 9a3 3 0 015.82 0c0 1.657-1.5 2.34-1.5 3.5m.01 3h-.01"
+          />
+          <circle cx="12" cy="12" r="9" />
+        </svg>
+      </span>
+                <div>
+        <p className="font-medium text-gray-900">Visit Support Center</p>
+        <p className="text-gray-600">Answers to frequently asked questions.</p>
+                </div>
+            </div>
+
+    {/* Documentation */}
+    <div className="flex items-start gap-3">
+      <span className="w-6 h-6 rounded-full bg-green-50 border border-green-200 text-green-700 flex items-center justify-center">
+        <svg
+          className="w-3.5 h-3.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+          <path d="M14 2v6h6" />
+        </svg>
+      </span>
+      <div>
+        <p className="font-medium text-gray-900">Read Documentation</p>
+        <p className="text-gray-600">Explore guides and platform tutorials.</p>
+              </div>
+            </div>
+
+    {/* Email Support */}
+    <div className="flex items-start gap-3">
+      <span className="w-6 h-6 rounded-full bg-green-50 border border-green-200 text-green-700 flex items-center justify-center">
+        <svg
+          className="w-3.5 h-3.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M4 4h16v16H4z" />
+          <polyline points="22,6 12,13 2,6" />
+        </svg>
+      </span>
+      <div>
+        <p className="font-medium text-gray-900">Email Support</p>
+        <p className="text-gray-600">support@brokeradda.com</p>
+            </div>
+            </div>
             </div>
           </div>
 
+          </div>
           </div>
         </div>
       </div>
@@ -1121,3 +1445,4 @@ const NewPropertyPage = () => {
 };
 
 export default NewPropertyPage;
+

@@ -130,7 +130,32 @@ const Dashboard = () => {
           else if (Array.isArray(pj?.data)) list = pj.data;
           else if (Array.isArray(pj?.properties)) list = pj.properties;
           else if (Array.isArray(pj)) list = pj;
-          setPropertyCards(list.slice(0, 9));
+          // Normalize region to a string to avoid rendering object-as-child errors
+          const mapped = list.map((property) => {
+            let regionDisplay = '';
+            try {
+              const r = property?.region;
+              if (r) {
+                if (typeof r === 'object' && r !== null && !Array.isArray(r)) {
+                  const parts = [r.name, r.city, r.state]
+                    .filter(Boolean)
+                    .filter((p) => typeof p === 'string');
+                  regionDisplay = parts.length > 0 ? parts.join(', ') : '';
+                } else if (typeof r === 'string') {
+                  regionDisplay = r;
+                } else {
+                  regionDisplay = String(r || '');
+                }
+              }
+            } catch {
+              regionDisplay = '';
+            }
+            if (!regionDisplay || regionDisplay.trim() === '') {
+              regionDisplay = property?.city || '';
+            }
+            return { ...property, region: String(regionDisplay || '') };
+          });
+          setPropertyCards(mapped.slice(0, 9));
         } else setPropertyCards([]);
       } catch {
         setLeadRows([]);
@@ -591,7 +616,17 @@ const Dashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
                   <circle cx="12" cy="10" r="3" strokeWidth="2" />
                 </svg>
-                {propertyCards[0].region || 'Electronic City, Noida, Uttar Pradesh, India'}
+                {(() => {
+                  const region = propertyCards[0]?.region;
+                  if (typeof region === 'string') return region;
+                  if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
+                    const parts = [region.name, region.city, region.state]
+                      .filter(Boolean)
+                      .filter((p) => typeof p === 'string');
+                    return parts.length > 0 ? parts.join(', ') : (propertyCards[0]?.city || 'Electronic City, Noida, Uttar Pradesh, India');
+                  }
+                  return String(region || propertyCards[0]?.city || 'Electronic City, Noida, Uttar Pradesh, India');
+                })()}
               </div>
             </div>
 
