@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 import DashboardCharts from '../components/Charts';
@@ -11,17 +12,20 @@ import PropertyEnquiryModal from '../components/PropertyEnquiryModal';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
   const [metrics, setMetrics] = useState({
-    totalLeads: 2567,
-    propertiesListed: 189,
+    totalLeads: null,
+    propertiesListed: null,
     inquiriesReceived: 743,
     connections: 45,
   });
-  const [metricsLoading, setMetricsLoading] = useState(false);
+  const [metricsLoading, setMetricsLoading] = useState(true);
   const [leadRows, setLeadRows] = useState([]);
+  const [leadsLoading, setLeadsLoading] = useState(true);
   const [propertyCards, setPropertyCards] = useState([]);
+  const [propertiesLoading, setPropertiesLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [recentActivity, setRecentActivity] = useState([
@@ -91,13 +95,13 @@ const Dashboard = () => {
         const { data } = await axios.get(metricsUrl, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         const payload = data?.data ?? data;
         setMetrics({
-          totalLeads: payload?.totalLeads ?? 2567,
-          propertiesListed: payload?.totalProperties ?? 189,
+          totalLeads: payload?.totalLeads ?? 0,
+          propertiesListed: payload?.totalProperties ?? 0,
           inquiriesReceived: payload?.inquiriesReceived ?? 743,
           connections: payload?.connections ?? 45,
         });
       } catch (e) {
-        setMetrics({ totalLeads: 2567, propertiesListed: 189, inquiriesReceived: 743, connections: 45 });
+        setMetrics(prev => ({ ...prev, totalLeads: 0, propertiesListed: 0 }));
       } finally {
         setMetricsLoading(false);
       }
@@ -106,6 +110,8 @@ const Dashboard = () => {
 
     const fetchOverviewLists = async () => {
       try {
+        setLeadsLoading(true);
+        setPropertiesLoading(true);
         const { brokerId, baseApi, token } = await resolveBrokerId();
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -120,6 +126,7 @@ const Dashboard = () => {
           else if (Array.isArray(lj)) list = lj;
           setLeadRows(list.slice(0, 4));
         } else setLeadRows([]);
+        setLeadsLoading(false);
 
         const propsRes = await fetch(`${baseApi}/properties?limit=9&page=1&brokerId=${encodeURIComponent(brokerId)}`, { headers });
         if (propsRes.ok) {
@@ -157,9 +164,12 @@ const Dashboard = () => {
           });
           setPropertyCards(mapped.slice(0, 9));
         } else setPropertyCards([]);
+        setPropertiesLoading(false);
       } catch {
         setLeadRows([]);
         setPropertyCards([]);
+        setLeadsLoading(false);
+        setPropertiesLoading(false);
       }
     };
     fetchOverviewLists();
@@ -266,7 +276,9 @@ const Dashboard = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">{fmt(metrics.totalLeads)}</div>
+                <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">
+                  {metricsLoading ? '—' : fmt(metrics.totalLeads)}
+                </div>
                 <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -287,7 +299,9 @@ const Dashboard = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">{fmt(metrics.propertiesListed)}</div>
+                <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">
+                  {metricsLoading ? '—' : fmt(metrics.propertiesListed)}
+                </div>
                 <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -360,13 +374,19 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[18px] font-bold text-gray-900">Recent Leads</h2>
               <div className="flex items-center gap-8 text-[14px]">
-                <a href="#" className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-[14px]">
+                <button 
+                  onClick={() => router.push('/leads')}
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-[14px] cursor-pointer"
+                >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                   </svg>
                   Manage All
-                </a>
-                <button className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-lg font-medium text-[14px] transition-colors flex items-center gap-2 text-gray-900">
+                </button>
+                <button 
+                  onClick={() => router.push('/leads')}
+                  className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-lg font-medium text-[14px] transition-colors flex items-center gap-2 text-gray-900 cursor-pointer"
+                >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
                   </svg>
@@ -375,8 +395,57 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {leadRows.length > 0 ? leadRows.map((lead) => (
-                <div key={lead._id} className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg">
+              {leadsLoading ? (
+                // Skeleton Loader for Leads
+                Array.from({ length: 4 }).map((_, idx) => (
+                  <div key={idx} className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm animate-pulse">
+                    <div className="p-6">
+                      <div className="mb-4">
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="h-5 bg-gray-200 rounded-full w-16"></div>
+                            <div className="h-5 bg-gray-200 rounded-full w-20"></div>
+                          </div>
+                          <div className="h-3 bg-gray-200 rounded w-12"></div>
+                        </div>
+                      </div>
+                      <div className="border-t border-gray-200 my-4"></div>
+                      <div className="space-y-3 mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-gray-200 rounded"></div>
+                          <div className="h-3 bg-gray-200 rounded w-32"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-gray-200 rounded"></div>
+                          <div className="h-3 bg-gray-200 rounded w-28"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-gray-200 rounded"></div>
+                          <div className="h-3 bg-gray-200 rounded w-24"></div>
+                        </div>
+                      </div>
+                      <div className="pt-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                          <div className="flex-1">
+                            <div className="h-3 bg-gray-200 rounded w-20 mb-2"></div>
+                            <div className="flex items-center gap-3">
+                              <div className="h-3 bg-gray-200 rounded w-12"></div>
+                              <div className="h-3 bg-gray-200 rounded w-10"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : leadRows.length > 0 ? leadRows.map((lead) => (
+                <div 
+                  key={lead._id} 
+                  onClick={() => router.push(`/lead-details/${lead._id}`)}
+                  className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+                >
                   <div className="p-6">
                     {/* Top Section - Main Title */}
                     <div className="mb-4">
@@ -485,7 +554,7 @@ const Dashboard = () => {
                               </p>
 
                               {/* Connect / Chat */}
-                              <div className="flex items-center gap-3 mt-1">
+                              <div className="flex items-center gap-3 mt-1" onClick={(e) => e.stopPropagation()}>
                                 <span className="flex items-center gap-1.5">
                                   <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
                                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -512,7 +581,13 @@ const Dashboard = () => {
                   </div>
                 </div>
               )) : (
-                <div className="col-span-4 text-center py-12 text-gray-500">No recent leads found.</div>
+                <div className="col-span-4 flex flex-col items-center justify-center py-16 px-4">
+                  <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">No recent leads found</h3>
+                  <p className="text-sm text-gray-500 text-center">We couldn't find any recent leads in your account.</p>
+                </div>
               )}
             </div>
           </div>
@@ -522,15 +597,15 @@ const Dashboard = () => {
   {/* header */}
   <div className="flex items-center justify-between mb-6">
     <h2 className="text-[18px] font-bold text-gray-900">Properties</h2>
-    <a
-      href="#"
-      className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium text-sm rounded-lg transition-colors"
+    <button
+      onClick={() => router.push('/properties-management')}
+      className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium text-sm rounded-lg transition-colors cursor-pointer"
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
       Manage All
-    </a>
+    </button>
   </div>
 
   {/* ONE ROW: left add card + right wide property card */}
@@ -538,8 +613,9 @@ const Dashboard = () => {
     {/* left: Add Property */}
     <button
       type="button"
+      onClick={() => router.push('/properties-management/new')}
       className="flex-none w-full md:w-[220px] h-[260px] border-2 border-dashed border-gray-300 rounded-xl
-                 flex flex-col items-center justify-center text-center hover:border-yellow-500 hover:bg-yellow-50 transition-colors"
+                 flex flex-col items-center justify-center text-center hover:border-yellow-500 hover:bg-yellow-50 transition-colors cursor-pointer"
     >
       <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -548,7 +624,46 @@ const Dashboard = () => {
     </button>
 
     {/* right: ONE wide property card */}
-    {propertyCards.length > 0 && (
+    {propertiesLoading ? (
+      // Skeleton Loader for Property
+      <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-hidden h-[260px] animate-pulse">
+        <div className="flex flex-col sm:flex-row h-full">
+          {/* Image Section - Left */}
+          <div className="relative w-full sm:w-[260px] h-[260px] flex-shrink-0 bg-gray-200">
+          </div>
+          {/* Details Section - Right */}
+          <div className="flex-1 p-6 flex flex-col">
+            <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+            <div className="space-y-2 mb-4">
+              <div className="h-3 bg-gray-200 rounded w-full"></div>
+              <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-3 bg-gray-200 rounded w-4/6"></div>
+            </div>
+            <div className="flex flex-col gap-2 mb-4">
+              <div className="h-3 bg-gray-200 rounded w-24"></div>
+              <div className="h-3 bg-gray-200 rounded w-32"></div>
+            </div>
+            <div className="mb-3">
+              <div className="h-3 bg-gray-200 rounded w-16 mb-2"></div>
+              <div className="flex flex-wrap gap-2">
+                <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+              </div>
+            </div>
+            <div className="mt-auto">
+              <div className="h-3 bg-gray-200 rounded w-20 mb-2"></div>
+              <div className="flex flex-wrap gap-2">
+                <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                <div className="h-6 bg-gray-200 rounded-full w-20"></div>
+                <div className="h-6 bg-gray-200 rounded-full w-18"></div>
+                <div className="h-6 bg-gray-200 rounded-full w-24"></div>
+                <div className="h-6 bg-gray-200 rounded-full w-20"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ) : propertyCards.length > 0 ? (
       <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow h-[260px]">
         <div className="flex flex-col sm:flex-row h-full">
           {/* Image Section - Left */}
@@ -593,9 +708,20 @@ const Dashboard = () => {
             {/* Title */}
             <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
               {propertyCards[0].title || 'Modern Family Home'}
-              <svg className="w-3.5 h-3.5 text-[#0A421E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M7 17l10-10M7 7h10v10" />
-              </svg>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (propertyCards[0]?._id || propertyCards[0]?.id) {
+                    router.push(`/property-details/${propertyCards[0]._id || propertyCards[0].id}`);
+                  }
+                }}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                aria-label="View property details"
+              >
+                <svg className="w-3.5 h-3.5 text-[#0A421E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M7 17l10-10M7 7h10v10" />
+                </svg>
+              </button>
             </h3>
 
             {/* Description */}
@@ -670,6 +796,14 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      ) : (
+        <div className="flex-1 bg-white border border-gray-200 rounded-xl flex flex-col items-center justify-center py-16 px-4">
+          <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">No properties found</h3>
+          <p className="text-sm text-gray-500 text-center">We couldn't find any properties in your account.</p>
+        </div>
       )}
     </div>
 
@@ -950,15 +1084,18 @@ const Dashboard = () => {
           {/* Bottom CTA Buttons */}
           <div className="mt-6 flex flex-wrap justify-center items-center gap-4 text-[14px]">
             <button 
-              className="px-5 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors inline-flex items-center justify-center gap-2"
-              // onClick={() => setIsEnquiryModalOpen(true)}
+              onClick={() => router.push('/leads')}
+              className="px-5 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors inline-flex items-center justify-center gap-2 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
               Add New Lead
             </button>
-            <button className="px-5 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors inline-flex items-center justify-center gap-2">
+            <button 
+              onClick={() => router.push('/properties-management/new')}
+              className="px-5 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors inline-flex items-center justify-center gap-2 cursor-pointer"
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
