@@ -348,15 +348,15 @@ const SignUp = () => {
                   </div>
 
                   {/* Terms and Privacy */}
-                  <div className="mt-6 mb-16 text-center text-sm" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                  <div className="mt-6 mb-16 text-center text-sm" >
                     <span className="text-gray-500">By continuing you agree to our</span>
                     <br />
                     <span className="text-gray-900 font-bold">
-                      <Link href="/terms"  target="_blank"  className="hover:text-green-800 " style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      <Link href="/terms"  target="_blank"  className="hover:text-green-800 " >
                         Terms & Conditions
                       </Link>{" "}
                       <span className="text-gray-500"> and{" "}</span>
-                      <Link href="/privacy"  target="_blank"  className="hover:text-green-800 " style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      <Link href="/privacy"  target="_blank"  className="hover:text-green-800 " >
                         Privacy Policy
                       </Link>
                     </span>
@@ -366,7 +366,7 @@ const SignUp = () => {
                   <div className="mt-6 text-center">
                     <p className="text-base text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
                       Already have an account?{" "}
-                      <Link href="/login" className="text-green-700 hover:text-green-900 font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      <Link href="/login" className="text-green-700 hover:text-green-900 font-bold" >
                         Log in
                       </Link>
                     </p>
@@ -382,11 +382,11 @@ const SignUp = () => {
                     >
                       ← Back
                     </button>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-left justify-left gap-2" style={{ fontFamily: 'Inria Serif, serif' }}>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-left justify-left gap-2 font-[Inter]" >
                       Let's Get Started
                       <span className="text-2xl">🚀</span>
                     </h1>
-                    <p className="text-gray-600"  style={{ fontFamily: 'Inria Serif, serif' }}>Sign up your account</p>
+                    <p className="text-gray-600 font-[Inter]"   >Sign up your account</p>
                   </div>
 
                   {/* Number Form */}
@@ -441,15 +441,15 @@ const SignUp = () => {
                   </form>
 
                   {/* Terms and Privacy */}
-                  <div className="mt-6 mb-16 text-center text-sm" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                  <div className="mt-6 mb-16 text-center text-sm" >
                     <span className="text-gray-500">By continuing you agree to our</span>
                     <br />
                     <span className="text-gray-900 font-bold">
-                      <Link href="/terms" className="hover:text-green-800 " style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      <Link href="/terms" className="hover:text-green-800 ">
                         Terms & Conditions
                       </Link>{" "}
                       <span className="text-gray-500"> and{" "}</span>
-                      <Link href="/privacy" className="hover:text-green-800 " style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      <Link href="/privacy" className="hover:text-green-800 " >
                         Privacy Policy
                       </Link>
                     </span>
@@ -459,7 +459,7 @@ const SignUp = () => {
                   <div className="mt-6 text-center">
                     <p className="text-base text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
                 Already have an account?{" "}
-                      <Link href="/login" className="text-green-700 hover:text-green-900 font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      <Link href="/login" className="text-green-700 hover:text-green-900 font-bold" >
                         Log in
                 </Link>
               </p>
