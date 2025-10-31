@@ -18,7 +18,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   });
 
   const [sortBy, setSortBy] = useState('default');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [imageIndexById, setImageIndexById] = useState({});
   const [propertyItems, setPropertyItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,15 +38,18 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
   // Trigger skeleton loader when switching between tabs from header
   useEffect(() => {
-    setIsLoading(true);
-    const t = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(t);
-  }, [activeTab]);
+    if (hasLoaded) {
+      setIsLoading(true);
+      const t = setTimeout(() => setIsLoading(false), 500);
+      return () => clearTimeout(t);
+    }
+  }, [activeTab, hasLoaded]);
 
   // Fetch properties from API and map to UI shape
   useEffect(() => {
     const fetchProperties = async () => {
       try {
+        setIsLoading(true);
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
         const res = await fetch(`${apiUrl}/properties`);
         if (!res.ok) throw new Error('Failed to fetch properties');
@@ -105,8 +109,12 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         });
 
         setPropertyItems(mapped);
+        setHasLoaded(true);
       } catch (err) {
         setPropertyItems([]);
+        setHasLoaded(true);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchProperties();
@@ -928,7 +936,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             </h2>
           </div>
 
-          {propertyItems.length === 0 ? (
+          {!isLoading && hasLoaded && propertyItems.length === 0 ? (
             <div className="flex items-center justify-center py-16">
               <div className="w-full mx-auto px-6 py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
                 <div className="flex flex-col items-center justify-center text-center">
