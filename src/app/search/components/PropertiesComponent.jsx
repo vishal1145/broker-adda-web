@@ -9,21 +9,29 @@ import TabsBar from './TabsBar';
 
 const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const [filters, setFilters] = useState({
+    search: "",
     categories: [],
-    transactionType: [],
-    priceRange: [5000000, 20000000],
+    priceRange: [0, 0],
     bedrooms: [],
-    status: [],
     amenities: []
   });
 
-  const [sortBy, setSortBy] = useState('default');
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [imageIndexById, setImageIndexById] = useState({});
   const [propertyItems, setPropertyItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 6,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
   const [showSecondaryFilters, setShowSecondaryFilters] = useState(false);
   const [secondaryFilters, setSecondaryFilters] = useState({
     bathrooms: null,
@@ -31,9 +39,11 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     facingDirection: null,
     possessionStatus: null,
     postedBy: null,
-    verificationStatus: null,
-    propertyAge: null
+    verificationStatus: null
   });
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  const [regions, setRegions] = useState([]);
+  const [regionsLoading, setRegionsLoading] = useState(false);
   const timersRef = useRef({});
 
   // Trigger skeleton loader when switching between tabs from header
@@ -45,13 +55,138 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     }
   }, [activeTab, hasLoaded]);
 
-  // Fetch properties from API and map to UI shape
+  // Fetch regions from API
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        setRegionsLoading(true);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetch(`${apiUrl}/regions`);
+        if (res.ok) {
+          const data = await res.json().catch(() => ({}));
+          let regionsList = [];
+          if (Array.isArray(data?.data?.items)) regionsList = data.data.items;
+          else if (Array.isArray(data?.data?.regions)) regionsList = data.data.regions;
+          else if (Array.isArray(data?.data)) regionsList = data.data;
+          else if (Array.isArray(data?.regions)) regionsList = data.regions;
+          else if (Array.isArray(data)) regionsList = data;
+          
+          const regionOptions = regionsList.map(region => ({
+            value: region._id || region.id,
+            label: `${region.name || ''}, ${region.city || ''}, ${region.state || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ','),
+            regionId: region._id || region.id
+          }));
+          setRegions(regionOptions);
+        }
+      } catch (err) {
+        console.error('Error fetching regions:', err);
+        setRegions([]);
+      } finally {
+        setRegionsLoading(false);
+      }
+    };
+    fetchRegions();
+  }, []);
+
+  // Fetch properties from API with all filters
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         setIsLoading(true);
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        const res = await fetch(`${apiUrl}/properties`);
+        
+        // Build query parameters with all filters
+        const queryParams = new URLSearchParams();
+        
+        // Text search
+        if (filters.search) {
+          queryParams.append('search', filters.search);
+        }
+        
+        // City filter
+        if (filters.city) {
+          queryParams.append('city', filters.city);
+        }
+        
+        // Region filter
+        if (selectedRegion?.regionId) {
+          queryParams.append('regionId', selectedRegion.regionId);
+        }
+        
+        // Property type filters
+        if (filters.categories.length > 0) {
+          const category = filters.categories[0];
+          queryParams.append('propertyType', category);
+        }
+        
+        // Bedrooms filter (convert "5+" to "5")
+        if (filters.bedrooms.length > 0) {
+          const bedroomsValue = filters.bedrooms[0].replace('+', '');
+          queryParams.append('bedrooms', bedroomsValue);
+        }
+        
+        // Bathrooms filter
+        if (secondaryFilters.bathrooms) {
+          const bathroomsValue = secondaryFilters.bathrooms.replace('+', '');
+          queryParams.append('bathrooms', bathroomsValue);
+        }
+        
+        // Price range (only add if > 0)
+        if (filters.priceRange[0] && filters.priceRange[0] > 0) {
+          queryParams.append('minPrice', String(filters.priceRange[0]));
+        }
+        if (filters.priceRange[1] && filters.priceRange[1] > 0) {
+          queryParams.append('maxPrice', String(filters.priceRange[1]));
+        }
+        
+        // Furnishing filter
+        if (secondaryFilters.furnishingType) {
+          queryParams.append('furnishing', secondaryFilters.furnishingType);
+        }
+        
+        // Facing direction
+        if (secondaryFilters.facingDirection) {
+          queryParams.append('facingDirection', secondaryFilters.facingDirection);
+        }
+        
+        // Possession status
+        if (secondaryFilters.possessionStatus) {
+          queryParams.append('possessionStatus', secondaryFilters.possessionStatus);
+        }
+        
+        // Posted by
+        if (secondaryFilters.postedBy) {
+          queryParams.append('postedBy', secondaryFilters.postedBy);
+        }
+        
+        // Verification status
+        if (secondaryFilters.verificationStatus) {
+          queryParams.append('verificationStatus', secondaryFilters.verificationStatus);
+        }
+        
+        // Sorting (set default if not selected)
+        if (sortBy && sortBy !== 'default') {
+          queryParams.append('sortBy', sortBy);
+          if (sortOrder) {
+            queryParams.append('sortOrder', sortOrder);
+          } else {
+            queryParams.append('sortOrder', 'desc'); // default order
+          }
+        } else {
+          // Default sort for properties (newest first)
+          queryParams.append('sortBy', 'createdAt');
+          queryParams.append('sortOrder', 'desc');
+        }
+        
+        // Pagination (always include)
+        queryParams.append('page', String(currentPage));
+        queryParams.append('limit', String(itemsPerPage));
+        
+        const url = `${apiUrl}/properties?${queryParams.toString()}`;
+        console.log('Fetching properties with filters:', url);
+        console.log('Query params:', Object.fromEntries(queryParams));
+        
+        const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch properties');
         const data = await res.json().catch(() => ({}));
 
@@ -61,6 +196,20 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         else if (Array.isArray(data?.data)) list = data.data;
         else if (Array.isArray(data?.properties)) list = data.properties;
         else if (Array.isArray(data)) list = data;
+
+        // Handle pagination from API response
+        if (data.pagination) {
+          const paginationData = {
+            total: data.pagination.total || 0,
+            page: data.pagination.page || currentPage,
+            limit: data.pagination.limit || itemsPerPage,
+            totalPages: data.pagination.totalPages || 0,
+            hasNextPage: data.pagination.hasNextPage || false,
+            hasPrevPage: data.pagination.hasPrevPage || false
+          };
+          setPagination(paginationData);
+          // Don't update currentPage here as it's controlled by user pagination
+        }
 
         const mapped = list.map((p, idx) => {
           const id = p._id || p.id || `${idx}`;
@@ -74,7 +223,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             : (typeof regionRaw === 'string' ? regionRaw : regionRaw?.name);
           const bedrooms = typeof p.bedrooms === 'number' ? p.bedrooms : undefined;
           const bathrooms = typeof p.bathrooms === 'number' ? p.bathrooms : undefined;
-          const areaSqft = p.areaSqft || p.area || undefined;
+          const areaSqft = p.propertySize || p.areaSqft || p.area || undefined;
           const amenities = Array.isArray(p.amenities) ? p.amenities : [];
           const images = Array.isArray(p.images) && p.images.length > 0 ? p.images : [];
           const image = images[0] || '/images/pexels-binyaminmellish-106399.jpg';
@@ -111,6 +260,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         setPropertyItems(mapped);
         setHasLoaded(true);
       } catch (err) {
+        console.error('Error fetching properties:', err);
         setPropertyItems([]);
         setHasLoaded(true);
       } finally {
@@ -118,7 +268,21 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       }
     };
     fetchProperties();
-  }, []);
+  }, [currentPage, itemsPerPage, filters, secondaryFilters, selectedRegion, sortBy, sortOrder]);
+
+  // Handle sort change from TabsBar
+  const handleSortChange = (newSortBy, newSortOrder) => {
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
+    setCurrentPage(1);
+  };
+
+  // Reset to page 1 when filters change (but not on initial load)
+  useEffect(() => {
+    if (hasLoaded) {
+      setCurrentPage(1);
+    }
+  }, [filters, secondaryFilters, selectedRegion, sortBy, sortOrder]);
 
   // Auto-rotate property images per card (independent timers per card)
   useEffect(() => {
@@ -164,10 +328,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     indicatorSeparator: () => ({ display: 'none' })
   };
 
-  const categories = ['Apartment', 'Villa', 'Plot', 'Commercial', 'Office', 'Shop', 'Industrial'];
-  const transactionTypeOptions = ['Buy', 'Rent', 'Lease', 'Sell'];
+  const categories = ['Residential', 'Commercial', 'Plot', 'Other'];
   const bedroomOptions = ['1', '2', '3', '4', '5+'];
-  const statusOptions = ['Available', 'Sold', 'Rented', 'Pending Approval'];
   const amenitiesOptions = ['Gym', 'Swimming Pool', 'Parking', 'Security', 'Balcony'];
 
   // Using API-backed propertyItems state instead of hardcoded list
@@ -179,26 +341,12 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     }));
   };
 
-  const handleTransactionTypeChange = (type) => {
-    setFilters(prev => ({
-      ...prev,
-      transactionType: prev.transactionType[0] === type ? [] : [type]
-    }));
-  };
-
   const handleBedroomChange = (bedroom) => {
     setFilters(prev => ({
       ...prev,
       bedrooms: prev.bedrooms.includes(bedroom)
         ? prev.bedrooms.filter(b => b !== bedroom)
         : [...prev.bedrooms, bedroom]
-    }));
-  };
-
-  const handleStatusChange = (status) => {
-    setFilters(prev => ({
-      ...prev,
-      status: prev.status[0] === status ? [] : [status]
     }));
   };
 
@@ -213,11 +361,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
   const resetFilters = () => {
     setFilters({
+      search: "",
       categories: [],
-      transactionType: [],
-      priceRange: [5000000, 20000000],
+      priceRange: [0, 0],
       bedrooms: [],
-      status: [],
       amenities: []
     });
   };
@@ -347,40 +494,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
 
-          {/* Transaction Type Filter */}
-          <div className="mb-5">
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Transaction Type</h3>
-            <div className="flex flex-wrap gap-2">
-              {transactionTypeOptions.map((type) => {
-                const selected = filters.transactionType[0] === type;
-                return (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => handleTransactionTypeChange(type)}
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '11px',
-                      lineHeight: '20px',
-                      fontWeight: '500',
-                      color: '#171A1FFF',
-                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
-                      borderRadius: '6px',
-                      transition: 'all 0.2s',
-                    }}
-                    className={`p-[10px] transition-colors ${
-                      selected 
-                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
-                        : 'hover:bg-[#B8BECAFF]'
-                    }`}
-                  >
-                    {type}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Region/Location Filter */}
           <div className="mb-5">
             <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Region/Location</h3>
@@ -388,10 +501,13 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               instanceId="property-region-select"
               styles={reactSelectStyles}
               className="cursor-pointer"
-              options={[{ value: 'tajganj', label: 'Tajganj' }, { value: 'agra', label: 'Agra' }]}
-              placeholder="Select Region"
+              options={regions}
+              value={selectedRegion}
+              onChange={(option) => setSelectedRegion(option)}
+              placeholder={regionsLoading ? "Loading regions..." : "Select Region"}
               isSearchable
               isClearable
+              isLoading={regionsLoading}
             />
           </div>
 
@@ -447,40 +563,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               })}
               </div>
             </div>
-
-          {/* Status Filter */}
-          <div className="mb-5">
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Status</h3>
-            <div className="flex flex-wrap gap-2">
-              {statusOptions.map((status) => {
-                const selected = filters.status[0] === status;
-                return (
-                  <button
-                    key={status}
-                    type="button"
-                    onClick={() => handleStatusChange(status)}
-                  style={{
-                      fontFamily: 'Inter',
-                      fontSize: '11px',
-                      lineHeight: '20px',
-                      fontWeight: '500',
-                      color: '#171A1FFF',
-                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
-                      borderRadius: '6px',
-                      transition: 'all 0.2s',
-                    }}
-                    className={`p-[10px] transition-colors ${
-                      selected 
-                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
-                        : 'hover:bg-[#B8BECAFF]'
-                    }`}
-                  >
-                    {status}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* More Filters Toggle */}
           <div className="pt-4 border-t border-gray-200">
@@ -674,7 +756,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               <div>
                 <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Posted By</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['Broker', 'Builder', 'Owner', 'Admin'].map((postedBy) => {
+                  {['Broker', 'Admin'].map((postedBy) => {
                     const selected = secondaryFilters.postedBy === postedBy;
                     return (
                       <button
@@ -753,39 +835,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                 </div>
               </div>
 
-              {/* Property Age */}
-              <div>
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Property Age</h3>
-                <div className="flex flex-wrap gap-2">
-                  {['New', '<5 Years', '<10 Years', '>10 Years'].map((age) => {
-                    const selected = secondaryFilters.propertyAge === age;
-                    return (
-                      <button
-                        key={age}
-                        type="button"
-                        onClick={() => setSecondaryFilters(prev => ({ ...prev, propertyAge: prev.propertyAge === age ? null : age }))}
-                        style={{
-                          fontFamily: 'Inter',
-                          fontSize: '12px',
-                          lineHeight: '20px',
-                          fontWeight: '500',
-                          color: '#171A1FFF',
-                          background: selected ? '#B8BECAFF' : '#F3F4F6FF',
-                          borderRadius: '6px',
-                          transition: 'all 0.2s',
-                        }}
-                        className={`p-[10px] transition-colors ${
-                          selected 
-                            ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
-                            : 'hover:bg-[#B8BECAFF]'
-                        }`}
-                      >
-                        {age}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
             </div>
           )}
 
@@ -795,11 +844,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               <button
                 onClick={() => {
                   setFilters({
+                    search: "",
                     categories: [],
-                    transactionType: [],
-                    priceRange: [5000000, 20000000],
+                    priceRange: [0, 0],
                     bedrooms: [],
-                    status: [],
                     amenities: []
                   });
                   setSecondaryFilters({
@@ -808,9 +856,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     facingDirection: null,
                     possessionStatus: null,
                     postedBy: null,
-                    verificationStatus: null,
-                    propertyAge: null
+                    verificationStatus: null
                   });
+                  setSelectedRegion(null);
+                  setCurrentPage(1);
                 }}
                 style={{
                   fontFamily: 'Inter',
@@ -826,7 +875,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               <button
                 onClick={() => {
                   setShowSecondaryFilters(false);
-                  // Apply filters logic here
+                  setCurrentPage(1); // Reset to page 1 and trigger refetch
                 }}
                 className="flex-1 py-1 bg-green-900 rounded-lg text-[12px] font-medium text-white hover:bg-green-800 transition-colors"
                 style={{
@@ -847,7 +896,13 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       {/* Properties Grid - 9 columns */}
       <div className="col-span-9">
         {/* Tabs Bar */}
-        <TabsBar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <TabsBar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+        />
 
         {/* Properties Grid */}
         {isLoading ? (
@@ -962,34 +1017,33 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   </h3>
                   {/* Secondary Message */}
                   <p className="text-sm text-gray-500 mb-6 max-w-md">
-                    {filters.categories.length > 0 || 
-                     filters.transactionType.length > 0 || 
-                     filters.bedrooms.length > 0 || 
-                     filters.status.length > 0 || 
-                     filters.amenities.length > 0 ||
-                     filters.priceRange[0] !== 5000000 || 
-                     filters.priceRange[1] !== 20000000 ||
-                     Object.values(secondaryFilters).some(v => v !== null)
+                    {                    filters.categories.length > 0 || 
+                    filters.bedrooms.length > 0 || 
+                    filters.amenities.length > 0 ||
+                    filters.priceRange[0] > 0 || 
+                    filters.priceRange[1] > 0 ||
+                    filters.search ||
+                    selectedRegion ||
+                    Object.values(secondaryFilters).some(v => v !== null)
                       ? "We couldn't find any properties matching your current filters. Try adjusting your search criteria."
                       : "No properties are available at the moment. Please check back later or contact us for assistance."}
                   </p>
                   {/* Action Buttons */}
                   {(filters.categories.length > 0 || 
-                    filters.transactionType.length > 0 || 
                     filters.bedrooms.length > 0 || 
-                    filters.status.length > 0 || 
                     filters.amenities.length > 0 ||
-                    filters.priceRange[0] !== 5000000 || 
-                    filters.priceRange[1] !== 20000000 ||
+                    filters.priceRange[0] > 0 || 
+                    filters.priceRange[1] > 0 ||
+                    filters.search ||
+                    selectedRegion ||
                     Object.values(secondaryFilters).some(v => v !== null)) && (
                     <button
                       onClick={() => {
                         setFilters({
+                          search: "",
                           categories: [],
-                          transactionType: [],
-                          priceRange: [5000000, 20000000],
+                          priceRange: [0, 0],
                           bedrooms: [],
-                          status: [],
                           amenities: []
                         });
                         setSecondaryFilters({
@@ -998,9 +1052,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                           facingDirection: null,
                           possessionStatus: null,
                           postedBy: null,
-                          verificationStatus: null,
-                          propertyAge: null
+                          verificationStatus: null
                         });
+                        setSelectedRegion(null);
+                        setCurrentPage(1);
                       }}
                       className="inline-flex items-center px-6 py-2.5 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
                     >
@@ -1149,18 +1204,18 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           </div>
 
           {/* Pagination */}
-          {propertyItems.length > 0 && (
+          {pagination.total > 0 && (
             <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-600">
-                Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, propertyItems.length)} of {propertyItems.length} results
+                Showing {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} results
               </p>
-              {Math.ceil(propertyItems.length / itemsPerPage) > 1 && (
+              {pagination.totalPages > 1 && (
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
+                    disabled={!pagination.hasPrevPage}
                     className={`w-8 h-8 rounded-md border flex items-center justify-center ${
-                      currentPage === 1
+                      !pagination.hasPrevPage
                         ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
                         : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
@@ -1169,24 +1224,36 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  {Array.from({ length: Math.ceil(propertyItems.length / itemsPerPage) }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`w-8 h-8 rounded-md border ${
-                        currentPage === page
-                          ? 'bg-[#0A421E] text-white border-[#0A421E]'
-                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                    let page;
+                    if (pagination.totalPages <= 5) {
+                      page = i + 1;
+                    } else if (pagination.page <= 3) {
+                      page = i + 1;
+                    } else if (pagination.page >= pagination.totalPages - 2) {
+                      page = pagination.totalPages - 4 + i;
+                    } else {
+                      page = pagination.page - 2 + i;
+                    }
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-8 h-8 rounded-md border flex items-center justify-center ${
+                          pagination.page === page
+                            ? 'bg-green-900 text-white border-green-900'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(Math.ceil(propertyItems.length / itemsPerPage), prev + 1))}
-                    disabled={currentPage >= Math.ceil(propertyItems.length / itemsPerPage)}
+                    onClick={() => setCurrentPage(prev => Math.min(pagination.totalPages, prev + 1))}
+                    disabled={!pagination.hasNextPage}
                     className={`w-8 h-8 rounded-md border flex items-center justify-center ${
-                      currentPage >= Math.ceil(propertyItems.length / itemsPerPage)
+                      !pagination.hasNextPage
                         ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
                         : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}

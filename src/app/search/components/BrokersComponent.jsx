@@ -17,7 +17,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     city: ''
   });
 
-  const [sortBy, setSortBy] = useState('rating-high');
+  const [sortBy, setSortBy] = useState('rating');
+  const [sortOrder, setSortOrder] = useState('desc');
   const [isLoading, setIsLoading] = useState(false);
   const [regions, setRegions] = useState([]);
   const [cities, setCities] = useState([
@@ -640,24 +641,25 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     return true;
   });
 
+  // Handle sort change from TabsBar
+  const handleSortChange = (newSortBy, newSortOrder) => {
+    setSortBy(newSortBy || 'rating');
+    setSortOrder(newSortOrder || 'desc');
+    setCurrentPage(1);
+  };
+
   // Sort brokers based on selected sort option
   const sortedBrokers = [...filteredBrokers].sort((a, b) => {
-    switch (sortBy) {
-      case 'rating-high':
-        return b.rating - a.rating;
-      case 'rating-low':
-        return a.rating - b.rating;
-      case 'experience-high':
-        return b.experience - a.experience;
-      case 'experience-low':
-        return a.experience - b.experience;
-      case 'name-asc':
-        return a.name.localeCompare(b.name);
-      case 'name-desc':
-        return b.name.localeCompare(a.name);
-      default:
-        return b.rating - a.rating;
+    if (sortBy === 'rating') {
+      return sortOrder === 'desc' ? b.rating - a.rating : a.rating - b.rating;
     }
+    if (sortBy === 'createdAt') {
+      const dateA = new Date(a.createdAt || a.joinedDate || 0);
+      const dateB = new Date(b.createdAt || b.joinedDate || 0);
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    }
+    // Default: rating high to low
+    return b.rating - a.rating;
   });
 
   // Pagination calculations
@@ -1089,7 +1091,13 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       {/* Brokers Grid - 9 columns */}
       <div className="col-span-9">
         {/* Tabs Bar */}
-        <TabsBar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <TabsBar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+        />
 
         {/* Header with heading */}
         <div className="mb-6">

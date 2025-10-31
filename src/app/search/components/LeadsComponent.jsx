@@ -23,7 +23,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     priority: []
   });
 
-  const [sortBy, setSortBy] = useState('date-added-newest');
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
   const [isLoading, setIsLoading] = useState(false);
   const [uiLoading, setUiLoading] = useState(false);
   const [leads, setLeads] = useState([]);
@@ -1168,7 +1169,17 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       {/* Leads Grid - 9 columns */}
       <div className="col-span-9">
         {/* Tabs Bar */}
-        <TabsBar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <TabsBar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={(newSortBy, newSortOrder) => {
+            setSortBy(newSortBy || 'createdAt');
+            setSortOrder(newSortOrder || 'desc');
+            setCurrentPage(1);
+          }}
+        />
 
         {/* Header with heading */}
         <div className="mb-6">
