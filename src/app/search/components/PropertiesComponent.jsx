@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Select from 'react-select';
+import ContentLoader from 'react-content-loader';
 import TabsBar from './TabsBar';
 
 const PropertiesComponent = ({ activeTab, setActiveTab }) => {
@@ -842,27 +843,78 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
         {/* Properties Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-6">
             {[1,2,3,4,5,6].map((i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                {/* Image Skeleton */}
-                <div className="w-full h-48 bg-gray-200"></div>
-                
-                {/* Content Skeleton */}
-                <div className="p-4">
-                  <div className="flex justify-between items-center mb-1">
-                    <div className="h-3 bg-gray-200 rounded w-16"></div>
-                    <div className="h-3 bg-gray-200 rounded w-12"></div>
+              <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
+                <div className="flex">
+                  {/* Image Section Skeleton - Left */}
+                  <div className="relative w-[400px] h-[300px] flex-shrink-0">
+                    <ContentLoader
+                      speed={2}
+                      width={400}
+                      height={300}
+                      viewBox="0 0 400 300"
+                      backgroundColor="#f3f3f3"
+                      foregroundColor="#ecebeb"
+                      className="rounded-l-xl"
+                    >
+                      {/* Main image */}
+                      <rect x="0" y="0" rx="0" ry="0" width="400" height="300" />
+                      {/* Tag overlay top-left */}
+                      <rect x="16" y="16" rx="12" ry="12" width="60" height="24" />
+                      {/* Rating badge top-right */}
+                      <circle cx="370" cy="24" r="16" />
+                      <rect x="340" y="20" rx="4" ry="4" width="24" height="8" />
+                      {/* Price pill bottom-left */}
+                      <rect x="16" y="268" rx="12" ry="12" width="90" height="24" />
+                      {/* Share button bottom-right */}
+                      <circle cx="370" cy="272" r="20" />
+                    </ContentLoader>
                   </div>
-                  <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
-                  <div className="h-3 bg-gray-200 rounded w-16 mb-2"></div>
                   
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-4 bg-gray-200 rounded w-20"></div>
-                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                  {/* Details Section Skeleton - Right */}
+                  <div className="flex-1 p-6 flex flex-col">
+                    <ContentLoader
+                      speed={2}
+                      width={500}
+                      height={300}
+                      viewBox="0 0 500 300"
+                      backgroundColor="#f3f3f3"
+                      foregroundColor="#ecebeb"
+                    >
+                      {/* Title */}
+                      <rect x="0" y="0" rx="4" ry="4" width="200" height="20" />
+                      {/* Verified badge */}
+                      <rect x="210" y="2" rx="4" ry="4" width="16" height="16" />
+                      
+                      {/* Description */}
+                      <rect x="0" y="32" rx="4" ry="4" width="418" height="12" />
+                      <rect x="0" y="50" rx="4" ry="4" width="350" height="12" />
+                      <rect x="0" y="68" rx="4" ry="4" width="300" height="12" />
+                      
+                      {/* Location icon and text */}
+                      <circle cx="6" cy="100" r="6" />
+                      <rect x="18" y="96" rx="4" ry="4" width="100" height="14" />
+                      
+                      <circle cx="6" cy="120" r="6" />
+                      <rect x="18" y="116" rx="4" ry="4" width="250" height="14" />
+                      
+                      {/* Features label */}
+                      <rect x="0" y="150" rx="4" ry="4" width="60" height="14" />
+                      {/* Bedroom badge */}
+                      <rect x="0" y="172" rx="12" ry="12" width="70" height="28" />
+                      {/* Bathroom badge */}
+                      <rect x="78" y="172" rx="12" ry="12" width="70" height="28" />
+                      
+                      {/* Amenities label */}
+                      <rect x="0" y="220" rx="4" ry="4" width="70" height="14" />
+                      {/* Amenity pills */}
+                      <rect x="0" y="242" rx="12" ry="12" width="60" height="20" />
+                      <rect x="68" y="242" rx="12" ry="12" width="60" height="20" />
+                      <rect x="136" y="242" rx="12" ry="12" width="70" height="20" />
+                      <rect x="214" y="242" rx="12" ry="12" width="80" height="20" />
+                    </ContentLoader>
                   </div>
-                  
-                  <div className="h-8 bg-gray-200 rounded w-full"></div>
                 </div>
               </div>
             ))}
@@ -876,6 +928,85 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             </h2>
           </div>
 
+          {propertyItems.length === 0 ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-full mx-auto px-6 py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+                <div className="flex flex-col items-center justify-center text-center">
+                  {/* Image/Icon */}
+                  <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-6">
+                    <svg
+                      className="w-12 h-12 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                      />
+                    </svg>
+                  </div>
+                  {/* Primary Message */}
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No properties found
+                  </h3>
+                  {/* Secondary Message */}
+                  <p className="text-sm text-gray-500 mb-6 max-w-md">
+                    {filters.categories.length > 0 || 
+                     filters.transactionType.length > 0 || 
+                     filters.bedrooms.length > 0 || 
+                     filters.status.length > 0 || 
+                     filters.amenities.length > 0 ||
+                     filters.priceRange[0] !== 5000000 || 
+                     filters.priceRange[1] !== 20000000 ||
+                     Object.values(secondaryFilters).some(v => v !== null)
+                      ? "We couldn't find any properties matching your current filters. Try adjusting your search criteria."
+                      : "No properties are available at the moment. Please check back later or contact us for assistance."}
+                  </p>
+                  {/* Action Buttons */}
+                  {(filters.categories.length > 0 || 
+                    filters.transactionType.length > 0 || 
+                    filters.bedrooms.length > 0 || 
+                    filters.status.length > 0 || 
+                    filters.amenities.length > 0 ||
+                    filters.priceRange[0] !== 5000000 || 
+                    filters.priceRange[1] !== 20000000 ||
+                    Object.values(secondaryFilters).some(v => v !== null)) && (
+                    <button
+                      onClick={() => {
+                        setFilters({
+                          categories: [],
+                          transactionType: [],
+                          priceRange: [5000000, 20000000],
+                          bedrooms: [],
+                          status: [],
+                          amenities: []
+                        });
+                        setSecondaryFilters({
+                          bathrooms: null,
+                          furnishingType: null,
+                          facingDirection: null,
+                          possessionStatus: null,
+                          postedBy: null,
+                          verificationStatus: null,
+                          propertyAge: null
+                        });
+                      }}
+                      className="inline-flex items-center px-6 py-2.5 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Clear All Filters
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+          <>
           <div className="space-y-6">
             {/* Property cards - horizontal layout */}
             {propertyItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((property) => (
@@ -1059,6 +1190,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                 </div>
               )}
             </div>
+          )}
+          </>
           )}
           </>
         )}

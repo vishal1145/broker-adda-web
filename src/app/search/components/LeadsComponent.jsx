@@ -1255,26 +1255,70 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
         ) : (leads.length === 0 && !isLoading) ? (
-          <div className="text-center py-12">
-            <div className="text-gray-500 mb-4">
-              <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <p className="text-lg font-medium">No leads found</p>
-              <p className="text-sm text-gray-400">
-                {leadFilters.leadStatus.length > 0 
-                  ? `No leads found with status: ${leadFilters.leadStatus.join(', ')}`
-                  : 'Try adjusting your filters or search criteria'
-                }
-              </p>
-              {leadFilters.leadStatus.length > 0 && (
-                <button 
-                  onClick={resetFilters}
-                  className="mt-4 bg-[#0A421E] text-white px-4 py-2 rounded-md hover:bg-[#0b4f24] transition-colors"
-                >
-                  Clear Filters
-                </button>
-              )}
+          <div className="flex items-center justify-center py-16">
+            <div className="w-full mx-auto px-6 py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+              <div className="flex flex-col items-center justify-center text-center">
+                {/* Image/Icon */}
+                <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-6">
+                  <svg
+                    className="w-12 h-12 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                {/* Primary Message */}
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No leads found
+                </h3>
+                {/* Secondary Message */}
+                <p className="text-sm text-gray-500 mb-6 max-w-md">
+                  {leadFilters.leadStatus.length > 0 || 
+                   leadFilters.leadType.length > 0 || 
+                   leadFilters.requirement.length > 0 || 
+                   leadFilters.priority.length > 0 ||
+                   leadFilters.city ||
+                   leadFilters.location ||
+                   leadFilters.brokerAgent.length > 0 ||
+                   leadFilters.budgetRange[0] !== 50000 || 
+                   leadFilters.budgetRange[1] !== 500000 ||
+                   leadFilters.datePosted ||
+                   (leadFilters.dateAdded.start && leadFilters.dateAdded.start !== '2024-06-01') ||
+                   (leadFilters.dateAdded.end)
+                    ? "We couldn't find any leads matching your current filters. Try adjusting your search criteria."
+                    : "No leads are available at the moment. Please check back later or contact us for assistance."}
+                </p>
+                {/* Action Buttons */}
+                {(leadFilters.leadStatus.length > 0 || 
+                  leadFilters.leadType.length > 0 || 
+                  leadFilters.requirement.length > 0 || 
+                  leadFilters.priority.length > 0 ||
+                  leadFilters.city ||
+                  leadFilters.location ||
+                  leadFilters.brokerAgent.length > 0 ||
+                  leadFilters.budgetRange[0] !== 50000 || 
+                  leadFilters.budgetRange[1] !== 500000 ||
+                  leadFilters.datePosted ||
+                  (leadFilters.dateAdded.start && leadFilters.dateAdded.start !== '2024-06-01') ||
+                  (leadFilters.dateAdded.end)) && (
+                  <button
+                    onClick={resetFilters}
+                    className="inline-flex items-center px-6 py-2.5 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Clear All Filters
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ) : (

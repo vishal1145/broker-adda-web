@@ -1167,26 +1167,64 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
             ))}
           </div>
         ) : totalItems === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-gray-100 mb-6">
-                <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+          <div className="flex items-center justify-center py-16">
+            <div className="w-full mx-auto px-6 py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+              <div className="flex flex-col items-center justify-center text-center">
+                {/* Image/Icon */}
+                <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-6">
+                  <svg
+                    className="w-12 h-12 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                {/* Primary Message */}
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No brokers found
+                </h3>
+                {/* Secondary Message */}
+                <p className="text-sm text-gray-500 mb-6 max-w-md">
+                  {brokerFilters.region.length > 0 || 
+                   brokerFilters.brokerType.length > 0 || 
+                   brokerFilters.ratingRange[0] !== 0 || 
+                   brokerFilters.ratingRange[1] !== 5 ||
+                   brokerFilters.experienceRange[0] !== 0 || 
+                   brokerFilters.experienceRange[1] !== 20 ||
+                   brokerFilters.showVerifiedOnly ||
+                   brokerFilters.city ||
+                   (secondaryFilters && Object.values(secondaryFilters).some(v => v !== null && v !== '' && (Array.isArray(v) ? v.length > 0 : true)))
+                    ? "We couldn't find any brokers matching your current filters. Try adjusting your search criteria."
+                    : "No brokers are available at the moment. Please check back later or contact us for assistance."}
+                </p>
+                {/* Action Buttons */}
+                {(brokerFilters.region.length > 0 || 
+                  brokerFilters.brokerType.length > 0 || 
+                  brokerFilters.ratingRange[0] !== 0 || 
+                  brokerFilters.ratingRange[1] !== 5 ||
+                  brokerFilters.experienceRange[0] !== 0 || 
+                  brokerFilters.experienceRange[1] !== 20 ||
+                  brokerFilters.showVerifiedOnly ||
+                  brokerFilters.city ||
+                  (secondaryFilters && Object.values(secondaryFilters).some(v => v !== null && v !== '' && (Array.isArray(v) ? v.length > 0 : true)))) && (
+                  <button
+                    onClick={resetFilters}
+                    className="inline-flex items-center px-6 py-2.5 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Clear All Filters
+                  </button>
+                )}
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Brokers Found</h3>
-              <p className="text-gray-500 mb-6 max-w-sm">
-                We couldn't find any brokers matching your current filters. Try adjusting your search criteria.
-              </p>
-              <button
-                onClick={resetFilters}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#0A421E] hover:bg-[#0b4f24] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0A421E] transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Reset Filters
-              </button>
             </div>
           </div>
         ) : (
