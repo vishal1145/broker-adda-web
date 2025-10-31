@@ -1076,9 +1076,9 @@ function PropertyDetailsPageInner() {
   </div>
 
   {/* Right side - status badge */}
-  <span className="font-inter text-[12px] leading-[20px] font-normal opacity-100">
+  {/* <span className="font-inter text-[12px] leading-[20px] font-normal opacity-100">
     {product.status}
-  </span>
+  </span> */}
              </div>
              
              <div className="flex items-start gap-4 mb-6">

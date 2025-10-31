@@ -999,8 +999,8 @@ const PropertiesManagement = () => {
               <div className="space-y-6">
                 {items.map((property) => (
                 <Link key={property.id} href={`/property-details/${property.id}`} className="block">
-                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex">
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                    <div className="flex min-w-0">
                       {/* Image Section - Left */}
                       <div className="relative w-[400px] h-[300px] flex-shrink-0">
                         {/* Image carousel */}
@@ -1041,7 +1041,7 @@ const PropertiesManagement = () => {
                       </div>
                       
                       {/* Details Section - Right */}
-                      <div className="flex-1 p-6 flex flex-col">
+                      <div className="flex-1 p-6 flex flex-col min-w-0">
                         {/* Title */}
                         <h3 className="mb-2 flex items-center gap-2" style={{  fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
                           {property.title}
@@ -1051,7 +1051,7 @@ const PropertiesManagement = () => {
                         </h3>
                         
                         {/* Description */}
-                        <p className="mb-4" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF', width: '418px' }}>
+                        <p className="mb-4 max-w-full" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF' }}>
                           {property.description || `A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.`}
                         </p>
                         
@@ -1087,9 +1087,9 @@ const PropertiesManagement = () => {
                         </div>
 
                         {/* Features */}
-                        <div className="mb-3">
+                        <div className="mb-3 w-full">
                           <div className="text-xs font-semibold text-gray-900 mb-2">Features</div>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-2 w-full">
                             {property.bedrooms && property.bedrooms > 0 && (
                               <span className="inline-flex items-center gap-1 px-2.5 py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
                                 <svg className="w-4 h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -1118,13 +1118,13 @@ const PropertiesManagement = () => {
                         </div>
 
                         {/* Amenities */}
-                        <div className="mt-auto">
+                        <div className="mt-auto w-full">
                           <div className="text-xs font-semibold text-gray-900 mb-2">Amenities</div>
-                          <div className="flex flex-wrap gap-2 text-[11px]">
+                          <div className="flex flex-wrap gap-2 text-[11px] w-full">
                             {(Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities : ['Gym', 'Parking', 'Security']).map((amenity, idx) => (
                               <span
                                 key={idx}
-                                className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+                                className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200 flex-shrink-0"
                               >
                                 {amenity}
                               </span>
