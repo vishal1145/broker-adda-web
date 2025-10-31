@@ -1570,23 +1570,50 @@ function PropertyDetailsPageInner() {
               ))
             ) : similarProperties.length > 0 ? (
               // Property cards
-              similarProperties.slice(0, 6).map((p) => (
-                <div key={p.id} className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-lg transition-shadow">
+              similarProperties.slice(0, 4).map((p) => (
+                <div key={p.id} className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow">
                   <Link href={`/property-details/${p.id}`} className="block group">
-                    <div className="aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-4">
+                    <div className="aspect-[4/3] bg-gray-100 rounded-t-2xl overflow-hidden">
                       <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
-                    <div className="space-y-2">
-                      <div className="text-xs text-gray-500">{p.category}</div>
-                      <div className="font-semibold text-gray-900 text-sm line-clamp-1">{p.name}</div>
-                      <div className="text-xs text-gray-600">{p.bedrooms} BHK • {p.areaSqft?.toLocaleString('en-IN')} sq.ft</div>
+                    <div className="px-4 pt-4 pb-4 space-y-3">
+                      {/* Name with green upward arrow */}
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-900 font-semibold text-sm">₹{Math.round(p.price || 0).toLocaleString('en-IN')}</span>
+                        <h3 className="font-semibold text-gray-900 text-base line-clamp-1">{p.name}</h3>
+                        <svg className="w-5 h-5 text-green-900 mt-2 flex-shrink-0 rotate-60" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7 7 7M12 3v18" />
+                        </svg>
+                      </div>
+                      
+                      {/* Category */}
+                      <div className="text-sm text-gray-600 font-medium">{p.category}</div>
+                      
+                      {/* Location with pin icon */}
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className="line-clamp-1">
+                          {p.city || ''} {typeof p.region === 'object' ? (p.region?.name || [p.region?.city, p.region?.state].filter(Boolean).join(', ')) : p.region ? `• ${p.region}` : ''}
+                        </span>
+                      </div>
+                      
+                      {/* Property details with person icon */}
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span>{p.bedrooms || 0} BHK • {p.areaSqft?.toLocaleString('en-IN') || '0'} sq.ft</span>
+                      </div>
+                      
+                      {/* Price (hidden but keeping structure in case needed) */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <span className="text-gray-900 font-semibold text-base">₹{Math.round(p.price || 0).toLocaleString('en-IN')}</span>
                         {p.originalPrice && p.originalPrice > (p.price || 0) && (
                           <span className="text-xs text-gray-500 line-through">₹{Math.round(p.originalPrice).toLocaleString('en-IN')}</span>
                         )}
                       </div>
-                      <div className="text-xs text-gray-500">{p.city} • {typeof p.region === 'object' ? (p.region?.name || [p.region?.city, p.region?.state].filter(Boolean).join(', ')) : p.region}</div>
                     </div>
                   </Link>
                 </div>
