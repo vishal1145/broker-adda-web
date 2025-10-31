@@ -445,7 +445,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     'Rejected'
   ];
   const leadTypeOptions = ['Residential', 'Commercial', 'Plot', 'Other'];
-  const requirementOptions = ['Buy', 'Rent', 'Sell', 'Lease'];
+  const requirementOptions = ['Buy', 'Rent', 'Sell', 'Other'];
   const priorityOptions = ['High', 'Medium', 'Low'];
 
   const resetFilters = () => {
@@ -862,42 +862,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   />
           </div>
 
-          {/* Status Filter */}
-          <div>
-            <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Status</h3>
-            <div className="flex flex-wrap gap-2">
-              {['New', 'Assigned', 'In Progress', 'Closed', 'Rejected'].map((status) => {
-                const selected = leadFilters.leadStatus?.includes(status);
-                return (
-                  <button
-                    key={status}
-                    type="button"
-                    onClick={() => {
-                      handleLeadStatusChange(status);
-                      setCurrentPage(1);
-                    }}
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '12px',
-                      lineHeight: '16px',
-                      fontWeight: '500',
-                      color: '#171A1FFF',
-                      background: selected ? '#B8BECAFF' : '#F3F4F6FF',
-                      borderRadius: '6px',
-                      transition: 'all 0.2s',
-                    }}
-                    className={`p-[10px] inline-block transition-colors ${
-                      selected 
-                        ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]' 
-                        : 'hover:bg-[#B8BECAFF]'
-                    }`}
-                  >
-                    {status}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+       
 
           {/* Budget Range Filter */}
           <div>

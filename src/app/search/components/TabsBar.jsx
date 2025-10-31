@@ -37,7 +37,7 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
 
   // Get sort display text
   const getSortDisplayText = () => {
-    if (!sortBy || sortBy === 'default') {
+    if (!sortBy || sortBy === 'default' || sortBy === null) {
       // Default text based on active tab
       if (activeTab === 'properties') return 'Newest First'
       if (activeTab === 'brokers') return 'Top Rated'

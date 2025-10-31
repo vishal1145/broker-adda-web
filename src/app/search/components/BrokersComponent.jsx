@@ -17,8 +17,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     city: ''
   });
 
-  const [sortBy, setSortBy] = useState('rating');
-  const [sortOrder, setSortOrder] = useState('desc');
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [regions, setRegions] = useState([]);
   const [cities, setCities] = useState([
@@ -126,7 +126,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     fetchRegions();
   }, [brokerFilters.city]);
 
-  // Fetch brokers from API with region and city filtering
+  // Fetch brokers from API with all filters
   const fetchBrokers = async (regionIds = null) => {
     try {
       setBrokersLoading(true);
@@ -134,7 +134,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       // Use environment variable for API URL following app pattern
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       
-      // Build base query parameters
+      // Build base query parameters with all filters
       const baseQueryParams = new URLSearchParams();
       
       // Add region filter if provided
@@ -145,6 +145,73 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         const validRegionId = regionIds[0];
         baseQueryParams.append('regionId', validRegionId);
         console.log('Using region ID:', validRegionId);
+      }
+
+      // Add city filter
+      if (brokerFilters.city) {
+        baseQueryParams.append('city', brokerFilters.city);
+      }
+
+      // Add verification status filter (only if checkbox is checked)
+      if (brokerFilters.showVerifiedOnly) {
+        baseQueryParams.append('verificationStatus', 'Verified');
+      }
+
+      // Add status filter (only if selected - not by default)
+      // Removed default status=Active - only send if user selects it
+
+      // Add rating filters (only if user has changed from default [0, 5])
+      if (brokerFilters.ratingRange[0] > 0) {
+        baseQueryParams.append('minRating', String(brokerFilters.ratingRange[0]));
+      }
+      if (brokerFilters.ratingRange[1] < 5) {
+        baseQueryParams.append('maxRating', String(brokerFilters.ratingRange[1]));
+      }
+
+      // Add experience filters (only if user has changed from default [0, 20])
+      if (brokerFilters.experienceRange[0] > 0) {
+        baseQueryParams.append('minExperience', String(brokerFilters.experienceRange[0]));
+      }
+      if (brokerFilters.experienceRange[1] < 20 && brokerFilters.experienceRange[1] !== 20) {
+        baseQueryParams.append('maxExperience', String(brokerFilters.experienceRange[1]));
+      }
+
+      // Add firm/company name search filter
+      if (secondaryFilters.companyName && secondaryFilters.companyName.trim()) {
+        baseQueryParams.append('search', secondaryFilters.companyName.trim());
+      }
+
+      // Add status filter (if selected in secondary filters)
+      // Map UI statuses to API values: Online/Active/Busy -> "active", Offline -> "inactive"
+      if (secondaryFilters.brokerStatus && secondaryFilters.brokerStatus.length > 0) {
+        // Check if any "active" statuses are selected (Online, Active, Busy)
+        const activeStatuses = ['Online', 'Active', 'Busy'];
+        const hasActiveStatus = secondaryFilters.brokerStatus.some(s => activeStatuses.includes(s));
+        
+        // Check if Offline is selected
+        const hasOfflineStatus = secondaryFilters.brokerStatus.includes('Offline');
+        
+        // If both active and inactive are selected, don't filter (show all)
+        // Otherwise, send the appropriate status
+        if (hasActiveStatus && !hasOfflineStatus) {
+          baseQueryParams.append('status', 'active');
+          console.log('✅ Status filter: active');
+        } else if (hasOfflineStatus && !hasActiveStatus) {
+          baseQueryParams.append('status', 'inactive');
+          console.log('✅ Status filter: inactive');
+        }
+        // If both selected or neither, don't add status filter (shows all)
+      }
+
+      // Add specialization filter (if any selected)
+      // Note: API may not support specialization filter, but we'll send it anyway
+      // If not supported, client-side filtering will handle it
+      if (brokerFilters.brokerType.length > 0) {
+        console.log('📌 Specialization filter applied:', brokerFilters.brokerType);
+        // Send specializations as multiple parameters
+        brokerFilters.brokerType.forEach(spec => {
+          baseQueryParams.append('specialization', spec);
+        });
       }
       
       // Fetch brokers with a single API call first, then paginate if needed
@@ -159,9 +226,17 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       let hasMorePages = true;
       
       while (hasMorePages) {
-      const queryParams = new URLSearchParams(baseQueryParams);
-        queryParams.append('page', currentPage);
-      queryParams.append('limit', limit);
+        const queryParams = new URLSearchParams(baseQueryParams);
+        queryParams.append('page', String(currentPage));
+        queryParams.append('limit', String(limit));
+
+        // Add sorting (only if user has explicitly selected a sort option)
+        if (sortBy && sortBy !== 'default' && sortBy !== null) {
+          queryParams.append('sortBy', sortBy);
+          if (sortOrder) {
+            queryParams.append('sortOrder', sortOrder);
+          }
+        }
       
       const queryString = queryParams.toString();
       const apiUrlWithParams = queryString ? `${apiUrl}/brokers?${queryString}` : `${apiUrl}/brokers`;
@@ -202,34 +277,60 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         }
         
         // Try different data structures based on your JSON format
+        // Priority: data.data.brokers > data.brokers > data.data > data (direct array)
         if (data?.data?.brokers && Array.isArray(data.data.brokers)) {
           brokersData = data.data.brokers;
-          console.log(`Using data.data.brokers, found ${brokersData.length} brokers on page ${currentPage}`);
-      } else if (Array.isArray(data?.brokers)) {
-        brokersData = data.brokers;
-          console.log(`Using data.brokers, found ${brokersData.length} brokers on page ${currentPage}`);
+          console.log(`✅ Using data.data.brokers, found ${brokersData.length} brokers on page ${currentPage}`);
+        } else if (Array.isArray(data?.brokers)) {
+          brokersData = data.brokers;
+          console.log(`✅ Using data.brokers, found ${brokersData.length} brokers on page ${currentPage}`);
         } else if (Array.isArray(data?.data)) {
           brokersData = data.data;
-          console.log(`Using data.data, found ${brokersData.length} brokers on page ${currentPage}`);
-      } else if (Array.isArray(data)) {
-        brokersData = data;
-          console.log(`Using data directly, found ${brokersData.length} brokers on page ${currentPage}`);
+          console.log(`✅ Using data.data, found ${brokersData.length} brokers on page ${currentPage}`);
+        } else if (Array.isArray(data)) {
+          brokersData = data;
+          console.log(`✅ Using data directly, found ${brokersData.length} brokers on page ${currentPage}`);
         } else {
-          console.log('No valid brokers data found in response');
-          console.log('Full response:', data);
-          console.log('Response keys:', Object.keys(data || {}));
-      }
+          console.error('❌ No valid brokers data found in response');
+          console.error('Full response:', JSON.stringify(data, null, 2));
+          console.error('Response keys:', Object.keys(data || {}));
+        }
       
       if (brokersData.length > 0) {
           allBrokers = allBrokers.concat(brokersData);
           console.log(`Total brokers collected so far: ${allBrokers.length}`);
           
-          // Check if we got fewer brokers than the limit (indicating last page)
-          if (brokersData.length < limit) {
-            hasMorePages = false;
-            console.log('Reached last page - fewer brokers than limit');
+          // Check pagination info from API response
+          const pagination = data?.data?.pagination || data?.pagination;
+          const totalPages = pagination?.totalPages;
+          const hasNextPage = pagination?.hasNextPage !== false; // Default to true if not specified
+          
+          if (pagination && totalPages) {
+            // Use API pagination info
+            if (currentPage >= totalPages || (hasNextPage === false)) {
+              hasMorePages = false;
+              console.log(`Reached last page ${currentPage} of ${totalPages}`);
+            } else {
+              currentPage++;
+              // Safety check: stop after 10 pages to prevent infinite loops
+              if (currentPage > 10) {
+                hasMorePages = false;
+                console.log('Reached maximum page limit (10), stopping');
+              }
+            }
           } else {
-            currentPage++;
+            // Fallback: check if we got fewer brokers than the limit
+            if (brokersData.length < limit) {
+              hasMorePages = false;
+              console.log('Reached last page - fewer brokers than limit');
+            } else {
+              currentPage++;
+              // Safety check: stop after 10 pages
+              if (currentPage > 10) {
+                hasMorePages = false;
+                console.log('Reached maximum page limit (10), stopping');
+              }
+            }
           }
         } else {
           hasMorePages = false;
@@ -237,7 +338,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         }
       }
       
-      console.log(`Fetched total of ${allBrokers.length} brokers across ${currentPage} pages`);
+      console.log(`✅ Fetched total of ${allBrokers.length} brokers`);
       
       if (allBrokers.length > 0) {
         console.log('Raw broker data sample:', allBrokers[0]);
@@ -312,71 +413,37 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       }
     } catch (error) {
       console.error('Error fetching brokers:', error);
-      // Fallback to hardcoded brokers if API fails
-      const fallbackBrokers = [
-        {
-          id: 1,
-          name: 'Aarav Sharma',
-          profileImage: '/images/user-1.webp',
-          rating: 4.8,
-          email: 'aarav.sharma@brokeradda.com',
-          phone: '+91 98765 43210',
-          status: 'Verified',
-          locations: ['Mumbai', 'Pune'],
-          agency: 'Sharma Realty',
-          experience: 8,
-          languages: ['English', 'Hindi', 'Marathi'],
-          address: 'Bandra West, Mumbai, India',
-          brokerTypes: ['Luxury Homes', 'Investment Properties']
-        },
-        {
-          id: 2,
-          name: 'Priya Verma',
-          profileImage: '/images/user-2.jpeg',
-          rating: 4.9,
-          email: 'priya.verma@brokeradda.com',
-          phone: '+91 99887 66554',
-          status: 'Active',
-          locations: ['Delhi', 'Noida Sector 62'],
-          agency: 'Verma Associates',
-          experience: 12,
-          languages: ['English', 'Hindi'],
-          address: 'South Extension, New Delhi, India',
-          brokerTypes: ['Commercial Leasing', 'Rental Properties']
-        }
-      ];
-      setBrokers(fallbackBrokers);
+      // Set empty array instead of fallback data
+      setBrokers([]);
     } finally {
       setBrokersLoading(false);
     }
   };
 
-  // Fetch brokers when region filter changes or on initial mount (with debouncing)
+  // Fetch brokers when any filter changes or on initial mount (with debouncing)
   useEffect(() => {
-    // Only fetch if regionsData is loaded
-    if (regionsData.length === 0) {
-      console.log('Regions data not loaded yet, skipping broker fetch');
-      return;
-    }
-
     // Debounce the API call to prevent multiple rapid calls
     const timeoutId = setTimeout(() => {
-      // Convert region names to region IDs for API filtering
-      const regionIds = brokerFilters.region.map(regionName => {
-        const region = regionsData.find(r => {
-          if (typeof r === 'object' && r !== null) {
-            const regionNameFromData = r.name || r.city || r.state || r._id || String(r);
-            return regionNameFromData === regionName;
+      // Convert region names to region IDs for API filtering (only if regionsData is available)
+      let regionIds = [];
+      if (regionsData.length > 0 && brokerFilters.region.length > 0) {
+        regionIds = brokerFilters.region.map(regionName => {
+          const region = regionsData.find(r => {
+            if (typeof r === 'object' && r !== null) {
+              const regionNameFromData = r.name || r.city || r.state || r._id || String(r);
+              return regionNameFromData === regionName;
+            }
+            return String(r) === regionName;
+          });
+          
+          if (region && region._id && /^[0-9a-fA-F]{24}$/.test(region._id)) {
+            return region._id;
           }
-          return String(r) === regionName;
-        });
-        
-        if (region && region._id && /^[0-9a-fA-F]{24}$/.test(region._id)) {
-          return region._id;
-        }
-        return null;
-      }).filter(Boolean);
+          return null;
+        }).filter(Boolean);
+      }
       
+      console.log('=== FETCHING BROKERS ===');
       console.log('Region names:', brokerFilters.region);
       console.log('Mapped region IDs:', regionIds);
       fetchBrokers(regionIds);
@@ -384,27 +451,42 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
     // Cleanup timeout on unmount or dependency change
     return () => clearTimeout(timeoutId);
-  }, [brokerFilters.region, brokerFilters.city, regionsData.length]); // also update when city changes
+  }, [
+    brokerFilters.region, 
+    brokerFilters.city, 
+    brokerFilters.showVerifiedOnly, 
+    brokerFilters.ratingRange, 
+    brokerFilters.experienceRange,
+    brokerFilters.brokerType, 
+    secondaryFilters.companyName,
+    secondaryFilters.brokerStatus,
+    sortBy, 
+    sortOrder, 
+    regionsData.length
+  ]);
 
-  const brokerTypes = [
+  // Specialization options - matching the dropdown/image
+  const specializationOptions = [
+    'Residential Sales',
     'Commercial Leasing',
-    'Luxury Homes', 
+    'Luxury Homes',
     'Investment Properties',
     'Rental Properties',
     'Land Development',
     'Property Management',
     'Real Estate Consulting'
   ];
-  // Languages filter removed
 
   const resetFilters = () => {
-    // Reset all filters to defaults (align with Leads reset behavior)
+    // Reset all filters to defaults
     setNameSearchTerm('');
     setRegionSearchTerm('');
-    setSortBy('rating-high');
+    setSortBy(null);
+    setSortOrder(null);
     setCurrentPage(1);
     setItemsPerPage(9);
 
+    // Reset main filters
     setBrokerFilters({
       region: [],
       experienceRange: [0, 20],
@@ -415,10 +497,18 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       city: ''
     });
 
-    // Trigger fresh fetch without any region filter
-    if (regionsData.length > 0) {
-      fetchBrokers([]);
-    }
+    // Reset secondary filters
+    setSecondaryFilters({
+      companyName: '',
+      language: '',
+      brokerStatus: [],
+      responseRate: [],
+      joinedDate: '',
+      sortBy: 'rating-high'
+    });
+
+    // Trigger fresh fetch without any filters - will fetch all brokers
+    fetchBrokers([]);
   };
 
   const reactSelectStyles = {
@@ -611,20 +701,66 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       if (!hasMatchingRegion) return false;
     }
 
-    // Experience filter
-    if (broker.experience < brokerFilters.experienceRange[0] || 
-        broker.experience > brokerFilters.experienceRange[1]) {
-      console.log(`Broker ${broker.name} filtered out by experience: ${broker.experience} not in range [${brokerFilters.experienceRange[0]}, ${brokerFilters.experienceRange[1]}]`);
-      return false;
+    // Experience filter is handled by API (minExperience/maxExperience)
+    // No client-side filtering needed since API already filters by experience
+    // This prevents double-filtering which could remove valid results
+
+    // Firm/Company name filter (client-side backup - API handles it via search parameter)
+    if (secondaryFilters.companyName && secondaryFilters.companyName.trim()) {
+      const searchTerm = secondaryFilters.companyName.toLowerCase().trim();
+      const firmName = (broker.firmName || broker.agency || '').toLowerCase();
+      if (!firmName.includes(searchTerm)) {
+        return false;
+      }
+    }
+
+    // Status filter (client-side backup for multiple statuses)
+    // API only supports single status (active/inactive), so if multiple UI statuses selected,
+    // we filter client-side
+    if (secondaryFilters.brokerStatus && secondaryFilters.brokerStatus.length > 0) {
+      const activeStatuses = ['Online', 'Active', 'Busy'];
+      const hasActiveStatus = secondaryFilters.brokerStatus.some(s => activeStatuses.includes(s));
+      const hasOfflineStatus = secondaryFilters.brokerStatus.includes('Offline');
+      
+      // If both active and inactive selected, show all (no filtering)
+      if (hasActiveStatus && hasOfflineStatus) {
+        // Show all - no filter needed
+      } else if (hasActiveStatus) {
+        // Only active statuses selected - filter out inactive
+        const brokerStatus = (broker.status || '').toLowerCase();
+        if (brokerStatus === 'inactive' || brokerStatus === 'offline') {
+          return false;
+        }
+      } else if (hasOfflineStatus) {
+        // Only offline selected - filter out active
+        const brokerStatus = (broker.status || '').toLowerCase();
+        if (brokerStatus !== 'inactive' && brokerStatus !== 'offline') {
+          return false;
+        }
+      }
     }
 
 
-    // Broker type filter
+    // Broker type/specialization filter (client-side)
     if (brokerFilters.brokerType.length > 0) {
-      const hasMatchingBrokerType = brokerFilters.brokerType.some(selectedType => 
-        broker.brokerTypes && broker.brokerTypes.includes(selectedType)
-      );
-      if (!hasMatchingBrokerType) return false;
+      // Check both brokerTypes and specializations fields from API
+      const brokerTypes = broker.brokerTypes || [];
+      const brokerSpecializations = broker.specializations || [];
+      const allBrokerTypes = [...brokerTypes, ...brokerSpecializations];
+      
+      const hasMatchingType = brokerFilters.brokerType.some(selectedType => {
+        // Case-insensitive matching
+        const selectedLower = selectedType.toLowerCase();
+        return allBrokerTypes.some(brokerType => 
+          String(brokerType).toLowerCase() === selectedLower ||
+          String(brokerType).toLowerCase().includes(selectedLower)
+        );
+      });
+      
+      if (!hasMatchingType) {
+        console.log(`❌ Broker ${broker.name} filtered out by specialization. Selected: ${brokerFilters.brokerType.join(', ')}, Broker has: ${allBrokerTypes.join(', ')}`);
+        return false;
+      }
     }
 
     // Rating filter
@@ -643,8 +779,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
   // Handle sort change from TabsBar
   const handleSortChange = (newSortBy, newSortOrder) => {
-    setSortBy(newSortBy || 'rating');
-    setSortOrder(newSortOrder || 'desc');
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
     setCurrentPage(1);
   };
 
@@ -786,21 +922,21 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
             )}
           </div>
 
-          {/* Specialization/Property Type */}
+          {/* Specialization */}
           <div>
-            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Specialization/Property Type</label>
-            <div className="grid grid-cols-2 gap-3">
-              {['Residential', 'Commercial', 'Plot', 'Rental', 'Industrial'].map((type) => {
-                const selected = brokerFilters.brokerType.includes(type);
+            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Specialization</label>
+            <div className="space-y-2">
+              {specializationOptions.map((spec) => {
+                const selected = brokerFilters.brokerType.includes(spec);
                 return (
-                  <label key={type} className="flex items-center cursor-pointer">
+                  <label key={spec} className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={selected}
-                      onChange={() => handleBrokerTypeChange(type)}
+                      onChange={() => handleBrokerTypeChange(spec)}
                       className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
                     />
-                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '400', color: '#171A1FFF' }}>{type}</span>
+                    <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '400', color: '#171A1FFF' }}>{spec}</span>
                   </label>
                 );
               })}
@@ -865,7 +1001,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           </div>
 
           {/* Leads Closed/Deals Completed */}
-          <div>
+          {/* <div>
             <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Leads Closed/Deals Completed</label>
             <Select
               instanceId="deals-select"
@@ -879,28 +1015,9 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
               ]}
               placeholder="Select Deals"
             />
-          </div>
+          </div> */}
 
-          {/* Badges */}
-          <div>
-            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Badges</label>
-            <div className="space-y-2">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
-                />
-                <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Verified</span>
-              </label>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
-                />
-                <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '20px', fontWeight: '400', color: '#171A1FFF' }}>Top Badge</span>
-              </label>
-            </div>
-          </div>
+         
 
           {/* Secondary Filters Toggle */}
           <div className="pt-4 border-t border-gray-200">
@@ -930,29 +1047,13 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                 />
               </div>
 
-              {/* Language Preference */}
-              <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Language Preference</label>
-                <Select
-                  instanceId="language-select"
-                  styles={reactSelectStyles}
-                  className="cursor-pointer"
-                  options={[
-                    { value: 'english', label: 'English' },
-                    { value: 'hindi', label: 'Hindi' },
-                    { value: 'other', label: 'Other' }
-                  ]}
-                  value={secondaryFilters.language ? { value: secondaryFilters.language, label: secondaryFilters.language } : null}
-                  onChange={(opt) => setSecondaryFilters(prev => ({ ...prev, language: opt?.value || '' }))}
-                  placeholder="Select Language"
-                />
-              </div>
+          
 
               {/* Broker Status */}
               <div>
                 <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Broker Status</label>
                 <div className="grid grid-cols-2 gap-3">
-                  {['Online', 'Busy', 'Active', 'Offline'].map((status) => (
+                  {['Online', 'Active', 'Busy', 'Offline'].map((status) => (
                     <label key={status} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
@@ -972,29 +1073,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                 </div>
               </div>
 
-              {/* Response Rate */}
-              <div>
-                <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Response Rate</label>
-                <div className="space-y-2">
-                  {['Fast Responders', 'Highly Active'].map((rate) => (
-                    <label key={rate} className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={secondaryFilters.responseRate.includes(rate)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSecondaryFilters(prev => ({ ...prev, responseRate: [...prev.responseRate, rate] }));
-                          } else {
-                            setSecondaryFilters(prev => ({ ...prev, responseRate: prev.responseRate.filter(r => r !== rate) }));
-                          }
-                        }}
-                        className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
-                      />
-                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '400', color: '#171A1FFF' }}>{rate}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              
 
               {/* Joined Date */}
               <div>
@@ -1014,23 +1093,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                 />
               </div>
 
-              {/* Sort By */}
-              <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Sort By</label>
-                <Select
-                  instanceId="sort-select"
-                  styles={reactSelectStyles}
-                  className="cursor-pointer"
-                  options={[
-                    { value: 'rating-high', label: 'Top Rated' },
-                    { value: 'rating-low', label: 'Lowest Rated' },
-                    { value: 'newest', label: 'Newest' },
-                    { value: 'oldest', label: 'Oldest' }
-                  ]}
-                  value={secondaryFilters.sortBy ? { value: secondaryFilters.sortBy, label: secondaryFilters.sortBy } : { value: 'rating-high', label: 'Top Rated' }}
-                  onChange={(opt) => setSecondaryFilters(prev => ({ ...prev, sortBy: opt?.value || 'rating-high' }))}
-                />
-              </div>
+             
             </div>
           )}
 
