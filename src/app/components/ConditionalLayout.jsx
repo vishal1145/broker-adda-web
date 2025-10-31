@@ -2,6 +2,7 @@
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import BrokersChatList from './BrokersChatList';
 
 export default function ConditionalLayout({ children, navbarData, footerData }) {
   const pathname = usePathname();
@@ -16,6 +17,7 @@ export default function ConditionalLayout({ children, navbarData, footerData }) 
       {!shouldHideNavbarFooter && <Navbar data={navbarData} />}
       <main className="min-h-screen pt-20 px-[6rem] py-8">{children}</main>
       {!shouldHideNavbarFooter && <Footer data={footerData} />}
+      <BrokersChatList />
     </>
   );
 }

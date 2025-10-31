@@ -1039,11 +1039,14 @@ export default function BrokerDetailsPage() {
 {/* Quick Contact */}
               <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <h3 className=" text-[18px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
-                <button type="button" onClick={() => {
-                  const el = document.getElementById('send-message-prompt');
-                  if (el) el.focus();
-                }} className="w-full h-[40px] px-3 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md">
-                  Send Message
+                <button type="button" 
+                onClick={() => {
+                  if (window.openChatWithBroker) {
+                    window.openChatWithBroker({broker});
+                  }
+                }}
+                className="w-full px-6 py-3 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-medium">
+                  Send Messadddge
                 </button>
                 <a href="#join-network"className="mt-3 w-full h-[40px] px-3 flex items-center justify-center 
              font-[Inter] text-[12px] leading-[22px] font-medium text-[#0D542B]
