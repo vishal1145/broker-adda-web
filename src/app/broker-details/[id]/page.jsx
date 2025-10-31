@@ -81,6 +81,31 @@ export default function BrokerDetailsPage() {
   const about = nonEmpty(broker?.content) ? broker.content : (nonEmpty(broker?.about) ? broker.about : (nonEmpty(broker?.bio) ? broker.bio : (broker?.experience?.description || '')));
   const phone = nonEmpty(broker?.phone) ? broker.phone : (nonEmpty(broker?.whatsappNumber) ? broker.whatsappNumber : '');
 
+  // Helpers for Leads UI (match LatestLeads design)
+  const ago = (d) => {
+    if (!d) return '';
+    const t = new Date(d).getTime();
+    if (!t) return '';
+    const s = Math.floor((Date.now() - t) / 1000);
+    const units = [
+      [31536000, 'y'],
+      [2592000, 'mo'],
+      [604800, 'w'],
+      [86400, 'd'],
+      [3600, 'h'],
+      [60, 'm']
+    ];
+    for (const [sec, label] of units) {
+      if (s >= sec) return Math.floor(s / sec) + label + ' ago';
+    }
+    return s + 's ago';
+  };
+  const regionName = (region) => {
+    if (!region) return '';
+    const str = typeof region === 'string' ? region : (region?.name || region?.city || region?.state || '');
+    return str.replace(/[-_]+/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase()).replace(/Ncr\b/i, 'NCR');
+  };
+
   // Fetch similar brokers once main broker is loaded
   useEffect(() => {
     const fetchSimilar = async () => {
@@ -478,7 +503,7 @@ export default function BrokerDetailsPage() {
                 </div>
                 
                 {leadsLoading ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                     {[...Array(3)].map((_, index) => (
                       <div key={index} className="border border-gray-200 rounded-lg p-4 animate-pulse">
                         <div className="flex items-start gap-4">
@@ -502,7 +527,7 @@ export default function BrokerDetailsPage() {
                     <p className="text-gray-600">{leadsError}</p>
                   </div>
                 ) : brokerLeads.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4  grid  md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     {brokerLeads.slice(0, 6).map((lead, index) => {
                       const leadId = lead?._id || lead?.id || index;
                       const title = `${lead?.customerName || 'Customer'} - ${lead?.requirement || 'Property'} Lead`;
@@ -516,75 +541,147 @@ export default function BrokerDetailsPage() {
                       const customerEmail = lead?.customerEmail || '';
                       
                       return (
-                        <div key={leadId} className="w-[768px] h-[170px] bg-white rounded-[10px] border border-gray-200 p-4 hover:shadow-md transition-shadow" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                          <div className="flex items-start gap-4">
-                            <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
-                              <img 
-                                src={image} 
-                                alt={title}
-                                className="w-24 h-24 object-cover"
-                                onError={(e) => {
-                                  e.target.src = '/images/property-placeholder.jpg';
-                                }}
-                              />
+                        <article key={leadId} className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg">
+                          <div className="p-6">
+                            {/* Top Section - Main Title */}
+                            <div className="mb-4">
+                              <h3 className="text-[18px] leading-[20px] font-semibold mb-2" style={{ color: '#323743' }}>
+                                {lead?.propertyType || 'Property'} for {lead?.requirement || 'inquiry'}
+                              </h3>
+                              {/* Tags and Time */}
+                              <div className="flex items-center justify-between gap-2 flex-nowrap">
+                                <div className="flex items-center gap-2 flex-nowrap">
+                                  {lead?.requirement && (
+                                    <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                                      {lead.requirement}
+                                    </span>
+                                  )}
+                                  {lead?.propertyType && (
+                                    <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                                      {lead.propertyType}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1.5 text-[12px] leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
+                                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M12 6v6l4 2" />
+                                  </svg>
+                                  {ago(lead?.createdAt)}
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between mb-2">
-                                <h4 className="text-[16px] leading-[28px] font-semibold text-[#171A1F]">{title}</h4>
-                                <span className={`h-[22px] px-3 py-0 flex items-center justify-center rounded-full text-xs font-[Inter] font-medium ${
-                                  status === 'New' ? 'bg-[#0D542B] text-white' :
-                                  status === 'Active' ? 'bg-[#0D542B] text-white' :
-                                  status === 'Sold' ? 'bg-[#0D542B] text-white' :
-                                  status === 'Pending' ? 'bg-[#0D542B] text-white' :
-                                  'bg-[#0D542B] text-white'
-                                }`}>
-                                  {status}
-                                </span>
+
+                            {/* Horizontal Divider */}
+                            <div className="border-t border-gray-200 my-4"></div>
+
+                            {/* Middle Section - Property Details */}
+                            <div className="space-y-3 mb-4">
+                              {/* Preferred Location */}
+                              <div className="flex items-center gap-2">
+                                <svg className="h-3 w-3 flex-shrink-0 text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                                  <circle cx="12" cy="10" r="3" />
+                                </svg>
+                                <div className="flex items-center flex-wrap gap-1">
+                                  <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Preferred:</span>
+                                  <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">{regionName(lead?.primaryRegion || lead?.region)}</span>
+                                </div>
                               </div>
-                              <p className="font-[Inter] text-[12px] leading-[20px] font-normal text-[#565D6D] mb-2">{description}</p>
-                              
-                              {/* Customer Contact Info */}
-                              <div className="flex items-center gap-2 mb-2 font-[Inter] text-[12px] leading-[20px] font-normal mb-2 text-[#565D6D]">
-                                {customerPhone && (
-                                  <span className="flex items-center gap-1">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                    </svg>
-                                    {customerPhone}
+                              {/* Secondary Location */}
+                              {lead?.secondaryRegion && (
+                                <div className="flex items-center gap-2">
+                                  <svg className="h-3 w-3 flex-shrink-0 text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                  </svg>
+                                  <div className="flex items-center flex-wrap gap-1">
+                                    <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Secondary:</span>
+                                    <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">{regionName(lead?.secondaryRegion)}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {/* Budget */}
+                              <div className="flex items-start gap-2">
+                                <svg className="h-4 w-4 flex-shrink-0 text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="3" y="8" width="18" height="12" rx="2" />
+                                  <path d="M3 12h18M9 8v8" />
+                                </svg>
+                                <div className="flex items-center flex-wrap gap-1">
+                                  <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>
+                                  <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
+                                    {typeof price === 'number' ? `₹${price.toLocaleString('en-IN')}` : (price || '—')}
                                   </span>
-                                )}
-                                {customerEmail && (
-                                  <span className="flex items-center gap-1">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
-                                    {customerEmail}
-                                  </span>
-                                )}
+                                </div>
                               </div>
-                              
-                              <div className="flex items-center gap-4 text-[12px] text-gray-500">
-                                {price && (
-                                  <span className="text-[14px] leading-7 font-bold text-[#0D542B]">
-                                    {typeof price === 'number' ? `₹${price.toLocaleString()}` : price}
-                                  </span>
-                                )}
-                                {location && (
-                                  <span className="flex items-center gap-1 font-[Inter] text-[14px] leading-[24px] font-normal text-[#565D6D]">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    {location}
-                                  </span>
-                                )}
-                                <span className="h-[22px] px-[6px] flex items-center justify-center rounded-full font-[Inter] text-[12px] leading-[20px] font-semibold bg-[#F3F4F6] opacity-100">
-                                  {type}
-                                </span>
+                            </div>
+
+                            {/* Bottom Section - Broker Profile and Actions */}
+                            <div className="pt-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  {/* Avatar */}
+                                  <div className="relative w-12 h-12 text-sm font-semibold" style={{ color: '#323743' }}>
+                                    {(() => {
+                                      const createdBy = lead?.createdBy;
+                                      let nameTxt = '—';
+                                      let brokerImageUrl;
+                                      if (!createdBy) {
+                                        nameTxt = '—';
+                                      } else if (typeof createdBy === 'string') {
+                                        nameTxt = createdBy;
+                                      } else {
+                                        nameTxt = createdBy?.name || createdBy?.fullName || createdBy?.email || '—';
+                                        brokerImageUrl = createdBy?.brokerImage || createdBy?.profileImage || createdBy?.image;
+                                      }
+                                      if (brokerImageUrl) {
+                                        return (
+                                          <>
+                                            <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] overflow-hidden">
+                                              <img src={brokerImageUrl} alt={nameTxt} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                                            </div>
+                                            <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+                                          </>
+                                        );
+                                      }
+                                      return (
+                                        <>
+                                          <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] flex items-center justify-center">
+                                            {nameTxt.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+                                          </div>
+                                          <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
+                                        </>
+                                      );
+                                    })()}
+                                  </div>
+                                  {/* Name */}
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
+                                        {(() => {
+                                          const createdBy = lead?.createdBy;
+                                          if (!createdBy) return 'Unknown';
+                                          if (typeof createdBy === 'string') return createdBy;
+                                          return createdBy?.name || createdBy?.fullName || createdBy?.email || 'Unknown';
+                                        })()}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-3 mt-1">
+                                      <span className="flex items-center gap-2">
+                                        <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                        <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">Connect</span>
+                                      </span>
+                                      <span className="flex items-center gap-2">
+                                        <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                        <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">Chat</span>
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </article>
                       );
                     })}
                     {brokerLeads.length > 6 && (
@@ -889,51 +986,96 @@ export default function BrokerDetailsPage() {
                       .map(item => item.broker);
                     
                     return sortedBrokers.map((b, index) => {
-                      const img = b?.brokerImage || b?.profileImage || b?.image || '/images/user-2.jpeg';
-                      const name = (typeof b?.name === 'string' && b.name) || (typeof b?.fullName === 'string' && b.fullName) || 'Unknown Broker';
-                      const firm = (typeof b?.firmName === 'string' && b.firmName) || '';
+                      const pickValidImage = (...cands) => {
+                        const valid = cands.find((s) => typeof s === 'string' && s.trim() && s !== 'null' && s !== 'undefined');
+                        return valid || '';
+                      };
+                      const fallbackImages = [
+                        '/images/broker2.webp',
+                        '/images/broker7.webp',
+                        '/images/broker8.jpg',
+                        '/images/broker5.webp'
+                      ];
+                      const imageUrl = pickValidImage(
+                        b?.brokerImage,
+                        b?.image,
+                        b?.profileImage,
+                        b?.avatar,
+                        b?.photo,
+                        b?.picture,
+                        b?.profilePicture,
+                        b?.defaultImage,
+                        fallbackImages[index % fallbackImages.length]
+                      );
                       const id = b?.userId?._id || b?.userId || b?._id || b?.id;
-                      const rating = 4.2 + Math.random() * 0.8; // Random rating between 4.2-5.0
-                      const expYears = Math.floor(Math.random() * 15) + 2; // Random experience 2-16 years
-                      const specs = Array.isArray(b?.specializations) ? b.specializations.slice(0, 2) : ['Real Estate', 'Property Sales'];
-                      
+                      const name = (typeof b?.name === 'string' && b.name) || (typeof b?.fullName === 'string' && b.fullName) || b?.name?.name || b?.fullName?.name || 'Unknown Broker';
+                      const title = Array.isArray(b?.specializations) && b.specializations.length > 0
+                        ? b.specializations[0]
+                        : (typeof b?.specialization === 'string' ? b.specialization
+                          : (typeof b?.expertise === 'string' ? b.expertise
+                            : (typeof b?.role === 'string' ? b.role : (b?.firmName || 'Real Estate Specialist'))));
+                      const regionText = (() => {
+                        const r = b?.region;
+                        if (Array.isArray(r) && r.length > 0) {
+                          const first = r[0];
+                          return typeof first === 'string' ? first : (first?.name || first?.city || first?.state || 'Location');
+                        }
+                        if (typeof r === 'string') return r;
+                        if (r && typeof r === 'object') return r?.name || r?.city || r?.state || 'Location';
+                        return b?.state || b?.city || 'Location';
+                      })();
+                      const leadsCompleted = b?.leadsCreated?.count || b?.leadCount || b?.totalLeads || b?.leads || 0;
+
                       return (
-                        <div key={id || index} className="flex-shrink-0 w-80 h-[272px] bg-white rounded-[10px] p-6 hover:shadow-lg transition-shadow flex flex-col" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                          <div className="flex items-start gap-3 mb-4">
-                            <img src={img} alt={name} className="w-15 h-15 rounded-full object-cover flex-shrink-0" style={{ width: '60px', height: '60px' }} />
-                            <div className="min-w-0 flex-1">
-                              <div className="text-[16px] leading-[28px] font-semibold text-[#171A1F] truncate mb-1">{name}</div>
-                              <div className="font-[Inter] text-[14px] leading-[24px] font-normal text-[#565D6D] truncate">{firm || '-'}</div>
+                        <article key={id || index} className="group relative flex-shrink-0 w-80 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition duration-300 overflow-hidden hover:bg-yellow-400 hover:ring-1 hover:ring-yellow-500/60 hover:-translate-y-0.5">
+                          <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
+                            <img
+                              src={imageUrl}
+                              alt={`Broker portrait - ${name}`}
+                              className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                              onError={(e) => { e.currentTarget.src = fallbackImages[index % fallbackImages.length]; }}
+                            />
+                          </div>
+                          <div className="p-6">
+                            <div className="flex items-start justify-between mb-3">
+                              {id ? (
+                                <Link href={`/broker-details/${id}`} className="flex items-center gap-1 group/name" title="View details">
+                                  <h3 className="text-[18px] leading-7 font-semibold text-gray-900">{name}</h3>
+                                  <svg className="h-5 w-5 text-emerald-600 transition-transform group-hover/name:translate-x-1 group-hover/name:-translate-y-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M7 17L17 7" />
+                                    <path d="M7 7h10v10" />
+                                  </svg>
+                                </Link>
+                              ) : (
+                                <div className="flex items-center gap-1">
+                                  <h3 className="text-[18px] leading-7 font-semibold text-gray-900">{name}</h3>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="mb-3">
+                              <p className="text-[12px] leading-5 font-normal text-gray-600">{title}</p>
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-3">
+                              <svg className="h-3 w-3 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                              </svg>
+                              <p className="text-[12px] leading-5 font-normal text-gray-600">{regionText}</p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <svg className="h-3 w-3 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                              </svg>
+                              <p className="text-[12px] leading-5 font-normal text-gray-600">{leadsCompleted} Leads Completed</p>
                             </div>
                           </div>
-                          
-                          <div className="flex items-center gap-1 mb-4">
-                            <svg className="w-5 h-5 stroke-[#FDC700] fill-none" viewBox="0 0 24 24" strokeWidth="1.5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                            </svg>
-                            <span className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#171A1F]">{rating.toFixed(1)}</span>
-                            <span className="mx-1 text-[12px] text-[#565D6D]">•</span>
-                            <span className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#565D6D]">{expYears}+ years</span>
-                          </div>
-                          
-                          <div className="mb-4 flex-1">
-                            <div className="flex flex-wrap gap-2">
-                              {specs.map((spec, specIndex) => (
-                                <span key={specIndex} className="h-[22px] px-[6px] flex items-center justify-center rounded-full font-[Inter] text-[12px] leading-[20px] font-semibold bg-[#F3F4F6] opacity-100">
-                                  {spec}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          
-                          <div className="w-full mt-auto">
-                            {id && (
-                              <Link href={`/broker-details/${id}`} className="inline-flex items-center justify-center w-full px-4 py-2 text-sm rounded-lg border border-[#0D542B] text-[#0D542B] bg-white hover:bg-green-50 transition-colors font-medium">
-                                View Profile
-                              </Link>
-                            )}
-                          </div>
-                        </div>
+                        </article>
                       );
                     });
                   })()

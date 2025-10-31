@@ -22,6 +22,8 @@ const Dashboard = () => {
   const [metricsLoading, setMetricsLoading] = useState(false);
   const [leadRows, setLeadRows] = useState([]);
   const [propertyCards, setPropertyCards] = useState([]);
+  const [profileData, setProfileData] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [recentActivity, setRecentActivity] = useState([
     { icon: '↑', text: "Updated lead status for Alice Johnson to 'Confirmed'", time: '2 hours ago' },
     { icon: '↓', text: 'Successfully closed deal for Casey Guzman. Left', time: '4 hours ago' },
@@ -136,6 +138,26 @@ const Dashboard = () => {
       }
     };
     fetchOverviewLists();
+
+    const fetchProfile = async () => {
+      try {
+        setProfileLoading(true);
+        const { brokerId, baseApi, token } = await resolveBrokerId();
+        const res = await fetch(`${baseApi}/brokers/${encodeURIComponent(brokerId)}`, {
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        });
+        if (res.ok) {
+          const pj = await res.json().catch(() => ({}));
+          const profile = pj?.data?.broker || pj?.broker || pj?.data || pj;
+          setProfileData(profile);
+        }
+      } catch (e) {
+        console.error('Error fetching profile:', e);
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+    fetchProfile();
   }, [user]);
 
   const fmt = (n) => {
@@ -617,7 +639,7 @@ const Dashboard = () => {
     </div>
 
   {/* bottom CTA */}
-<div className="flex justify-center mt-4 text-[14px] mt-7">
+<div className="flex justify-center mt-7 text-[14px]">
   <button className="px-6 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors flex items-center justify-center gap-2">
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path
@@ -728,6 +750,167 @@ const Dashboard = () => {
     </div>
                 </div>
               </section>
+
+          {/* Profile Section */}
+          <section className="mt-8 pb-16">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-[18px] font-semibold text-gray-900">Profile Information</h3>
+              <a
+                href="/profile"
+                className="inline-flex items-center gap-2 text-sm text-green-900 hover:text-green-800 font-medium"
+              >
+                Edit Profile
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </a>
+            </div>
+
+            {profileLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, idx) => (
+                  <div key={idx} className="bg-white rounded-[10px] border border-gray-200 p-6 shadow-sm animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-full"></div>
+                      <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                      <div className="h-3 bg-gray-200 rounded w-4/6"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : profileData ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Personal Information Card */}
+                <div className="bg-white rounded-[10px] border border-gray-200 p-6 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <h4 className="text-[16px] font-semibold text-gray-900">Personal Information</h4>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[12px] text-gray-500 mb-1">Full Name</p>
+                      <p className="text-[14px] font-medium text-gray-900 break-words">{profileData?.name || profileData?.fullName || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[12px] text-gray-500 mb-1">Email</p>
+                      <p className="text-[14px] font-medium text-gray-900 break-words">{profileData?.email || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[12px] text-gray-500 mb-1">Phone</p>
+                      <p className="text-[14px] font-medium text-gray-900 break-words">{profileData?.phone || profileData?.whatsappNumber || '—'}</p>
+                    </div>
+                    {profileData?.city && (
+                      <div>
+                        <p className="text-[12px] text-gray-500 mb-1">Location</p>
+                        <p className="text-[14px] font-medium text-gray-900 break-words">{profileData.city}{profileData?.state ? `, ${profileData.state}` : ''}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Professional Details Card */}
+                <div className="bg-white rounded-[10px] border border-gray-200 p-6 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <h4 className="text-[16px] font-semibold text-gray-900">Professional Details</h4>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[12px] text-gray-500 mb-1">Firm Name</p>
+                      <p className="text-[14px] font-medium text-gray-900 break-words">{profileData?.firmName || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[12px] text-gray-500 mb-1">License Number</p>
+                      <p className="text-[14px] font-medium text-gray-900 break-words">{profileData?.licenseNumber || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[12px] text-gray-500 mb-1">Experience</p>
+                      <p className="text-[14px] font-medium text-gray-900 break-words">
+                        {typeof profileData?.experience === 'object' 
+                          ? `${profileData.experience?.years || 0}+ Years`
+                          : profileData?.experience 
+                          ? `${profileData.experience} Years`
+                          : '—'}
+                      </p>
+                    </div>
+                    {Array.isArray(profileData?.specializations) && profileData.specializations.length > 0 && (
+                      <div>
+                        <p className="text-[12px] text-gray-500 mb-2">Specializations</p>
+                        <div className="flex flex-wrap gap-2">
+                          {profileData.specializations.map((spec, idx) => (
+                            <span key={idx} className="inline-flex items-center px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium border border-green-100">
+                              {spec}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* About & Regions Card */}
+                <div className="bg-white rounded-[10px] border border-gray-200 p-6 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                    </div>
+                    <h4 className="text-[16px] font-semibold text-gray-900">About & Regions</h4>
+                  </div>
+                  <div className="space-y-3">
+                    {profileData?.content || profileData?.about || profileData?.bio ? (
+                      <div>
+                        <p className="text-[12px] text-gray-500 mb-1">About</p>
+                        <p className="text-[14px] text-gray-700 leading-relaxed break-words whitespace-pre-wrap">
+                          {profileData?.content || profileData?.about || profileData?.bio || '—'}
+                        </p>
+                      </div>
+                    ) : null}
+                    {Array.isArray(profileData?.region) && profileData.region.length > 0 && (
+                      <div>
+                        <p className="text-[12px] text-gray-500 mb-2">Service Regions</p>
+                        <div className="flex flex-wrap gap-2">
+                          {profileData.region.map((reg, idx) => (
+                            <span key={idx} className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
+                              {typeof reg === 'string' ? reg : reg?.name || '—'}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {profileData?.website && (
+                      <div>
+                        <p className="text-[12px] text-gray-500 mb-1">Website</p>
+                        <a 
+                          href={profileData.website} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="text-[14px] text-green-700 hover:text-green-800 break-all"
+                        >
+                          {profileData.website}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-white rounded-[10px] border border-gray-200">
+                <p className="text-gray-500">No profile information available</p>
+              </div>
+            )}
+          </section>
 
           {/* Bottom CTA Buttons */}
           <div className="mt-6 flex flex-wrap justify-center items-center gap-4 text-[14px]">
