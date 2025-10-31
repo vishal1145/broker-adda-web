@@ -92,7 +92,7 @@ const LatestLeads: React.FC = () => {
         if (token) {
           headers.Authorization = `Bearer ${token}`;
         }
-        const res = await axios.get(`${apiUrl}/leads`, { headers });
+        const res = await axios.get(`${apiUrl}/leads?verificationStatus=Verified`, { headers });
         // Handle different response structures
         let items = [];
         if (Array.isArray(res.data?.data?.items)) {

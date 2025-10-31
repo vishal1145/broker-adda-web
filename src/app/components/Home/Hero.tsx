@@ -164,7 +164,7 @@ const Hero = ({ data = {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         };
 
-        const response = await fetch(`${apiUrl}/brokers`, {
+        const response = await fetch(`${apiUrl}/brokers?verificationStatus=Verified`, {
           method: 'GET',
           headers
         });

@@ -61,14 +61,14 @@ const Brokers = () => {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       
       // Proceed even without token; add Authorization only if available
-      console.log('Fetching brokers from:', `${apiUrl}/brokers`, 'with token:', !!token);
+      console.log('Fetching brokers from:', `${apiUrl}/brokers?verificationStatus=Verified`, 'with token:', !!token);
 
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       };
 
-      const response = await fetch(`${apiUrl}/brokers`, {
+      const response = await fetch(`${apiUrl}/brokers?verificationStatus=Verified`, {
         method: 'GET',
         headers
       });
