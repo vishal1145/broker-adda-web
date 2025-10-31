@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import HeaderFile from "../../components/Header";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import CircularProgress from "@mui/material/CircularProgress";
+import ContentLoader from "react-content-loader";
 // removed unused import
 
 const headerData = {
@@ -162,8 +162,258 @@ export default function LeadDetails() {
 
   if (loading) {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <CircularProgress />
+      <div className="min-h-screen">
+        <HeaderFile data={headerData} />
+        <div className="py-8">
+          <div className="w-full mx-auto">
+            {/* Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-16">
+              {/* Left Content - 8 columns */}
+              <section className="lg:col-span-8 space-y-6">
+                {/* Top Header Skeleton */}
+                <div className="mb-8">
+                  <ContentLoader
+                    speed={2}
+                    width={600}
+                    height={60}
+                    viewBox="0 0 600 60"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="300" height="28" />
+                    {/* Status info */}
+                    <rect x="0" y="40" rx="4" ry="4" width="200" height="16" />
+                  </ContentLoader>
+                </div>
+
+                {/* Requirements Section Skeleton */}
+                <div className="">
+                  <ContentLoader
+                    speed={2}
+                    width={600}
+                    height={40}
+                    viewBox="0 0 600 40"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%', marginBottom: '24px' }}
+                  >
+                    <rect x="0" y="0" rx="4" ry="4" width="150" height="24" />
+                  </ContentLoader>
+                  
+                  <div className="space-y-4">
+                    {/* Property Type Card */}
+                    <div className="bg-white rounded-[10px] p-4 border border-[#DEE1E6]">
+                      <ContentLoader
+                        speed={2}
+                        width={600}
+                        height={60}
+                        viewBox="0 0 600 60"
+                        backgroundColor="#f3f3f3"
+                        foregroundColor="#ecebeb"
+                        style={{ width: '100%', height: '100%' }}
+                      >
+                        <circle cx="20" cy="30" r="16" />
+                        <rect x="50" y="20" rx="4" ry="4" width="100" height="12" />
+                        <rect x="50" y="38" rx="4" ry="4" width="150" height="16" />
+                      </ContentLoader>
+                    </div>
+
+                    {/* Budget Range Card */}
+                    <div className="bg-white rounded-[10px] p-4 border border-[#DEE1E6]">
+                      <ContentLoader
+                        speed={2}
+                        width={600}
+                        height={60}
+                        viewBox="0 0 600 60"
+                        backgroundColor="#f3f3f3"
+                        foregroundColor="#ecebeb"
+                        style={{ width: '100%', height: '100%' }}
+                      >
+                        <circle cx="20" cy="30" r="16" />
+                        <rect x="50" y="20" rx="4" ry="4" width="100" height="12" />
+                        <rect x="50" y="38" rx="4" ry="4" width="180" height="16" />
+                      </ContentLoader>
+                    </div>
+
+                    {/* Preferred Locations Card */}
+                    <div className="bg-white rounded-[10px] p-4 border border-[#DEE1E6]">
+                      <ContentLoader
+                        speed={2}
+                        width={600}
+                        height={80}
+                        viewBox="0 0 600 80"
+                        backgroundColor="#f3f3f3"
+                        foregroundColor="#ecebeb"
+                        style={{ width: '100%', height: '100%' }}
+                      >
+                        <circle cx="20" cy="24" r="16" />
+                        <rect x="50" y="10" rx="4" ry="4" width="120" height="12" />
+                        {/* Tags */}
+                        <rect x="50" y="32" rx="16" ry="16" width="120" height="24" />
+                        <rect x="180" y="32" rx="16" ry="16" width="120" height="24" />
+                      </ContentLoader>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notes Section Skeleton */}
+                <div className="pb-16">
+                  <div className="bg-white rounded-[10px] p-5 border border-[#DEE1E6]">
+                    <ContentLoader
+                      speed={2}
+                      width={600}
+                      height={180}
+                      viewBox="0 0 600 180"
+                      backgroundColor="#f3f3f3"
+                      foregroundColor="#ecebeb"
+                      style={{ width: '100%', height: '100%' }}
+                    >
+                      {/* Title and badge */}
+                      <rect x="0" y="0" rx="4" ry="4" width="100" height="24" />
+                      <rect x="500" y="2" rx="12" ry="12" width="80" height="20" />
+                      
+                      {/* Paragraph lines */}
+                      <rect x="0" y="40" rx="4" ry="4" width="600" height="12" />
+                      <rect x="0" y="60" rx="4" ry="4" width="580" height="12" />
+                      <rect x="0" y="80" rx="4" ry="4" width="550" height="12" />
+                      <rect x="0" y="100" rx="4" ry="4" width="520" height="12" />
+                      
+                      {/* Footer info */}
+                      <circle cx="12" cy="140" r="6" />
+                      <rect x="25" y="136" rx="4" ry="4" width="100" height="12" />
+                      <circle cx="180" cy="140" r="6" />
+                      <rect x="193" y="136" rx="4" ry="4" width="120" height="12" />
+                    </ContentLoader>
+                  </div>
+                </div>
+              </section>
+
+              {/* Right Sidebar - 4 columns */}
+              <aside className="lg:col-span-4 space-y-6">
+                {/* Broker Details Section Skeleton */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                  <ContentLoader
+                    speed={2}
+                    width={400}
+                    height={280}
+                    viewBox="0 0 400 280"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="130" height="24" />
+                    
+                    {/* Avatar and name */}
+                    <circle cx="24" cy="50" r="24" />
+                    <rect x="60" y="42" rx="4" ry="4" width="120" height="16" />
+                    <rect x="60" y="62" rx="4" ry="4" width="140" height="12" />
+                    
+                    {/* Rating and experience */}
+                    <circle cx="24" cy="100" r="8" />
+                    <rect x="40" y="95" rx="4" ry="4" width="30" height="14" />
+                    <rect x="80" y="95" rx="4" ry="4" width="100" height="14" />
+                    
+                    {/* Tags */}
+                    <rect x="0" y="125" rx="16" ry="16" width="120" height="24" />
+                    <rect x="130" y="125" rx="16" ry="16" width="120" height="24" />
+                    
+                    {/* Button */}
+                    <rect x="0" y="165" rx="8" ry="8" width="100%" height="40" />
+                  </ContentLoader>
+                </div>
+
+                {/* Lead Generation Support Section Skeleton */}
+                <div className="rounded-[12px] bg-green-50 p-6">
+                  <ContentLoader
+                    speed={2}
+                    width={400}
+                    height={400}
+                    viewBox="0 0 400 400"
+                    backgroundColor="#e0f2e9"
+                    foregroundColor="#c8e6d5"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="200" height="24" />
+                    
+                    {/* Description */}
+                    <rect x="0" y="40" rx="4" ry="4" width="400" height="12" />
+                    <rect x="0" y="58" rx="4" ry="4" width="380" height="12" />
+                    <rect x="0" y="76" rx="4" ry="4" width="360" height="12" />
+                    
+                    {/* 3 feature items */}
+                    {[0, 1, 2].map((i) => (
+                      <React.Fragment key={i}>
+                        <circle cx="18" cy={110 + i * 60} r="18" />
+                        <rect x="50" y={102 + i * 60} rx="4" ry="4" width="120" height="16" />
+                        <rect x="50" y={122 + i * 60} rx="4" ry="4" width="280" height="12" />
+                      </React.Fragment>
+                    ))}
+                    
+                    {/* Button */}
+                    <rect x="0" y="310" rx="8" ry="8" width="100%" height="48" />
+                  </ContentLoader>
+                </div>
+              </aside>
+            </div>
+
+            {/* Similar Leads Section Skeleton */}
+            <div className="pb-16">
+              <ContentLoader
+                speed={2}
+                width={600}
+                height={40}
+                viewBox="0 0 600 40"
+                backgroundColor="#f3f3f3"
+                foregroundColor="#ecebeb"
+                style={{ width: '100%', height: '100%', marginBottom: '24px' }}
+              >
+                <rect x="0" y="0" rx="4" ry="4" width="120" height="24" />
+                <rect x="550" y="4" rx="4" ry="4" width="50" height="16" />
+              </ContentLoader>
+              
+              <div className="flex gap-4 min-w-0 pb-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex-shrink-0 basis-full sm:basis-1/2 lg:basis-1/4 border border-gray-200 rounded-2xl bg-white shadow-sm p-6">
+                    <ContentLoader
+                      speed={2}
+                      width={350}
+                      height={320}
+                      viewBox="0 0 350 320"
+                      backgroundColor="#f3f3f3"
+                      foregroundColor="#ecebeb"
+                      style={{ width: '100%', height: '100%' }}
+                    >
+                      {/* Title */}
+                      <rect x="0" y="0" rx="4" ry="4" width="250" height="20" />
+                      {/* Tags and time */}
+                      <rect x="0" y="32" rx="11" ry="11" width="80" height="22" />
+                      <rect x="90" y="32" rx="11" ry="11" width="100" height="22" />
+                      <rect x="250" y="36" rx="4" ry="4" width="80" height="14" />
+                      {/* Divider */}
+                      <rect x="0" y="70" rx="1" ry="1" width="350" height="1" />
+                      {/* Location items */}
+                      <circle cx="8" cy="95" r="4" />
+                      <rect x="20" y="88" rx="4" ry="4" width="150" height="12" />
+                      <circle cx="8" cy="120" r="4" />
+                      <rect x="20" y="113" rx="4" ry="4" width="180" height="12" />
+                      {/* Budget */}
+                      <rect x="0" y="145" rx="4" ry="4" width="80" height="12" />
+                      <rect x="90" y="145" rx="4" ry="4" width="120" height="12" />
+                      {/* Broker profile */}
+                      <circle cx="24" cy="200" r="24" />
+                      <rect x="60" y="190" rx="4" ry="4" width="100" height="14" />
+                      <rect x="60" y="210" rx="4" ry="4" width="150" height="12" />
+                    </ContentLoader>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
   );
 }

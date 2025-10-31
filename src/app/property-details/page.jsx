@@ -2,6 +2,7 @@
 import React, { Suspense, useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import ContentLoader from 'react-content-loader';
 import data from '../data/furnitureData.json';
 import HeaderFile from '../components/Header';
 
@@ -328,66 +329,164 @@ function PropertyDetailsPageInner() {
             <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-6">
               {/* Left Main Content Skeleton */}
               <section className="md:col-span-8 space-y-12">
-                {/* Property Overview Skeleton */}
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-0.5 w-8 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-6 w-40 bg-gray-200 rounded animate-pulse"></div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse"></div>
-                      <div className="h-6 w-24 bg-gray-200 rounded-full animate-pulse"></div>
-                    </div>
+                {/* Gallery Skeleton */}
+                <div className="space-y-4">
+                  {/* Main Large Image */}
+                  <div className="bg-gray-50 rounded-2xl overflow-hidden relative" style={{ width: '100%', height: '420px' }}>
+                    <ContentLoader
+                      speed={2}
+                      width={800}
+                      height={420}
+                      viewBox="0 0 800 420"
+                      backgroundColor="#f3f3f3"
+                      foregroundColor="#ecebeb"
+                      style={{ width: '100%', height: '100%' }}
+                    >
+                      {/* Main image */}
+                      <rect x="0" y="0" rx="16" ry="16" width="800" height="420" />
+                      {/* Featured badge top-left */}
+                      <rect x="16" y="16" rx="8" ry="8" width="80" height="32" />
+                      {/* Share button top-right */}
+                      <circle cx="768" cy="40" r="20" />
+                      {/* Heart button top-right */}
+                      <circle cx="728" cy="40" r="20" />
+                    </ContentLoader>
                   </div>
-
-                  {/* Gallery Skeleton */}
-                  <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-8 bg-gray-200 rounded-2xl h-[360px] md:h-[420px] animate-pulse"></div>
-                    <div className="col-span-4 flex flex-col gap-4">
-                      <div className="bg-gray-200 rounded-2xl h-[175px] md:h-[204px] animate-pulse"></div>
-                      <div className="bg-gray-200 rounded-2xl h-[175px] md:h-[204px] animate-pulse"></div>
-                    </div>
+                  
+                  {/* Thumbnail Row */}
+                  <div className="flex gap-3">
+                    {[1,2,3,4,5].map((i) => (
+                      <div key={i} className="flex-1" style={{ borderRadius: '8px', overflow: 'hidden', height: '120px' }}>
+                        <ContentLoader
+                          speed={2}
+                          width={150}
+                          height={120}
+                          viewBox="0 0 150 120"
+                          backgroundColor="#f3f3f3"
+                          foregroundColor="#ecebeb"
+                          style={{ width: '100%', height: '100%' }}
+                        >
+                          <rect x="0" y="0" rx="8" ry="8" width="150" height="120" />
+                        </ContentLoader>
+                      </div>
+                    ))}
                   </div>
+                </div>
 
-                  {/* Property Details Skeleton */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <div className="h-0.5 w-6 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      {[...Array(4)].map((_, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <div className="w-9 h-9 bg-gray-200 rounded-full animate-pulse"></div>
-                          <div className="space-y-2">
-                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                            <div className="h-5 w-16 bg-gray-200 rounded animate-pulse"></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-100"></div>
+                {/* Property Details Skeleton */}
+                <div className="w-full bg-white rounded-[16px] shadow-xs border border-gray-200 p-4 px-8">
+                  <ContentLoader
+                    speed={2}
+                    width={600}
+                    height={200}
+                    viewBox="0 0 600 200"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="150" height="24" />
+                    
+                    {/* 4 detail items in 2x2 grid */}
+                    {/* Bedrooms */}
+                    <circle cx="12" cy="60" r="10" />
+                    <rect x="30" y="52" rx="4" ry="4" width="60" height="12" />
+                    <rect x="30" y="68" rx="4" ry="4" width="80" height="16" />
+                    
+                    {/* Property Size */}
+                    <circle cx="312" cy="60" r="10" />
+                    <rect x="330" y="52" rx="4" ry="4" width="80" height="12" />
+                    <rect x="330" y="68" rx="4" ry="4" width="100" height="16" />
+                    
+                    {/* Listed */}
+                    <circle cx="12" cy="120" r="10" />
+                    <rect x="30" y="112" rx="4" ry="4" width="50" height="12" />
+                    <rect x="30" y="128" rx="4" ry="4" width="90" height="16" />
+                    
+                    {/* Price */}
+                    <circle cx="312" cy="120" r="10" />
+                    <rect x="330" y="112" rx="4" ry="4" width="50" height="12" />
+                    <rect x="330" y="128" rx="4" ry="4" width="120" height="16" />
+                  </ContentLoader>
                 </div>
 
                 {/* Nearby Amenities Skeleton */}
-                <div className="">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-0.5 w-6 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-6 w-36 bg-gray-200 rounded animate-pulse"></div>
+                <div className="w-full bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                  <ContentLoader
+                    speed={2}
+                    width={600}
+                    height={200}
+                    viewBox="0 0 600 200"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="150" height="24" />
+                    
+                    {/* Amenity items in 2 columns */}
+                    {[0, 1, 2, 3, 4, 5].map((i) => {
+                      const row = Math.floor(i / 2);
+                      const col = i % 2;
+                      const x = col * 280;
+                      const y = 40 + row * 30;
+                      return (
+                        <React.Fragment key={i}>
+                          <circle cx={x} cy={y + 6} r="3" />
+                          <rect x={x + 10} y={y} rx="4" ry="4" width={120} height="12" />
+                        </React.Fragment>
+                      );
+                    })}
+                  </ContentLoader>
+                </div>
+
+                {/* Description Tab Section Skeleton */}
+                <div className="mt-8 w-full">
+                  {/* Tabs */}
+                  <div className="inline-flex gap-2 mb-6 bg-gray-100 rounded-md border border-gray-200 p-1">
+                    <ContentLoader speed={2} width={200} height={48} viewBox="0 0 200 48" backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
+                      <rect x="24" y="12" rx="6" ry="6" width="80" height="24" />
+                      <rect x="112" y="12" rx="6" ry="6" width="60" height="24" />
+                    </ContentLoader>
                   </div>
-                  <div className="space-y-2">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 bg-gray-100 rounded-lg animate-pulse">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                          <div className="h-4 w-24 bg-gray-200 rounded"></div>
-                        </div>
-                        <div className="h-3 w-12 bg-gray-200 rounded"></div>
-                      </div>
-                    ))}
+                  
+                  {/* Tab Content */}
+                  <div className="rounded-2xl border border-gray-200 shadow-sm p-6">
+                    <ContentLoader speed={2} width={600} height={150} viewBox="0 0 600 150" backgroundColor="#f3f3f3" foregroundColor="#ecebeb" style={{ width: '100%', height: '100%' }}>
+                      <rect x="0" y="0" rx="4" ry="4" width="600" height="12" />
+                      <rect x="0" y="20" rx="4" ry="4" width="570" height="12" />
+                      <rect x="0" y="40" rx="4" ry="4" width="540" height="12" />
+                      <rect x="0" y="60" rx="4" ry="4" width="510" height="12" />
+                      <rect x="0" y="80" rx="4" ry="4" width="600" height="12" />
+                      <rect x="0" y="100" rx="4" ry="4" width="552" height="12" />
+                    </ContentLoader>
+                  </div>
+                </div>
+
+                {/* Key Features and Location Benefits Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full">
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                    <ContentLoader speed={2} width={300} height={180} viewBox="0 0 300 180" backgroundColor="#f3f3f3" foregroundColor="#ecebeb" style={{ width: '100%', height: '100%' }}>
+                      <rect x="0" y="0" rx="4" ry="4" width="120" height="20" />
+                      {[0, 1, 2, 3].map((i) => (
+                        <React.Fragment key={i}>
+                          <circle cx="12" cy={40 + i * 32} r="10" />
+                          <rect x="30" y={32 + i * 32} rx="4" ry="4" width="150" height="12" />
+                        </React.Fragment>
+                      ))}
+                    </ContentLoader>
+                  </div>
+                  
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                    <ContentLoader speed={2} width={300} height={180} viewBox="0 0 300 180" backgroundColor="#f3f3f3" foregroundColor="#ecebeb" style={{ width: '100%', height: '100%' }}>
+                      <rect x="0" y="0" rx="4" ry="4" width="140" height="20" />
+                      {[0, 1, 2, 3].map((i) => (
+                        <React.Fragment key={i}>
+                          <circle cx="12" cy={40 + i * 32} r="10" />
+                          <rect x="30" y={32 + i * 32} rx="4" ry="4" width="150" height="12" />
+                        </React.Fragment>
+                      ))}
+                    </ContentLoader>
                   </div>
                 </div>
               </section>
@@ -395,88 +494,136 @@ function PropertyDetailsPageInner() {
               {/* Right Sidebar Skeleton */}
               <aside className="md:col-span-4 space-y-8">
                 {/* Property Header Skeleton */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-0.5 w-6 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-5 w-28 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse"></div>
-                    <div className="flex-1 space-y-2">
-                      <div className="h-5 w-32 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="h-10 w-full bg-gray-200 rounded-lg animate-pulse"></div>
-                    <div className="h-10 w-full bg-gray-200 rounded-lg animate-pulse"></div>
-                  </div>
+                <div className="bg-white rounded-[16px] border border-gray-200 shadow-xs p-6">
+                  <ContentLoader
+                    speed={2}
+                    width={400}
+                    height={250}
+                    viewBox="0 0 400 250"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Header */}
+                    <rect x="0" y="0" rx="4" ry="4" width="150" height="24" />
+                    <rect x="320" y="4" rx="12" ry="12" width="60" height="20" />
+                    
+                    {/* Title */}
+                    <rect x="0" y="40" rx="4" ry="4" width="200" height="20" />
+                    
+                    {/* Location lines */}
+                    <rect x="0" y="70" rx="4" ry="4" width="180" height="14" />
+                    <rect x="0" y="90" rx="4" ry="4" width="150" height="14" />
+                    
+                    {/* Price */}
+                    <rect x="0" y="115" rx="4" ry="4" width="180" height="28" />
+                    
+                    {/* Buttons */}
+                    <rect x="0" y="160" rx="6" ry="6" width="100%" height="40" />
+                    <rect x="0" y="210" rx="6" ry="6" width="100%" height="40" />
+                  </ContentLoader>
                 </div>
 
                 {/* Agent Details Skeleton */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-0.5 w-6 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-5 w-24 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
-                    <div className="space-y-2">
-                      <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                    </div>
-                  </div>
+                <div className="border border-gray-200 p-6 w-full bg-white rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
+                  <ContentLoader
+                    speed={2}
+                    width={400}
+                    height={180}
+                    viewBox="0 0 400 180"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="120" height="24" />
+                    
+                    {/* Avatar */}
+                    <circle cx="24" cy="50" r="24" />
+                    
+                    {/* Name and details */}
+                    <rect x="60" y="40" rx="4" ry="4" width="140" height="16" />
+                    <rect x="60" y="62" rx="4" ry="4" width="100" height="12" />
+                    <rect x="60" y="80" rx="4" ry="4" width="180" height="12" />
+                    
+                    {/* Chat button */}
+                    <rect x="0" y="110" rx="10" ry="10" width="100%" height="40" />
+                  </ContentLoader>
                 </div>
 
                 {/* Property Rating Skeleton */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-0.5 w-6 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-5 w-28 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-4 w-8 bg-gray-200 rounded animate-pulse"></div>
-                    </div>
-                    <div className="space-y-2">
-                      {[...Array(3)].map((_, i) => (
-                        <div key={i} className="flex items-center justify-between">
-                          <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                          <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                  <ContentLoader
+                    speed={2}
+                    width={400}
+                    height={150}
+                    viewBox="0 0 400 150"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="140" height="24" />
+                    
+                    {/* Rating number and stars */}
+                    <rect x="150" y="40" rx="4" ry="4" width="60" height="36" />
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <circle key={i} cx={220 + i * 30} cy="58" r="12" />
+                    ))}
+                    
+                    {/* Review count */}
+                    <rect x="130" y="90" rx="4" ry="4" width="140" height="14" />
+                  </ContentLoader>
                 </div>
 
                 {/* Inspection Times Skeleton */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-0.5 w-6 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-5 w-28 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                  <div className="space-y-3">
-                    {[...Array(2)].map((_, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
-                        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                      </div>
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                  <ContentLoader
+                    speed={2}
+                    width={400}
+                    height={220}
+                    viewBox="0 0 400 220"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="140" height="24" />
+                    
+                    {/* 3 inspection items */}
+                    {[0, 1, 2].map((i) => (
+                      <React.Fragment key={i}>
+                        <rect x="0" y={50 + i * 55} rx="4" ry="4" width="80" height="16" />
+                        <rect x="0" y={70 + i * 55} rx="4" ry="4" width="150" height="12" />
+                        <rect x="320" y={55 + i * 55} rx="12" ry="12" width="60" height="20" />
+                      </React.Fragment>
                     ))}
-                  </div>
+                    
+                    {/* Book Inspection button */}
+                    <rect x="0" y="180" rx="6" ry="6" width="100%" height="40" />
+                  </ContentLoader>
                 </div>
 
                 {/* Virtual Tour Skeleton */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-0.5 w-6 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-5 w-24 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                  <div className="aspect-video bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="w-full h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
+                  <ContentLoader
+                    speed={2}
+                    width={400}
+                    height={232}
+                    viewBox="0 0 400 232"
+                    backgroundColor="#e0f2e9"
+                    foregroundColor="#c8e6d5"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Video icon */}
+                    <circle cx="200" cy="90" r="24" />
+                    {/* Title */}
+                    <rect x="140" y="130" rx="4" ry="4" width="120" height="20" />
+                    {/* Subtitle */}
+                    <rect x="80" y="158" rx="4" ry="4" width="240" height="14" />
+                    {/* Button */}
+                    <rect x="150" y="185" rx="6" ry="6" width="100" height="40" />
+                  </ContentLoader>
                 </div>
               </aside>
             </div>
@@ -484,22 +631,36 @@ function PropertyDetailsPageInner() {
             {/* Related Properties Skeleton */}
             <div className="mt-12 w-full">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="h-0.5 w-6 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-6 w-36 bg-gray-200 rounded animate-pulse"></div>
-                </div>
-                <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+                <ContentLoader speed={2} width={180} height={32} viewBox="0 0 180 32" backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
+                  <rect x="0" y="4" rx="4" ry="4" width="150" height="24" />
+                </ContentLoader>
+                <ContentLoader speed={2} width={80} height={32} viewBox="0 0 80 32" backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
+                  <rect x="0" y="0" rx="8" ry="8" width="80" height="32" />
+                </ContentLoader>
               </div>
               
               <div className="flex gap-6 min-w-0 pb-2">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 animate-pulse">
-                    <div className="aspect-[4/3] bg-gray-200 rounded-lg mb-4"></div>
-                    <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                    </div>
+                {[1,2,3,4].map((i) => (
+                  <div key={i} className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                    <ContentLoader
+                      speed={2}
+                      width={320}
+                      height={280}
+                      viewBox="0 0 320 280"
+                      backgroundColor="#f3f3f3"
+                      foregroundColor="#ecebeb"
+                    >
+                      {/* Image */}
+                      <rect x="0" y="0" rx="8" ry="8" width="320" height="200" />
+                      {/* Category */}
+                      <rect x="0" y="220" rx="4" ry="4" width="80" height="12" />
+                      {/* Name */}
+                      <rect x="0" y="240" rx="4" ry="4" width="200" height="16" />
+                      {/* Details */}
+                      <rect x="0" y="262" rx="4" ry="4" width="150" height="12" />
+                      {/* Price */}
+                      <rect x="0" y="278" rx="4" ry="4" width="120" height="14" />
+                    </ContentLoader>
                   </div>
                 ))}
               </div>
@@ -1385,13 +1546,26 @@ function PropertyDetailsPageInner() {
             {similarLoading ? (
               // Loading state
               Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200 rounded-lg mb-4"></div>
-                  <div className="space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                  </div>
+                <div key={index} className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                  <ContentLoader
+                    speed={2}
+                    width={320}
+                    height={280}
+                    viewBox="0 0 320 280"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                  >
+                    {/* Image */}
+                    <rect x="0" y="0" rx="8" ry="8" width="320" height="200" />
+                    {/* Category */}
+                    <rect x="0" y="220" rx="4" ry="4" width="80" height="12" />
+                    {/* Name */}
+                    <rect x="0" y="240" rx="4" ry="4" width="200" height="16" />
+                    {/* Details */}
+                    <rect x="0" y="262" rx="4" ry="4" width="150" height="12" />
+                    {/* Price */}
+                    <rect x="0" y="278" rx="4" ry="4" width="120" height="14" />
+                  </ContentLoader>
                 </div>
               ))
             ) : similarProperties.length > 0 ? (

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import ContentLoader from 'react-content-loader';
 import HeaderFile from '../../components/Header';
 
 const headerData = {
@@ -223,37 +224,217 @@ export default function BrokerDetailsPage() {
     return (
       <div className="min-h-screen">
         <HeaderFile data={headerData} />
-        <div className="py-10">
+        <div className="py-8">
           <div className="w-full mx-auto">
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8 p-6 animate-pulse">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gray-200" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-28" />
-                  <div className="h-6 bg-gray-200 rounded w-64" />
-                  <div className="h-3 bg-gray-200 rounded w-40" />
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Left Content - 8 columns */}
+              <div className="lg:col-span-8 space-y-12">
+                {/* Hero Section Skeleton */}
+                <div className="bg-white overflow-hidden border border-gray-200 rounded-[10px] mb-8" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                  <div className="p-8">
+                    <ContentLoader
+                      speed={2}
+                      width={800}
+                      height={180}
+                      viewBox="0 0 800 180"
+                      backgroundColor="#f3f3f3"
+                      foregroundColor="#ecebeb"
+                      style={{ width: '100%', height: '100%' }}
+                    >
+                      {/* Avatar */}
+                      <circle cx="48" cy="48" r="48" />
+                      {/* Name */}
+                      <rect x="120" y="20" rx="4" ry="4" width="200" height="24" />
+                      {/* Badge */}
+                      <rect x="120" y="52" rx="12" ry="12" width="140" height="24" />
+                      {/* Firm and city */}
+                      <rect x="120" y="88" rx="4" ry="4" width="300" height="16" />
+                      {/* Chips row */}
+                      <rect x="0" y="120" rx="13" ry="13" width="150" height="26" />
+                      <rect x="160" y="120" rx="13" ry="13" width="150" height="26" />
+                      <rect x="320" y="120" rx="13" ry="13" width="80" height="26" />
+                    </ContentLoader>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-              <div className="lg:col-span-9 space-y-6">
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-36 mb-4" />
-                  <div className="space-y-3">
-                    <div className="h-3 bg-gray-200 rounded w-full" />
-                    <div className="h-3 bg-gray-200 rounded w-10/12" />
-                    <div className="h-3 bg-gray-200 rounded w-8/12" />
+
+                {/* About Section Skeleton */}
+                <section className="bg-white">
+                  <ContentLoader
+                    speed={2}
+                    width={600}
+                    height={150}
+                    viewBox="0 0 600 150"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="180" height="24" />
+                    {/* Paragraph lines */}
+                    <rect x="0" y="40" rx="4" ry="4" width="600" height="12" />
+                    <rect x="0" y="60" rx="4" ry="4" width="580" height="12" />
+                    <rect x="0" y="80" rx="4" ry="4" width="550" height="12" />
+                    <rect x="0" y="100" rx="4" ry="4" width="520" height="12" />
+                  </ContentLoader>
+                </section>
+
+                {/* Professional Details Skeleton */}
+                <section className="">
+                  <ContentLoader
+                    speed={2}
+                    width={600}
+                    height={120}
+                    viewBox="0 0 600 120"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="200" height="24" />
+                    
+                    {/* Two cards side by side */}
+                    {/* Card 1 - Firm Name */}
+                    <rect x="0" y="40" rx="10" ry="10" width="372" height="76" />
+                    <circle cx="30" cy="78" r="20" />
+                    <rect x="60" y="65" rx="4" ry="4" width="80" height="12" />
+                    <rect x="60" y="85" rx="4" ry="4" width="150" height="16" />
+                    
+                    {/* Card 2 - License Number */}
+                    <rect x="400" y="40" rx="10" ry="10" width="372" height="76" />
+                    <circle cx="430" cy="78" r="20" />
+                    <rect x="460" y="65" rx="4" ry="4" width="100" height="12" />
+                    <rect x="460" y="85" rx="4" ry="4" width="180" height="16" />
+                    <rect x="650" y="85" rx="12" ry="12" width="70" height="20" />
+                  </ContentLoader>
+                </section>
+
+                {/* Leads Section Skeleton */}
+                <div className="">
+                  <ContentLoader
+                    speed={2}
+                    width={600}
+                    height={40}
+                    viewBox="0 0 600 40"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%', marginBottom: '24px' }}
+                  >
+                    <rect x="0" y="0" rx="4" ry="4" width="250" height="28" />
+                  </ContentLoader>
+                  
+                  <div className="space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {[...Array(3)].map((_, index) => (
+                      <div key={index} className="border border-gray-200 rounded-2xl p-6">
+                        <ContentLoader
+                          speed={2}
+                          width={350}
+                          height={280}
+                          viewBox="0 0 350 280"
+                          backgroundColor="#f3f3f3"
+                          foregroundColor="#ecebeb"
+                          style={{ width: '100%', height: '100%' }}
+                        >
+                          {/* Title */}
+                          <rect x="0" y="0" rx="4" ry="4" width="250" height="20" />
+                          {/* Tags and time */}
+                          <rect x="0" y="32" rx="11" ry="11" width="80" height="22" />
+                          <rect x="90" y="32" rx="11" ry="11" width="100" height="22" />
+                          <rect x="250" y="36" rx="4" ry="4" width="80" height="14" />
+                          {/* Divider */}
+                          <rect x="0" y="70" rx="1" ry="1" width="350" height="1" />
+                          {/* Location items */}
+                          <circle cx="8" cy="95" r="4" />
+                          <rect x="20" y="88" rx="4" ry="4" width="150" height="12" />
+                          <circle cx="8" cy="120" r="4" />
+                          <rect x="20" y="113" rx="4" ry="4" width="180" height="12" />
+                          {/* Budget */}
+                          <rect x="0" y="145" rx="4" ry="4" width="80" height="12" />
+                          <rect x="90" y="145" rx="4" ry="4" width="120" height="12" />
+                          {/* Broker profile */}
+                          <circle cx="24" cy="200" r="24" />
+                          <rect x="60" y="190" rx="4" ry="4" width="100" height="14" />
+                          <rect x="60" y="210" rx="4" ry="4" width="150" height="12" />
+                        </ContentLoader>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-              <div className="lg:col-span-3 space-y-6">
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm animate-pulse">
-                  <div className="h-5 bg-gray-200 rounded w-28 mb-4" />
-                  <div className="space-y-2">
-                    <div className="h-3 bg-gray-200 rounded w-full" />
-                    <div className="h-3 bg-gray-200 rounded w-5/6" />
-                    <div className="h-3 bg-gray-200 rounded w-4/6" />
-                  </div>
+
+              {/* Right Sidebar - 4 columns */}
+              <div className="lg:col-span-4 space-y-8">
+                {/* Quick Contact Skeleton */}
+                <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                  <ContentLoader
+                    speed={2}
+                    width={400}
+                    height={160}
+                    viewBox="0 0 400 160"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="120" height="20" />
+                    {/* Buttons */}
+                    <rect x="0" y="40" rx="6" ry="6" width="100%" height="40" />
+                    <rect x="0" y="95" rx="6" ry="6" width="100%" height="40" />
+                  </ContentLoader>
+                </div>
+
+                {/* Performance Metrics Grid Skeleton */}
+                <div className="grid grid-cols-2 gap-4">
+                  {[1,2,3,4].map((i) => (
+                    <div key={i} className="bg-gray-50 rounded-[10px] p-4 text-center">
+                      <ContentLoader
+                        speed={2}
+                        width={200}
+                        height={100}
+                        viewBox="0 0 200 100"
+                        backgroundColor="#e5e5e5"
+                        foregroundColor="#d4d4d4"
+                        style={{ width: '100%', height: '100%' }}
+                      >
+                        {/* Number */}
+                        <rect x="70" y="10" rx="4" ry="4" width="60" height="36" />
+                        {/* Label */}
+                        <rect x="20" y="55" rx="4" ry="4" width="160" height="20" />
+                      </ContentLoader>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Lead Generation Support Skeleton */}
+                <div className="bg-[#EDFDF4] rounded-[10px] p-6 shadow-sm">
+                  <ContentLoader
+                    speed={2}
+                    width={400}
+                    height={350}
+                    viewBox="0 0 400 350"
+                    backgroundColor="#e0f2e9"
+                    foregroundColor="#c8e6d5"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {/* Title */}
+                    <rect x="0" y="0" rx="4" ry="4" width="220" height="28" />
+                    {/* Description */}
+                    <rect x="0" y="40" rx="4" ry="4" width="400" height="12" />
+                    <rect x="0" y="58" rx="4" ry="4" width="380" height="12" />
+                    <rect x="0" y="76" rx="4" ry="4" width="350" height="12" />
+                    
+                    {/* 3 feature items */}
+                    {[0, 1, 2].map((i) => (
+                      <React.Fragment key={i}>
+                        <circle cx="18" cy={110 + i * 60} r="18" />
+                        <rect x="50" y={102 + i * 60} rx="4" ry="4" width="120" height="16" />
+                        <rect x="50" y={122 + i * 60} rx="4" ry="4" width="280" height="12" />
+                      </React.Fragment>
+                    ))}
+                    
+                    {/* Button */}
+                    <rect x="0" y="300" rx="6" ry="6" width="100%" height="40" />
+                  </ContentLoader>
                 </div>
               </div>
             </div>
@@ -503,17 +684,39 @@ export default function BrokerDetailsPage() {
                 </div>
                 
                 {leadsLoading ? (
-                  <div className="space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                  <div className="space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     {[...Array(3)].map((_, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4 animate-pulse">
-                        <div className="flex items-start gap-4">
-                          <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
-                          <div className="flex-1 space-y-2">
-                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                            <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                          </div>
-                        </div>
+                      <div key={index} className="border border-gray-200 rounded-2xl p-6">
+                        <ContentLoader
+                          speed={2}
+                          width={350}
+                          height={280}
+                          viewBox="0 0 350 280"
+                          backgroundColor="#f3f3f3"
+                          foregroundColor="#ecebeb"
+                          style={{ width: '100%', height: '100%' }}
+                        >
+                          {/* Title */}
+                          <rect x="0" y="0" rx="4" ry="4" width="250" height="20" />
+                          {/* Tags and time */}
+                          <rect x="0" y="32" rx="11" ry="11" width="80" height="22" />
+                          <rect x="90" y="32" rx="11" ry="11" width="100" height="22" />
+                          <rect x="250" y="36" rx="4" ry="4" width="80" height="14" />
+                          {/* Divider */}
+                          <rect x="0" y="70" rx="1" ry="1" width="350" height="1" />
+                          {/* Location items */}
+                          <circle cx="8" cy="95" r="4" />
+                          <rect x="20" y="88" rx="4" ry="4" width="150" height="12" />
+                          <circle cx="8" cy="120" r="4" />
+                          <rect x="20" y="113" rx="4" ry="4" width="180" height="12" />
+                          {/* Budget */}
+                          <rect x="0" y="145" rx="4" ry="4" width="80" height="12" />
+                          <rect x="90" y="145" rx="4" ry="4" width="120" height="12" />
+                          {/* Broker profile */}
+                          <circle cx="24" cy="200" r="24" />
+                          <rect x="60" y="190" rx="4" ry="4" width="100" height="14" />
+                          <rect x="60" y="210" rx="4" ry="4" width="150" height="12" />
+                        </ContentLoader>
                       </div>
                     ))}
                   </div>
@@ -943,24 +1146,29 @@ export default function BrokerDetailsPage() {
                 {similarLoading ? (
                   // Loading state
                   Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="flex-shrink-0 w-80 h-[272px] bg-white rounded-[10px] p-6 animate-pulse flex flex-col" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                      <div className="flex items-start gap-3 mb-4">
-                        <div className="bg-gray-200 rounded-full flex-shrink-0" style={{ width: '60px', height: '60px' }}></div>
-                        <div className="flex-1 space-y-2">
-                          <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 mb-4">
-                        <div className="w-5 h-5 bg-gray-200 rounded"></div>
-                        <div className="h-4 bg-gray-200 rounded w-8"></div>
-                        <div className="h-3 bg-gray-200 rounded w-16"></div>
-                      </div>
-                      <div className="space-y-2 mb-4 flex-1">
-                        <div className="h-5 bg-gray-200 rounded w-full"></div>
-                        <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-                      </div>
-                      <div className="h-10 bg-gray-200 rounded w-full mt-auto"></div>
+                    <div key={index} className="flex-shrink-0 w-80 rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+                      <ContentLoader
+                        speed={2}
+                        width={320}
+                        height={400}
+                        viewBox="0 0 320 400"
+                        backgroundColor="#f3f3f3"
+                        foregroundColor="#ecebeb"
+                        style={{ width: '100%', height: '100%' }}
+                      >
+                        {/* Image */}
+                        <rect x="0" y="0" rx="0" ry="0" width="320" height="240" />
+                        {/* Name */}
+                        <rect x="24" y="260" rx="4" ry="4" width="180" height="20" />
+                        {/* Title */}
+                        <rect x="24" y="290" rx="4" ry="4" width="150" height="14" />
+                        {/* Location */}
+                        <circle cx="28" cy="320" r="6" />
+                        <rect x="40" y="315" rx="4" ry="4" width="120" height="12" />
+                        {/* Leads */}
+                        <circle cx="28" cy="345" r="6" />
+                        <rect x="40" y="340" rx="4" ry="4" width="140" height="12" />
+                      </ContentLoader>
                     </div>
                   ))
                 ) : similar.length > 0 ? (
