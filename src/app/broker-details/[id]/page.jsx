@@ -1046,7 +1046,7 @@ export default function BrokerDetailsPage() {
                   }
                 }}
                 className="w-full px-6 py-3 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-medium">
-                  Send Messadddge
+                  Send Message
                 </button>
                 <a href="#join-network"className="mt-3 w-full h-[40px] px-3 flex items-center justify-center 
              font-[Inter] text-[12px] leading-[22px] font-medium text-[#0D542B]

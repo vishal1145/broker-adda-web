@@ -5,6 +5,8 @@ import io from 'socket.io-client';
 import { useEffect } from 'react';
 import moment from 'moment';
 import Link from 'next/link';
+import { useAuth } from '../contexts/AuthContext';
+
 
 const BrokersChatList = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -16,6 +18,7 @@ const BrokersChatList = () => {
   const [typing, setTyping] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const { user } = useAuth();
   const [brokers, setBrokers] = useState([]);
   const [isLeadShareModalOpen, setIsLeadShareModalOpen] = useState(false);
   const [selectedLeads, setSelectedLeads] = useState([]);
@@ -55,7 +58,7 @@ const BrokersChatList = () => {
     setCurrentUserId(currentUserId);
 
     try {
-      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
+      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://broker-adda-be.algofolks.com';
 
       socketRef.current = io(socketUrl, {
         auth: { token: localStorage.getItem('token'), userId: currentUserId },
@@ -112,7 +115,7 @@ const BrokersChatList = () => {
     }
     fetchChats();
     fetchCurrentUser();
-  }, [chatId]);
+  }, [chatId, user]);
 
   if (typeof window !== 'undefined') {
     window.openChatWithBroker = (brokerData) => {
@@ -312,14 +315,14 @@ const BrokersChatList = () => {
 
   return (
     <>
-      {isExpanded && (
+      {isExpanded && user && (
         <div
           className="fixed inset-0 bg-opacity-30 z-40"
           onClick={toggleExpand}
         />
       )}
 
-      {currentUser && (
+      {user && (
         <div
           className="fixed justify-between bottom-0 w-60 right-0 z-50 bg-white shadow-lg rounded-lg border border-gray-200 flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 cursor-pointer hover:shadow-xl transition-all duration-200"
           onClick={toggleExpand}
@@ -347,7 +350,7 @@ const BrokersChatList = () => {
         </div>
       )}
 
-      {isExpanded && (
+      {isExpanded && user && (
         <div className="fixed bottom-0 justify-between right-0 w-[calc(100vw-2rem)] md:w-80 h-[500px] md:h-[600px] bg-white shadow-2xl rounded-lg border border-gray-200 z-50 flex flex-col overflow-hidden animate-slide-left">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center gap-3">
@@ -443,7 +446,7 @@ const BrokersChatList = () => {
         </div>
       )}
 
-      {selectedBroker && (
+      {selectedBroker && user && (
         <div className="fixed bottom-0 mr-2 right-0 md:right-80 w-[calc(100vw-320px)] md:w-[450px] h-[500px] md:h-[600px] bg-white shadow-2xl border-l border-gray-200 z-50 flex flex-col overflow-hidden animate-slide-left">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center gap-3">
@@ -627,7 +630,7 @@ const BrokersChatList = () => {
                             >
                               <div className="flex items-start gap-3">
                                 {/* Checkbox */}
-                                <div className={`mt-1 w-3 h-3 border-2 flex items-center justify-center flex-shrink-0 ${isSelected
+                                <div className={`w-3 h-3 border-2 flex items-center justify-center flex-shrink-0 ${isSelected
                                   ? 'bg-green-500 border-green-500'
                                   : 'border-gray-300'
                                   }`}>
@@ -639,7 +642,7 @@ const BrokersChatList = () => {
                                 </div>
 
                                 <div className="flex-1 min-w-0">
-                                  <h3 className="font-semibold text-gray-900 mb-1 text-xs">{lead.customerName}</h3>
+                                  <h3 className="font-semibold text-gray-900 text-xs">{lead.customerName}</h3>
                                 </div>
                               </div>
                             </div>
