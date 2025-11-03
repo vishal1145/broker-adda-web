@@ -90,9 +90,7 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
       case 'leads':
         return [
           { value: 'newest', label: 'Newest', sortBy: 'createdAt', sortOrder: 'desc' },
-          { value: 'oldest', label: 'Oldest', sortBy: 'createdAt', sortOrder: 'asc' },
-          { value: 'name-asc', label: 'Name (A-Z)', sortBy: 'name', sortOrder: 'asc' },
-          { value: 'name-desc', label: 'Name (Z-A)', sortBy: 'name', sortOrder: 'desc' }
+          { value: 'oldest', label: 'Oldest', sortBy: 'createdAt', sortOrder: 'asc' }
         ]
       default:
         return []
@@ -101,9 +99,12 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
 
   const handleSortSelect = (option) => {
     if (onSortChange) {
-      onSortChange(option.sortBy, option.sortOrder)
+      console.log('✅ Calling onSortChange with:', { sortBy: option.sortBy, sortOrder: option.sortOrder });
+      onSortChange(option.sortBy, option.sortOrder);
+    } else {
+      console.warn('⚠️ onSortChange is not defined');
     }
-    setIsSortDropdownOpen(false)
+    setIsSortDropdownOpen(false);
   }
 
   return (
@@ -171,7 +172,16 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
               <div className="absolute right-0 mt-2 w-[200px] bg-white border border-[#DEE1E6FF] rounded-lg shadow-xl z-50 overflow-hidden">
                 <div className="py-1">
                   {getSortOptions().map((option, index) => {
-                    const isSelected = sortBy === option.sortBy && sortOrder === option.sortOrder
+                    // Check if this option is selected
+                    // For brokers tab, if sortBy is null, first option (Top Rated) should be considered selected
+                    let isSelected = false;
+                    if (activeTab === 'brokers' && !sortBy && !sortOrder && index === 0) {
+                      // Default to "Top Rated" when no sort is selected
+                      isSelected = true;
+                    } else {
+                      isSelected = sortBy === option.sortBy && sortOrder === option.sortOrder;
+                    }
+                    
                     return (
                       <button
                         key={option.value}

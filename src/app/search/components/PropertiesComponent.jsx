@@ -12,7 +12,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     search: "",
     categories: [],
     priceRange: [0, 0],
-    bedrooms: [],
+    bedrooms: null, // Changed to single select
     amenities: []
   });
 
@@ -119,9 +119,9 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           queryParams.append('propertyType', category);
         }
         
-        // Bedrooms filter (convert "5+" to "5")
-        if (filters.bedrooms.length > 0) {
-          const bedroomsValue = filters.bedrooms[0].replace('+', '');
+        // Bedrooms filter (single select - convert "5+" to "5")
+        if (filters.bedrooms) {
+          const bedroomsValue = filters.bedrooms.replace('+', '');
           queryParams.append('bedrooms', bedroomsValue);
         }
         
@@ -344,9 +344,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const handleBedroomChange = (bedroom) => {
     setFilters(prev => ({
       ...prev,
-      bedrooms: prev.bedrooms.includes(bedroom)
-        ? prev.bedrooms.filter(b => b !== bedroom)
-        : [...prev.bedrooms, bedroom]
+      bedrooms: prev.bedrooms === bedroom ? null : bedroom // Single select - toggle off if same, select if different
     }));
   };
 
@@ -364,9 +362,28 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       search: "",
       categories: [],
       priceRange: [0, 0],
-      bedrooms: [],
-      amenities: []
+      bedrooms: null, // Changed to null for single select
+      amenities: [],
+      city: '' // Reset city filter if it exists
     });
+    // Reset secondary filters
+    setSecondaryFilters({
+      bathrooms: null,
+      furnishingType: null,
+      facingDirection: null,
+      possessionStatus: null,
+      postedBy: null,
+      verificationStatus: null
+    });
+    // Reset region selection
+    setSelectedRegion(null);
+    // Reset sorting
+    setSortBy(null);
+    setSortOrder(null);
+    // Reset pagination
+    setCurrentPage(1);
+    // Reset secondary filters visibility
+    setShowSecondaryFilters(false);
   };
 
   const handlePriceChange = (index, value) => {
@@ -535,7 +552,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Bedrooms (BHK)</h3>
             <div className="flex flex-wrap gap-2">
               {bedroomOptions.map((bedroom) => {
-                const selected = filters.bedrooms.includes(bedroom);
+                const selected = filters.bedrooms === bedroom; // Single select - check equality
                 return (
                   <button
                     key={bedroom}
@@ -842,25 +859,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           <div className="pt-4 border-t border-gray-200 mt-5">
             <div className="flex gap-3">
               <button
-                onClick={() => {
-                  setFilters({
-                    search: "",
-                    categories: [],
-                    priceRange: [0, 0],
-                    bedrooms: [],
-                    amenities: []
-                  });
-                  setSecondaryFilters({
-                    bathrooms: null,
-                    furnishingType: null,
-                    facingDirection: null,
-                    possessionStatus: null,
-                    postedBy: null,
-                    verificationStatus: null
-                  });
-                  setSelectedRegion(null);
-                  setCurrentPage(1);
-                }}
+                onClick={resetFilters}
                 style={{
                   fontFamily: 'Inter',
                   fontSize: '12px',
@@ -1018,7 +1017,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   {/* Secondary Message */}
                   <p className="text-sm text-gray-500 mb-6 max-w-md">
                     {                    filters.categories.length > 0 || 
-                    filters.bedrooms.length > 0 || 
+                    filters.bedrooms !== null || 
                     filters.amenities.length > 0 ||
                     filters.priceRange[0] > 0 || 
                     filters.priceRange[1] > 0 ||
@@ -1030,7 +1029,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   </p>
                   {/* Action Buttons */}
                   {(filters.categories.length > 0 || 
-                    filters.bedrooms.length > 0 || 
+                    filters.bedrooms !== null || 
                     filters.amenities.length > 0 ||
                     filters.priceRange[0] > 0 || 
                     filters.priceRange[1] > 0 ||
@@ -1038,25 +1037,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     selectedRegion ||
                     Object.values(secondaryFilters).some(v => v !== null)) && (
                     <button
-                      onClick={() => {
-                        setFilters({
-                          search: "",
-                          categories: [],
-                          priceRange: [0, 0],
-                          bedrooms: [],
-                          amenities: []
-                        });
-                        setSecondaryFilters({
-                          bathrooms: null,
-                          furnishingType: null,
-                          facingDirection: null,
-                          possessionStatus: null,
-                          postedBy: null,
-                          verificationStatus: null
-                        });
-                        setSelectedRegion(null);
-                        setCurrentPage(1);
-                      }}
+                      onClick={resetFilters}
                       className="inline-flex items-center px-6 py-2.5 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
                     >
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
