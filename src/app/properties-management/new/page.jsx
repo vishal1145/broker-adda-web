@@ -7,7 +7,7 @@ import HeaderFile from "../../components/Header";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const NewPropertyPage = () => {
+const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
   const router = useRouter();
   const [form, setForm] = useState({
     title: "",
@@ -22,6 +22,7 @@ const NewPropertyPage = () => {
     propertyType: "Residential",
     subType: "Apartment",
   });
+  const [loadingProperty, setLoadingProperty] = useState(false);
   const [amenityInput, setAmenityInput] = useState("");
   const [amenities, setAmenities] = useState([]);
   const [nearbyAmenityInput, setNearbyAmenityInput] = useState("");
@@ -59,6 +60,9 @@ const NewPropertyPage = () => {
   // Wizard steps (match profile page flow style)
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
+
+  // Store property data temporarily before regions are loaded
+  const [fetchedPropertyData, setFetchedPropertyData] = useState(null);
 
   // Load Google Places API script
   useEffect(() => {
@@ -232,6 +236,147 @@ const NewPropertyPage = () => {
   useEffect(() => {
     fetchRegions();
   }, []);
+
+  // Fetch property data when in edit mode
+  useEffect(() => {
+    const fetchPropertyData = async () => {
+      if (!isEditMode || !propertyId) return;
+
+      try {
+        setLoadingProperty(true);
+        const token = localStorage.getItem("token") || localStorage.getItem("authToken");
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+        if (!token) {
+          toast.error("Please login to edit property");
+          router.push("/properties-management");
+          return;
+        }
+
+        const response = await fetch(`${apiUrl}/properties/${propertyId}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const property = data?.data || data?.property || data;
+          setFetchedPropertyData(property);
+        } else {
+          toast.error("Failed to load property data");
+          router.push("/properties-management");
+        }
+      } catch (error) {
+        console.error("Error fetching property:", error);
+        toast.error("Failed to load property data");
+        router.push("/properties-management");
+      } finally {
+        setLoadingProperty(false);
+      }
+    };
+
+    fetchPropertyData();
+  }, [isEditMode, propertyId, router]);
+
+  // Bind property data to form when both property data and regions are available
+  useEffect(() => {
+    if (!fetchedPropertyData || !isEditMode) return;
+    if (regions.length === 0 && fetchedPropertyData.region && typeof fetchedPropertyData.region === 'string' && /^[0-9a-fA-F]{24}$/.test(fetchedPropertyData.region)) {
+      // Wait for regions to load if region is an ID
+      return;
+    }
+
+    const property = fetchedPropertyData;
+
+    // Handle region - can be ID, object, or string
+    let regionId = "";
+    let regionDisplay = "";
+    
+    if (property.region) {
+      if (typeof property.region === 'string') {
+        // Check if it's an ObjectId format (24 hex characters)
+        if (/^[0-9a-fA-F]{24}$/.test(property.region)) {
+          // It's an ID, find the region in the regions list
+          regionId = property.region;
+          const foundRegion = regions.find(r => r._id === property.region);
+          if (foundRegion) {
+            regionDisplay = formatRegionValue(foundRegion);
+            setForm(prev => ({ ...prev, city: foundRegion.city || prev.city }));
+          } else {
+            // Region not found, store ID for later
+            regionId = property.region;
+          }
+        } else {
+          // It's a string (display name)
+          regionDisplay = property.region;
+          // Try to find matching region by name
+          const foundRegion = regions.find(r => formatRegionValue(r) === property.region);
+          if (foundRegion) {
+            regionId = foundRegion._id;
+          }
+        }
+      } else if (typeof property.region === 'object' && property.region !== null) {
+        // Region is an object
+        if (property.region._id) {
+          regionId = property.region._id;
+          regionDisplay = formatRegionValue(property.region);
+          setForm(prev => ({ ...prev, city: property.region.city || prev.city }));
+        } else {
+          // Object without _id, use display value
+          regionDisplay = formatRegionValue(property.region);
+        }
+      }
+    }
+
+    // Populate form fields
+    setForm({
+      title: property.title || "",
+      description: property.description || "",
+      propertyDescription: property.propertyDescription || property.description || "",
+      region: regionDisplay || property.region || "",
+      address: property.address || "",
+      city: property.city || "Agra",
+      price: property.price ? String(property.price) : "",
+      priceUnit: property.priceUnit || "INR",
+      propertySize: property.propertySize ? String(property.propertySize) : "",
+      propertyType: property.propertyType || "Residential",
+      subType: property.subType || "Apartment",
+    });
+
+    // Populate other fields
+    setAmenities(Array.isArray(property.amenities) ? property.amenities : []);
+    setNearbyAmenities(Array.isArray(property.nearbyAmenities) ? property.nearbyAmenities : []);
+    setFeatures(Array.isArray(property.features) ? property.features : []);
+    setLocationBenefits(Array.isArray(property.locationBenefits) ? property.locationBenefits : []);
+    setImages(Array.isArray(property.images) ? property.images : []);
+    setVideos(Array.isArray(property.videos) ? property.videos : []);
+    setBedrooms(property.bedrooms ? String(property.bedrooms) : "");
+    setBathrooms(property.bathrooms ? String(property.bathrooms) : "");
+    setFurnishing(property.furnishing || "Furnished");
+    setStatus(property.status || "Pending Approval");
+    setIsFeatured(property.isFeatured || false);
+    setNotes(property.notes || "");
+    setFacingDirection(property.facingDirection || "");
+    setPossessionStatus(property.possessionStatus || "");
+    setPropertyAge(property.propertyAge || "");
+    setPropertyAgeYears(property.propertyAgeYears ? String(property.propertyAgeYears) : "");
+    
+    if (property.coordinates) {
+      setCoordinates({
+        lat: property.coordinates.lat ? String(property.coordinates.lat) : "",
+        lng: property.coordinates.lng ? String(property.coordinates.lng) : ""
+      });
+    }
+
+    // Set selected region ID
+    if (regionId) {
+      setSelectedRegionId(regionId);
+    } else if (property.region && typeof property.region === 'string' && /^[0-9a-fA-F]{24}$/.test(property.region)) {
+      setSelectedRegionId(property.region);
+    }
+  }, [fetchedPropertyData, regions, isEditMode]);
 
   // Load Google Places script if not present
   useEffect(() => {
@@ -576,25 +721,28 @@ const NewPropertyPage = () => {
       // ✅ Append valid broker ID
       formData.append("broker", brokerId);
 
-      // ✅ API call to create property
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.algofolks.com/api"}/properties`,
-        {
-          method: "POST",
+      // ✅ API call to create or update property
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.algofolks.com/api";
+      const url = isEditMode && propertyId 
+        ? `${apiUrl}/properties/${propertyId}`
+        : `${apiUrl}/properties`;
+      const method = isEditMode && propertyId ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
           headers: {
             Authorization: `Bearer ${token}`,
           },
           body: formData,
-        }
-      );
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to create property");
+        throw new Error(errorData.message || `Failed to ${isEditMode ? 'update' : 'create'} property`);
       }
 
       const result = await response.json();
-      toast.success("Property created successfully!", {
+      toast.success(`Property ${isEditMode ? 'updated' : 'created'} successfully!`, {
         duration: 3000,
         icon: '✅',
       });
@@ -609,6 +757,30 @@ const NewPropertyPage = () => {
       setSubmitting(false);
     }
   };
+
+  // Show loading state while fetching property data
+  if (loadingProperty && isEditMode) {
+    return (
+      <ProtectedRoute>
+        <HeaderFile
+          data={{
+            title: "Edit Property",
+            breadcrumb: [
+              { label: "Home", href: "/" },
+              { label: "Properties", href: "/properties-management" },
+              { label: "Edit", href: `/properties-management/edit/${propertyId}` },
+            ],
+          }}
+        />
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading property data...</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
 
   return (
     <ProtectedRoute>
@@ -640,11 +812,11 @@ const NewPropertyPage = () => {
       />
       <HeaderFile
         data={{
-          title: "Add New Property",
+          title: isEditMode ? "Edit Property" : "Add New Property",
           breadcrumb: [
             { label: "Home", href: "/" },
             { label: "Properties", href: "/properties-management" },
-            { label: "Add New", href: "/properties-management/new" },
+            { label: isEditMode ? "Edit" : "Add New", href: isEditMode ? `/properties-management/edit/${propertyId}` : "/properties-management/new" },
           ],
         }}
       />
@@ -654,8 +826,8 @@ const NewPropertyPage = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
                <div>
-                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New Property</h1>
-                 <p className="text-gray-600">Create a new property listing with all the details</p>
+                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{isEditMode ? "Edit Property" : "Add New Property"}</h1>
+                 <p className="text-gray-600">{isEditMode ? "Update your property listing details" : "Create a new property listing with all the details"}</p>
                
                </div>
               <Link 
@@ -1381,10 +1553,10 @@ const NewPropertyPage = () => {
                             >
                               ×
                             </button>
-                          </div>
-                ))}
               </div>
-            )}
+                ))}
+          </div>
+                )}
           </div>
 
                   {/* Step 3: Notes */}
@@ -1466,10 +1638,10 @@ const NewPropertyPage = () => {
                   <div className="max-w-3xl mx-auto">
                     <button 
                       type="submit" 
-                      disabled={submitting}
+                      disabled={submitting || loadingProperty}
                       className="w-full py-3 bg-green-900 text-white rounded-xl font-semibold hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      Create Property
+                      {loadingProperty ? 'Loading...' : (isEditMode ? 'Update Property' : 'Create Property')}
                     </button>
                   </div>
                 )}

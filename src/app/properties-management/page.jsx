@@ -247,13 +247,13 @@ const PropertiesManagement = () => {
         setLoading(false);
         return;
       }
-
+      
       if (!brokerId) {
         // Wait for broker ID to be loaded
         setLoading(false);
         return;
       }
-
+      
       const brokerIdToUse = brokerId;
       console.log('Using broker ID:', brokerIdToUse);
       
@@ -419,6 +419,51 @@ const PropertiesManagement = () => {
       setLoading(false);
     }
   }, [brokerId, brokerIdLoading, token, apiUrl]);
+
+  // Delete property via API
+  const deleteProperty = async (propertyId) => {
+    try {
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : null;
+      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      };
+
+      const response = await fetch(`${apiUrl}/properties/${propertyId}`, {
+        method: 'DELETE',
+        headers
+      });
+
+      if (response.ok) {
+        // Refresh the properties list
+        await fetchProperties(pagination.page, pagination.limit);
+        setSuccessMessage('Property deleted successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        return { success: true };
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to delete property');
+      }
+    } catch (err) {
+      console.error('Error deleting property:', err);
+      setError(err.message || 'Failed to delete property');
+      throw err;
+    }
+  };
+
+  const handleDeleteProperty = async (propertyId) => {
+    try {
+      await deleteProperty(propertyId);
+    } catch (err) {
+      console.error('Error deleting property:', err);
+    }
+  };
 
   // Create new property via API
   const createProperty = async (propertyData) => {
@@ -680,51 +725,10 @@ const PropertiesManagement = () => {
       
       <div className=" mx-auto  py-8">
         <div className="flex items-center justify-between mb-6">
+        
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Property Search Results ({items?.length || 0} Found)</h1>
-            {error && (
-              <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
-                <button 
-                  onClick={() => setError('')} 
-                  className="mt-1 text-xs text-red-500 hover:text-red-700"
-                >
-                  Dismiss
-                </button>
-              </div>
-            )}
-            {successMessage && (
-              <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-600">{successMessage}</p>
-                <button 
-                  onClick={() => setSuccessMessage('')} 
-                  className="mt-1 text-xs text-green-500 hover:text-green-700"
-                >
-                  Dismiss
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => brokerId && fetchProperties(pagination.page, pagination.limit)}
-              disabled={loading || brokerIdLoading || !brokerId}
-              className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              {loading ? 'Loading...' : 'Refresh'}
-            </button>
-            <Link
-              href="/properties-management/new"
-              className="inline-flex items-center gap-2 bg-green-900 hover:bg-green-900 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add Property
-            </Link>
+            
+          
           </div>
         </div>
 
@@ -737,36 +741,36 @@ const PropertiesManagement = () => {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left column - 8/12 width for property cards */}
             <div className="w-full lg:w-8/12">
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
                     <div className="flex">
                       {/* Image Section - Left */}
-                      <div className="relative w-[400px] h-[300px] flex-shrink-0">
+                      <div className="relative w-[400px] flex-shrink-0 self-stretch">
                         <ContentLoader
                           speed={2}
                           width={400}
-                          height={300}
-                          viewBox="0 0 400 300"
+                          height={200}
+                          viewBox="0 0 400 200"
                           backgroundColor="#f3f3f3"
                           foregroundColor="#ecebeb"
                           style={{ width: '100%', height: '100%' }}
                         >
                           {/* Main image */}
-                          <rect x="0" y="0" rx="12" ry="12" width="400" height="300" />
+                          <rect x="0" y="0" rx="12" ry="12" width="400" height="200" />
                           {/* Tag overlay - top-left */}
                           <rect x="16" y="16" rx="12" ry="12" width="100" height="24" />
                           {/* Rating - top-right */}
                           <circle cx="368" cy="24" r="16" />
                           {/* Price pill - bottom-left */}
-                          <rect x="16" y="260" rx="16" ry="16" width="150" height="28" />
+                          <rect x="16" y="160" rx="16" ry="16" width="150" height="28" />
                           {/* Share button - bottom-right */}
-                          <circle cx="368" cy="276" r="20" />
+                          <circle cx="368" cy="176" r="20" />
                         </ContentLoader>
                       </div>
                       
                       {/* Details Section - Right */}
-                      <div className="flex-1 p-6 flex flex-col">
+                      <div className="flex-1 px-6 py-4 flex flex-col">
                         <ContentLoader
                           speed={2}
                           width={600}
@@ -876,12 +880,12 @@ const PropertiesManagement = () => {
                   We couldn't find any properties matching your criteria.
                 </p>
                 {/* Add New Property Button */}
-                <Link
-                  href="/properties-management/new"
+              <Link
+                href="/properties-management/new"
                   className="inline-block px-6 py-2.5 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
-                >
+              >
                   Add New Property
-                </Link>
+              </Link>
               </div>
             </div>
           </div>
@@ -894,31 +898,31 @@ const PropertiesManagement = () => {
                   <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
                     <div className="flex">
                       {/* Image Section - Left */}
-                      <div className="relative w-[400px] h-[300px] flex-shrink-0">
+                      <div className="relative w-[400px] flex-shrink-0 self-stretch">
                         <ContentLoader
                           speed={2}
                           width={400}
-                          height={300}
-                          viewBox="0 0 400 300"
+                          height={200}
+                          viewBox="0 0 400 200"
                           backgroundColor="#f3f3f3"
                           foregroundColor="#ecebeb"
                           style={{ width: '100%', height: '100%' }}
                         >
                           {/* Main image */}
-                          <rect x="0" y="0" rx="12" ry="12" width="400" height="300" />
+                          <rect x="0" y="0" rx="12" ry="12" width="400" height="200" />
                           {/* Tag overlay - top-left */}
                           <rect x="16" y="16" rx="12" ry="12" width="100" height="24" />
                           {/* Rating - top-right */}
                           <circle cx="368" cy="24" r="16" />
                           {/* Price pill - bottom-left */}
-                          <rect x="16" y="260" rx="16" ry="16" width="150" height="28" />
+                          <rect x="16" y="160" rx="16" ry="16" width="150" height="28" />
                           {/* Share button - bottom-right */}
-                          <circle cx="368" cy="276" r="20" />
+                          <circle cx="368" cy="176" r="20" />
                         </ContentLoader>
                       </div>
                       
                       {/* Details Section - Right */}
-                      <div className="flex-1 p-6 flex flex-col">
+                      <div className="flex-1 px-6 py-4 flex flex-col">
                         <ContentLoader
                           speed={2}
                           width={600}
@@ -996,18 +1000,28 @@ const PropertiesManagement = () => {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left column - 8/12 width for property cards */}
             <div className="w-full lg:w-8/12">
+
               <div className="space-y-6">
+                 {/* Add Property Card */}
+              <Link href="/properties-management/new" className="block">
+                <div className="bg-green-50 border-2 border-dashed border-gray-300 rounded-xl hover:border-green-900 transition-colors cursor-pointer">
+                  <div className="flex flex-col items-center justify-center py-6 px-4" style={{ minHeight: '120px' }}>
+                    <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-600">Add Property</span>
+                  </div>
+                </div>
+              </Link>
                 {items.map((property) => (
                 <Link key={property.id} href={`/property-details/${property.id}`} className="block">
                   <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                     <div className="flex min-w-0">
                       {/* Image Section - Left */}
-                      <div className="relative w-[400px] h-[300px] flex-shrink-0">
+                      <div className="relative w-[400px] h-[235px] flex-shrink-0 self-stretch">
                         {/* Image carousel */}
                         <div className="relative w-full h-full overflow-hidden rounded-l-xl">
-                          <div className="absolute inset-0 transition-opacity duration-700 ease-in-out opacity-100">
-                            <img src={property.coverImage || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover" />
-                          </div>
+                          <img src={property.coverImage || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover rounded-l-xl" style={{ minHeight: '100%' }} />
                         </div>
                         {/* Tag overlay - top-left */}
                         <div className="absolute top-4 left-4">
@@ -1041,28 +1055,22 @@ const PropertiesManagement = () => {
                       </div>
                       
                       {/* Details Section - Right */}
-                      <div className="flex-1 p-6 flex flex-col min-w-0">
+                      <div className="flex-1 px-6 py-3 flex flex-col min-w-0 relative">
                         {/* Title */}
-                        <h3 className="mb-2 flex items-center gap-2" style={{  fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
-                          {property.title}
-                          <svg className="w-3.5 h-3.5 text-[#0A421E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
+                        <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <span className="truncate">{property.title}</span>
+                          <svg className="w-3.5 h-3.5 text-[#0A421E] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
                             <path d="M7 17l10-10M7 7h10v10" />
                           </svg>
                         </h3>
                         
                         {/* Description */}
-                        <p className="mb-4 max-w-full" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF' }}>
+                        <p className="mb-4 max-w-full" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {property.description || `A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.`}
                         </p>
                         
                         {/* Location Details */}
                         <div className="flex flex-col gap-2 mb-4">
-                          <div className="flex items-center text-xs text-gray-600">
-                            <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                            {property.city || 'City'}
-                          </div>
                           <div className="flex items-center text-xs text-gray-600">
                             <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
@@ -1087,7 +1095,7 @@ const PropertiesManagement = () => {
                         </div>
 
                         {/* Features */}
-                        <div className="mb-3 w-full">
+                        <div className="mb-2 w-full">
                           <div className="text-xs font-semibold text-gray-900 mb-2">Features</div>
                           <div className="flex flex-wrap gap-2 w-full">
                             {property.bedrooms && property.bedrooms > 0 && (
@@ -1117,38 +1125,61 @@ const PropertiesManagement = () => {
                           </div>
                         </div>
 
-                        {/* Amenities */}
-                        <div className="mt-auto w-full">
-                          <div className="text-xs font-semibold text-gray-900 mb-2">Amenities</div>
-                          <div className="flex flex-wrap gap-2 text-[11px] w-full">
-                            {(Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities : ['Gym', 'Parking', 'Security']).map((amenity, idx) => (
-                              <span
-                                key={idx}
-                                className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200 flex-shrink-0"
-                              >
-                                {amenity}
-                              </span>
-                            ))}
-                          </div>
+                        {/* Horizontal Separator */}
+                        <hr className="my-3 border-gray-200" />
+
+                        {/* Edit and Delete Buttons */}
+                        <div className="flex items-center justify-center gap-3">
+                          <Link
+                            href={`/properties-management/edit/${property.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors text-sm font-medium relative group"
+                            title="Edit Property"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit
+                            {/* Tooltip */}
+                            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                              Edit Property
+                            </span>
+                          </Link>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleDeleteProperty(property.id);
+                            }}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors text-sm font-medium relative group"
+                            title="Delete Property"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Delete
+                            {/* Tooltip */}
+                            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                              Delete Property
+                            </span>
+                          </button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </Link>
               ))}
+              
+             
               </div>
               
               {/* Pagination Component */}
-              {!loading && pagination.total > 0 && (
+              {/* {!loading && pagination.total > 0 && (
                 <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  {/* Pagination Info */}
                   <div className="text-sm text-gray-600">
                     Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} properties
                   </div>
-
-                  {/* Pagination Controls - match broker/lead detail style */}
                   <div className="flex items-center gap-2">
-                    {/* Previous */}
                     <button
                       onClick={() => handlePageChange(pagination.page - 1)}
                       disabled={!pagination.hasPrevPage}
@@ -1158,7 +1189,6 @@ const PropertiesManagement = () => {
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
                     </button>
 
-                    {/* Page Numbers */}
                     <div className="flex items-center">
                       {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                         let pageNum;
@@ -1187,7 +1217,6 @@ const PropertiesManagement = () => {
                       })}
                     </div>
 
-                    {/* Next */}
                     <button
                       onClick={() => handlePageChange(pagination.page + 1)}
                       disabled={!pagination.hasNextPage}
@@ -1198,7 +1227,7 @@ const PropertiesManagement = () => {
                     </button>
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
             
             {/* Right column - 4/12 width - match lead details right cards style */}
