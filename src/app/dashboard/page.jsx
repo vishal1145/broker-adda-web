@@ -9,12 +9,15 @@ import axios from 'axios';
 
 import HeaderFile from '../components/Header';
 import PropertyEnquiryModal from '../components/PropertyEnquiryModal';
+import AddLeadModal from '../components/AddLeadModal';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const router = useRouter();
   const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
+  const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
+  const [currentBrokerId, setCurrentBrokerId] = useState('');
   const [metrics, setMetrics] = useState({
     totalLeads: null,
     propertiesListed: null,
@@ -25,6 +28,7 @@ const Dashboard = () => {
   const [leadRows, setLeadRows] = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
   const [propertyCards, setPropertyCards] = useState([]);
+  const [originalPropertyCards, setOriginalPropertyCards] = useState([]);
   const [propertiesLoading, setPropertiesLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -96,7 +100,10 @@ const Dashboard = () => {
           brokerId = b?._id || '';
         }
       }
-      if (typeof window !== 'undefined' && brokerId) localStorage.setItem('brokerId', brokerId);
+      if (typeof window !== 'undefined' && brokerId) {
+        localStorage.setItem('brokerId', brokerId);
+        setCurrentBrokerId(brokerId);
+      }
       return { brokerId, baseApi, token };
     };
 
@@ -180,11 +187,16 @@ const Dashboard = () => {
             return { ...property, region: String(regionDisplay || '') };
           });
           setPropertyCards(mapped.slice(0, 9));
-        } else setPropertyCards([]);
+          setOriginalPropertyCards(list.slice(0, 9));
+        } else {
+          setPropertyCards([]);
+          setOriginalPropertyCards([]);
+        }
         setPropertiesLoading(false);
       } catch {
         setLeadRows([]);
         setPropertyCards([]);
+        setOriginalPropertyCards([]);
         setLeadsLoading(false);
         setPropertiesLoading(false);
       }
@@ -372,7 +384,11 @@ const Dashboard = () => {
             <h2 className="text-[18px] font-bold text-gray-900 mb-6">Overview</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Total Leads */}
-            <div className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]" style={{ width: '100%', maxWidth: '258px', height: '144px' }}>
+            <div 
+              onClick={() => router.push('/leads')}
+              className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
+              style={{ width: '100%', maxWidth: '258px', height: '144px' }}
+            >
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-[14px] leading-[20px] font-medium" style={{ fontFamily: 'Inter', color: '#565D6DFF' }}>Total Leads</div>
@@ -404,7 +420,11 @@ const Dashboard = () => {
           </div>
 
             {/* Properties Listed */}
-            <div className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]" style={{ width: '100%', maxWidth: '258px', height: '144px' }}>
+            <div 
+              onClick={() => router.push('/properties-management')}
+              className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
+              style={{ width: '100%', maxWidth: '258px', height: '144px' }}
+            >
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-[14px] leading-[20px] font-medium" style={{ fontFamily: 'Inter', color: '#565D6DFF' }}>Properties Listed</div>
@@ -457,7 +477,11 @@ const Dashboard = () => {
             </div>
 
             {/* Connections */}
-            <div className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]" style={{ width: '100%', maxWidth: '258px', height: '144px' }}>
+            <div 
+              onClick={() => router.push('/create-connection')}
+              className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
+              style={{ width: '100%', maxWidth: '258px', height: '144px' }}
+            >
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-[14px] leading-[20px] font-medium" style={{ fontFamily: 'Inter', color: '#565D6DFF' }}>Connections</div>
@@ -497,31 +521,35 @@ const Dashboard = () => {
           <div className="mb-8 pb-16">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[18px] font-bold text-gray-900">Recent Leads</h2>
-              <div className="flex items-center gap-8 text-[14px]">
-                <button 
-                  onClick={() => router.push('/leads')}
-                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-[14px] cursor-pointer"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                  Manage All
-                </button>
-                <button 
-                  onClick={() => router.push('/leads')}
-                  className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-lg font-medium text-[14px] transition-colors flex items-center gap-2 text-gray-900 cursor-pointer"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add new lead
-                </button>
-              </div>
+              <button
+                onClick={() => router.push('/leads')}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium text-sm rounded-lg transition-colors cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Manage All
+              </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* left: Add Lead */}
+              <button
+                type="button"
+                onClick={() => setIsAddLeadModalOpen(true)}
+                className="flex-none w-full md:w-[220px] h-[260px] border-2 border-dashed border-gray-300 rounded-xl
+                           flex flex-col items-center justify-center text-center hover:border-yellow-500 hover:bg-yellow-50 transition-colors cursor-pointer"
+              >
+                <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-gray-600 font-medium text-sm">Add Lead</span>
+              </button>
+              
+              {/* right: Lead cards grid */}
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {leadsLoading ? (
                 // Skeleton Loader for Leads
-                Array.from({ length: 4 }).map((_, idx) => (
+                Array.from({ length: 3 }).map((_, idx) => (
                   <div key={idx} className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm animate-pulse">
                     <div className="p-6">
                       <div className="mb-4">
@@ -654,7 +682,7 @@ const Dashboard = () => {
                     </div>
 
                     {/* Bottom Section - Broker Profile and Actions */}
-                    {lead.createdBy && (
+                    {/* {lead.createdBy && (
                       <div className="pt-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -677,7 +705,6 @@ const Dashboard = () => {
                                 {lead.createdBy.name || "Unknown"}
                               </p>
 
-                              {/* Connect / Chat */}
                               <div className="flex items-center gap-3 mt-1" onClick={(e) => e.stopPropagation()}>
                                 <span className="flex items-center gap-1.5">
                                   <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
@@ -701,11 +728,11 @@ const Dashboard = () => {
                           </div>
                         </div>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </div>
               )) : (
-                <div className="col-span-4 flex flex-col items-center justify-center py-16 px-4">
+                <div className="col-span-full flex flex-col items-center justify-center py-16 px-4">
                   <svg className="w-16 h-16 text-gray-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -713,6 +740,7 @@ const Dashboard = () => {
                   <p className="text-sm text-gray-600 text-center">We couldn't find any recent leads in your account.</p>
                 </div>
               )}
+              </div>
             </div>
           </div>
 
@@ -933,7 +961,36 @@ const Dashboard = () => {
 
   {/* bottom CTA */}
 <div className="flex justify-center mt-7 text-[14px]">
-  <button className="px-6 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors flex items-center justify-center gap-2">
+  <button 
+    onClick={() => {
+      // Extract region ID from the original property data (before normalization)
+      const originalProperty = originalPropertyCards[0] || propertyCards[0];
+      const region = originalProperty?.region;
+      let regionId = '';
+      
+      // Handle different region data formats
+      if (region) {
+        if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
+          // If region is an object, try to get _id or id
+          regionId = region._id || region.id || '';
+        } else if (typeof region === 'string') {
+          // Check if string looks like a MongoDB ObjectId (24 hex characters)
+          if (/^[0-9a-fA-F]{24}$/.test(region)) {
+            regionId = region;
+          }
+        }
+      }
+      
+      // Navigate to search page with brokers tab and regionId filter
+      if (regionId) {
+        router.push(`/search?tab=brokers&regionId=${encodeURIComponent(regionId)}`);
+      } else {
+        // Otherwise, just navigate to search page with brokers tab
+        router.push('/search?tab=brokers');
+      }
+    }}
+    className="px-6 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+  >
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path
         strokeLinecap="round"
@@ -1207,7 +1264,7 @@ const Dashboard = () => {
 
           {/* Bottom CTA Buttons */}
           <div className="mt-6 flex flex-wrap justify-center items-center gap-4 text-[14px]">
-            <button 
+            {/* <button 
               onClick={() => router.push('/leads')}
               className="px-5 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors inline-flex items-center justify-center gap-2 cursor-pointer"
             >
@@ -1224,7 +1281,7 @@ const Dashboard = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
               Post New Property
-            </button>
+            </button> */}
             {/* <button 
               className="px-5 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors inline-flex items-center justify-center gap-2"
               onClick={() => setIsEnquiryModalOpen(true)}
@@ -1241,6 +1298,54 @@ const Dashboard = () => {
         isOpen={isEnquiryModalOpen}
         onClose={() => setIsEnquiryModalOpen(false)}
         propertyId={selectedPropertyId}
+      />
+      <AddLeadModal
+        isOpen={isAddLeadModalOpen}
+        onClose={() => setIsAddLeadModalOpen(false)}
+        onSuccess={async () => {
+          // Refresh metrics and leads after successful lead creation
+          const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+          const tok = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : '';
+          const bid = currentBrokerId || (typeof window !== 'undefined' ? localStorage.getItem('brokerId') : '');
+          
+          if (!bid) return;
+          
+          try {
+            // Refresh metrics
+            const metricsUrl = `${baseApi}/leads/metrics?createdBy=${encodeURIComponent(bid)}`;
+            const { data } = await axios.get(metricsUrl, { headers: tok ? { Authorization: `Bearer ${tok}` } : {} });
+            const payload = data?.data ?? data;
+            setMetrics({
+              totalLeads: payload?.totalLeads ?? 0,
+              propertiesListed: payload?.totalProperties ?? 0,
+              inquiriesReceived: payload?.inquiriesReceived ?? 743,
+              connections: payload?.connections ?? 45,
+            });
+          } catch (e) {
+            console.error('Error refreshing metrics:', e);
+          }
+          // Refresh leads list
+          try {
+            setLeadsLoading(true);
+            const headers = tok ? { Authorization: `Bearer ${tok}` } : {};
+            const leadsRes = await fetch(`${baseApi}/leads?createdBy=${encodeURIComponent(bid)}&limit=4&page=1`, { headers });
+            if (leadsRes.ok) {
+              const lj = await leadsRes.json().catch(() => ({}));
+              let list = [];
+              if (Array.isArray(lj?.data?.items)) list = lj.data.items;
+              else if (Array.isArray(lj?.data?.leads)) list = lj.data.leads;
+              else if (Array.isArray(lj?.data)) list = lj.data;
+              else if (Array.isArray(lj?.leads)) list = lj.leads;
+              else if (Array.isArray(lj)) list = lj;
+              setLeadRows(list.slice(0, 4));
+            }
+          } catch (e) {
+            console.error('Error refreshing leads:', e);
+          } finally {
+            setLeadsLoading(false);
+          }
+        }}
+        brokerId={currentBrokerId}
       />
     </ProtectedRoute>
   );

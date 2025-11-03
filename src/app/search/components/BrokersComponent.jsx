@@ -47,7 +47,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   const [secondaryFilters, setSecondaryFilters] = useState({
     companyName: '',
     language: '',
-    brokerStatus: '', // Changed from array to single string
+    brokerStatus: [],
     responseRate: [],
     joinedDate: '',
     sortBy: 'rating-high'
@@ -59,6 +59,48 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     const t = setTimeout(() => setIsLoading(false), 500);
     return () => clearTimeout(t);
   }, [activeTab]);
+
+  // Store regionId from URL to use for filtering
+  const [urlRegionId, setUrlRegionId] = useState(null);
+
+  // Initialize regionId from URL query parameter on mount and remove it from URL
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const regionIdParam = sp.get('regionId');
+      if (regionIdParam) {
+        // Store the regionId for filtering
+        setUrlRegionId(regionIdParam);
+        
+        // Remove regionId from URL without reloading page
+        sp.delete('regionId');
+        const newUrl = window.location.pathname + (sp.toString() ? `?${sp.toString()}` : '');
+        window.history.replaceState({}, '', newUrl);
+      }
+    } catch {}
+  }, []);
+
+  // Once regions data is loaded, try to find and set the region name from stored regionId
+  useEffect(() => {
+    if (urlRegionId && regionsData.length > 0) {
+      const region = regionsData.find(r => {
+        if (typeof r === 'object' && r !== null) {
+          return (r._id === urlRegionId || r.id === urlRegionId);
+        }
+        return false;
+      });
+      if (region) {
+        const regionName = region.name || region.city || region.state || '';
+        if (regionName) {
+          setBrokerFilters(prev => ({
+            ...prev,
+            region: [regionName]
+          }));
+        }
+      }
+    }
+  }, [urlRegionId, regionsData]);
 
   // Fetch regions from API (refetch when city changes)
   useEffect(() => {
@@ -182,12 +224,25 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       }
 
       // Add status filter (if selected in secondary filters)
-      // Send the actual selected status value to the API
-      if (secondaryFilters.brokerStatus && secondaryFilters.brokerStatus.trim() !== '') {
-        const selectedStatus = secondaryFilters.brokerStatus;
-        // Send the status value as-is (lowercase for API consistency)
-        baseQueryParams.append('status', selectedStatus.toLowerCase());
-        console.log(`✅ Status filter: ${selectedStatus.toLowerCase()}`);
+      // Map UI statuses to API values: Online/Active/Busy -> "active", Offline -> "inactive"
+      if (secondaryFilters.brokerStatus && secondaryFilters.brokerStatus.length > 0) {
+        // Check if any "active" statuses are selected (Online, Active, Busy)
+        const activeStatuses = ['Online', 'Active', 'Busy'];
+        const hasActiveStatus = secondaryFilters.brokerStatus.some(s => activeStatuses.includes(s));
+        
+        // Check if Offline is selected
+        const hasOfflineStatus = secondaryFilters.brokerStatus.includes('Offline');
+        
+        // If both active and inactive are selected, don't filter (show all)
+        // Otherwise, send the appropriate status
+        if (hasActiveStatus && !hasOfflineStatus) {
+          baseQueryParams.append('status', 'active');
+          console.log('✅ Status filter: active');
+        } else if (hasOfflineStatus && !hasActiveStatus) {
+          baseQueryParams.append('status', 'inactive');
+          console.log('✅ Status filter: inactive');
+        }
+        // If both selected or neither, don't add status filter (shows all)
       }
 
       // Add specialization filter (if any selected)
@@ -213,7 +268,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       let hasMorePages = true;
       
       while (hasMorePages) {
-      const queryParams = new URLSearchParams(baseQueryParams);
+        const queryParams = new URLSearchParams(baseQueryParams);
         queryParams.append('page', String(currentPage));
         queryParams.append('limit', String(limit));
 
@@ -268,20 +323,20 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
         if (data?.data?.brokers && Array.isArray(data.data.brokers)) {
           brokersData = data.data.brokers;
           console.log(`✅ Using data.data.brokers, found ${brokersData.length} brokers on page ${currentPage}`);
-      } else if (Array.isArray(data?.brokers)) {
-        brokersData = data.brokers;
+        } else if (Array.isArray(data?.brokers)) {
+          brokersData = data.brokers;
           console.log(`✅ Using data.brokers, found ${brokersData.length} brokers on page ${currentPage}`);
         } else if (Array.isArray(data?.data)) {
           brokersData = data.data;
           console.log(`✅ Using data.data, found ${brokersData.length} brokers on page ${currentPage}`);
-      } else if (Array.isArray(data)) {
-        brokersData = data;
+        } else if (Array.isArray(data)) {
+          brokersData = data;
           console.log(`✅ Using data directly, found ${brokersData.length} brokers on page ${currentPage}`);
         } else {
           console.error('❌ No valid brokers data found in response');
           console.error('Full response:', JSON.stringify(data, null, 2));
           console.error('Response keys:', Object.keys(data || {}));
-      }
+        }
       
       if (brokersData.length > 0) {
           allBrokers = allBrokers.concat(brokersData);
@@ -307,11 +362,11 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
             }
           } else {
             // Fallback: check if we got fewer brokers than the limit
-          if (brokersData.length < limit) {
-            hasMorePages = false;
-            console.log('Reached last page - fewer brokers than limit');
-          } else {
-            currentPage++;
+            if (brokersData.length < limit) {
+              hasMorePages = false;
+              console.log('Reached last page - fewer brokers than limit');
+            } else {
+              currentPage++;
               // Safety check: stop after 10 pages
               if (currentPage > 10) {
                 hasMorePages = false;
@@ -411,34 +466,40 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   useEffect(() => {
     // Debounce the API call to prevent multiple rapid calls
     const timeoutId = setTimeout(() => {
-      // Convert region names to region IDs for API filtering (only if regionsData is available)
       let regionIds = [];
-      if (regionsData.length > 0 && brokerFilters.region.length > 0) {
+      
+      // Priority 1: Use regionId from URL params (if available)
+      if (urlRegionId) {
+        regionIds = [urlRegionId];
+      } else if (regionsData.length > 0 && brokerFilters.region.length > 0) {
+        // Priority 2: Convert region names to region IDs for API filtering
         regionIds = brokerFilters.region.map(regionName => {
-        const region = regionsData.find(r => {
-          if (typeof r === 'object' && r !== null) {
-            const regionNameFromData = r.name || r.city || r.state || r._id || String(r);
-            return regionNameFromData === regionName;
+          const region = regionsData.find(r => {
+            if (typeof r === 'object' && r !== null) {
+              const regionNameFromData = r.name || r.city || r.state || r._id || String(r);
+              return regionNameFromData === regionName;
+            }
+            return String(r) === regionName;
+          });
+          
+          if (region && region._id && /^[0-9a-fA-F]{24}$/.test(region._id)) {
+            return region._id;
           }
-          return String(r) === regionName;
-        });
-        
-        if (region && region._id && /^[0-9a-fA-F]{24}$/.test(region._id)) {
-          return region._id;
-        }
-        return null;
-      }).filter(Boolean);
+          return null;
+        }).filter(Boolean);
       }
       
       console.log('=== FETCHING BROKERS ===');
       console.log('Region names:', brokerFilters.region);
       console.log('Mapped region IDs:', regionIds);
-      fetchBrokers(regionIds);
+      console.log('URL regionId (stored):', urlRegionId);
+      fetchBrokers(regionIds.length > 0 ? regionIds : null);
     }, 300); // 300ms debounce delay
 
     // Cleanup timeout on unmount or dependency change
     return () => clearTimeout(timeoutId);
   }, [
+    urlRegionId,
     brokerFilters.region, 
     brokerFilters.city, 
     brokerFilters.showVerifiedOnly, 
@@ -447,10 +508,8 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     brokerFilters.brokerType, 
     secondaryFilters.companyName,
     secondaryFilters.brokerStatus,
-    secondaryFilters.joinedDate,
     sortBy, 
-    sortOrder,
-    currentPage,
+    sortOrder, 
     regionsData.length
   ]);
 
@@ -458,7 +517,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   const specializationOptions = [
     'Residential Sales',
     'Commercial Leasing',
-    'Luxury Homes', 
+    'Luxury Homes',
     'Investment Properties',
     'Rental Properties',
     'Land Development',
@@ -490,14 +549,11 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
     setSecondaryFilters({
       companyName: '',
       language: '',
-      brokerStatus: '', // Changed to empty string for single select
+      brokerStatus: [],
       responseRate: [],
       joinedDate: '',
       sortBy: 'rating-high'
     });
-
-    // Reset secondary filters visibility
-    setShowSecondaryFilters(false);
 
     // Trigger fresh fetch without any filters - will fetch all brokers
     fetchBrokers([]);
@@ -702,44 +758,36 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
       const searchTerm = secondaryFilters.companyName.toLowerCase().trim();
       const firmName = (broker.firmName || broker.agency || '').toLowerCase();
       if (!firmName.includes(searchTerm)) {
-      return false;
-      }
-    }
-
-    // Status filter (client-side backup)
-    if (secondaryFilters.brokerStatus && secondaryFilters.brokerStatus.trim() !== '') {
-      const selectedStatus = secondaryFilters.brokerStatus.toLowerCase();
-      const brokerStatus = (broker.status || '').toLowerCase();
-      
-      // Match exact status (API should handle this, but client-side backup)
-      if (brokerStatus !== selectedStatus) {
         return false;
       }
     }
 
-    // Joined Date filter (client-side)
-    if (secondaryFilters.joinedDate && secondaryFilters.joinedDate.trim() !== '') {
-      const brokerDate = new Date(broker.createdAt || broker.joinedDate || 0);
-      const currentDate = new Date();
-      const daysDiff = Math.floor((currentDate - brokerDate) / (1000 * 60 * 60 * 24));
+    // Status filter (client-side backup for multiple statuses)
+    // API only supports single status (active/inactive), so if multiple UI statuses selected,
+    // we filter client-side
+    if (secondaryFilters.brokerStatus && secondaryFilters.brokerStatus.length > 0) {
+      const activeStatuses = ['Online', 'Active', 'Busy'];
+      const hasActiveStatus = secondaryFilters.brokerStatus.some(s => activeStatuses.includes(s));
+      const hasOfflineStatus = secondaryFilters.brokerStatus.includes('Offline');
       
-      if (secondaryFilters.joinedDate === 'recent') {
-        // Recently Joined: within last 30 days
-        if (daysDiff > 30 || isNaN(daysDiff)) {
+      // If both active and inactive selected, show all (no filtering)
+      if (hasActiveStatus && hasOfflineStatus) {
+        // Show all - no filter needed
+      } else if (hasActiveStatus) {
+        // Only active statuses selected - filter out inactive
+        const brokerStatus = (broker.status || '').toLowerCase();
+        if (brokerStatus === 'inactive' || brokerStatus === 'offline') {
           return false;
         }
-      } else if (secondaryFilters.joinedDate === 'newest') {
-        // Newest: within last 7 days
-        if (daysDiff > 7 || isNaN(daysDiff)) {
-          return false;
-        }
-      } else if (secondaryFilters.joinedDate === 'oldest') {
-        // Oldest: more than 1 year old
-        if (daysDiff < 365 || isNaN(daysDiff)) {
+      } else if (hasOfflineStatus) {
+        // Only offline selected - filter out active
+        const brokerStatus = (broker.status || '').toLowerCase();
+        if (brokerStatus !== 'inactive' && brokerStatus !== 'offline') {
           return false;
         }
       }
     }
+
 
     // Broker type/specialization filter (client-side)
     if (brokerFilters.brokerType.length > 0) {
@@ -779,30 +827,13 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
   // Handle sort change from TabsBar
   const handleSortChange = (newSortBy, newSortOrder) => {
-    console.log('🔄 Sort changed:', { newSortBy, newSortOrder });
     setSortBy(newSortBy);
     setSortOrder(newSortOrder);
-    setCurrentPage(1); // Reset to first page when sorting changes
+    setCurrentPage(1);
   };
 
   // Sort brokers based on selected sort option
-  // If joinedDate filter is applied, also sort by date accordingly
   const sortedBrokers = [...filteredBrokers].sort((a, b) => {
-    // If joinedDate filter is active, apply date-based sorting
-    if (secondaryFilters.joinedDate && secondaryFilters.joinedDate.trim() !== '') {
-      const dateA = new Date(a.createdAt || a.joinedDate || 0);
-      const dateB = new Date(b.createdAt || b.joinedDate || 0);
-      
-      if (secondaryFilters.joinedDate === 'newest' || secondaryFilters.joinedDate === 'recent') {
-        // Sort newest first (descending)
-        return dateB - dateA;
-      } else if (secondaryFilters.joinedDate === 'oldest') {
-        // Sort oldest first (ascending)
-        return dateA - dateB;
-      }
-    }
-    
-    // Apply selected sort option
     if (sortBy === 'rating') {
       return sortOrder === 'desc' ? b.rating - a.rating : a.rating - b.rating;
     }
@@ -825,7 +856,7 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [brokerFilters, sortBy, secondaryFilters.brokerStatus, secondaryFilters.joinedDate]);
+  }, [brokerFilters, sortBy]);
 
   // Pagination handlers
   const handlePageChange = (page) => {
@@ -1066,24 +1097,28 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
 
           
 
-              {/* Broker Status - Single Select Dropdown */}
+              {/* Broker Status */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Broker Status</label>
-                <Select
-                  instanceId="broker-status-select"
-                  styles={reactSelectStyles}
-                  className="cursor-pointer"
-                  options={[
-                    { value: 'Online', label: 'online' },
-                    { value: 'Active', label: 'Active' },
-                    { value: 'Busy', label: 'busy' },
-                    { value: 'Inactive', label: 'inactive' }
-                  ]}
-                  value={secondaryFilters.brokerStatus ? { value: secondaryFilters.brokerStatus, label: secondaryFilters.brokerStatus } : null}
-                  onChange={(opt) => setSecondaryFilters(prev => ({ ...prev, brokerStatus: opt?.value || '' }))}
-                  placeholder="Select Status"
-                  isClearable
-                />
+                <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Broker Status</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {['Online', 'Active', 'Busy', 'Offline'].map((status) => (
+                    <label key={status} className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={secondaryFilters.brokerStatus.includes(status)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSecondaryFilters(prev => ({ ...prev, brokerStatus: [...prev.brokerStatus, status] }));
+                          } else {
+                            setSecondaryFilters(prev => ({ ...prev, brokerStatus: prev.brokerStatus.filter(s => s !== status) }));
+                          }
+                        }}
+                        className="w-4 h-4 text-green-900 accent-green-900 border-gray-300 rounded focus:ring-green-900"
+                      />
+                      <span className="ml-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '400', color: '#171A1FFF' }}>{status}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               
@@ -1100,19 +1135,9 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
                     { value: 'oldest', label: 'Oldest' },
                     { value: 'recent', label: 'Recently Joined' }
                   ]}
-                  value={secondaryFilters.joinedDate ? 
-                    (() => {
-                      const option = [
-                        { value: 'newest', label: 'Newest' },
-                        { value: 'oldest', label: 'Oldest' },
-                        { value: 'recent', label: 'Recently Joined' }
-                      ].find(opt => opt.value === secondaryFilters.joinedDate);
-                      return option || null;
-                    })() 
-                    : null}
+                  value={secondaryFilters.joinedDate ? { value: secondaryFilters.joinedDate, label: secondaryFilters.joinedDate } : null}
                   onChange={(opt) => setSecondaryFilters(prev => ({ ...prev, joinedDate: opt?.value || '' }))}
                   placeholder="Select Date"
-                  isClearable
                 />
               </div>
 
@@ -1124,7 +1149,24 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
           <div className="pt-4">
             <div className="flex gap-3">
               <button
-                onClick={resetFilters}
+                onClick={() => {
+                  setSecondaryFilters({
+                    companyName: '',
+                    language: '',
+                    brokerStatus: [],
+                    responseRate: [],
+                    joinedDate: '',
+                    sortBy: 'rating-high'
+                  });
+                  // Reset primary filters as well
+                  setBrokerFilters({
+                    region: [],
+                    brokerType: [],
+                    ratingRange: [0, 5],
+                    experienceRange: [0, 999],
+                    showVerifiedOnly: false
+                  });
+                }}
                 style={{
                   fontFamily: 'Inter',
                   fontSize: '12px',

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
 import HeaderFile from "../components/Header";
 import Select, { components as RSComponents } from "react-select";
@@ -2583,139 +2584,131 @@ export default function BrokerLeadsPage() {
               </div>
 
               {/* Help & Support */}
-              <div className="bg-white  p-4 rounded-[10px] border border-[#DEE1E6] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
-                <div className="p-4">
-                  <h4 className="mb-3 flex items-center gap-2 text-[14px] leading-6 font-semibold text-[#171A1F]">
-                    {/* Headset */}
-                    <svg
-                      className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M4 11a8 8 0 0 1 16 0" />
-                      <rect x="2.6" y="11" width="4.8" height="6" rx="2.2" />
-                      <path d="M20 16.5a4 4 0 0 1-4 4H12" />
-                    </svg>
-                    Help & Support
-                  </h4>
+              <div className="bg-white rounded-[10px] border border-[#DEE1E6] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-4">
+                {/* Title */}
+                <h4 className="mb-3 text-[12px] leading-6 font-semibold text-[#171A1F]">
+                  Help & Support
+                </h4>
 
-                  {/* Links */}
-                  <ul className="text-[12px] font-normal text-[#171A1F] space-y-1">
-                    <li>
-                      <a
-                        href="/help/getting-started"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="py-2 flex items-center gap-3 pl-0.5 "
+                {/* Introductory Text */}
+                <p className="text-[10px] font-normal text-[#565D6D] mb-6 leading-relaxed">
+                  Need help or looking for more details? Our comprehensive resources and support team are here for you.
+                </p>
+
+                {/* Support Options List */}
+                <div className="space-y-3">
+                  {/* Visit Support Center */}
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50 text-green-600 ring-1 ring-green-200 shrink-0">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        {/* Doc */}
-                        <svg
-                          className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
+                        <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                        >
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <path d="M14 2v6h6" />
-                        </svg>
-                        Getting Started Guide
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/help/documentation"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="py-2 flex items-center gap-3 pl-0.5 "
-                      >
-                        {/* Docs list */}
-                        <svg
-                          className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
                           strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <rect x="3" y="4" width="18" height="16" rx="2" />
-                          <path d="M7 8h10M7 12h10M7 16h6" />
-                        </svg>
-                        Documentation
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/help/legal-compliance"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="py-2 flex items-center gap-3 pl-0.5 "
-                      >
-                        {/* Docs list */}
-                        <svg
-                          className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <rect x="3" y="4" width="18" height="16" rx="2" />
-                          <path d="M7 8h10M7 12h10M7 16h6" />
-                        </svg>
-                        Legal & Compliance Guide
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Divider like screenshot */}
-                {/* <div className="h-px bg-slate-100 mx-4" /> */}
-
-                {/* Contact */}
-                <div className="px-4 py-3 text-[12px] font-normal leading-6 text-[#171A1F] space-y-2">
-                  <div className="flex items-center gap-3 pl-0.5">
-                    {/* Mail */}
-                    <svg
-                      className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="5" width="18" height="14" rx="2" />
-                      <path d="M22 7 12 13 2 7" />
-                    </svg>
-                    <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-[12px] leading-5 font-medium text-[#171A1F]">
+                        Visit Support Center
+                      </h5>
+                      <p className="text-[10px] leading-4 font-normal text-[#565D6D]">
+                        Get answers to frequently asked questions.
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 pl-0.5">
-                    {/* Phone (handset) */}
-                    <svg
-                      className="w-4 h-4 text-green-950 shrink-0 overflow-visible"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M22 16.92V21a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3 6.18 2 2 0 0 1 5 4h3.3a1 1 0 0 1 .95.68l1.2 3.6a1 1 0 0 1-.27 1.06l-1.8 1.8a12 12 0 0 0 6.8 6.8l1.8-1.8a1 1 0 0 1 1.06-.27l3.6 1.2A1 1 0 0 1 22 16.92z" />
-                    </svg>
-                    <a href={`tel:${SUPPORT_PHONE.replace(/\s+/g, "")}`}>
-                      {" "}
-                      {SUPPORT_PHONE}
-                    </a>
+
+                  {/* Read Documentation */}
+                  <Link href="/help/documentation" className="flex items-start gap-3 hover:opacity-80 transition-opacity cursor-pointer">
+                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50 text-green-600 ring-1 ring-green-200 shrink-0">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-[12px] leading-5 font-medium text-[#171A1F]">
+                        Read Documentation
+                      </h5>
+                      <p className="text-[10px] leading-4 font-normal text-[#565D6D]">
+                        Explore our guides and platform tutorials.
+                      </p>
+                    </div>
+                  </Link>
+
+                  {/* Email Support */}
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50 text-green-600 ring-1 ring-green-200 shrink-0">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-[12px] leading-5 font-medium text-[#171A1F]">
+                        Email Support
+                      </h5>
+                      <a
+                        href={`mailto:${SUPPORT_EMAIL}`}
+                        className="text-[10px] leading-4 font-normal text-[#565D6D] hover:text-green-900 transition-colors"
+                      >
+                        {SUPPORT_EMAIL}
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Phone Support */}
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50 text-green-600 ring-1 ring-green-200 shrink-0">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-[12px] leading-5 font-medium text-[#171A1F]">
+                        Phone Support
+                      </h5>
+                      <a
+                        href={`tel:${SUPPORT_PHONE.replace(/\s+/g, "")}`}
+                        className="text-[10px] leading-4 font-normal text-[#565D6D] hover:text-green-900 transition-colors"
+                      >
+                        {SUPPORT_PHONE}
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>

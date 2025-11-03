@@ -11,11 +11,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     leadStatus: [],
     leadType: [],
     requirement: [],
-    budgetRange: [5000, 100000000],
+    budgetRange: [50000, 500000],
     city: '',
     location: '',
-    preferredLocationPrimary: '', // Added for Primary Preferred Location dropdown
-    preferredLocationSecondary: '', // Added for Secondary Preferred Location dropdown
     dateAdded: {
       start: '2024-06-01',
       end: ''
@@ -37,8 +35,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [leadsPerPage] = useState(9);
   const [regions, setRegions] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
-  const [allRegions, setAllRegions] = useState([]); // All regions for Preferred Location dropdowns
-  const [allRegionsLoading, setAllRegionsLoading] = useState(false);
   const [cities, setCities] = useState([
     { value: 'Agra', label: 'Agra' },
     { value: 'Noida', label: 'Noida' }
@@ -46,11 +42,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [brokersOptions, setBrokersOptions] = useState([]);
   const [brokersLoading, setBrokersLoading] = useState(false);
   const [showSecondaryFilters, setShowSecondaryFilters] = useState(false);
-  const [showDateRangePicker, setShowDateRangePicker] = useState(false);
-  const [budgetMinInputValue, setBudgetMinInputValue] = useState('');
-  const [budgetMaxInputValue, setBudgetMaxInputValue] = useState('');
-  const [isEditingMin, setIsEditingMin] = useState(false);
-  const [isEditingMax, setIsEditingMax] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -88,10 +79,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       params.set('limit', String(aggLimit));
       params.set('page', '1');
       
-      // Add sorting parameters to API call (default: createdAt desc)
-      params.set('sortBy', sortBy || 'createdAt');
-      params.set('sortOrder', sortOrder || 'desc');
-      
       // Add status filters to API call
       if (leadFilters.leadStatus.length > 0) {
         leadFilters.leadStatus.forEach(status => {
@@ -113,64 +100,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       // Region/location - send region ID to API
       if (leadFilters.location) params.set('regionId', leadFilters.location);
 
-      // Preferred Location Primary - send primary region ID to API
-      if (leadFilters.preferredLocationPrimary) {
-        params.set('primaryRegionId', leadFilters.preferredLocationPrimary);
-      }
-
-      // Preferred Location Secondary - send secondary region ID to API
-      if (leadFilters.preferredLocationSecondary) {
-        params.set('secondaryRegionId', leadFilters.preferredLocationSecondary);
-      }
-
-      // Budget Range Filter - send budgetMin and budgetMax to API
-      // Only send if user has changed from default values
-      if (leadFilters.budgetRange[0] > 5000) {
-        params.set('budgetMin', String(leadFilters.budgetRange[0]));
-      }
-      if (leadFilters.budgetRange[1] < 100000000) {
-        params.set('budgetMax', String(leadFilters.budgetRange[1]));
-      }
-
-      // Date Range Filter - API uses dateRange for presets, fromDate/toDate for custom ranges
-      if (leadFilters.datePosted) {
-        if (leadFilters.datePosted === 'Today') {
-          params.set('dateRange', 'today');
-        } else if (leadFilters.datePosted === 'Last 7 Days') {
-          params.set('dateRange', 'last7days');
-        } else if (leadFilters.datePosted === 'Last 30 Days') {
-          // API might not have last30days, so use fromDate/toDate
-          const today = new Date();
-          const thirtyDaysAgo = new Date(today);
-          thirtyDaysAgo.setDate(today.getDate() - 30);
-          params.set('fromDate', thirtyDaysAgo.toISOString().split('T')[0]);
-          params.set('toDate', today.toISOString().split('T')[0]);
-        } else if (leadFilters.datePosted === 'Custom Range') {
-          // Use fromDate and toDate for custom range
-          if (leadFilters.dateAdded.start) {
-            params.set('fromDate', leadFilters.dateAdded.start);
-          }
-          if (leadFilters.dateAdded.end) {
-            params.set('toDate', leadFilters.dateAdded.end);
-          }
-        }
-      } else if (leadFilters.dateAdded.start || leadFilters.dateAdded.end) {
-        // Also handle dateAdded directly if set (custom range without preset)
-        if (leadFilters.dateAdded.start) {
-          params.set('fromDate', leadFilters.dateAdded.start);
-        }
-        if (leadFilters.dateAdded.end) {
-          params.set('toDate', leadFilters.dateAdded.end);
-        }
-      }
-
       console.log('API URL:', `${apiUrl}/leads?${params.toString()}`);
       console.log('Status filters:', leadFilters.leadStatus);
       console.log('Property Type filters:', leadFilters.leadType);
-      console.log('Primary Region ID:', leadFilters.preferredLocationPrimary);
-      console.log('Secondary Region ID:', leadFilters.preferredLocationSecondary);
-      console.log('Date Posted:', leadFilters.datePosted);
-      console.log('Date Range:', { start: leadFilters.dateAdded.start, end: leadFilters.dateAdded.end });
 
       // Add createdBy if a broker is selected (single-select)
       if ((leadFilters.brokerAgent || []).length > 0) {
@@ -378,22 +310,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             return primaryRegion.includes(regionLower) || secondaryRegion.includes(regionLower) || location.includes(regionLower);
           });
         }
-
-        // Filter by Preferred Location Primary (client-side backup)
-        if (leadFilters.preferredLocationPrimary) {
-          filteredItems = filteredItems.filter(lead => {
-            const primaryRegionID = lead.primaryRegion?._id || lead.primaryRegion?.id || lead.primaryRegion;
-            return String(primaryRegionID) === String(leadFilters.preferredLocationPrimary);
-          });
-        }
-
-        // Filter by Preferred Location Secondary (client-side backup)
-        if (leadFilters.preferredLocationSecondary) {
-          filteredItems = filteredItems.filter(lead => {
-            const secondaryRegionID = lead.secondaryRegion?._id || lead.secondaryRegion?.id || lead.secondaryRegion;
-            return String(secondaryRegionID) === String(leadFilters.preferredLocationSecondary);
-          });
-        }
         
         console.log('=== LEAD FILTERING DEBUG ===');
         console.log('Total items from API:', items.length);
@@ -408,55 +324,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           console.log('WARNING: Items from API but filtered out. Sample item:', items[0]);
         }
         
-        // Client-side sorting (fallback if API doesn't sort)
-        let sortedItems = [...filteredItems];
-        const currentSortBy = sortBy || 'createdAt';
-        const currentSortOrder = sortOrder || 'desc';
-        if (currentSortBy && currentSortOrder) {
-          sortedItems.sort((a, b) => {
-            let aValue, bValue;
-            
-            if (currentSortBy === 'createdAt') {
-              aValue = new Date(a.createdAt || a.created_at || 0);
-              bValue = new Date(b.createdAt || b.created_at || 0);
-            } else if (currentSortBy === 'name') {
-              aValue = (a.name || a.leadName || a.clientName || '').toLowerCase();
-              bValue = (b.name || b.leadName || b.clientName || '').toLowerCase();
-            } else {
-              aValue = a[currentSortBy] || '';
-              bValue = b[currentSortBy] || '';
-            }
-            
-            if (currentSortBy === 'createdAt') {
-              return currentSortOrder === 'asc' ? aValue - bValue : bValue - aValue;
-            } else if (currentSortBy === 'name') {
-              if (currentSortOrder === 'asc') {
-                return aValue.localeCompare(bValue);
-              } else {
-                return bValue.localeCompare(aValue);
-              }
-            } else {
-              // Numeric or other comparison
-              if (typeof aValue === 'number' && typeof bValue === 'number') {
-                return currentSortOrder === 'asc' ? aValue - bValue : bValue - aValue;
-              } else {
-                const aStr = String(aValue).toLowerCase();
-                const bStr = String(bValue).toLowerCase();
-                if (currentSortOrder === 'asc') {
-                  return aStr.localeCompare(bStr);
-                } else {
-                  return bStr.localeCompare(aStr);
-                }
-              }
-            }
-          });
-        }
-        
-        // Client-side pagination after filtering and sorting
+        // Client-side pagination after filtering
         const start = (currentPage - 1) * leadsPerPage;
-        const pagedItems = sortedItems.slice(start, start + leadsPerPage);
+        const pagedItems = filteredItems.slice(start, start + leadsPerPage);
         setLeads(pagedItems);
-        setTotalLeads(sortedItems.length);
+        setTotalLeads(filteredItems.length);
       } else {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error('API Error:', response.status, errorData);
@@ -565,35 +437,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     fetchRegions();
   }, [leadFilters.city]); // Re-fetch when city changes
 
-  // Fetch ALL regions for Preferred Location dropdowns (not filtered by city)
-  useEffect(() => {
-    const fetchAllRegions = async () => {
-      try {
-        setAllRegionsLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        const res = await fetch(`${apiUrl}/regions`);
-        const data = await res.json().catch(() => ({}));
-        let list = [];
-        if (Array.isArray(data?.data?.regions)) list = data.data.regions;
-        else if (Array.isArray(data?.regions)) list = data.regions;
-        else if (Array.isArray(data?.data)) list = data.data;
-        else if (Array.isArray(data)) list = data;
-        const mapped = list
-          .map(r => ({
-            value: r._id || r.id || r.value || r.name || String(r),
-            label: r.name || r.label || String(r)
-          }))
-          .filter(r => r.label && r.label !== '');
-        setAllRegions(mapped);
-      } catch {
-        setAllRegions([]);
-      } finally {
-        setAllRegionsLoading(false);
-      }
-    };
-    fetchAllRegions();
-  }, []); // Fetch once on mount
-
   const leadStatusOptions = [
     'New', 
     'Assigned', 
@@ -610,24 +453,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       leadStatus: [],
       leadType: [],
       requirement: [],
-      budgetRange: [5000, 100000000],
+      budgetRange: [5000000, 15000000],
       city: '',
       location: '',
-      preferredLocationPrimary: '',
-      preferredLocationSecondary: '',
-      dateAdded: { start: '2024-06-01', end: '' }, // Reset to original default
-      datePosted: '', // Reset date posted filter
+      dateAdded: { start: '', end: '' },
       brokerAgent: [],
       priority: []
     });
-    setSortBy('createdAt'); // Reset sorting to default
-    setSortOrder('desc'); // Reset sorting to default
     setCurrentPage(1);
-    setShowDateRangePicker(false); // Reset date range picker visibility
-    setBudgetMinInputValue(''); // Reset budget input values
-    setBudgetMaxInputValue('');
-    setIsEditingMin(false);
-    setIsEditingMax(false);
   };
 
   // Pagination calculations
@@ -768,23 +601,13 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   };
 
   const handleBudgetMinInput = (value) => {
-    const numValue = parseInt(value?.toString().replace(/[^0-9]/g, '') || '0');
-    const min = Math.max(5000, Math.min(numValue, leadFilters.budgetRange[1], 100000000));
-    setLeadFilters(prev => ({ 
-      ...prev, 
-      budgetRange: [min, prev.budgetRange[1]]
-    }));
-    setCurrentPage(1);
+    const min = Math.max(1000000, Math.min(parseInt(value || 0), leadFilters.budgetRange[1]));
+    setLeadFilters(prev => ({ ...prev, budgetRange: [min, prev.budgetRange[1]] }));
   };
 
   const handleBudgetMaxInput = (value) => {
-    const numValue = parseInt(value?.toString().replace(/[^0-9]/g, '') || '0');
-    const max = Math.min(100000000, Math.max(numValue, leadFilters.budgetRange[0], 5000));
-    setLeadFilters(prev => ({ 
-      ...prev, 
-      budgetRange: [prev.budgetRange[0], max]
-    }));
-    setCurrentPage(1);
+    const max = Math.min(20000000, Math.max(parseInt(value || 0), leadFilters.budgetRange[0]));
+    setLeadFilters(prev => ({ ...prev, budgetRange: [prev.budgetRange[0], max] }));
   };
 
   const formatPrice = (price) => {
@@ -1044,170 +867,51 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           {/* Budget Range Filter */}
           <div>
             <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Budget Range</h3>
-            <div className="relative">
-              {/* Min and Max Value Display - Editable Inputs */}
-              <div className="flex justify-between gap-4 mb-3">
-                <div className="flex-1">
-                  <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Min</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>$</span>
-                    <input
-                      type="text"
-                      value={isEditingMin ? budgetMinInputValue : leadFilters.budgetRange[0].toLocaleString()}
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/[^0-9]/g, '');
-                        setBudgetMinInputValue(rawValue);
-                        if (rawValue !== '') {
-                          const numValue = parseInt(rawValue);
-                          if (!isNaN(numValue)) {
-                            const min = Math.max(5000, Math.min(numValue, leadFilters.budgetRange[1], 100000000));
-                            setLeadFilters(prev => ({ 
-                              ...prev, 
-                              budgetRange: [min, prev.budgetRange[1]]
-                            }));
-                            setCurrentPage(1);
-                          }
-                        }
-                      }}
-                      onFocus={(e) => {
-                        setIsEditingMin(true);
-                        setBudgetMinInputValue(leadFilters.budgetRange[0].toString());
-                        e.target.select();
-                      }}
-                      onBlur={(e) => {
-                        setIsEditingMin(false);
-                        const rawValue = e.target.value.replace(/[^0-9]/g, '');
-                        const numValue = rawValue === '' ? 5000 : parseInt(rawValue);
-                        handleBudgetMinInput(numValue);
-                        setBudgetMinInputValue('');
-                      }}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.target.blur();
-                        }
-                      }}
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
-                      style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}
-                      placeholder="5,000"
-                    />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Max</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>$</span>
-                    <input
-                      type="text"
-                      value={isEditingMax ? budgetMaxInputValue : leadFilters.budgetRange[1].toLocaleString()}
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/[^0-9]/g, '');
-                        setBudgetMaxInputValue(rawValue);
-                        if (rawValue !== '') {
-                          const numValue = parseInt(rawValue);
-                          if (!isNaN(numValue)) {
-                            const max = Math.min(100000000, Math.max(numValue, leadFilters.budgetRange[0], 5000));
-                            setLeadFilters(prev => ({ 
-                              ...prev, 
-                              budgetRange: [prev.budgetRange[0], max]
-                            }));
-                            setCurrentPage(1);
-                          }
-                        }
-                      }}
-                      onFocus={(e) => {
-                        setIsEditingMax(true);
-                        setBudgetMaxInputValue(leadFilters.budgetRange[1].toString());
-                        e.target.select();
-                      }}
-                      onBlur={(e) => {
-                        setIsEditingMax(false);
-                        const rawValue = e.target.value.replace(/[^0-9]/g, '');
-                        const numValue = rawValue === '' ? 100000000 : parseInt(rawValue);
-                        handleBudgetMaxInput(numValue);
-                        setBudgetMaxInputValue('');
-                      }}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.target.blur();
-                        }
-                      }}
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
-                      style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}
-                      placeholder="100,000,000"
-                    />
-                  </div>
-                </div>
+              <div className="relative">
+              <div className="flex justify-between text-sm text-gray-700 mb-2">
+                <span>${leadFilters.budgetRange[0].toLocaleString()}</span>
+                <span>${leadFilters.budgetRange[1].toLocaleString()}</span>
               </div>
-              
-              {/* Slider Container */}
-              <div className="relative h-2 rounded-lg overflow-visible" style={{ backgroundColor: '#B2F0C8' }}>
-                {/* Active Range Indicator (dark green) with soft glow */}
+              <div className="relative h-2 bg-green-50 rounded-lg">
                 <div 
-                  className="h-2 absolute rounded-lg pointer-events-none"
+                  className="h-2 bg-green-700 rounded-lg absolute"
                   style={{
-                    backgroundColor: '#1C5032',
-                    left: `${((leadFilters.budgetRange[0] - 5000) / (100000000 - 5000)) * 100}%`,
-                    width: `${((leadFilters.budgetRange[1] - leadFilters.budgetRange[0]) / (100000000 - 5000)) * 100}%`,
-                    transition: 'all 0.1s ease',
-                    zIndex: 1,
-                    boxShadow: '0 0 6px rgba(28, 80, 50, 0.4), 0 0 2px rgba(28, 80, 50, 0.2)',
-                    filter: 'blur(0.3px)'
+                    left: `${((leadFilters.budgetRange[0] - 50000) / (500000 - 50000)) * 100}%`,
+                    width: `${((leadFilters.budgetRange[1] - leadFilters.budgetRange[0]) / (500000 - 50000)) * 100}%`
                   }}
                 ></div>
-                
-                {/* Min Range Input - Left slider (full width for interaction) */}
                 <input
                   type="range"
-                  min="5000"
-                  max="100000000"
-                  step="5000"
+                  min="50000"
+                  max="500000"
+                  step="10000"
                   value={leadFilters.budgetRange[0]}
                   onChange={(e) => {
-                    const val = Math.min(parseInt(e.target.value), leadFilters.budgetRange[1]);
+                    const val = parseInt(e.target.value);
                     setLeadFilters(prev => ({ 
                       ...prev, 
                       budgetRange: [val, prev.budgetRange[1]]
                     }));
-                    // Update input value if not editing
-                    if (!isEditingMin) {
-                      setBudgetMinInputValue('');
-                    }
-                    setCurrentPage(1);
                   }}
-                  className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-min"
-                  style={{ 
-                    zIndex: 2,
-                    pointerEvents: 'auto'
-                  }}
+                  className="w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 slider-min"
                 />
-                
-                {/* Max Range Input - Right slider (full width for interaction) */}
                 <input
                   type="range"
-                  min="5000"
-                  max="100000000"
-                  step="5000"
+                  min="50000"
+                  max="500000"
+                  step="10000"
                   value={leadFilters.budgetRange[1]}
                   onChange={(e) => {
-                    const val = Math.max(parseInt(e.target.value), leadFilters.budgetRange[0]);
+                    const val = parseInt(e.target.value);
                     setLeadFilters(prev => ({ 
                       ...prev, 
                       budgetRange: [prev.budgetRange[0], val]
                     }));
-                    // Update input value if not editing
-                    if (!isEditingMax) {
-                      setBudgetMaxInputValue('');
-                    }
-                    setCurrentPage(1);
                   }}
-                  className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-max"
-                  style={{ 
-                    zIndex: 3,
-                    pointerEvents: 'auto'
-                  }}
+                  className="w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 slider-max"
                 />
               </div>
-            </div>
+              </div>
           </div>
 
           {/* Date Posted Filter */}
@@ -1221,22 +925,10 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     key={dateOption}
                     type="button"
                     onClick={() => {
-                      if (dateOption === 'Custom Range') {
-                        setShowDateRangePicker(!showDateRangePicker);
-                        if (leadFilters.datePosted !== 'Custom Range') {
-                          setLeadFilters(prev => ({
-                            ...prev,
-                            datePosted: 'Custom Range'
-                          }));
-                        }
-                      } else {
-                        setShowDateRangePicker(false);
-                        setLeadFilters(prev => ({
-                          ...prev,
-                          datePosted: prev.datePosted === dateOption ? '' : dateOption,
-                          dateAdded: { start: '', end: '' } // Clear custom dates when selecting preset
-                        }));
-                      }
+                      setLeadFilters(prev => ({
+                        ...prev,
+                        datePosted: prev.datePosted === dateOption ? '' : dateOption
+                      }));
                       setCurrentPage(1);
                     }}
                     style={{
@@ -1265,59 +957,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 );
               })}
             </div>
-            
-            {/* Custom Date Range Picker */}
-            {showDateRangePicker && leadFilters.datePosted === 'Custom Range' && (
-              <div className="mt-3 p-4 border border-gray-300 rounded-lg bg-white shadow-lg z-10">
-                <div className="space-y-3">
-                  <div>
-                    <label className="block mb-2 text-xs font-medium text-gray-700">Start Date</label>
-                    <input
-                      type="date"
-                      value={leadFilters.dateAdded.start || ''}
-                      onChange={(e) => {
-                        setLeadFilters(prev => ({
-                          ...prev,
-                          dateAdded: {
-                            ...prev.dateAdded,
-                            start: e.target.value
-                          }
-                        }));
-                        setCurrentPage(1);
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-xs font-medium text-gray-700">End Date</label>
-                    <input
-                      type="date"
-                      value={leadFilters.dateAdded.end || ''}
-                      min={leadFilters.dateAdded.start || ''}
-                      onChange={(e) => {
-                        setLeadFilters(prev => ({
-                          ...prev,
-                          dateAdded: {
-                            ...prev.dateAdded,
-                            end: e.target.value
-                          }
-                        }));
-                        setCurrentPage(1);
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
-                    />
-                  </div>
-                  <button
-                    onClick={() => {
-                      setShowDateRangePicker(false);
-                    }}
-                    className="w-full mt-2 px-4 py-2 bg-green-900 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors"
-                  >
-                    Apply Date Range
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Secondary Filters Toggle */}
@@ -1339,57 +978,21 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               {/* Preferred Location (Primary) */}
               <div>
                 <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Preferred Location (Primary)</label>
-                {allRegionsLoading ? (
-                  <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
-                ) : (
-                  <Select
-                    instanceId="preferred-location-primary-select"
-                    styles={reactSelectStyles}
-                    className="cursor-pointer"
-                    options={allRegions}
-                    value={leadFilters.preferredLocationPrimary ? 
-                      allRegions.find(r => r.value === leadFilters.preferredLocationPrimary) || null 
-                      : null}
-                    onChange={(opt) => {
-                      setLeadFilters(prev => ({ 
-                        ...prev, 
-                        preferredLocationPrimary: opt?.value || '' 
-                      }));
-                      setCurrentPage(1);
-                    }}
-                    isSearchable
-                    isClearable
-                    placeholder="Select Preferred Location"
-                  />
-                )}
+                <input
+                  type="text"
+                  placeholder="e.g., Downtown, Financial District"
+                  className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                />
               </div>
 
               {/* Preferred Location (Secondary) (Optional) */}
               <div>
                 <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Preferred Location (Secondary) (Optional)</label>
-                {allRegionsLoading ? (
-                  <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
-                ) : (
-                  <Select
-                    instanceId="preferred-location-secondary-select"
-                    styles={reactSelectStyles}
-                    className="cursor-pointer"
-                    options={allRegions}
-                    value={leadFilters.preferredLocationSecondary ? 
-                      allRegions.find(r => r.value === leadFilters.preferredLocationSecondary) || null 
-                      : null}
-                    onChange={(opt) => {
-                      setLeadFilters(prev => ({ 
-                        ...prev, 
-                        preferredLocationSecondary: opt?.value || '' 
-                      }));
-                      setCurrentPage(1);
-                    }}
-                    isSearchable
-                    isClearable
-                    placeholder="Select Preferred Location (Optional)"
-                  />
-                )}
+                <input
+                  type="text"
+                  placeholder="e.g., Mid-levels, Causeway Bay"
+                  className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                />
               </div>
 
               {/* Broker Assigned */}
@@ -1418,7 +1021,25 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             })()}
           </div>
 
-            
+              {/* Customer Name/Contact */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Customer Name/Contact</label>
+                <input
+                  type="text"
+                  placeholder="Search by name or contact"
+                  className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                />
+              </div>
+
+              {/* Lead Source */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Lead Source</label>
+              <button
+                  className="w-full p-[10px] text-sm text-left border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
+              >
+                  Select Lead Sources
+              </button>
+          </div>
 
              
 
@@ -1437,7 +1058,22 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 </div>
               </div>
           
-        
+              {/* Sort By */}
+              <div>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Sort By</label>
+            <Select
+                  instanceId="sort-select"
+                  styles={reactSelectStyles}
+                  className="cursor-pointer"
+              options={[
+                    { value: 'newest', label: 'Newest' },
+                    { value: 'oldest', label: 'Oldest' },
+                { value: 'name-asc', label: 'Name (A-Z)' },
+                { value: 'name-desc', label: 'Name (Z-A)' }
+              ]}
+                  placeholder="Newest"
+            />
+          </div>
             </div>
           )}
 
@@ -1445,7 +1081,24 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           <div className="pt-4">
             <div className="flex gap-3">
               <button
-                onClick={resetFilters}
+                onClick={() => {
+                  setSecondaryFilters({
+                    companyName: '',
+                    language: '',
+                    brokerStatus: [],
+                    responseRate: [],
+                    joinedDate: '',
+                    sortBy: 'rating-high'
+                  });
+                  // Reset primary filters as well
+                  setBrokerFilters({
+                    region: [],
+                    brokerType: [],
+                    ratingRange: [0, 5],
+                    experienceRange: [0, 999],
+                    showVerifiedOnly: false
+                  });
+                }}
                 style={{
                   fontFamily: 'Inter',
                   fontSize: '12px',
@@ -1610,8 +1263,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                    leadFilters.city ||
                    leadFilters.location ||
                    leadFilters.brokerAgent.length > 0 ||
-                   leadFilters.budgetRange[0] !== 5000 || 
-                   leadFilters.budgetRange[1] !== 100000000 ||
+                   leadFilters.budgetRange[0] !== 50000 || 
+                   leadFilters.budgetRange[1] !== 500000 ||
                    leadFilters.datePosted ||
                    (leadFilters.dateAdded.start && leadFilters.dateAdded.start !== '2024-06-01') ||
                    (leadFilters.dateAdded.end)
@@ -1626,8 +1279,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   leadFilters.city ||
                   leadFilters.location ||
                   leadFilters.brokerAgent.length > 0 ||
-                  leadFilters.budgetRange[0] !== 5000 || 
-                  leadFilters.budgetRange[1] !== 100000000 ||
+                  leadFilters.budgetRange[0] !== 50000 || 
+                  leadFilters.budgetRange[1] !== 500000 ||
                   leadFilters.datePosted ||
                   (leadFilters.dateAdded.start && leadFilters.dateAdded.start !== '2024-06-01') ||
                   (leadFilters.dateAdded.end)) && (
@@ -1650,6 +1303,25 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               const { primary, secondary } = getRegionNames(lead);
               const brokerImage = lead.createdBy?.brokerImage || lead.createdBy?.profileImage || lead.createdBy?.image;
               const brokerName = lead.createdBy?.name || lead.createdBy?.fullName || lead.createdBy?.email || 'Unknown';
+              
+              // Extract broker ID - handle all possible structures
+              let brokerId = null;
+              if (lead.createdBy) {
+                if (typeof lead.createdBy === 'string') {
+                  brokerId = lead.createdBy;
+                } else if (typeof lead.createdBy === 'object') {
+                  brokerId = lead.createdBy.userId?._id || 
+                             lead.createdBy.userId?.id ||
+                             lead.createdBy.userId ||
+                             lead.createdBy._id || 
+                             lead.createdBy.id || 
+                             lead.createdBy.brokerId ||
+                             lead.createdBy.brokerDetailId ||
+                             lead.createdBy.brokerDetailsId;
+                }
+              }
+              // Ensure brokerId is a string if it exists
+              brokerId = brokerId ? String(brokerId) : null;
               
               // Helper function to format region names
               const regionName = (region) => {
@@ -1833,20 +1505,31 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
                           {/* Name and icons */}
                           <div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-6">
                               <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
                                 {brokerName}
                               </p>
+                              {brokerId ? (
+                                <Link
+                                  href={`/broker-details/${brokerId}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+                                >
+                                  View
+                                </Link>
+                              ) : (
+                                <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+                              )}
                             </div>
 
                             {/* Connect / Chat */}
                             <div className="flex items-center gap-3 mt-1">
-                              <span className="flex items-center gap-2">
+                              {/* <span className="flex items-center gap-2">
                                 <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
                                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                                 </svg>
                                 <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Connect</span>
-                    </span>
+                    </span> */}
 
                               <span className="flex items-center gap-2">
                                 <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
@@ -1989,84 +1672,35 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         .slider-min,
         .slider-max {
           background: transparent;
-          cursor: pointer;
-          pointer-events: auto;
         }
-        .slider-min::-webkit-slider-thumb {
-          appearance: none;
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background: #FFFFFF;
-          cursor: grab;
-          border: 2px solid #1C5032;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-          position: relative;
-          z-index: 30;
-          margin-top: -9px;
-        }
-        .slider-min::-webkit-slider-thumb:active {
-          cursor: grabbing;
-          transform: scale(1.05);
-        }
+        .slider-min::-webkit-slider-thumb,
         .slider-max::-webkit-slider-thumb {
           appearance: none;
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
-          background: #FFFFFF;
-          cursor: grab;
-          border: 2px solid #1C5032;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-          position: relative;
-          z-index: 31;
-          margin-top: -9px;
+          background: white;
+          cursor: pointer;
+          border: 3px solid #22c55e;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .slider-max::-webkit-slider-thumb:active {
-          cursor: grabbing;
-          transform: scale(1.05);
-        }
-        .slider-min::-moz-range-thumb {
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background: #FFFFFF;
-          cursor: grab;
-          border: 2px solid #1C5032;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-          position: relative;
-          z-index: 30;
-        }
+        .slider-min::-moz-range-thumb,
         .slider-max::-moz-range-thumb {
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
-          background: #FFFFFF;
-          cursor: grab;
-          border: 2px solid #1C5032;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-          position: relative;
-          z-index: 31;
-        }
-        .slider-min::-webkit-slider-thumb:hover,
-        .slider-max::-webkit-slider-thumb:hover {
-          transform: scale(1.08);
-          box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-        }
-        .slider-min::-moz-range-thumb:hover,
-        .slider-max::-moz-range-thumb:hover {
-          transform: scale(1.08);
-          box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+          background: white;
+          cursor: pointer;
+          border: 3px solid #22c55e;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .slider-min::-webkit-slider-track,
         .slider-max::-webkit-slider-track {
           background: transparent;
-          height: 2px;
         }
         .slider-min::-moz-range-track,
         .slider-max::-moz-range-track {
           background: transparent;
-          height: 2px;
         }
       `}</style>
     </div>

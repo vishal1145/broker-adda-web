@@ -261,7 +261,44 @@ const LatestLeads: React.FC = () => {
               </Link>
             </div>
             <div className="md:col-span-6 grid gap-6 h-full md:grid-cols-2 self-center cursor-pointer">
-              {leads.slice(0, 2).map((lead) => (
+              {leads.slice(0, 2).map((lead) => {
+                // Extract broker ID from lead.createdBy
+                let brokerId: string | null = null;
+                const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy;
+                
+                if (createdBy) {
+                  if (typeof createdBy === 'string') {
+                    brokerId = createdBy;
+                  } else if (typeof createdBy === 'object' && createdBy !== null) {
+                    const obj = createdBy as { [key: string]: unknown };
+                    const userId = obj['userId'];
+                    if (userId && typeof userId === 'object' && userId !== null) {
+                      const userIdObj = userId as { [key: string]: unknown };
+                      const uid = userIdObj['_id'] || userIdObj['id'];
+                      if (uid) brokerId = String(uid);
+                    }
+                    if (!brokerId && userId && typeof userId === 'string') {
+                      brokerId = userId;
+                    }
+                    if (!brokerId) {
+                      const candidates = [
+                        obj['_id'],
+                        obj['id'],
+                        obj['brokerId'],
+                        obj['brokerDetailId'],
+                        obj['brokerDetailsId']
+                      ];
+                      for (const candidate of candidates) {
+                        if (candidate) {
+                          brokerId = String(candidate);
+                          break;
+                        }
+                      }
+                    }
+                  }
+                }
+
+                return (
                 <Link
                   key={lead._id}
                   href={`/lead-details/${lead._id}`}
@@ -448,7 +485,7 @@ const LatestLeads: React.FC = () => {
 
       {/* Name and icons */}
       <div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-6">
           <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
             {(() => {
               const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
@@ -463,11 +500,22 @@ const LatestLeads: React.FC = () => {
               );
             })()}
           </p>
+          {brokerId ? (
+            <Link
+              href={`/broker-details/${brokerId}`}
+              onClick={(e) => e.stopPropagation()}
+              className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+            >
+              View
+            </Link>
+          ) : (
+            <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+          )}
         </div>
 
         {/* Connect / Chat */}
         <div className="flex items-center gap-3 mt-1">
-          <span className="flex items-center gap-2">
+          {/* <span className="flex items-center gap-2">
             <svg
               className="w-3 h-3 fill-none stroke-[#171A1FFF]"
               viewBox="0 0 24 24"
@@ -478,7 +526,7 @@ const LatestLeads: React.FC = () => {
             <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">
               Connect
             </span>
-          </span>
+          </span> */}
 
           <span className="flex items-center gap-2">
             <svg
@@ -504,7 +552,8 @@ const LatestLeads: React.FC = () => {
                     </div>
                   </article>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
