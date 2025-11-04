@@ -210,11 +210,12 @@ const SavedProperties = () => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <HeaderFile data={headerData} />
+         <HeaderFile data={headerData} />
+      <div className="min-h-screen ">
+     
         <Toaster position="top-right" />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full mx-auto  py-8">
           {/* Info message */}
           {!loading && savedProperties.length > 0 && (
             <div className="mb-6">
@@ -322,10 +323,10 @@ const SavedProperties = () => {
                       href={`/property-details/${property.id}`}
                       className="block"
                     >
-                      <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex">
+                      <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                        <div className="flex h-[200px]">
                           {/* Image Section - Left */}
-                          <div className="relative w-[400px] h-[300px] flex-shrink-0">
+                          <div className="relative w-[400px] h-full flex-shrink-0">
                             {/* Property image */}
                             <div className="relative w-full h-full overflow-hidden rounded-l-xl">
                               <img
@@ -387,10 +388,10 @@ const SavedProperties = () => {
                           </div>
 
                           {/* Details Section - Right */}
-                          <div className="flex-1 p-6 flex flex-col">
-                            {/* Title */}
+                          <div className="flex-1 p-4 flex flex-col">
+                            {/* Title - One line */}
                             <h3
-                              className="mb-2 flex items-center gap-2"
+                              className="mb-1 flex items-center gap-2 line-clamp-1"
                               style={{
                                 fontSize: "16px",
                                 lineHeight: "22px",
@@ -398,9 +399,9 @@ const SavedProperties = () => {
                                 color: "#171A1FFF",
                               }}
                             >
-                              {property.name}
+                              <span className="truncate">{property.name}</span>
                               <svg
-                                className="w-3.5 h-3.5 text-[#0A421E]"
+                                className="w-3.5 h-3.5 text-[#0A421E] flex-shrink-0"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -411,80 +412,26 @@ const SavedProperties = () => {
                               </svg>
                             </h3>
 
-                            {/* Description */}
+                            {/* Description - One line, short */}
                             <p
-                              className="mb-4"
+                              className="mb-3 line-clamp-1"
                               style={{
                                 fontFamily: "Inter",
                                 fontSize: "12px",
                                 lineHeight: "16px",
                                 fontWeight: "400",
                                 color: "#565D6DFF",
-                                width: "418px",
                               }}
                             >
-                              {property.description}
+                              {property.description?.length > 80 
+                                ? `${property.description.substring(0, 80)}...` 
+                                : property.description}
                             </p>
-
-                            {/* Location Details */}
-                            <div className="flex flex-col gap-2 mb-4">
-                              {property.city && (
-                                <div className="flex items-center text-[12px] text-gray-600">
-                                  <svg
-                                    className="w-4 h-4 mr-1 text-gray-400"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth="2"
-                                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                                    />
-                                  </svg>
-                                  {property.city}
-                                </div>
-                              )}
-                              {property.region && (
-                                <div className="flex items-center text-[12px] text-gray-600">
-                                  <svg
-                                    className="w-4 h-4 mr-1 text-gray-400"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth="2"
-                                      d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z"
-                                    />
-                                    <circle
-                                      cx="12"
-                                      cy="10"
-                                      r="3"
-                                      strokeWidth="2"
-                                    />
-                                  </svg>
-                                  {Array.isArray(property.region)
-                                    ? property.region
-                                        .map((r) =>
-                                          typeof r === "string" ? r : r?.name
-                                        )
-                                        .filter(Boolean)
-                                        .join(", ")
-                                    : typeof property.region === "string"
-                                    ? property.region
-                                    : property.region?.name || ""}
-                                </div>
-                              )}
-                            </div>
 
                             {/* Features */}
                             {(property.bedrooms || property.bathrooms) && (
-                              <div className="mb-3">
-                                <div className="text-[12px] font-semibold text-gray-900 mb-2">
+                              <div className="mb-2">
+                                <div className="text-[12px] font-semibold text-gray-900 mb-1">
                                   Features
                                 </div>
                                 <div className="flex flex-wrap gap-2">
@@ -568,16 +515,16 @@ const SavedProperties = () => {
                               </div>
                             )}
 
-                            {/* Amenities */}
+                            {/* Amenities - Only 2 then +X more */}
                             {property.amenities &&
                               property.amenities.length > 0 && (
                                 <div className="mt-auto">
-                                  <div className="text-[12px] font-semibold text-gray-900 mb-2">
+                                  <div className="text-[12px] font-semibold text-gray-900 mb-1">
                                     Amenities
                                   </div>
                                   <div className="flex flex-wrap gap-2 text-[11px]">
                                     {property.amenities
-                                      .slice(0, 5)
+                                      .slice(0, 2)
                                       .map((amenity, idx) => (
                                         <span
                                           key={idx}
@@ -588,9 +535,9 @@ const SavedProperties = () => {
                                             : amenity?.name || amenity}
                                         </span>
                                       ))}
-                                    {property.amenities.length > 5 && (
+                                    {property.amenities.length > 2 && (
                                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
-                                        +{property.amenities.length - 5} more
+                                        +{property.amenities.length - 2} more
                                       </span>
                                     )}
                                   </div>
