@@ -1115,7 +1115,7 @@ export default function BrokerDetailsPage() {
 
               
 {/* Quick Contact */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+              <div className="bg-white rounded-lg p-6 shadow-sm">
                 <h3 className=" text-[18px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
                 <button type="button" 
                 onClick={() => {
@@ -1126,15 +1126,16 @@ export default function BrokerDetailsPage() {
                 className="w-full px-6 py-3 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-medium">
                   Send Message
                 </button>
-                <a href="/signup"className="mt-3 w-full h-[40px] px-3 flex items-center justify-center 
+               <a
+  href="/signup"
+  className="mt-3 w-full h-[40px] px-3 flex items-center justify-center 
              font-[Inter] text-[12px] leading-[22px] font-medium text-[#0D542B]
-             bg-transparent 
-             
-             hover:bg-transparent active:bg-transparent
-            
-             transition-colors duration-200">
-                  Join Our Network
-                </a>
+             bg-transparent border border-[#D0D5DD] rounded-lg
+             hover:bg-gray-50 active:bg-gray-100
+             transition-colors duration-200"
+>
+  Join Our Network
+</a>
               </div>
               
              

@@ -332,12 +332,12 @@ const Dashboard = () => {
           {/* Overview Section */}
           <div className="mb-8 pb-16">
             <h2 className="text-[18px] font-bold text-gray-900 mb-6">Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Total Leads */}
             <div 
               onClick={() => router.push('/leads')}
               className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
-              style={{ width: '100%', maxWidth: '258px', height: '144px' }}
+              style={{ width: '100%', height: '140px' }}
             >
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-center justify-between mb-4">
@@ -373,7 +373,7 @@ const Dashboard = () => {
             <div 
               onClick={() => router.push('/properties-management')}
               className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
-              style={{ width: '100%', maxWidth: '258px', height: '144px' }}
+              style={{ width: '100%', height: '140px' }}
             >
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-center justify-between mb-4">
@@ -430,7 +430,7 @@ const Dashboard = () => {
             <div 
               onClick={() => router.push('/create-connection')}
               className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
-              style={{ width: '100%', maxWidth: '258px', height: '144px' }}
+              style={{ width: '100%', height: '140px' }}
             >
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-center justify-between mb-4">
@@ -486,7 +486,7 @@ const Dashboard = () => {
               <button
                 type="button"
                 onClick={() => setIsAddLeadModalOpen(true)}
-                className="flex-none w-full md:w-[220px] h-[260px] border-2 border-dashed border-gray-300 rounded-xl
+                className="flex-none w-full md:w-[220px] h-[210px] border-2 border-dashed border-gray-300 rounded-xl
                            flex flex-col items-center justify-center text-center hover:border-yellow-500 hover:bg-yellow-50 transition-colors cursor-pointer"
               >
                 <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -500,7 +500,7 @@ const Dashboard = () => {
               {leadsLoading ? (
                 // Skeleton Loader for Leads
                 Array.from({ length: 3 }).map((_, idx) => (
-                  <div key={idx} className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm animate-pulse">
+                  <div key={idx} className="group h-[210px] relative rounded-2xl border border-gray-200 bg-white shadow-sm animate-pulse">
                     <div className="p-6">
                       <div className="mb-4">
                         <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -546,7 +546,7 @@ const Dashboard = () => {
                 <div 
                   key={lead._id} 
                   onClick={() => router.push(`/lead-details/${lead._id}`)}
-                  className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+                  className="group h-[210px] relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer"
                 >
                   <div className="p-6">
                     {/* Top Section - Main Title */}
