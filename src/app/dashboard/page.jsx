@@ -41,6 +41,7 @@ const Dashboard = () => {
     { icon: '🏠', text: 'Scheduled showing for Suburban Retreat', time: '4 days ago' },
   ]);
   const [activityLoading, setActivityLoading] = useState(true);
+  const [showAllActivities, setShowAllActivities] = useState(false);
 
   const getTimeAgo = (date) => {
     const now = new Date();
@@ -226,6 +227,7 @@ const Dashboard = () => {
     const fetchRecentActivity = async () => {
       try {
         setActivityLoading(true);
+        setShowAllActivities(false); // Reset to show only first 6 when fetching new data
         const { brokerId, baseApi, token } = await resolveBrokerId();
         
         const headers = {
@@ -275,19 +277,12 @@ const Dashboard = () => {
           const createdAt = notif?.createdAt ? new Date(notif.createdAt) : null;
           const timeAgo = createdAt ? getTimeAgo(createdAt) : 'Recently';
           
-          // Map notification type to icon
-          const type = (notif?.type || notif?.title || '').toLowerCase();
-          let icon = '🔔';
-          if (type.includes('lead') || type.includes('inquiry')) icon = '🔍';
-          else if (type.includes('property') || type.includes('listing')) icon = '📄';
-          else if (type.includes('status') || type.includes('update')) icon = '↑';
-          else if (type.includes('connection') || type.includes('connect')) icon = '👤';
-          else if (type.includes('deal') || type.includes('closed')) icon = '↓';
-          else if (type.includes('showing') || type.includes('viewing')) icon = '🏠';
+          // Use same icon for all notifications
+          const icon = '🔔';
 
           return {
             icon: icon,
-            text: notif?.message || notif?.body || notif?.description || notif?.title || 'Activity',
+            text: notif?.title || notif?.type || 'Activity',
             time: timeAgo,
             timestamp: createdAt?.getTime() || 0,
           };
@@ -317,54 +312,12 @@ const Dashboard = () => {
 
   const renderActivityIcon = (symbol) => {
     const common = 'w-3.5 h-3.5 text-gray-500';
-    switch (symbol) {
-      case '↑':
-        return (
-          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7 7 7M12 3v18" />
-          </svg>
-        );
-      case '↓':
-        return (
-          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7-7-7M12 21V3" />
-          </svg>
-        );
-      case '📄':
-        return (
-          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7 3h8l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 3v6h6" />
-          </svg>
-        );
-      case '🔍':
-        return (
-          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="7" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.3-4.3" />
-          </svg>
-        );
-      case '👤':
-        return (
-          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z" />
-          </svg>
-        );
-      case '🏠':
-        return (
-          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-7 9 7" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 21V9h6v12" />
-          </svg>
-        );
-      default:
-        return (
-          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="9" />
-          </svg>
-        );
-    }
+    // Always return the same bell notification icon for all activities
+    return (
+      <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      </svg>
+    );
   };
 
   return (
@@ -1006,9 +959,19 @@ const Dashboard = () => {
           <div className="grid grid-cols-1  gap-6 pb-16">
            {/* Recent Activity */}
            <div className="bg-white rounded-[10px] p-5 border border-gray-200 shadow-sm">
-              <h2 className="text-[18px] font-semibold text-gray-900 mb-3">Recent Activity</h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-[18px] font-semibold text-gray-900">Recent Activity</h2>
+                {!showAllActivities && recentActivity.length > 6 && (
+                  <button
+                    onClick={() => setShowAllActivities(true)}
+                    className="text-sm text-[#0d542b] hover:opacity-80 font-medium cursor-pointer"
+                  >
+                    View All
+                  </button>
+                )}
+              </div>
               <div className="divide-y divide-gray-100">
-                {recentActivity.map((activity, idx) => (
+                {(showAllActivities ? recentActivity : recentActivity.slice(0, 6)).map((activity, idx) => (
                   <div key={idx} className="flex items-start gap-2.5 py-2.5">
                     <div className="w-6 h-6 rounded-full border border-gray-200 bg-white flex items-center justify-center">
                       {renderActivityIcon(activity.icon)}

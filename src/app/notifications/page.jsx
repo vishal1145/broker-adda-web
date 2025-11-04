@@ -9,16 +9,7 @@ const NotificationsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fallback hardcoded notifications
-  const fallbackNotifications = [
-    { id: 1, title: 'New Lead Received', message: 'You have received a new lead for a 3BHK apartment in Mumbai', time: '2 minutes ago', unread: true },
-    { id: 2, title: 'Property Inquiry', message: 'Customer interested in your commercial property listing', time: '1 hour ago', unread: true },
-    { id: 3, title: 'Lead Transfer', message: 'A lead has been shared with you by another broker', time: '3 hours ago', unread: true },
-    { id: 4, title: 'Profile Update Required', message: 'Please complete your broker profile to get more visibility', time: '1 day ago', unread: false },
-    { id: 5, title: 'New Connection Request', message: 'Rajesh Kumar wants to connect with you', time: '2 days ago', unread: false },
-    { id: 6, title: 'Property Sold', message: 'Congratulations! Your property listing has been sold', time: '3 days ago', unread: false },
-    { id: 7, title: 'Payment Received', message: 'Payment of ₹50,000 has been received for property commission', time: '4 days ago', unread: false },
-  ];
+ 
 
   // Get broker ID from token
   const getBrokerIdFromToken = () => {
@@ -87,7 +78,7 @@ const NotificationsPage = () => {
         ? localStorage.getItem('token') || localStorage.getItem('authToken')
         : null;
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       const brokerId = getBrokerIdFromToken();
       
       const headers = {
@@ -168,7 +159,7 @@ const NotificationsPage = () => {
       <HeaderFile data={headerData} />
       
       <div className="min-h-screen bg-white py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className=" mx-auto px-2">
           {/* Header Section */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
@@ -253,9 +244,6 @@ const NotificationsPage = () => {
                             <span className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></span>
                           )}
                         </div>
-                        <p className="text-[14px] text-gray-600 mt-1">
-                          {notification.message}
-                        </p>
                         <p className="text-[12px] text-gray-400 mt-2">
                           {notification.time}
                         </p>
