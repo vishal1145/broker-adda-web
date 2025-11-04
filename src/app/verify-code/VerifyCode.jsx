@@ -178,10 +178,10 @@ const VerifyCode = () => {
           if (role === 'broker') {
             router.push('/myaccount');
           } else if (role === 'customer') {
-            router.push('/profile');
+            router.push('/customer-profile?mode=view');
           } else {
-            // Fallback: if role not provided, default to profile
-            router.push('/profile');
+            // Fallback: if role not provided, default to customer profile
+            router.push('/customer-profile?mode=view');
           }
         }
       } else {

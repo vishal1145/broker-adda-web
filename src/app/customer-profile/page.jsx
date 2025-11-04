@@ -27,7 +27,7 @@ const CustomerProfilePageInner = () => {
   // Render create mode
   if (isCreateMode) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute requiredRole="customer">
         <Toaster
           position="top-right"
           toastOptions={{
@@ -72,7 +72,7 @@ const CustomerProfilePageInner = () => {
   // Render view mode
   if (isViewMode) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute requiredRole="customer">
         <Toaster position="top-right" />
         <HeaderFile
           data={{
@@ -93,7 +93,7 @@ const CustomerProfilePageInner = () => {
   // Render edit mode
   if (isEditMode) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute requiredRole="customer">
         <Toaster
           position="top-right"
           toastOptions={{

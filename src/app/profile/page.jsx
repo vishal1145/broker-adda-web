@@ -64,6 +64,15 @@ const Profile = () => {
   const router = useRouter();
   const userRole = user?.role || "broker";
 
+  // Redirect customers to customer profile page
+  useEffect(() => {
+    if (user && userRole === 'customer') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const mode = searchParams.get('mode') || 'view';
+      router.replace(`/customer-profile?mode=${mode}`);
+    }
+  }, [user, userRole, router]);
+
   // Get mode from URL parameters (reactive to query changes)
   const searchParams = useSearchParams();
   const [mode, setMode] = useState('create');

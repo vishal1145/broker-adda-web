@@ -223,7 +223,7 @@ const Login = () => {
             if (role === 'broker') {
               router.push('/dashboard');
             } else if (role === 'customer') {
-              router.push('/profile');
+              router.push('/customer-profile?mode=view');
             } else {
               router.push('/dashboard');
             }
