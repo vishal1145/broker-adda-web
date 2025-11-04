@@ -1,11 +1,13 @@
 "use client";
 import React, { Suspense, useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import ContentLoader from 'react-content-loader';
 import data from '../data/furnitureData.json';
 import HeaderFile from '../components/Header';
 import PropertyEnquiryModal from '../components/PropertyEnquiryModal';
+import { useAuth } from '../contexts/AuthContext';
+import toast, { Toaster } from 'react-hot-toast';
 
 const TABS = [
   { label: 'Description' },
@@ -14,6 +16,8 @@ const TABS = [
 
 function PropertyDetailsPageInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
   // Also support dynamic route /property-details/[id] by reading path when query is missing
   const [routeId, setRouteId] = useState(null);
   useEffect(() => {
@@ -37,6 +41,8 @@ function PropertyDetailsPageInner() {
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
   const [broker, setBroker] = useState(null);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingProperty, setSavingProperty] = useState(false);
 
   // Fetch property details from API
   useEffect(() => {
@@ -190,6 +196,110 @@ function PropertyDetailsPageInner() {
 
     fetchPropertyDetails();
   }, [searchParams, routeId]);
+
+  // Check if property is saved when product loads and user is authenticated
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      if (!product?.id || !isAuthenticated() || !user?.token) {
+        setIsSaved(false);
+        return;
+      }
+
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const token = user.token;
+        const response = await fetch(`${apiUrl}/saved-properties`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const savedProperties = data?.data?.savedProperties || data?.savedProperties || [];
+          const propertyId = product.id || product._id;
+          const isPropertySaved = savedProperties.some(
+            (sp) => (sp.propertyId?._id || sp.propertyId?.id || sp.propertyId) === propertyId ||
+                     (sp.property?._id || sp.property?.id || sp.property) === propertyId ||
+                     sp._id === propertyId
+          );
+          setIsSaved(isPropertySaved);
+        }
+      } catch (error) {
+        console.error('Error checking saved status:', error);
+      }
+    };
+
+    checkSavedStatus();
+  }, [product?.id, isAuthenticated, user?.token]);
+
+  // Handle wishlist toggle
+  const handleWishlistToggle = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated() || !user?.token) {
+      // Save current URL to redirect back after login
+      const currentUrl = window.location.href;
+      localStorage.setItem('returnUrl', currentUrl);
+      router.push('/login');
+      return;
+    }
+
+    if (!product?.id) {
+      toast.error('Property information not available');
+      return;
+    }
+
+    setSavingProperty(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const token = user.token;
+      const propertyId = product.id || product._id;
+
+      if (isSaved) {
+        // Remove from saved properties
+        const response = await fetch(`${apiUrl}/saved-properties/${propertyId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          setIsSaved(false);
+          toast.success('Property removed from saved list');
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          toast.error(errorData.message || 'Failed to remove property');
+        }
+      } else {
+        // Add to saved properties
+        const response = await fetch(`${apiUrl}/saved-properties`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ propertyId }),
+        });
+
+        if (response.ok) {
+          setIsSaved(true);
+          toast.success('Property saved successfully');
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          toast.error(errorData.message || 'Failed to save property');
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      toast.error('Network error. Please try again.');
+    } finally {
+      setSavingProperty(false);
+    }
+  };
 
   // Fetch similar properties from API
   useEffect(() => {
@@ -738,6 +848,30 @@ function PropertyDetailsPageInner() {
 
   return (
     <div className="min-h-screen">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <HeaderFile data={headerData} />
       <div className="py-10">
         <div className="w-full mx-auto">
@@ -775,10 +909,21 @@ function PropertyDetailsPageInner() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
                       </svg>
                     </button>
-                    <button className="w-[40px] h-[40px] px-[10px] flex items-center justify-center text-[#171A1F] bg-white/80 backdrop-blur-sm opacity-100 border-none rounded-full hover:text-[#171A1F] hover:bg-white/80 active:text-[#171A1F] active:bg-white/80 disabled:opacity-40 transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                      </svg>
+                    <button 
+                      onClick={handleWishlistToggle}
+                      disabled={savingProperty}
+                      className={`w-[40px] h-[40px] px-[10px] flex items-center justify-center bg-white/80 backdrop-blur-sm opacity-100 border-none rounded-full hover:text-[#171A1F] hover:bg-white/80 active:text-[#171A1F] active:bg-white/80 disabled:opacity-40 transition-colors ${isSaved ? 'text-red-500' : 'text-[#171A1F]'}`}
+                      title={isSaved ? 'Remove from saved' : 'Save property'}
+                    >
+                      {isSaved ? (
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                      )}
                     </button>
                   </div>
                 </div>
