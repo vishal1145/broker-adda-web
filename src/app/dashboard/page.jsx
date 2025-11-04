@@ -22,9 +22,10 @@ const Dashboard = () => {
     totalLeads: null,
     propertiesListed: null,
     inquiriesReceived: 743,
-    connections: 45,
+    connections: null,
   });
   const [metricsLoading, setMetricsLoading] = useState(true);
+  const [connectionsLoading, setConnectionsLoading] = useState(true);
   const [leadRows, setLeadRows] = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
   const [propertyCards, setPropertyCards] = useState([]);
@@ -108,30 +109,95 @@ const Dashboard = () => {
       return { brokerId, baseApi, token };
     };
 
-    const fetchMetrics = async () => {
-      try {
-        setMetricsLoading(true);
-        const { brokerId, baseApi, token } = await resolveBrokerId();
-        const metricsUrl = `${baseApi}/leads/metrics?createdBy=${encodeURIComponent(brokerId)}`;
-        const { data } = await axios.get(metricsUrl, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-        const payload = data?.data ?? data;
-        setMetrics({
-          totalLeads: payload?.totalLeads ?? 0,
-          propertiesListed: payload?.totalProperties ?? 0,
-          inquiriesReceived: payload?.inquiriesReceived ?? 743,
-          connections: payload?.connections ?? 45,
-        });
-      } catch (e) {
-        setMetrics(prev => ({ 
-          ...prev, 
-          totalLeads: prev.totalLeads ?? 0, 
-          propertiesListed: prev.propertiesListed ?? 0 
-        }));
-      } finally {
-        setMetricsLoading(false);
-      }
+    // Resolve brokerId once and start all fetches in parallel
+    const initAndFetch = async () => {
+      const { brokerId, baseApi, token } = await resolveBrokerId();
+
+      const fetchMetrics = async () => {
+        try {
+          setMetricsLoading(true);
+          const metricsUrl = `${baseApi}/leads/metrics?createdBy=${encodeURIComponent(brokerId)}`;
+          const { data } = await axios.get(metricsUrl, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+          const payload = data?.data ?? data;
+          setMetrics(prev => ({
+            ...prev,
+            totalLeads: payload?.totalLeads ?? 0,
+            propertiesListed: payload?.totalProperties ?? 0,
+            inquiriesReceived: payload?.inquiriesReceived ?? 743,
+            // Don't override connections - it's handled by fetchConnections
+          }));
+        } catch (e) {
+          setMetrics(prev => ({ 
+            ...prev, 
+            totalLeads: prev.totalLeads ?? 0, 
+            propertiesListed: prev.propertiesListed ?? 0 
+          }));
+        } finally {
+          setMetricsLoading(false);
+        }
+      };
+
+      const fetchConnections = async () => {
+        try {
+          setConnectionsLoading(true);
+          const headers = {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          };
+
+          const response = await fetch(`${baseApi}/chats`, {
+            method: 'GET',
+            headers
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch connections');
+          }
+
+          const data = await response.json();
+          
+          // Handle different response structures and count connections using map
+          let connectionsList = [];
+          if (Array.isArray(data?.data)) {
+            connectionsList = data.data;
+          } else if (Array.isArray(data?.connections)) {
+            connectionsList = data.connections;
+          } else if (Array.isArray(data?.chats)) {
+            connectionsList = data.chats;
+          } else if (data?.data?.chats && Array.isArray(data.data.chats)) {
+            connectionsList = data.data.chats;
+          } else if (data?.data?.connections && Array.isArray(data.data.connections)) {
+            connectionsList = data.data.connections;
+          }
+
+          // Count connections using map function
+          const connectionsCount = connectionsList.map(() => 1).reduce((sum, count) => sum + count, 0) || connectionsList.length;
+          
+          // Update metrics with the connections count
+          setMetrics(prev => ({
+            ...prev,
+            connections: connectionsCount
+          }));
+        } catch (e) {
+          console.error('Error fetching connections:', e);
+          // Set connections to 0 on error
+          setMetrics(prev => ({
+            ...prev,
+            connections: 0
+          }));
+        } finally {
+          setConnectionsLoading(false);
+        }
+      };
+
+      // Run metrics and connections in parallel for faster loading
+      Promise.all([
+        fetchMetrics(),
+        fetchConnections()
+      ]);
     };
-    fetchMetrics();
+
+    initAndFetch();
 
     const fetchOverviewLists = async () => {
       try {
@@ -441,13 +507,22 @@ const Dashboard = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">{fmt(metrics.connections)}</div>
-                <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                  </svg>
-                  20%
-                </div>
+                {connectionsLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded w-16 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-12"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">{fmt(metrics.connections)}</div>
+                    <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                      </svg>
+                      20%
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

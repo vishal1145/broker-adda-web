@@ -2599,7 +2599,7 @@ export default function BrokerLeadsPage() {
                 <div className="space-y-3">
                   {/* Visit Support Center */}
                   <Link href="/contact" className="flex items-start gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50 text-green-600 ring-1 ring-green-200 shrink-0">
+                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7  text-[#0D542B] shrink-0">
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -2626,7 +2626,7 @@ export default function BrokerLeadsPage() {
 
                   {/* Read Documentation */}
                   <Link href="/help/documentation" className="flex items-start gap-3 hover:opacity-80 transition-opacity cursor-pointer">
-                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50 text-green-600 ring-1 ring-green-200 shrink-0">
+                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 text-[#0D542B] shrink-0">
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -2653,7 +2653,7 @@ export default function BrokerLeadsPage() {
 
                   {/* Email Support */}
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50 text-green-600 ring-1 ring-green-200 shrink-0">
+                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7  text-[#0D542B] shrink-0">
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -2683,7 +2683,7 @@ export default function BrokerLeadsPage() {
 
                   {/* Phone Support */}
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50 text-green-600 ring-1 ring-green-200 shrink-0">
+                    <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7  text-[#0D542B] shrink-0">
                       <svg
                         className="w-4 h-4"
                         fill="none"
