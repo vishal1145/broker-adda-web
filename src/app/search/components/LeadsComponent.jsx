@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Select, { components } from 'react-select';
 import Link from 'next/link';
 import TabsBar from './TabsBar';
 
 const LeadsComponent = ({ activeTab, setActiveTab }) => {
+  const router = useRouter();
   const [leadFilters, setLeadFilters] = useState({
     leadStatus: [],
     leadType: [],
@@ -1304,12 +1305,16 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               const brokerImage = lead.createdBy?.brokerImage || lead.createdBy?.profileImage || lead.createdBy?.image;
               const brokerName = lead.createdBy?.name || lead.createdBy?.fullName || lead.createdBy?.email || 'Unknown';
               
-              // Extract broker ID - handle all possible structures
+              // Extract broker ID and broker object - handle all possible structures
               let brokerId = null;
+              let broker = null;
+              
               if (lead.createdBy) {
                 if (typeof lead.createdBy === 'string') {
                   brokerId = lead.createdBy;
+                  broker = { _id: lead.createdBy, id: lead.createdBy };
                 } else if (typeof lead.createdBy === 'object') {
+                  broker = lead.createdBy;
                   brokerId = lead.createdBy.userId?._id || 
                              lead.createdBy.userId?.id ||
                              lead.createdBy.userId ||
@@ -1510,13 +1515,16 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                 {brokerName}
                               </p>
                               {brokerId ? (
-                                <Link
-                                  href={`/broker-details/${brokerId}`}
-                                  onClick={(e) => e.stopPropagation()}
+                                <span
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    router.push(`/broker-details/${brokerId}`);
+                                  }}
                                   className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
                                 >
                                   View
-                                </Link>
+                                </span>
                               ) : (
                                 <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
                               )}
@@ -1531,12 +1539,22 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                 <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Connect</span>
                     </span> */}
 
-                              <span className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  if (window.openChatWithBroker && broker) {
+                                    window.openChatWithBroker({ broker });
+                                  }
+                                }}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
                                 <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
                                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                 </svg>
-                                <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Chat</span>
-                        </span>
+                                <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">Chat</span>
+                              </button>
                 </div>
               </div>
               </div>

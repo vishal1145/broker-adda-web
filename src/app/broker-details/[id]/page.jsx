@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import ContentLoader from 'react-content-loader';
 import HeaderFile from '../../components/Header';
 
@@ -16,6 +16,7 @@ const headerData = {
 
 export default function BrokerDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const brokerId = params?.id;
   const [broker, setBroker] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -743,8 +744,37 @@ export default function BrokerDetailsPage() {
                       const customerPhone = lead?.customerPhone || '';
                       const customerEmail = lead?.customerEmail || '';
                       
+                      // Extract broker ID and broker object from lead.createdBy
+                      let viewBrokerId = null;
+                      let viewBroker = null;
+                      const createdBy = lead?.createdBy;
+                      
+                      if (createdBy) {
+                        if (typeof createdBy === 'string') {
+                          viewBrokerId = createdBy;
+                          viewBroker = { _id: createdBy, id: createdBy };
+                        } else if (typeof createdBy === 'object' && createdBy !== null) {
+                          viewBroker = createdBy;
+                          viewBrokerId = createdBy?.userId?._id || 
+                                        createdBy?.userId?.id ||
+                                        createdBy?.userId ||
+                                        createdBy?._id || 
+                                        createdBy?.id || 
+                                        createdBy?.brokerId ||
+                                        createdBy?.brokerDetailId ||
+                                        createdBy?.brokerDetailsId ||
+                                        null;
+                          viewBrokerId = viewBrokerId ? String(viewBrokerId) : null;
+                        }
+                      }
+                      
                       return (
-                        <article key={leadId} className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg">
+                        <Link
+                          key={leadId}
+                          href={`/lead-details/${leadId}`}
+                          className="block h-full"
+                        >
+                        <article className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer">
                           <div className="p-6">
                             {/* Top Section - Main Title */}
                             <div className="mb-4">
@@ -859,7 +889,7 @@ export default function BrokerDetailsPage() {
                                   </div>
                                   {/* Name */}
                                   <div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-6">
                                       <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
                                         {(() => {
                                           const createdBy = lead?.createdBy;
@@ -868,16 +898,40 @@ export default function BrokerDetailsPage() {
                                           return createdBy?.name || createdBy?.fullName || createdBy?.email || 'Unknown';
                                         })()}
                                       </p>
+                                      {viewBrokerId ? (
+                                        <span
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            router.push(`/broker-details/${viewBrokerId}`);
+                                          }}
+                                          className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+                                        >
+                                          View
+                                        </span>
+                                      ) : (
+                                        <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+                                      )}
                                     </div>
                                     <div className="flex items-center gap-3 mt-1">
-                                      <span className="flex items-center gap-2">
+                                      {/* <span className="flex items-center gap-2">
                                         <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                                         <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">Connect</span>
-                                      </span>
-                                      <span className="flex items-center gap-2">
+                                      </span> */}
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          if (window.openChatWithBroker && viewBroker) {
+                                            window.openChatWithBroker({ broker: viewBroker });
+                                          }
+                                        }}
+                                        className="flex items-center gap-2 cursor-pointer"
+                                      >
                                         <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                        <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">Chat</span>
-                                      </span>
+                                        <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">Chat</span>
+                                      </button>
                                     </div>
                                   </div>
                                 </div>
@@ -885,6 +939,7 @@ export default function BrokerDetailsPage() {
                             </div>
                           </div>
                         </article>
+                        </Link>
                       );
                     })}
                     {brokerLeads.length > 6 && (
@@ -1036,28 +1091,7 @@ export default function BrokerDetailsPage() {
             {/* Right Sidebar - 4 columns */}
             <div className="lg:col-span-4 space-y-8">
 
-{/* Quick Contact */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <h3 className=" text-[18px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
-                <button type="button" 
-                onClick={() => {
-                  if (window.openChatWithBroker) {
-                    window.openChatWithBroker({broker});
-                  }
-                }}
-                className="w-full px-6 py-3 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-medium">
-                  Send Message
-                </button>
-                <a href="#join-network"className="mt-3 w-full h-[40px] px-3 flex items-center justify-center 
-             font-[Inter] text-[12px] leading-[22px] font-medium text-[#0D542B]
-             bg-transparent border border-[#E5E7EB] rounded-md
-             hover:border-[#D1D5DB] active:border-[#C0C4CC]
-             hover:bg-transparent active:bg-transparent
-            
-             transition-colors duration-200">
-                  Join Our Network
-                </a>
-              </div>
+
 
               {/* Performance Metrics Grid */}
               <div className="grid grid-cols-2 gap-4">
@@ -1080,7 +1114,28 @@ export default function BrokerDetailsPage() {
               </div>
 
               
-
+{/* Quick Contact */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                <h3 className=" text-[18px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
+                <button type="button" 
+                onClick={() => {
+                  if (window.openChatWithBroker) {
+                    window.openChatWithBroker({broker});
+                  }
+                }}
+                className="w-full px-6 py-3 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-medium">
+                  Send Message
+                </button>
+                <a href="/signup"className="mt-3 w-full h-[40px] px-3 flex items-center justify-center 
+             font-[Inter] text-[12px] leading-[22px] font-medium text-[#0D542B]
+             bg-transparent 
+             
+             hover:bg-transparent active:bg-transparent
+            
+             transition-colors duration-200">
+                  Join Our Network
+                </a>
+              </div>
               
              
               {/* Lead Generation Support */}
@@ -1121,9 +1176,9 @@ export default function BrokerDetailsPage() {
                   </div>
                 </div>
                 
-                <button className="w-full h-[40px] px-3 mt-4 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md" id="join-network">
+                <Link href="/signup" className="w-full h-[40px] px-3 mt-4 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md transition-colors">
                   Join Our Network
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -1362,14 +1417,15 @@ export default function BrokerDetailsPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
               <button 
                 onClick={() => {
-                  const el = document.getElementById('send-message-prompt');
-                  if (el) el.focus();
+                  if (window.openChatWithBroker) {
+                    window.openChatWithBroker({broker});
+                  }
                 }}
                 className="h-[40px] px-3 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-[#584500] bg-[#FDC700] hover:bg-[#E3B200] hover:active:bg-[#C79C00] disabled:opacity-40 border-none opacity-100 rounded-md"
               >
                 Send Message
               </button>
-              <button 
+              {/* <button 
                 disabled={!phone}
                 onClick={() => {
                   if (phone) {
@@ -1386,7 +1442,7 @@ export default function BrokerDetailsPage() {
 
               >
                 Call Now
-              </button>
+              </button> */}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">

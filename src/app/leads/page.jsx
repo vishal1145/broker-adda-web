@@ -2598,7 +2598,7 @@ export default function BrokerLeadsPage() {
                 {/* Support Options List */}
                 <div className="space-y-3">
                   {/* Visit Support Center */}
-                  <div className="flex items-start gap-3">
+                  <Link href="/contact" className="flex items-start gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                     <div className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50 text-green-600 ring-1 ring-green-200 shrink-0">
                       <svg
                         className="w-4 h-4"
@@ -2615,14 +2615,14 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h5 className="text-[12px] leading-5 font-medium text-[#171A1F]">
+                      <h5 className="text-[12px] leading-5 font-medium text-[#171A1F] hover:text-[#0D542B] transition-colors">
                         Visit Support Center
                       </h5>
-                      <p className="text-[10px] leading-4 font-normal text-[#565D6D]">
+                      <p className="text-[10px] leading-4 font-normal text-[#565D6D] hover:text-[#0D542B] transition-colors">
                         Get answers to frequently asked questions.
                       </p>
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Read Documentation */}
                   <Link href="/help/documentation" className="flex items-start gap-3 hover:opacity-80 transition-opacity cursor-pointer">

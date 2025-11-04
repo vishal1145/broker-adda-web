@@ -332,7 +332,7 @@ const Dashboard = () => {
           {/* Overview Section */}
           <div className="mb-8 pb-16">
             <h2 className="text-[18px] font-bold text-gray-900 mb-6">Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {/* Total Leads */}
             <div 
               onClick={() => router.push('/leads')}
@@ -406,7 +406,7 @@ const Dashboard = () => {
           </div>
 
             {/* Inquiries Received */}
-            <div className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]" style={{ width: '100%', maxWidth: '258px', height: '144px' }}>
+            {/* <div className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]" style={{ width: '100%', maxWidth: '258px', height: '144px' }}>
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-[14px] leading-[20px] font-medium" style={{ fontFamily: 'Inter', color: '#565D6DFF' }}>Inquiries Received</div>
@@ -424,7 +424,7 @@ const Dashboard = () => {
                   3.1%
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Connections */}
             <div 

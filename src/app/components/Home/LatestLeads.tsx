@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import axios from "axios"; // ✅ Added axios import
 
 interface DotsProps {
@@ -69,6 +70,7 @@ interface ApiLead {
 // Removed sampleLeads fetching, now using API
 
 const LatestLeads: React.FC = () => {
+  const router = useRouter();
   const [leads, setLeads] = useState<ApiLead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -262,14 +264,17 @@ const LatestLeads: React.FC = () => {
             </div>
             <div className="md:col-span-6 grid gap-6 h-full md:grid-cols-2 self-center cursor-pointer">
               {leads.slice(0, 2).map((lead) => {
-                // Extract broker ID from lead.createdBy
+                // Extract broker ID and broker object from lead.createdBy
                 let brokerId: string | null = null;
+                let broker: any = null;
                 const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy;
                 
                 if (createdBy) {
                   if (typeof createdBy === 'string') {
                     brokerId = createdBy;
+                    broker = { _id: createdBy, id: createdBy };
                   } else if (typeof createdBy === 'object' && createdBy !== null) {
+                    broker = createdBy;
                     const obj = createdBy as { [key: string]: unknown };
                     const userId = obj['userId'];
                     if (userId && typeof userId === 'object' && userId !== null) {
@@ -485,7 +490,7 @@ const LatestLeads: React.FC = () => {
 
       {/* Name and icons */}
       <div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center justify-between gap-6">
           <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
             {(() => {
               const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
@@ -501,13 +506,16 @@ const LatestLeads: React.FC = () => {
             })()}
           </p>
           {brokerId ? (
-            <Link
-              href={`/broker-details/${brokerId}`}
-              onClick={(e) => e.stopPropagation()}
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                router.push(`/broker-details/${brokerId}`);
+              }}
               className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
             >
               View
-            </Link>
+            </span>
           ) : (
             <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
           )}
@@ -528,7 +536,17 @@ const LatestLeads: React.FC = () => {
             </span>
           </span> */}
 
-          <span className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (typeof window !== 'undefined' && (window as any).openChatWithBroker && broker) {
+                (window as any).openChatWithBroker({ broker });
+              }
+            }}
+            className="flex items-center gap-2 cursor-pointer"
+          >
             <svg
               className="w-3 h-3 fill-none stroke-[#171A1FFF]"
               viewBox="0 0 24 24"
@@ -536,10 +554,10 @@ const LatestLeads: React.FC = () => {
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
-            <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">
+            <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">
               Chat
             </span>
-          </span>
+          </button>
         </div>
       </div>
     </div>

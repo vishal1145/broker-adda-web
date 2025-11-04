@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import HeaderFile from "../../components/Header";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
@@ -698,7 +699,51 @@ export default function LeadDetails() {
                       <div className="flex gap-4 min-w-0 pb-2">
                         {sameLeads
                           .filter((s) => s._id !== lead._id)
-                          .map((s) => (
+                          .map((s) => {
+                            // Extract broker ID and broker object from s.createdBy
+                            let brokerId: string | null = null;
+                            let broker: any = null;
+                            
+                            if (s.createdBy) {
+                              broker = s.createdBy;
+                              const createdByAny = s.createdBy as any;
+                              
+                              // Handle string type
+                              if (typeof createdByAny === 'string') {
+                                brokerId = createdByAny;
+                              } else if (typeof createdByAny === 'object' && createdByAny !== null) {
+                                // Prioritize broker-specific IDs first
+                                brokerId = createdByAny.brokerDetailId ||
+                                          createdByAny.brokerDetailsId ||
+                                          createdByAny.brokerId ||
+                                          null;
+                                
+                                // Try nested userId structure (common pattern)
+                                if (!brokerId && createdByAny.userId) {
+                                  if (typeof createdByAny.userId === 'object' && createdByAny.userId !== null) {
+                                    brokerId = createdByAny.userId._id || 
+                                              createdByAny.userId.id || 
+                                              createdByAny.userId.brokerId ||
+                                              createdByAny.userId.brokerDetailId ||
+                                              null;
+                                  } else if (typeof createdByAny.userId === 'string') {
+                                    brokerId = createdByAny.userId;
+                                  }
+                                }
+                                
+                                // Fallback to direct _id or id (may be user ID, not broker ID)
+                                if (!brokerId) {
+                                  brokerId = createdByAny._id || 
+                                            createdByAny.id || 
+                                            null;
+                                }
+                              }
+                              
+                              // Ensure brokerId is a string if it exists
+                              brokerId = brokerId ? String(brokerId) : null;
+                            }
+
+                            return (
                             <a
                               key={s._id}
                               href={`/lead-details/${s._id}`}
@@ -836,13 +881,29 @@ export default function LeadDetails() {
                                         )}
 
                                         <div>
-                                          <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
-                                            {s.createdBy.name || "Unknown"}
-                                          </p>
+                                          <div className="flex items-center gap-6">
+                                            <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
+                                              {s.createdBy.name || "Unknown"}
+                                            </p>
+                                            {brokerId ? (
+                                              <span
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  e.preventDefault();
+                                                  router.push(`/broker-details/${brokerId}`);
+                                                }}
+                                                className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+                                              >
+                                                View
+                                              </span>
+                                            ) : (
+                                              <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+                                            )}
+                                          </div>
 
                                           {/* Connect / Chat */}
                                           <div className="flex items-center gap-3 mt-1">
-                                            <span className="flex items-center gap-2">
+                                            {/* <span className="flex items-center gap-2">
                                               <svg
                                                 className="w-3 h-3 fill-none stroke-[#171A1FFF]"
                                                 viewBox="0 0 24 24"
@@ -853,9 +914,19 @@ export default function LeadDetails() {
                                               <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">
                                                 Connect
                                               </span>
-                                            </span>
+                                            </span> */}
 
-                                            <span className="flex items-center gap-2">
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                if ((window as any).openChatWithBroker && broker) {
+                                                  (window as any).openChatWithBroker({ broker });
+                                                }
+                                              }}
+                                              className="flex items-center gap-2 cursor-pointer"
+                                            >
                                               <svg
                                                 className="w-3 h-3 fill-none stroke-[#171A1FFF]"
                                                 viewBox="0 0 24 24"
@@ -863,10 +934,10 @@ export default function LeadDetails() {
                                               >
                                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                               </svg>
-                                              <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">
+                                              <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">
                                                 Chat
                                               </span>
-                                            </span>
+                                            </button>
                                           </div>
                                         </div>
                                       </div>
@@ -875,7 +946,8 @@ export default function LeadDetails() {
                                 )}
                               </div>
                             </a>
-                          ))}
+                            );
+                          })}
                       </div>
                     </div>
 
