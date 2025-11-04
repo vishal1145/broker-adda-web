@@ -682,7 +682,7 @@ const enableSuggestions = false;
                             </>
                           ) : (
                             <>
-                              <Link href="/profile?mode=view" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/customer-profile?mode=view" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Profile
                               </Link>
                               <Link href="/saved-properties" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -796,7 +796,7 @@ const enableSuggestions = false;
                     </li>
                   )}
                   <li>
-                    <Link href="/profile?mode=view" className="block px-1 py-1 rounded hover:bg-gray-50">
+                    <Link href={user.role === 'customer' ? "/customer-profile?mode=view" : "/profile?mode=view"} className="block px-1 py-1 rounded hover:bg-gray-50">
                       Profile
                     </Link>
                   </li>
