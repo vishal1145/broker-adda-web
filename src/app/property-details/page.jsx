@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import ContentLoader from 'react-content-loader';
 import data from '../data/furnitureData.json';
 import HeaderFile from '../components/Header';
+import PropertyEnquiryModal from '../components/PropertyEnquiryModal';
 
 const TABS = [
   { label: 'Description' },
@@ -34,6 +35,8 @@ function PropertyDetailsPageInner() {
   const [similarLoading, setSimilarLoading] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
+  const [broker, setBroker] = useState(null);
 
   // Fetch property details from API
   useEffect(() => {
@@ -117,6 +120,7 @@ function PropertyDetailsPageInner() {
               experience: b.experience || b.experienceYears || ''
             };
             setAgent(mappedAgent);
+            setBroker(b);
           }
 
           // Try to resolve an agent/broker id from the property payload
@@ -154,6 +158,7 @@ function PropertyDetailsPageInner() {
                     experience: brokerData.experience || brokerData.experienceYears || ''
                   };
                   setAgent(mappedAgent);
+                  setBroker(brokerData);
                 }
               } else {
                 setAgentError('Failed to fetch agent details');
@@ -869,20 +874,51 @@ function PropertyDetailsPageInner() {
 
   {/* Amenities */}
   {product?.nearbyAmenities?.length ? (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2">
+    <div className="flex flex-wrap gap-2">
       {product.nearbyAmenities.map((item, idx) => (
-        <div key={idx} className="flex items-start gap-2">
-          <span className="mt-[7px] w-[6px] h-[6px] rounded-full bg-[#0D542B]" />
-          <span className="font-inter text-[12px] leading-[20px] text-[#171A1F]">
-            {item}
-          </span>
-        </div>
+        <span 
+          key={idx} 
+          className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 font-inter text-[12px] leading-[20px] font-medium border border-gray-300"
+        >
+          {item}
+        </span>
       ))}
     </div>
   ) : (
     <div className="text-sm text-gray-500">No nearby amenities listed.</div>
   )}
               </div>
+
+               {/* Key Features and Location Benefits - Outside the tabs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                <h4 className="font-bold text-gray-900 mb-6 text-[18px]">Key Features</h4>
+                <div className="flex flex-wrap gap-2">
+                  {(product?.features && product.features.length > 0 ? product.features : ['Corner Unit','Park Facing']).map((item) => (
+                    <span 
+                      key={item} 
+                      className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 font-inter text-[12px] leading-[20px] font-medium border border-gray-300"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                <h4 className="font-bold text-gray-900 mb-6 text-[18px]">Location Benefits</h4>
+                <div className="flex flex-wrap gap-2">
+                  {(product?.locationBenefits && product.locationBenefits.length > 0 ? product.locationBenefits : ['Near IT Park','Easy Highway Access']).map((item) => (
+                    <span 
+                      key={item} 
+                      className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 font-inter text-[12px] leading-[20px] font-medium border border-gray-300"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
               
             {/* Property Details Tabs Section */}
             <div className="mt-8 w-full">
@@ -1031,36 +1067,7 @@ function PropertyDetailsPageInner() {
               </div>
             </div>
 
-            {/* Key Features and Location Benefits - Outside the tabs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full">
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <h4 className="font-bold text-gray-900 mb-6 text-[18px]">Key Features</h4>
-                <ul className="space-y-4">
-                  {(product?.features && product.features.length > 0 ? product.features : ['Corner Unit','Park Facing']).map((item) => (
-                    <li key={item} className="flex items-center gap-3">
-                      <svg className="w-5 h-5 text-[#0D542B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                      <span className="text-[12px] text-gray-700">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <h4 className="font-bold text-gray-900 mb-6 text-[18px]">Location Benefits</h4>
-                <ul className="space-y-4">
-                  {(product?.locationBenefits && product.locationBenefits.length > 0 ? product.locationBenefits : ['Near IT Park','Easy Highway Access']).map((item) => (
-                    <li key={item} className="flex items-center gap-3">
-                      <svg className="w-5 h-5 text-[#0D542B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                      <span className="text-[12px] text-gray-700">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+           
 
           </section>
 
@@ -1119,20 +1126,17 @@ function PropertyDetailsPageInner() {
   
              {/* Actions - Below the content */}
              <div className="flex flex-col gap-3">
-               <button className="w-full h-[40px] px-[12px] flex items-center justify-center gap-[16px] font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-[6px] border-0 hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40">
-                 
-                 Contact Broker
+
+               <button 
+                 onClick={() => setIsEnquiryModalOpen(true)}
+                 className="w-full h-[40px] px-[12px] flex items-center justify-center gap-[16px] font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-[6px] border-0 hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40"
+               >
+                 Inquiry
                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                  </svg>
                </button>
-               <button className="w-full h-[40px] px-[12px] flex items-center justify-center gap-[16px] font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] rounded-[6px] hover:bg-white active:bg-white disabled:opacity-40">
-               
-                 Schedule Visit
-                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                 </svg>
-               </button>
+              
              </div>
            </div>
 
@@ -1182,12 +1186,19 @@ function PropertyDetailsPageInner() {
       </div>
 
       {/* Chat button */}
-      <button
-        type="button"
-        className="mt-4 w-full h-10 flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#323742] bg-[#F3F4F6] rounded-[10px] hover:bg-[#E9EBEF] active:bg-[#D9DEE6] disabled:opacity-40"
-      >
-        Chat Now
-      </button>
+      {broker && (
+        <button 
+          onClick={() => {
+            if (window.openChatWithBroker) {
+              window.openChatWithBroker({broker});
+            }
+          }}
+          type="button"
+          className="mt-4 w-full h-10 flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#323742] bg-[#F3F4F6] rounded-[10px] hover:bg-[#E9EBEF] active:bg-[#D9DEE6] disabled:opacity-40"
+        >
+          Chat Now
+        </button>
+      )}
     </>
               ) : (
                 <div className="text-sm text-gray-500">Agent details not available.</div>
@@ -1309,7 +1320,7 @@ function PropertyDetailsPageInner() {
 
   {/* Title */}
   <h3 className="text-[18px] leading-[28px] font-semibold text-[#19191F]">
-    Virtual Tour
+    Property Video
   </h3>
 
   {/* Subtitle */}
@@ -1318,8 +1329,8 @@ function PropertyDetailsPageInner() {
   </p>
 
   {/* Button */}
-  <button className="mt-4 w-[101.13px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white rounded-[6px] border border-[#0D542B] hover:bg-white active:bg-white disabled:opacity-40">
-    View Tour
+  <button className="mt-4 w-[107.13px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white rounded-[6px] border border-[#0D542B] hover:bg-white active:bg-white disabled:opacity-40">
+    View Video
   </button>
           </div>
 
@@ -1371,14 +1382,16 @@ function PropertyDetailsPageInner() {
                       </svg>
                       Key Features
                     </h4>
-                    <ul className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
                       {(product?.features && product.features.length > 0 ? product.features : ['Corner Unit','Park Facing']).map((item) => (
-                        <li key={item} className="flex items-center gap-3 text-sm text-green-800">
-                          <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+                        <span 
+                          key={item} 
+                          className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 font-inter text-[12px] leading-[20px] font-medium border border-gray-300"
+                        >
                           {item}
-                        </li>
+                        </span>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                   
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6">
@@ -1389,14 +1402,16 @@ function PropertyDetailsPageInner() {
                       </svg>
                       Location Benefits
                     </h4>
-                    <ul className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
                       {(product?.locationBenefits && product.locationBenefits.length > 0 ? product.locationBenefits : ['Near IT Park','Easy Highway Access']).map((item) => (
-                        <li key={item} className="flex items-center gap-3 text-sm text-blue-800">
-                          <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+                        <span 
+                          key={item} 
+                          className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 font-inter text-[12px] leading-[20px] font-medium border border-gray-300"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1750,6 +1765,11 @@ function PropertyDetailsPageInner() {
           </div>
         </div>
       </div>
+      <PropertyEnquiryModal
+        isOpen={isEnquiryModalOpen}
+        onClose={() => setIsEnquiryModalOpen(false)}
+        propertyId={product?.id || product?._id || null}
+      />
     </div>
   );
 }
