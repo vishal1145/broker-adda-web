@@ -438,7 +438,7 @@ const enableSuggestions = false;
               <>
                 {user.role === 'broker' ? (
                   <Link
-                    href="/list-property"
+                    href="/properties-management"
                     className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
                   >
                     <svg
@@ -740,7 +740,7 @@ const enableSuggestions = false;
             <li>
               {user.role === 'broker' ? (
                 <Link
-                  href="/list-property"
+                  href="/properties-management"
                   className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#0d542b] text-white"
                 >
                   <svg

@@ -129,7 +129,7 @@ const Connections = () => {
       <HeaderFile data={headerData} />
       
       <div className="min-h-screen bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className=" mx-auto px-4">
           {/* Header Section */}
           <div className="mb-8">
             <h1 className="font-archivo text-[24px] leading-[36px] font-bold text-[#171A1FFF] mb-2">
