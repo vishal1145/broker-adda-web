@@ -10,12 +10,13 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
   useEffect(() => {
     if (loading) return; // Wait for auth to load
 
+    // Small delay to ensure user data is loaded
+    const timer = setTimeout(() => {
     if (!isAuthenticated()) {
       console.log('ProtectedRoute: User not authenticated, redirecting to login');
       router.push('/login');
       return;
     }
-
     // Check role-specific access
     if (requiredRole === 'broker' && !isBroker()) {
       console.log('ProtectedRoute: User is not a broker, redirecting to login');
@@ -28,6 +29,9 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
       router.push('/login');
       return;
     }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [user, loading, isAuthenticated, isBroker, isCustomer, requiredRole, router]);
 
   // Show nothing while checking authentication

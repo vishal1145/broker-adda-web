@@ -51,11 +51,15 @@ export const AuthProvider = ({ children }) => {
               return;
             }
 
+            // Get userId from localStorage or token
+            const storedUserId = localStorage.getItem('userId');
+            const userId = tokenPayload.userId || tokenPayload.id || tokenPayload.customerId || tokenPayload.brokerId || storedUserId;
+
             const userData = {
               phone: phone,
               role: tokenPayload.role || role || 'customer',
               token: token,
-              userId: tokenPayload.userId || tokenPayload.id
+              userId: userId
             };
             
             console.log('AuthContext: Final user data:', userData);
@@ -108,6 +112,7 @@ export const AuthProvider = ({ children }) => {
       if (userData.token) localStorage.setItem('token', userData.token);
       if (userData.phone) localStorage.setItem('phone', userData.phone);
       if (userData.role) localStorage.setItem('role', userData.role);
+      if (userData.userId) localStorage.setItem('userId', userData.userId);
       
       console.log('AuthContext: Setting user data:', userData);
       setUser(userData);

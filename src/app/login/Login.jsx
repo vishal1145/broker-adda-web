@@ -201,6 +201,12 @@ const Login = () => {
 
           // Save to localStorage and login user
           console.log('Saving user data to localStorage:', { token: !!token, phone: phoneFromApi, role, userId });
+          
+          // Save userId to localStorage if available
+          if (userId) {
+            localStorage.setItem('userId', userId);
+          }
+          
           auth.login({ token, phone: phoneFromApi, role, userId });
           
           // Verify token was saved successfully
@@ -213,21 +219,42 @@ const Login = () => {
           toast.success(data.message || 'Phone number verified successfully!');
           setShowOTPModal(false);
           
-          // Check if there's a return URL to redirect back to (for wishlist saving)
-          const returnUrl = typeof window !== 'undefined' ? localStorage.getItem('returnUrl') : null;
-          if (returnUrl) {
-            localStorage.removeItem('returnUrl');
-            router.push(returnUrl);
-          } else {
-            // Redirect based on user role
-            if (role === 'broker') {
-              router.push('/dashboard');
-            } else if (role === 'customer') {
-              router.push('/customer-profile?mode=view');
+          // Small delay to ensure auth context is updated
+          setTimeout(() => {
+            // Check if there's a return URL to redirect back to (for wishlist saving)
+            const returnUrl = typeof window !== 'undefined' ? localStorage.getItem('returnUrl') : null;
+            if (returnUrl) {
+              localStorage.removeItem('returnUrl');
+              router.push(returnUrl);
             } else {
-              router.push('/dashboard');
+              // Redirect based on user role - prioritize explicit role check
+              const finalRole = role || (typeof window !== 'undefined' ? localStorage.getItem('role') : null);
+              console.log('Login redirect - Final role:', finalRole);
+              
+              if (finalRole === 'broker') {
+                router.push('/dashboard');
+              } else if (finalRole === 'customer') {
+                router.push('/customer-profile?mode=view');
+              } else {
+                // Default: try to get role from token if available
+                try {
+                  const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+                  const tokenRole = tokenPayload.role;
+                  if (tokenRole === 'customer') {
+                    router.push('/customer-profile?mode=view');
+                  } else if (tokenRole === 'broker') {
+                    router.push('/dashboard');
+                  } else {
+                    // Last resort: default to customer profile
+                    router.push('/customer-profile?mode=view');
+                  }
+                } catch {
+                  // If can't parse token, default to customer profile
+                  router.push('/customer-profile?mode=view');
+                }
+              }
             }
-          }
+          }, 300);
         } else {
           throw new Error(data.message || 'Invalid OTP');
         }
