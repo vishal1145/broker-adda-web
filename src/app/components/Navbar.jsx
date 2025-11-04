@@ -27,8 +27,11 @@ const Navbar = ({ data }) => {
   const [profileImageLoading, setProfileImageLoading] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAllNotifications, setShowAllNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
 
-  const notifications = [
+  // Fallback hardcoded notifications
+  const fallbackNotifications = [
     { id: 1, title: 'New Lead Received', message: 'You have received a new lead for a 3BHK apartment in Mumbai', time: '2 minutes ago', unread: true },
     { id: 2, title: 'Property Inquiry', message: 'Customer interested in your commercial property listing', time: '1 hour ago', unread: true },
     { id: 3, title: 'Lead Transfer', message: 'A lead has been shared with you by another broker', time: '3 hours ago', unread: true },
@@ -39,6 +42,145 @@ const Navbar = ({ data }) => {
   ];
 
   useEffect(() => setIsMounted(true), []);
+
+  // Get broker ID from token
+  const getBrokerIdFromToken = () => {
+    try {
+      if (typeof window === 'undefined') return '';
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      if (!token) return '';
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      
+      // userId can be string ID or object with _id
+      let brokerId = '';
+      if (payload.userId) {
+        if (typeof payload.userId === 'string') {
+          brokerId = payload.userId;
+        } else if (payload.userId._id) {
+          brokerId = payload.userId._id;
+        }
+      }
+      
+      // Fallback to other possible fields
+      if (!brokerId) {
+        brokerId = (
+          payload.brokerId ||
+          payload.brokerDetailId ||
+          payload.brokerDetailsId ||
+          payload.brokerDetails?.id ||
+          payload.brokerDetails?._id ||
+          payload.id ||
+          ''
+        );
+      }
+      
+      console.log('Broker ID from token:', brokerId, 'Full payload:', payload);
+      return brokerId;
+    } catch (e) {
+      console.error('Error extracting broker ID from token:', e);
+      return '';
+    }
+  };
+
+  // Fetch notifications from API
+  const fetchNotifications = async () => {
+    try {
+      setNotificationsLoading(true);
+      
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : null;
+      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const brokerId = getBrokerIdFromToken();
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      };
+
+      // Add brokerId to query params if available (try both brokerId and userId)
+      let queryParams = '';
+      if (brokerId) {
+        queryParams = `?brokerId=${encodeURIComponent(brokerId)}&userId=${encodeURIComponent(brokerId)}`;
+      }
+      const apiEndpoint = `${apiUrl}/notifications${queryParams}`;
+      console.log('Fetching notifications from:', apiEndpoint, 'with brokerId:', brokerId);
+      
+      const response = await fetch(apiEndpoint, {
+        method: 'GET',
+        headers
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch notifications');
+      }
+
+      const data = await response.json();
+      console.log('Notifications data:', data);
+      
+      // Handle different response structures
+      let notificationsList = [];
+      if (Array.isArray(data?.data)) {
+        notificationsList = data.data;
+      } else if (Array.isArray(data?.notifications)) {
+        notificationsList = data.notifications;
+      } else if (Array.isArray(data)) {
+        notificationsList = data;
+      } else if (data?.data?.notifications && Array.isArray(data.data.notifications)) {
+        notificationsList = data.data.notifications;
+      }
+
+      // Transform API data to match expected format
+      const transformedNotifications = notificationsList.map((notif, index) => ({
+        id: notif?._id || notif?.id || index + 1,
+        title: notif?.title || notif?.type || 'Notification',
+        message: notif?.message || notif?.body || notif?.description || '',
+        time: notif?.createdAt ? formatTimeAgo(notif.createdAt) : notif?.time || 'Recently',
+        unread: notif?.isRead === false || notif?.read === false || notif?.unread === true || false
+      }));
+
+      console.log('Transformed notifications:', transformedNotifications);
+      // Use API data if available, even if empty (don't use fallback for empty API response)
+      setNotifications(transformedNotifications);
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+      // Use fallback notifications on error
+      setNotifications(fallbackNotifications);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  };
+
+  // Format time ago helper
+  const formatTimeAgo = (dateString) => {
+    if (!dateString) return 'Recently';
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInSeconds = Math.floor((now - date) / 1000);
+      
+      if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+      if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+      return date.toLocaleDateString();
+    } catch (e) {
+      return 'Recently';
+    }
+  };
+
+  // Fetch notifications on mount and when user is available
+  useEffect(() => {
+    if (isMounted) {
+      if (user) {
+        fetchNotifications();
+      } else {
+        // Use fallback notifications if user is not logged in
+        setNotifications(fallbackNotifications);
+      }
+    }
+  }, [isMounted, user]);
 
   const router = useRouter();
   const pathname = usePathname();

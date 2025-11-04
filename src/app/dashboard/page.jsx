@@ -227,81 +227,78 @@ const Dashboard = () => {
       try {
         setActivityLoading(true);
         const { brokerId, baseApi, token } = await resolveBrokerId();
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
-        // Fetch recent leads and properties to generate activity
-        const [leadsRes, propsRes] = await Promise.all([
-          fetch(`${baseApi}/leads?createdBy=${encodeURIComponent(brokerId)}&limit=10&page=1&sort=-createdAt`, { headers }),
-          fetch(`${baseApi}/properties?limit=10&page=1&brokerId=${encodeURIComponent(brokerId)}&sort=-createdAt`, { headers })
-        ]);
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        };
 
-        const activities = [];
+        // Build query parameters with brokerId and userId
+        const queryParams = new URLSearchParams({
+          days: '7',
+          ...(brokerId ? { brokerId: brokerId, userId: brokerId } : {})
+        });
 
-        // Process leads
-        if (leadsRes.ok) {
-          const lj = await leadsRes.json().catch(() => ({}));
-          let leads = [];
-          if (Array.isArray(lj?.data?.items)) leads = lj.data.items;
-          else if (Array.isArray(lj?.data?.leads)) leads = lj.data.leads;
-          else if (Array.isArray(lj?.data)) leads = lj.data;
-          else if (Array.isArray(lj?.leads)) leads = lj.leads;
-          else if (Array.isArray(lj)) leads = lj;
+        const apiEndpoint = `${baseApi}/notifications/recent?${queryParams.toString()}`;
+        console.log('Fetching recent activity from:', apiEndpoint, 'with brokerId:', brokerId);
 
-          leads.slice(0, 5).forEach((lead) => {
-            const createdAt = lead.createdAt ? new Date(lead.createdAt) : null;
-            const timeAgo = createdAt ? getTimeAgo(createdAt) : '';
-            const leadName = lead.name || lead.createdBy?.name || 'a lead';
-            const propertyType = lead.propertyType || 'property';
-            
-            activities.push({
-              icon: '🔍',
-              text: `Received new inquiry from ${leadName} for ${propertyType}`,
-              time: timeAgo || 'Recently',
-              timestamp: createdAt?.getTime() || 0,
-            });
+        const response = await fetch(apiEndpoint, {
+          method: 'GET',
+          headers
+        });
 
-            if (lead.status === 'Confirmed' || lead.status === 'confirmed') {
-              activities.push({
-                icon: '↑',
-                text: `Updated lead status for ${leadName} to 'Confirmed'`,
-                time: timeAgo || 'Recently',
-                timestamp: (createdAt?.getTime() || 0) - 1000,
-              });
-            }
-          });
+        if (!response.ok) {
+          throw new Error('Failed to fetch recent activity');
         }
 
-        // Process properties
-        if (propsRes.ok) {
-          const pj = await propsRes.json().catch(() => ({}));
-          let properties = [];
-          if (Array.isArray(pj?.data?.items)) properties = pj.data.items;
-          else if (Array.isArray(pj?.data?.properties)) properties = pj.data.properties;
-          else if (Array.isArray(pj?.data)) properties = pj.data;
-          else if (Array.isArray(pj?.properties)) properties = pj.properties;
-          else if (Array.isArray(pj)) properties = pj;
-
-          properties.slice(0, 5).forEach((property) => {
-            const createdAt = property.createdAt ? new Date(property.createdAt) : null;
-            const timeAgo = createdAt ? getTimeAgo(createdAt) : '';
-            const propertyName = property.title || property.name || 'a property';
-            
-            activities.push({
-              icon: '📄',
-              text: `Submitted new property listing: ${propertyName}`,
-              time: timeAgo || 'Recently',
-              timestamp: createdAt?.getTime() || 0,
-            });
-          });
+        const data = await response.json();
+        console.log('Recent activity data:', data);
+        
+        // Handle different response structures
+        let notificationsList = [];
+        if (Array.isArray(data?.data)) {
+          notificationsList = data.data;
+        } else if (Array.isArray(data?.notifications)) {
+          notificationsList = data.notifications;
+        } else if (Array.isArray(data?.activities)) {
+          notificationsList = data.activities;
+        } else if (Array.isArray(data)) {
+          notificationsList = data;
+        } else if (data?.data?.notifications && Array.isArray(data.data.notifications)) {
+          notificationsList = data.data.notifications;
+        } else if (data?.data?.activities && Array.isArray(data.data.activities)) {
+          notificationsList = data.data.activities;
         }
 
-        // Sort by timestamp and take most recent 6
+        // Transform API data to match expected format
+        const activities = notificationsList.map((notif) => {
+          const createdAt = notif?.createdAt ? new Date(notif.createdAt) : null;
+          const timeAgo = createdAt ? getTimeAgo(createdAt) : 'Recently';
+          
+          // Map notification type to icon
+          const type = (notif?.type || notif?.title || '').toLowerCase();
+          let icon = '🔔';
+          if (type.includes('lead') || type.includes('inquiry')) icon = '🔍';
+          else if (type.includes('property') || type.includes('listing')) icon = '📄';
+          else if (type.includes('status') || type.includes('update')) icon = '↑';
+          else if (type.includes('connection') || type.includes('connect')) icon = '👤';
+          else if (type.includes('deal') || type.includes('closed')) icon = '↓';
+          else if (type.includes('showing') || type.includes('viewing')) icon = '🏠';
+
+          return {
+            icon: icon,
+            text: notif?.message || notif?.body || notif?.description || notif?.title || 'Activity',
+            time: timeAgo,
+            timestamp: createdAt?.getTime() || 0,
+          };
+        });
+
+        // Sort by timestamp (most recent first)
         activities.sort((a, b) => b.timestamp - a.timestamp);
-        // Only update if we have activities from API, otherwise keep hardcoded fallback
-        if (activities.length > 0) {
-          setRecentActivity(activities.slice(0, 6));
-        }
-        // If no activities from API, keep hardcoded fallback (already set in initial state)
+        
+        console.log('Transformed activities:', activities);
+        // Use API data if available, even if empty (don't use fallback for empty API response)
+        setRecentActivity(activities);
       } catch (e) {
         console.error('Error fetching recent activity:', e);
         // Keep hardcoded fallback on error (already set in initial state, don't clear it)
