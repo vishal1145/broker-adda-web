@@ -26,12 +26,16 @@ const Navbar = ({ data }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [profileImageLoading, setProfileImageLoading] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showAllNotifications, setShowAllNotifications] = useState(false);
 
   const notifications = [
     { id: 1, title: 'New Lead Received', message: 'You have received a new lead for a 3BHK apartment in Mumbai', time: '2 minutes ago', unread: true },
     { id: 2, title: 'Property Inquiry', message: 'Customer interested in your commercial property listing', time: '1 hour ago', unread: true },
-    { id: 3, title: 'Lead Transfer', message: 'A lead has been shared with you by another broker', time: '3 hours ago', unread: false },
+    { id: 3, title: 'Lead Transfer', message: 'A lead has been shared with you by another broker', time: '3 hours ago', unread: true },
     { id: 4, title: 'Profile Update Required', message: 'Please complete your broker profile to get more visibility', time: '1 day ago', unread: false },
+    { id: 5, title: 'New Connection Request', message: 'Rajesh Kumar wants to connect with you', time: '2 days ago', unread: false },
+    { id: 6, title: 'Property Sold', message: 'Congratulations! Your property listing has been sold', time: '3 days ago', unread: false },
+    { id: 7, title: 'Payment Received', message: 'Payment of ₹50,000 has been received for property commission', time: '4 days ago', unread: false },
   ];
 
   useEffect(() => setIsMounted(true), []);
@@ -319,6 +323,78 @@ const enableSuggestions = false;
   </svg>
               <span>Chat</span>
             </a>
+
+            {/* Notification Icon */}
+            <div className="relative notification-container">
+              <button
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  setShowAllNotifications(false);
+                }}
+                className="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
+                aria-label="Notifications"
+              >
+                <FaBell className="w-4 h-4" />
+                {/* Notification badge - hardcoded */}
+                {notifications.filter(n => n.unread).length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
+                    {notifications.filter(n => n.unread).length}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                  <div className="p-4 border-b border-gray-200">
+                    <h3 className="text-base font-semibold text-gray-900">Notifications</h3>
+                    <p className="text-xs text-gray-500">{notifications.length} total</p>
+                  </div>
+                  <div className="py-2">
+                    {(showAllNotifications ? notifications : notifications.slice(0, 3)).map((n) => (
+                      <div
+                        key={n.id}
+                        className={
+                          'px-4 py-3 hover:bg-gray-50 border-l-4 ' +
+                          (n.unread ? 'border-green-500 bg-green-50' : 'border-transparent')
+                        }
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className={'text-sm font-medium ' + (n.unread ? 'text-gray-900' : 'text-gray-700')}>
+                              {n.title}
+                            </h4>
+                            <p className="text-sm text-gray-600 mt-1">{n.message}</p>
+                            <p className="text-xs text-gray-400 mt-1">{n.time}</p>
+                          </div>
+                          {n.unread && <span className="w-2 h-2 bg-green-500 rounded-full mt-1 ml-2" />}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {!showAllNotifications && notifications.length > 3 && (
+                    <div className="p-3 border-t border-gray-200">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowNotifications(false);
+                          router.push('/notifications');
+                        }}
+                        className="w-full text-center text-sm text-[#0d542b] hover:opacity-80 font-medium cursor-pointer"
+                      >
+                        View All
+                      </button>
+                    </div>
+                  )}
+                  <div className="p-3 border-t border-gray-200">
+                    <button className="w-full text-center text-sm text-[#0d542b] hover:opacity-80 font-medium">
+                      Mark all as read
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Wishlist */}
             {/* <Link

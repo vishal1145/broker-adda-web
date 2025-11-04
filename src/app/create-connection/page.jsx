@@ -220,99 +220,71 @@ const Connections = () => {
                 return (
                   <div
                     key={connectionId}
-                    className="group bg-white border border-gray-200 rounded-xl p-6 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-200"
+                    className="group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-200"
                   >
-                    {/* Top Section - Avatar and Name */}
-                    <div className="flex items-start gap-4 mb-5">
-                      {/* Avatar */}
-                      <div className="relative flex-shrink-0">
-                        {broker.brokerImage ? (
-                          <img
-                            src={broker.brokerImage}
-                            alt={broker.name}
-                            className="w-14 h-14 rounded-full object-cover ring-2 ring-white"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextElementSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className={`w-14 h-14 rounded-full flex items-center justify-center text-[16px] font-semibold ${avatarColor.bg} ${avatarColor.text} ${
-                            broker.brokerImage ? 'hidden' : ''
-                          }`}
-                        >
-                          {getInitials(broker.name)}
-                        </div>
-                        {/* Status indicator */}
-                        {(broker.status === 'Verified' || broker.status === 'Active') && (
-                          <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-green-500 border-2 border-white"></div>
-                        )}
+                    {/* Full Image Section at Top */}
+                    <div className="relative w-full h-64 bg-gray-100">
+                      {broker.brokerImage ? (
+                        <img
+                          src={broker.brokerImage}
+                          alt={broker.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextElementSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div
+                        className={`w-full h-full flex items-center justify-center text-4xl font-semibold ${avatarColor.bg} ${avatarColor.text} ${
+                          broker.brokerImage ? 'hidden' : ''
+                        }`}
+                      >
+                        {getInitials(broker.name)}
                       </div>
-
-                      {/* Name and Badge */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                          <h3 className="text-[16px] font-semibold text-[#171A1F] truncate">{broker.name}</h3>
-                          {broker.status === 'Verified' && (
-                            <span className="flex-shrink-0 px-2 py-0.5 bg-green-50 text-green-900 text-[11px] font-semibold rounded-full border border-green-200">
-                              ✓ Verified
-                            </span>
-                          )}
-                        </div>
-                        {broker.email && (
-                          <p className="text-[12px] font-normal text-[#565D6D] truncate">{broker.email}</p>
-                        )}
-                      </div>
+                      {/* Status indicator */}
+                      {(broker.status === 'Verified' || broker.status === 'Active') && (
+                        <div className="absolute bottom-3 right-3 w-4 h-4 rounded-full bg-green-500 border-2 border-white"></div>
+                      )}
                     </div>
 
-                    {/* Divider */}
-                    <div className="border-t border-gray-100 my-5"></div>
+                    {/* Bottom Section - All Content */}
+                    <div className="p-5">
+                      {/* Name */}
+                      <div className="flex items-center gap-0 mb-2">
+                        <h3 className="text-[16px] font-semibold text-[#171A1F]">{broker.name}</h3>
+                        {broker.brokerId ? (
+                          <Link href={`/broker-details/${broker.brokerId}`}>
+                            <svg className="w-4 h-4 text-green-600 rotate-45 ml-2 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                            </svg>
+                          </Link>
+                        ) : (
+                          <svg className="w-4 h-4 text-green-600 rotate-45 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                          </svg>
+                        )}
+                      </div>
 
-                    {/* Details Section */}
-                    <div className="space-y-4 mb-5">
-                      {/* Firm Name */}
+                      {/* Specialization / Firm Name */}
                       {broker.firmName && (
-                        <div className="flex justify-between items-start gap-3">
-                          <span className="text-[11px] font-medium text-[#565D6D] uppercase tracking-wide">Firm Name</span>
-                          <span className="text-[13px] font-semibold text-[#171A1F] text-right">{broker.firmName}</span>
+                        <div className="flex items-center gap-2 mb-3">
+                          <svg className="w-4 h-4 text-[#565D6D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          <p className="text-[14px] font-normal text-[#171A1F]">{broker.firmName}</p>
                         </div>
                       )}
 
-                      {/* Status */}
-                      <div className="flex justify-between items-center gap-3">
-                        <span className="text-[11px] font-medium text-[#565D6D] uppercase tracking-wide">Status</span>
-                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${getStatusColor(broker.status)}`}>
-                          {broker.status}
+                      {/* Leads / Status */}
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 text-[#565D6D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <span className="text-[13px] font-normal text-[#565D6D]">
+                          {broker.status === 'Verified' ? 'Verified Broker' : broker.status}
                         </span>
                       </div>
-                    </div>
-
-                    {/* View Link */}
-                    <div className="pt-4 border-t border-gray-100">
-                      {broker.brokerId ? (
-                        <Link
-                          href={`/broker-details/${broker.brokerId}`}
-                          className="flex items-center justify-center gap-2 text-[#0D542B] hover:text-[#0B4624] font-semibold text-[13px] transition-colors group/link"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          <span>View Profile</span>
-                          <svg className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </Link>
-                      ) : (
-                        <div className="flex items-center justify-center gap-2 text-gray-400 font-medium text-[13px]">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          <span>View Profile</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 );
