@@ -10,10 +10,6 @@ import shopData from '../data/shop.json';
 import relatedProducts from '../data/relatedProduct.json';
 import furnitureData from '../data/furnitureData.json';
 
-// TODO: put your WhatsApp number
-const CHAT_URL =
-  'https://wa.me/919999999999?text=Hi%2C%20I%20need%20help%20on%20Broker%20Adda';
-
 const Navbar = ({ data }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(0);
@@ -419,52 +415,55 @@ const enableSuggestions = false;
 
           {/* Right cluster */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* List Property — NEW */}
-            <Link
-              href="/list-property"
-              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
-            >
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-              >
-                <path d="M3 10.5 12 3l9 7.5" />
-                <path d="M5 10v9h14v-9" />
-                <path d="M9 19v-6h6v6" />
-              </svg>
-              <span>List Property</span>
-            </Link>
+            {/* Conditional CTA based on user role - only show when logged in */}
+            {isMounted && user && (
+              <>
+                {user.role === 'broker' ? (
+                  <Link
+                    href="/list-property"
+                    className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M3 10.5 12 3l9 7.5" />
+                      <path d="M5 10v9h14v-9" />
+                      <path d="M9 19v-6h6v6" />
+                    </svg>
+                    <span>List Property</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href="/post-enquiry"
+                    className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      <line x1="9" y1="10" x2="15" y2="10" />
+                      <line x1="9" y1="14" x2="13" y2="14" />
+                    </svg>
+                    <span>Post Enquiry</span>
+                  </Link>
+                )}
+              </>
+            )}
 
-            {/* Chat - keep button, change icon to property */}
-            <a
-              href={CHAT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
-              aria-label="Chat with support"
-            >
-         <svg
-    className="w-4 h-4"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M21 11.5a8.38 8.38 0 0 1-1.9 5.4A8.5 8.5 0 0 1 12 20a8.38 8.38 0 0 1-3.1-.6L3 21l1.6-4.5A8.5 8.5 0 0 1 3 11.5a8.5 8.5 0 0 1 8.5-8.5h1A8.5 8.5 0 0 1 21 11.5z" />
-    <circle cx="8" cy="11" r="1" />
-    <circle cx="12" cy="11" r="1" />
-    <circle cx="16" cy="11" r="1" />
-  </svg>
-              <span>Chat</span>
-            </a>
 
             {/* Notification Icon */}
             <div className="relative notification-container">
@@ -648,14 +647,14 @@ const enableSuggestions = false;
                       </button>
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                         <div className="py-2">
+                        {user.role === 'broker' ? (
+                          <>
                               <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Dashboard
                               </Link>
                               <Link href="/profile?mode=view" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Profile
                               </Link>
-                        {user.role === 'broker' ? (
-                          <>
                               <Link href="/leads" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Leads
                               </Link>
@@ -664,9 +663,14 @@ const enableSuggestions = false;
                               </Link>
                             </>
                           ) : (
+                            <>
+                              <Link href="/profile?mode=view" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Profile
+                              </Link>
                               <Link href="/saved-properties" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Saved Properties
                               </Link>
+                            </>
                           )}
                         <div className="border-t border-gray-200 my-1" />
                           <button
@@ -713,49 +717,78 @@ const enableSuggestions = false;
             </li>
           ))}
 
-          {/* Mobile CTAs */}
-          <li>
-            <Link
-              href="/list-property"
-              className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#0d542b] text-white"
-            >
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-              >
-                <path d="M3 10.5 12 3l9 7.5" />
-                <path d="M5 10v9h14v-9" />
-                <path d="M9 19v-6h6v6" />
-              </svg>
-              <span>List Property</span>
-            </Link>
-          </li>
-          <li>
-            <a
-              href={CHAT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center px-4 py-2 rounded-full border border-gray-300 hover:border-[#0d542b] hover:text-[#0d542b]"
-            >
-              💬&nbsp;Chat
-            </a>
-          </li>
+          {/* Mobile CTAs - only show when logged in */}
+          {isMounted && user && (
+            <li>
+              {user.role === 'broker' ? (
+                <Link
+                  href="/list-property"
+                  className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#0d542b] text-white"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M3 10.5 12 3l9 7.5" />
+                    <path d="M5 10v9h14v-9" />
+                    <path d="M9 19v-6h6v6" />
+                  </svg>
+                  <span>List Property</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/post-enquiry"
+                  className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#0d542b] text-white"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    <line x1="9" y1="10" x2="15" y2="10" />
+                    <line x1="9" y1="14" x2="13" y2="14" />
+                  </svg>
+                  <span>Post Enquiry</span>
+                </Link>
+              )}
+            </li>
+          )}
 
           {isMounted && (
             <>
               {user ? (
                 <>
+                  {user.role === 'broker' && (
+                    <li>
+                      <Link href="/dashboard" className="block px-1 py-1 rounded hover:bg-gray-50">
+                        Dashboard
+                      </Link>
+                    </li>
+                  )}
                   <li>
-                    <Link href="/dashboard" className="block px-1 py-1 rounded hover:bg-gray-50">
-                      Dashboard
+                    <Link href="/profile?mode=view" className="block px-1 py-1 rounded hover:bg-gray-50">
+                      Profile
                     </Link>
                   </li>
+                  {user.role === 'customer' && (
+                    <li>
+                      <Link href="/saved-properties" className="block px-1 py-1 rounded hover:bg-gray-50">
+                        Saved Properties
+                      </Link>
+                    </li>
+                  )}
                   <li>
                     <button onClick={handleLogout} className="text-left px-1 py-1 text-red-600">
                       Logout

@@ -209,10 +209,25 @@ const Login = () => {
             throw new Error('Failed to save authentication token');
           }
           
-          console.log('Token saved successfully, redirecting to dashboard');
+          console.log('Token saved successfully, redirecting based on role');
           toast.success(data.message || 'Phone number verified successfully!');
           setShowOTPModal(false);
-          router.push('/dashboard');
+          
+          // Check if there's a return URL to redirect back to (for wishlist saving)
+          const returnUrl = typeof window !== 'undefined' ? localStorage.getItem('returnUrl') : null;
+          if (returnUrl) {
+            localStorage.removeItem('returnUrl');
+            router.push(returnUrl);
+          } else {
+            // Redirect based on user role
+            if (role === 'broker') {
+              router.push('/dashboard');
+            } else if (role === 'customer') {
+              router.push('/profile');
+            } else {
+              router.push('/dashboard');
+            }
+          }
         } else {
           throw new Error(data.message || 'Invalid OTP');
         }

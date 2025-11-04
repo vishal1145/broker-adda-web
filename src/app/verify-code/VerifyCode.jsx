@@ -168,13 +168,21 @@ const VerifyCode = () => {
         console.log('Token saved successfully, redirecting based on role');
         toast.success('Verification successful! Redirecting...');
         
-        if (role === 'broker') {
-          router.push('/myaccount');
-        } else if (role === 'customer') {
-          router.push('/myaccount-customer');
+        // Check if there's a return URL to redirect back to (for wishlist saving)
+        const returnUrl = typeof window !== 'undefined' ? localStorage.getItem('returnUrl') : null;
+        if (returnUrl) {
+          localStorage.removeItem('returnUrl');
+          router.push(returnUrl);
         } else {
-          // Fallback: if role not provided, default to customer dashboard
-          router.push('/myaccount-customer');
+          // Redirect based on user role
+          if (role === 'broker') {
+            router.push('/myaccount');
+          } else if (role === 'customer') {
+            router.push('/profile');
+          } else {
+            // Fallback: if role not provided, default to profile
+            router.push('/profile');
+          }
         }
       } else {
         console.error('Verify OTP failed:', { url: requestUrl, status: response.status, data });

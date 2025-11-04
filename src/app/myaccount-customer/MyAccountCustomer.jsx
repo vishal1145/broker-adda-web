@@ -30,7 +30,7 @@ const MyAccountCustomer = () => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const tab = urlParams.get('tab');
-      if (tab) {
+      if (tab && tab !== 'Dashboard') {
         setActiveTab(tab);
       }
     }
@@ -553,44 +553,6 @@ const MyAccountCustomer = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case "Dashboard":
-        return (
-          <div className="w-full lg:w-3/4 bg-white  rounded-lg">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
-            
-            {/* Loading State */}
-            {isLoadingProfileData && (
-              <div className="flex items-center justify-center py-12">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-                  <p className="text-gray-600">Loading dashboard data...</p>
-                </div>
-              </div>
-            )}
-            
-            {/* Dashboard Content - Only show when not loading */}
-            {!isLoadingProfileData && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="bg-green-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Inquiries</h3>
-                <p className="text-3xl font-bold text-green-600">{formData.inquiryCount || 0}</p>
-                <p className="text-sm text-gray-600">Active inquiries</p>
-              </div>
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Saved Properties</h3>
-                <p className="text-3xl font-bold text-blue-600">3</p>
-                <p className="text-sm text-gray-600">Properties saved</p>
-              </div>
-              <div className="bg-yellow-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Saved Searches</h3>
-                <p className="text-3xl font-bold text-yellow-600">{formData.savedSearches.length}</p>
-                <p className="text-sm text-gray-600">Search criteria saved</p>
-              </div>
-            </div>
-            )}
-          </div>
-        );
-
       case "Profile":
         return (
           <div className="w-full lg:w-3/4 bg-white rounded-lg">
@@ -1312,7 +1274,6 @@ const MyAccountCustomer = () => {
             {/* Sidebar */}
             <div className="w-full lg:w-1/4 space-y-3">
               {[
-                "Dashboard",
                 "Profile",
                 "Saved Properties"
               ].map((item, idx) => (

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import HeaderFile from "../../components/Header";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
@@ -52,8 +51,6 @@ export default function LeadDetails() {
   const [lead, setLead] = useState<LeadItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [sameLeads, setSameLeads] = useState<LeadItem[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   useEffect(() => {
@@ -138,10 +135,6 @@ export default function LeadDetails() {
   useEffect(() => {
     similarLeads();
   }, []);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [sameLeads]);
 
   // Update scroll button states when same leads change
   useEffect(() => {
@@ -702,39 +695,47 @@ export default function LeadDetails() {
                           .map((s) => {
                             // Extract broker ID and broker object from s.createdBy
                             let brokerId: string | null = null;
-                            let broker: any = null;
+                            let broker: LeadItem['createdBy'] | null = null;
                             
                             if (s.createdBy) {
                               broker = s.createdBy;
-                              const createdByAny = s.createdBy as any;
+                              const createdByAny = s.createdBy as Record<string, unknown>;
                               
                               // Handle string type
                               if (typeof createdByAny === 'string') {
                                 brokerId = createdByAny;
                               } else if (typeof createdByAny === 'object' && createdByAny !== null) {
                                 // Prioritize broker-specific IDs first
-                                brokerId = createdByAny.brokerDetailId ||
-                                          createdByAny.brokerDetailsId ||
-                                          createdByAny.brokerId ||
+                                const brokerDetailId = createdByAny.brokerDetailId;
+                                const brokerDetailsId = createdByAny.brokerDetailsId;
+                                const brokerIdVal = createdByAny.brokerId;
+                                
+                                brokerId = (typeof brokerDetailId === 'string' ? brokerDetailId : null) ||
+                                          (typeof brokerDetailsId === 'string' ? brokerDetailsId : null) ||
+                                          (typeof brokerIdVal === 'string' ? brokerIdVal : null) ||
                                           null;
                                 
                                 // Try nested userId structure (common pattern)
                                 if (!brokerId && createdByAny.userId) {
-                                  if (typeof createdByAny.userId === 'object' && createdByAny.userId !== null) {
-                                    brokerId = createdByAny.userId._id || 
-                                              createdByAny.userId.id || 
-                                              createdByAny.userId.brokerId ||
-                                              createdByAny.userId.brokerDetailId ||
+                                  const userId = createdByAny.userId;
+                                  if (typeof userId === 'object' && userId !== null) {
+                                    const userIdObj = userId as Record<string, unknown>;
+                                    brokerId = (typeof userIdObj._id === 'string' ? userIdObj._id : null) || 
+                                              (typeof userIdObj.id === 'string' ? userIdObj.id : null) || 
+                                              (typeof userIdObj.brokerId === 'string' ? userIdObj.brokerId : null) ||
+                                              (typeof userIdObj.brokerDetailId === 'string' ? userIdObj.brokerDetailId : null) ||
                                               null;
-                                  } else if (typeof createdByAny.userId === 'string') {
-                                    brokerId = createdByAny.userId;
+                                  } else if (typeof userId === 'string') {
+                                    brokerId = userId;
                                   }
                                 }
                                 
                                 // Fallback to direct _id or id (may be user ID, not broker ID)
                                 if (!brokerId) {
-                                  brokerId = createdByAny._id || 
-                                            createdByAny.id || 
+                                  const idVal = createdByAny._id;
+                                  const idVal2 = createdByAny.id;
+                                  brokerId = (typeof idVal === 'string' ? idVal : null) || 
+                                            (typeof idVal2 === 'string' ? idVal2 : null) || 
                                             null;
                                 }
                               }
@@ -921,8 +922,11 @@ export default function LeadDetails() {
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 e.preventDefault();
-                                                if ((window as any).openChatWithBroker && broker) {
-                                                  (window as any).openChatWithBroker({ broker });
+                                                if (typeof window !== 'undefined') {
+                                                  const win = window as Window & { openChatWithBroker?: (params: { broker: unknown }) => void };
+                                                  if (win.openChatWithBroker && broker) {
+                                                    win.openChatWithBroker({ broker });
+                                                  }
                                                 }
                                               }}
                                               className="flex items-center gap-2 cursor-pointer"

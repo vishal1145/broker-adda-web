@@ -145,14 +145,7 @@ const LatestLeads: React.FC = () => {
         Closed: "bg-rose-50 text-rose-700",
       } as Record<string, string>
     )[s || ""] || "bg-gray-100 text-gray-700");
-  const reqClass = (r?: string) =>
-    ((
-      {
-        Buy: "bg-emerald-50 text-emerald-700",
-        Sell: "bg-sky-50 text-sky-700",
-        Rent: "bg-violet-50 text-violet-700",
-      } as Record<string, string>
-    )[r || ""] || "bg-gray-50 text-gray-700");
+  // reqClass removed - not used
   const regionName = (region: { name?: string } | string | undefined) => {
     if (!region) return "";
     const str = typeof region === "string" ? region : region.name || "";
@@ -266,7 +259,7 @@ const LatestLeads: React.FC = () => {
               {leads.slice(0, 2).map((lead) => {
                 // Extract broker ID and broker object from lead.createdBy
                 let brokerId: string | null = null;
-                let broker: any = null;
+                let broker: { _id?: string; id?: string; [key: string]: unknown } | null = null;
                 const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy;
                 
                 if (createdBy) {
@@ -274,8 +267,8 @@ const LatestLeads: React.FC = () => {
                     brokerId = createdBy;
                     broker = { _id: createdBy, id: createdBy };
                   } else if (typeof createdBy === 'object' && createdBy !== null) {
-                    broker = createdBy;
                     const obj = createdBy as { [key: string]: unknown };
+                    broker = obj as { _id?: string; id?: string; [key: string]: unknown };
                     const userId = obj['userId'];
                     if (userId && typeof userId === 'object' && userId !== null) {
                       const userIdObj = userId as { [key: string]: unknown };
@@ -541,8 +534,11 @@ const LatestLeads: React.FC = () => {
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              if (typeof window !== 'undefined' && (window as any).openChatWithBroker && broker) {
-                (window as any).openChatWithBroker({ broker });
+              if (typeof window !== 'undefined') {
+                const win = window as Window & { openChatWithBroker?: (params: { broker: unknown }) => void };
+                if (win.openChatWithBroker && broker) {
+                  win.openChatWithBroker({ broker });
+                }
               }
             }}
             className="flex items-center gap-2 cursor-pointer"
