@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Select, { components } from 'react-select';
 import TabsBar from './TabsBar';
 
-const BrokersComponent = ({ activeTab, setActiveTab }) => {
+const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = '' }) => {
   const router = useRouter();
   const [brokerFilters, setBrokerFilters] = useState({
     region: [],
@@ -45,13 +45,21 @@ const BrokersComponent = ({ activeTab, setActiveTab }) => {
   // Secondary filters state
   const [showSecondaryFilters, setShowSecondaryFilters] = useState(false);
   const [secondaryFilters, setSecondaryFilters] = useState({
-    companyName: '',
+    companyName: initialSearchQuery || '',
     language: '',
     brokerStatus: [],
     responseRate: [],
     joinedDate: '',
     sortBy: 'rating-high'
   });
+
+  // Initialize firm name filter from URL query parameter
+  useEffect(() => {
+    if (initialSearchQuery && initialSearchQuery.trim()) {
+      setSecondaryFilters(prev => ({ ...prev, companyName: initialSearchQuery.trim() }));
+      setShowSecondaryFilters(true); // Show filters section if search query exists
+    }
+  }, [initialSearchQuery]);
 
   // Enable skeleton loader on Brokers page when switching tabs
   useEffect(() => {

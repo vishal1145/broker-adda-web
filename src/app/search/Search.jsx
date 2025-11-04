@@ -8,6 +8,7 @@ import HeaderFile from '../components/Header';
 
 const Search = () => {
   const [activeTab, setActiveTab] = useState('brokers');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Read query param without useSearchParams to avoid Suspense requirement
   useEffect(() => {
@@ -17,6 +18,10 @@ const Search = () => {
       const t = sp.get('tab');
       if (t === 'leads' || t === 'brokers' || t === 'properties') {
         setActiveTab(t);
+      }
+      const q = sp.get('q');
+      if (q) {
+        setSearchQuery(q);
       }
     } catch {}
   }, []);
@@ -30,6 +35,12 @@ const Search = () => {
         const t = sp.get('tab');
         if (t === 'leads' || t === 'brokers' || t === 'properties') {
           setActiveTab(t);
+        }
+        const q = sp.get('q');
+        if (q) {
+          setSearchQuery(q);
+        } else {
+          setSearchQuery('');
         }
       } catch {}
     };
@@ -67,7 +78,7 @@ const Search = () => {
       case 'leads':
         return <LeadsComponent activeTab={activeTab} setActiveTab={setActiveTab} />;
       case 'brokers':
-        return <BrokersComponent activeTab={activeTab} setActiveTab={setActiveTab} />;
+        return <BrokersComponent activeTab={activeTab} setActiveTab={setActiveTab} initialSearchQuery={searchQuery} />;
       default:
         return <PropertiesComponent activeTab={activeTab} setActiveTab={setActiveTab} />;
     }

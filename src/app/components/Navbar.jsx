@@ -261,8 +261,8 @@ const Navbar = ({ data }) => {
   }, [searchQuery, allProducts]);
 
   const goPropertiesWithQuery = (q) => {
-    const params = new URLSearchParams({ search: q, openSearch: '1' });
-    router.push(`/properties?${params.toString()}`);
+    const params = new URLSearchParams({ tab: 'brokers', q: q });
+    router.push(`/search?${params.toString()}`);
   };
 
   const clearSearch = () => {
@@ -344,10 +344,23 @@ const enableSuggestions = false;
 
           {/* Search */}
           <div className="hidden md:block flex-1 max-w-lg mx-4 search-container relative">
-            <form onSubmit={(e) => e.preventDefault()} className="relative" role="search">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (searchQuery && searchQuery.trim()) {
+                goPropertiesWithQuery(searchQuery.trim());
+              }
+            }} className="relative" role="search">
         <input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (searchQuery && searchQuery.trim()) {
+                goPropertiesWithQuery(searchQuery.trim());
+              }
+            }
+          }}
                 placeholder="Search properties, brokers, locations…"
                 className="w-full pl-10 pr-24 py-2.5 text-sm border border-gray-300/70 rounded-full focus:outline-none focus:ring-2 focus:ring-[#0d542b] focus:border-transparent"
           onFocus={() =>
@@ -370,9 +383,14 @@ const enableSuggestions = false;
           </button>
         )}
         <button
-                type="button"
+                type="submit"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-xs px-3 py-1 rounded-full border border-gray-300 hover:border-gray-400 transition"
-                onClick={() => searchQuery && goPropertiesWithQuery(searchQuery)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (searchQuery && searchQuery.trim()) {
+                    goPropertiesWithQuery(searchQuery.trim());
+                  }
+                }}
         >
           Search
         </button>
