@@ -62,13 +62,13 @@ const ContactUs = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-white mb-2 transition-colors duration-300">Chat For Sales</h3>
-              <p className="text-sm text-gray-600 group-hover:text-white/90 mb-4 transition-colors duration-300">Get expert guidance on our real estate solutions and services.</p>
+              <h3 className="text-[16px] font-semibold text-gray-900 group-hover:text-white mb-2 transition-colors duration-300">Chat For Sales</h3>
+              <p className="text-[14px] text-gray-600 group-hover:text-white/90 mb-4 transition-colors duration-300">Get expert guidance on our real estate solutions and services.</p>
               <a
                 href={`mailto:${contactData.contact.email}`}
-                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#0B4624] transition-all duration-300"
+                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-[12px] font-medium hover:bg-[#0B4624] transition-all duration-300"
               >
-                <span>{contactData.contact.email}</span>
+                <span className="text-[12px]">{contactData.contact.email}</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -82,13 +82,13 @@ const ContactUs = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-white mb-2 transition-colors duration-300">Chat For Support</h3>
-              <p className="text-sm text-gray-600 group-hover:text-white/90 mb-4 transition-colors duration-300">Need help? Our support team is ready to assist you.</p>
+              <h3 className="text-[16px] font-semibold text-gray-900 group-hover:text-white mb-2 transition-colors duration-300">Chat For Support</h3>
+              <p className="text-[14px] text-gray-600 group-hover:text-white/90 mb-4 transition-colors duration-300">Need help? Our support team is ready to assist you.</p>
               <a
                 href="#contact-form"
-                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-[12px] font-medium transition-all duration-300"
               >
-                <span>Get In Touch</span>
+                <span className="text-[12px]">Get In Touch</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -102,15 +102,15 @@ const ContactUs = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-white mb-2 transition-colors duration-300">Visit Our Site</h3>
-              <p className="text-sm text-gray-600 group-hover:text-white/90 mb-4 transition-colors duration-300">Explore our latest real estate solutions and innovations.</p>
+              <h3 className="text-[16px] font-semibold text-gray-900 group-hover:text-white mb-2 transition-colors duration-300">Visit Our Site</h3>
+              <p className="text-[14px] text-gray-600 group-hover:text-white/90 mb-4 transition-colors duration-300">Explore our latest real estate solutions and innovations.</p>
               <a
                 href="https://www.brokeradda.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-[12px] font-medium transition-all duration-300"
               >
-                <span>www.brokeradda.com</span>
+                <span className="text-[12px]">www.brokeradda.com</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -124,13 +124,13 @@ const ContactUs = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-white mb-2 transition-colors duration-300">Contact Us</h3>
-              <p className="text-sm text-gray-600 group-hover:text-white/90 mb-4 transition-colors duration-300">Reach out to us for business inquiries or collaborations.</p>
+              <h3 className="text-[16px] font-semibold text-gray-900 group-hover:text-white mb-2 transition-colors duration-300">Contact Us</h3>
+              <p className="text-[14px] text-gray-600 group-hover:text-white/90 mb-4 transition-colors duration-300">Reach out to us for business inquiries or collaborations.</p>
               <a
                 href={`tel:${contactData.contact.phone.replace(/\s/g, '')}`}
-                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-[12px] font-medium transition-all duration-300"
               >
-                <span>{contactData.contact.phone}</span>
+                <span className="text-[12px]">{contactData.contact.phone}</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -146,18 +146,18 @@ const ContactUs = () => {
           <div className=" rounded-2xl " id="contact-form">
            
             <div className="inline-block px-4 py-2 bg-gray-200 border border-gray-300 rounded-full mb-6">
-              <span className="text-sm font-medium text-gray-700">Contact Address</span>
+              <span className="text-xs font-medium text-gray-700">Contact Address</span>
             </div>
 
             {/* Heading */}
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-3xl  font-bold text-gray-900 mb-4 leading-tight">
               Let's Build the Future of{' '}
               <span className="text-[#0D542B]">Real Estate</span> Together, Let's{' '}
               <span className="text-[#0D542B]">Connect</span>
             </h2>
 
             {/* Description */}
-            <p className="text-base text-gray-700 mb-8 leading-relaxed">
+            <p className="text-sm text-gray-700 mb-8 leading-relaxed">
               Have questions or need a custom solution? Reach out to us, and our team of experts will guide you every step of the way. Let's collaborate to create exceptional real estate solutions that drive your success.
             </p>
 
@@ -224,7 +224,7 @@ const ContactUs = () => {
           {/* Right Column - Get Quotes Form */}
           <div className="bg-[#0D542B] rounded-2xl p-8 text-white">
             {/* Heading */}
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">Get Quotes</h2>
+            <h2 className="text-3xl font-bold mb-3">Get Quotes</h2>
             
             {/* Description */}
             <p className="text-sm text-white/90 mb-8">
@@ -239,7 +239,7 @@ const ContactUs = () => {
                   type="text"
                   name="name"
                   placeholder="Full Name"
-                  className="w-full bg-transparent border-b border-white/30 text-white placeholder-white/70 pb-2 focus:outline-none focus:border-white transition-colors"
+                  className="w-full bg-transparent border-b text-sm border-white/30 text-white placeholder-white/70 pb-2 focus:outline-none focus:border-white transition-colors"
                   value={form.name}
                   onChange={handleChange}
                 />
@@ -251,7 +251,7 @@ const ContactUs = () => {
                   type="email"
                   name="email"
                   placeholder="Email"
-                  className="w-full bg-transparent border-b border-white/30 text-white placeholder-white/70 pb-2 focus:outline-none focus:border-white transition-colors"
+                  className="w-full bg-transparent border-b border-white/30 text-sm text-white placeholder-white/70 pb-2 focus:outline-none focus:border-white transition-colors"
                   value={form.email}
                   onChange={handleChange}
                 />
@@ -263,7 +263,7 @@ const ContactUs = () => {
                   name="message"
                   placeholder="Message"
                   rows="4"
-                  className="w-full bg-transparent border-b border-white/30 text-white placeholder-white/70 pb-2 focus:outline-none focus:border-white transition-colors resize-none"
+                  className="w-full bg-transparent border-b border-white/30 text-white text-sm placeholder-white/70 pb-2 focus:outline-none focus:border-white transition-colors resize-none"
                   value={form.message}
                   onChange={handleChange}
                 />
@@ -272,7 +272,7 @@ const ContactUs = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="bg-white text-[#0D542B] px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center gap-2"
+                className="bg-white text-[#0D542B] px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors flex items-center gap-2"
               >
                 Submit Now
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
