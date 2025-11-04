@@ -549,8 +549,11 @@ const BrokersChatList = () => {
                         {message.text && (
                           <div className="flex gap-2 flex-row-reverse">
                             <div className="flex-1 flex justify-end">
-                              <div className="inline-block rounded-2xl px-4 py-2 bg-green-500 text-white max-w-md">
+                              <div className="flex items-end gap-2 rounded-2xl px-4 py-2 bg-green-500 text-white max-w-md">
                                 <p className="text-sm">{message.text}</p>
+                                <span className="text-[10px]">
+                                  {moment(message.createdAt).format('HH:mm')}
+                                </span>
                               </div>
                             </div>
                           </div>
