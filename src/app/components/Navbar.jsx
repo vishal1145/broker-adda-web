@@ -332,9 +332,9 @@ const enableSuggestions = false;
           >
             <span className="rounded-full overflow-hidden">
               <img
-                src="/images/House and Handshake Logo (1).png"
+                src="/images/BROKER GULLY FINAL LOGO ICON SVG.svg"
                 alt="Broker Adda"
-                className="w-9 h-9 object-contain transition-transform group-hover:scale-[1.03]"
+                className="w-12 h-12 object-contain transition-transform group-hover:scale-[1.03]"
               />
             </span>
             <span className="text-xl font-semibold text-gray-800 cursor-pointer">

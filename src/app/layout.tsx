@@ -10,9 +10,9 @@ export const metadata = {
   title: "Broker Adda Real Estate | Coastal Homes & Luxury Apartments",
   description: 'Search homes for sale and rent in A-17, Tajganj, Agra. Beachfront houses, luxury apartments, and family properties with expert local guidance.',
   icons: {
-    icon: '/House and Handshake Logo (1).png',
-    shortcut: '/House and Handshake Logo (1).png',
-    apple: '/House and Handshake Logo (1).png',
+    icon: '/BROKER GULLY FINAL LOGO ICON SVG.svg',
+    shortcut: '/BROKER GULLY FINAL LOGO ICON SVG.svg',
+    apple: '/BROKER GULLY FINAL LOGO ICON SVG.svg',
   }
 };
 
