@@ -9,7 +9,7 @@ const PropertyEnquiryPage = () => {
     customerName: '',
     email: '',
     phoneNumber: '',
-    requirement: 'buy',
+    Requirement: 'buy',
     propertyType: 'residential',
     primaryRegion: '',
     optionalRegion: '',
@@ -140,11 +140,8 @@ const PropertyEnquiryPage = () => {
       
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
       
-      // Get current user ID from token
-      const currentUserId = getCurrentUserIdFromToken(token);
-      
-      // Get broker ID from user ID
-      const brokerId = await getBrokerIdFromUserId(currentUserId, token, apiUrl);
+      // Use hardcoded admin ID
+      const adminId = '68fb63a99b77c1a9ad2f1b8c';
       
       // Capitalize requirement and propertyType
       const capitalizeFirst = (str) => {
@@ -152,11 +149,10 @@ const PropertyEnquiryPage = () => {
         return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
       };
 
-      // Calculate budget - use maxBudget if available, otherwise minBudget, or 0
+      // Calculate budget - use maxBudget or 0
       const calculateBudget = () => {
         const max = parseFloat(formData.maxBudget?.replace(/[^0-9.]/g, '')) || 0;
-        const min = parseFloat(formData.minBudget?.replace(/[^0-9.]/g, '')) || 0;
-        return max || min || 0;
+        return max;
       };
 
       // Prepare API payload
@@ -169,7 +165,7 @@ const PropertyEnquiryPage = () => {
         budget: calculateBudget(),
         primaryRegionId: formData.primaryRegion || undefined,
         ...(formData.optionalRegion ? { secondaryRegion: formData.optionalRegion } : {}),
-        ...(brokerId ? { createdBy: brokerId } : {}),
+        createdBy: adminId,
       };
 
       // Remove undefined fields
@@ -209,7 +205,6 @@ const PropertyEnquiryPage = () => {
         propertyType: 'residential',
         primaryRegion: '',
         optionalRegion: '',
-        minBudget: '',
         maxBudget: '',
         specificRequirements: '',
       });
@@ -306,10 +301,10 @@ const PropertyEnquiryPage = () => {
                       <button
                         type="button"
                         onClick={() => handleRequirementChange('buy')}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                        className={`px-3 py-2 rounded-full text-xs font-medium border transition-all ${
                           formData.requirement === 'buy'
                             ? 'bg-gray-100 border-gray-300 text-gray-900'
-                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         Buy
@@ -317,10 +312,10 @@ const PropertyEnquiryPage = () => {
                       <button
                         type="button"
                         onClick={() => handleRequirementChange('rent')}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                        className={`px-3 py-2 rounded-full text-xs font-medium border transition-all ${
                           formData.requirement === 'rent'
                             ? 'bg-gray-100 border-gray-300 text-gray-900'
-                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         Rent
@@ -328,10 +323,10 @@ const PropertyEnquiryPage = () => {
                       <button
                         type="button"
                         onClick={() => handleRequirementChange('sell')}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                        className={`px-3 py-2 rounded-full text-xs font-medium border transition-all ${
                           formData.requirement === 'sell'
                             ? 'bg-gray-100 border-gray-300 text-gray-900'
-                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         Sell
@@ -348,10 +343,10 @@ const PropertyEnquiryPage = () => {
                       <button
                         type="button"
                         onClick={() => handlePropertyTypeChange('residential')}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                        className={`px-3 py-2 rounded-full text-xs font-medium border transition-all ${
                           formData.propertyType === 'residential'
                             ? 'bg-gray-100 border-gray-300 text-gray-900'
-                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         Residential
@@ -359,10 +354,10 @@ const PropertyEnquiryPage = () => {
                       <button
                         type="button"
                         onClick={() => handlePropertyTypeChange('commercial')}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                        className={`px-3 py-2 rounded-full text-xs font-medium border transition-all ${
                           formData.propertyType === 'commercial'
                             ? 'bg-gray-100 border-gray-300 text-gray-900'
-                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         Commercial
@@ -370,10 +365,10 @@ const PropertyEnquiryPage = () => {
                       <button
                         type="button"
                         onClick={() => handlePropertyTypeChange('plot')}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                        className={`px-3 py-2 rounded-full text-xs font-medium border transition-all ${
                           formData.propertyType === 'plot'
                             ? 'bg-gray-100 border-gray-300 text-gray-900'
-                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         Plot
@@ -381,10 +376,10 @@ const PropertyEnquiryPage = () => {
                       <button
                         type="button"
                         onClick={() => handlePropertyTypeChange('other')}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                        className={`px-3 py-2 rounded-full text-xs font-medium border transition-all ${
                           formData.propertyType === 'other'
                             ? 'bg-gray-100 border-gray-300 text-gray-900'
-                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         Other
@@ -449,30 +444,19 @@ const PropertyEnquiryPage = () => {
                   </div>
                 </div>
 
-                {/* Budget Range */}
+                {/* Budget */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Budget Range
+                    Max Budget
                   </label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="text"
-                      name="minBudget"
-                      value={formData.minBudget}
-                      onChange={handleChange}
-                      placeholder="Min Budget (e.g., $100,000)"
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0D542B] focus:border-[#0D542B] transition-colors"
-                    />
-                    <span className="text-gray-400">–</span>
-                    <input
-                      type="text"
-                      name="maxBudget"
-                      value={formData.maxBudget}
-                      onChange={handleChange}
-                      placeholder="Max Budget (e.g., $500,000)"
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0D542B] focus:border-[#0D542B] transition-colors"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    name="maxBudget"
+                    value={formData.maxBudget}
+                    onChange={handleChange}
+                    placeholder="Max Budget (e.g., $500,000)"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0D542B] focus:border-[#0D542B] transition-colors"
+                  />
                 </div>
 
                 {/* Specific Requirements */}
