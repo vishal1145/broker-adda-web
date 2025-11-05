@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 function loadRazorpayScript() {
   return new Promise((resolve, reject) => {
@@ -35,7 +36,7 @@ const Plans = () => {
     setSelectedPlan(plan.id);
 
     if (!isRzpLoaded) {
-      alert('Payment SDK not loaded. Please try again in a moment.');
+      toast.error('Payment SDK not loaded. Please try again in a moment.');
       return;
     }
 
@@ -73,14 +74,14 @@ const Plans = () => {
             const verifyRes = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/payments/verify-payment`, payload, {headers}  );
 
             if (verifyRes.data.success) {
-              alert('Payment successful and saved!');
+              toast.success('Payment successful and saved!');
               // update UI accordingly
             } else {
-              alert('Payment verification failed');
+              toast.error('Payment verification failed');
             }
           } catch (err) {
             console.error('verify error', err);
-            alert('Verification request failed');
+            toast.error('Verification request failed');
           }
         },
         prefill: {
@@ -93,7 +94,7 @@ const Plans = () => {
       rzp.open();
     } catch (error) {
       console.error('handlePayment error', error?.response?.data || error.message || error);
-      alert('Payment initiation failed');
+      toast.error('Payment initiation failed');
     } finally {
       setSelectedPlan(null);
     }
@@ -134,6 +135,7 @@ const Plans = () => {
 
   return (
     <>
+      <Toaster position="top-right" />
       <div className="px-6 sm:px-12 lg:px-32 py-12">
         <div className="max-w-7xl mx-auto px-4 py-10">
           <div className="mb-12">
