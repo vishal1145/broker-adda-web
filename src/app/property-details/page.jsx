@@ -1914,6 +1914,12 @@ function PropertyDetailsPageInner() {
         isOpen={isEnquiryModalOpen}
         onClose={() => setIsEnquiryModalOpen(false)}
         propertyId={product?.id || product?._id || null}
+        propertyBrokerId={
+          broker?._id || broker?.id || 
+          (product?._raw && typeof product._raw.createdBy === 'object' && product._raw.createdBy?._id) ||
+          (product?._raw && typeof product._raw.createdBy === 'string' ? product._raw.createdBy : null) ||
+          product?._raw?.brokerId || null
+        }
       />
     </div>
   );
