@@ -11,6 +11,7 @@ export default function ViewModeProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [preview, setPreview] = useState({ open: false, src: '', type: '' });
+  const [subscription, setSubscription] = useState(null);
 
   const toPublicUrl = (raw) => {
     if (!raw || typeof raw !== 'string') return raw;
@@ -54,6 +55,7 @@ export default function ViewModeProfile() {
         const body = await res.json();
         const b = body?.data?.broker || body?.broker || body?.data || body;
         setData(b || null);
+        setSubscription(b?.subscription || null);
       } catch (e) {
         setError('Failed to load profile');
       } finally {
@@ -232,6 +234,10 @@ export default function ViewModeProfile() {
                 <div className="text-gray-900 text-[14px]">{profile.joinedDateFormatted || '-'}</div>
               </div>
               <div>
+                  <div className="text-gray-500 text-[12px]">Subscription</div>
+                <div className="text-gray-900 text-[14px]">{subscription?.planType || 'Not Subscribed'}</div>
+              </div>
+              <div>
                   <div className="text-gray-500 text-[12px]">License</div>
                 <div className="text-gray-900 text-[14px]">{profile.license || '-'}</div>
               </div>
@@ -381,6 +387,138 @@ export default function ViewModeProfile() {
           </div>
         </div>
 
+        {subscription && (
+          <div className="lg:col-span-5 rounded-[10px] bg-white shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-[16px] font-semibold text-gray-900">Subscription</div>
+              <span className={`inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full font-medium ${
+                subscription.status === 'active' 
+                  ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' 
+                  : subscription.status === 'expired'
+                  ? 'text-red-700 bg-red-50 border border-red-200'
+                  : 'text-gray-700 bg-gray-50 border border-gray-200'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  subscription.status === 'active' ? 'bg-emerald-600' 
+                  : subscription.status === 'expired' ? 'bg-red-600'
+                  : 'bg-gray-600'
+                }`}></span>
+                {subscription.status?.charAt(0).toUpperCase() + subscription.status?.slice(1) || 'Active'}
+              </span>
+            </div>
+
+            {/* Plan Card */}
+            <div className="border border-gray-200 rounded-lg p-5 mb-6 bg-gradient-to-br from-green-50 to-white">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-[18px] font-semibold text-gray-900 mb-1">
+                    {subscription.planType || 'Subscription Plan'}
+                  </h3>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[28px] font-bold text-gray-900">
+                      ₹{subscription.amount?.toLocaleString('en-IN') || '0'}
+                    </span>
+                    <span className="text-[14px] text-gray-500">
+                      / {subscription.periodValue || 1} {subscription.periodUnit || 'month'}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[12px] text-gray-500 mb-1">Currency</div>
+                  <div className="text-[14px] font-medium text-gray-900">{subscription.currency || 'INR'}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Subscription Details */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-gray-500 text-[12px] mb-1">Start Date</div>
+                  <div className="text-gray-900 text-[14px] font-medium">
+                    {subscription.startDate 
+                      ? new Date(subscription.startDate).toLocaleDateString('en-IN', { 
+                          day: '2-digit', 
+                          month: 'short', 
+                          year: 'numeric' 
+                        })
+                      : '-'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-500 text-[12px] mb-1">End Date</div>
+                  <div className="text-gray-900 text-[14px] font-medium">
+                    {subscription.endDate 
+                      ? new Date(subscription.endDate).toLocaleDateString('en-IN', { 
+                          day: '2-digit', 
+                          month: 'short', 
+                          year: 'numeric' 
+                        })
+                      : '-'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-px bg-gray-200"></div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-gray-500 text-[12px] mb-1">Auto Renew</div>
+                  <div className="text-gray-900 text-[14px]">
+                    {subscription.autoRenew ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200">
+                        Enabled
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-medium text-gray-600 bg-gray-50 border border-gray-200">
+                        Disabled
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-gray-500 text-[12px] mb-1">Payment ID</div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-gray-100 border border-gray-200 text-gray-700">
+                    {subscription.paymentRef || '-'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Days Remaining */}
+              {subscription.endDate && subscription.status === 'active' && (
+                <>
+                  <div className="h-px bg-gray-200"></div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-[12px] text-blue-700 font-medium">Days Remaining</span>
+                      </div>
+                      <span className="text-[14px] font-bold text-blue-900">
+                        {Math.max(0, Math.ceil((new Date(subscription.endDate) - new Date()) / (1000 * 60 * 60 * 24)))} days
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Action Button */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <button
+                onClick={() => router.push('/plans')}
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-white bg-green-900 hover:bg-green-800 text-[14px] font-medium transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {subscription.status === 'active' ? 'Upgrade Plan' : 'Subscribe Now'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {error && (

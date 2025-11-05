@@ -169,7 +169,7 @@ const Cart = () => {
                 </div>
 
                 <button
-                  onClick={() => router.push('/checkout')}
+                  onClick={() => router.push('/plans')}
                   className="w-full bg-green-900 text-white py-3 rounded-full hover:bg-green-800 transition-colors font-medium"
                 >
                   Proceed to Checkout
