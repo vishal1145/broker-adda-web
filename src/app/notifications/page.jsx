@@ -144,8 +144,6 @@ const NotificationsPage = () => {
     fetchNotifications();
   }, []);
 
-  const unreadCount = notifications.filter(n => n.unread).length;
-
   const headerData = {
     title: 'Notifications',
     breadcrumb: [
@@ -162,17 +160,10 @@ const NotificationsPage = () => {
         <div className=" mx-auto px-2">
           {/* Header Section */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <h1 className="font-archivo text-[24px] leading-[36px] font-bold text-[#171A1FFF]">
-                Notifications
-              </h1>
-              {unreadCount > 0 && (
-                <span className="px-3 py-1 bg-red-500 text-white text-[12px] font-semibold rounded-full">
-                  {unreadCount} Unread
-                </span>
-              )}
-            </div>
-            <p className="text-[14px] leading-[20px] font-normal text-[#565D6DFF]">
+            <h1 className="text-[18px] font-bold text-gray-900 mb-2">
+              Notifications
+            </h1>
+            <p className="text-[12px] font-normal text-gray-600">
               View and manage all your notifications
             </p>
           </div>
@@ -222,29 +213,23 @@ const NotificationsPage = () => {
                   </p>
                 </div>
               ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-200">
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`px-6 py-4 hover:bg-gray-50 transition-colors border-l-4 ${
-                      notification.unread 
-                        ? 'border-green-500 bg-green-50/30' 
-                        : 'border-transparent'
-                    }`}
+                    className="px-6 py-4"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className={`text-[16px] font-semibold ${
-                            notification.unread ? 'text-gray-900' : 'text-gray-700'
-                          }`}>
+                          <h3 className="text-[12px] font-normal text-gray-900">
                             {notification.title}
                           </h3>
                           {notification.unread && (
-                            <span className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></span>
+                            <span className="w-1.5 h-1.5 bg-gray-500 rounded-full flex-shrink-0"></span>
                           )}
                         </div>
-                        <p className="text-[12px] text-gray-400 mt-2">
+                        <p className="text-[12px] text-gray-500">
                           {notification.time}
                         </p>
                       </div>
@@ -256,8 +241,8 @@ const NotificationsPage = () => {
 
               {/* Footer Actions */}
               {notifications.length > 0 && (
-                <div className="p-4 border-t border-gray-200 bg-gray-50">
-                  <button className="w-full text-center text-sm text-[#0d542b] hover:opacity-80 font-semibold py-2">
+                <div className="p-4 border-t border-gray-200">
+                  <button className="w-full text-center text-sm text-[#0d542b] font-normal py-2">
                     Mark all as read
                   </button>
                 </div>
