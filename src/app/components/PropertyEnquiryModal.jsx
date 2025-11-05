@@ -12,8 +12,7 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
     propertyType: null,
     primaryRegion: null,
     secondaryRegion: null,
-    minBudget: "",
-    maxBudget: "",
+    budget: "",
     propertyId: propertyId || "",
   });
   const [loading, setLoading] = useState(false);
@@ -127,7 +126,13 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // For budget field, only allow numbers
+    if (name === "budget") {
+      const numericValue = value.replace(/[^0-9]/g, "");
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+    } else {
     setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -160,11 +165,9 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
         return;
       }
 
-      // Parse budget - use maxBudget if available, otherwise minBudget
-      const budgetValue = formData.maxBudget 
-        ? parseFloat(String(formData.maxBudget).replace(/[^0-9.]/g, "")) 
-        : formData.minBudget 
-        ? parseFloat(String(formData.minBudget).replace(/[^0-9.]/g, ""))
+      // Parse budget
+      const budgetValue = formData.budget 
+        ? parseFloat(String(formData.budget).replace(/[^0-9.]/g, "")) 
         : 0;
 
       // Extract values from select objects
@@ -233,8 +236,7 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
       propertyType: null,
       primaryRegion: null,
       secondaryRegion: null,
-      minBudget: "",
-      maxBudget: "",
+      budget: "",
       propertyId: propertyId || "",
     });
   };
@@ -343,7 +345,7 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
               <div>
                 <label className="block text-[11px] font-medium text-gray-700 mb-2">
                   Property Type
-                  </label>
+                </label>
                 <div className="flex flex-wrap gap-2">
                   {propertyTypeOptions.map((opt) => {
                     const isSelected =
@@ -371,27 +373,17 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
 
               <div>
                 <label className="block text-[11px] font-medium text-gray-700 mb-1">
-                  Budget Range
+                  Budget
                 </label>
-                <div className="mt-1 flex items-center gap-2">
-                  <input
-                    type="text"
-                    name="minBudget"
-                    value={formData.minBudget}
-                    onChange={handleChange}
-                    placeholder="Min Budget"
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
-                  <span className="text-gray-400">–</span>
-                  <input
-                    type="text"
-                    name="maxBudget"
-                    value={formData.maxBudget}
-                    onChange={handleChange}
-                    placeholder="Max Budget"
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
+                <input
+                  type="text"
+                  name="budget"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  placeholder="Enter budget amount"
+                  inputMode="numeric"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

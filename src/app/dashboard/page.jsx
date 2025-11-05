@@ -215,7 +215,7 @@ const Dashboard = () => {
           else if (Array.isArray(lj?.data)) list = lj.data;
           else if (Array.isArray(lj?.leads)) list = lj.leads;
           else if (Array.isArray(lj)) list = lj;
-          setLeadRows(list.slice(0, 4));
+          setLeadRows(list.slice(0, 3));
         } else setLeadRows([]);
         setLeadsLoading(false);
 
