@@ -136,10 +136,10 @@ const ContactUs = () => {
               <p className="text-[14px] text-gray-600 group-hover:text-white/90 mb-4 transition-colors duration-300">Get expert guidance on our real estate solutions and services.</p>
               <a
                 href={`mailto:${contactData.contact.email}`}
-                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-[12px] font-medium hover:bg-[#0B4624] transition-all duration-300"
+                className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-[12px] font-medium transition-all duration-300"
               >
                 <span className="text-[12px]">{contactData.contact.email}</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 group-hover:text-[#0D542B] transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </a>
@@ -159,7 +159,7 @@ const ContactUs = () => {
                 className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-[12px] font-medium transition-all duration-300"
               >
                 <span className="text-[12px]">Get In Touch</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 group-hover:text-[#0D542B] transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </a>
@@ -181,7 +181,7 @@ const ContactUs = () => {
                 className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-[12px] font-medium transition-all duration-300"
               >
                 <span className="text-[12px]">www.brokeradda.com</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 group-hover:text-[#0D542B] transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </a>
@@ -201,7 +201,7 @@ const ContactUs = () => {
                 className="inline-flex items-center gap-2 bg-[#0D542B] group-hover:bg-white group-hover:text-[#0D542B] text-white px-4 py-2 rounded-lg text-[12px] font-medium transition-all duration-300"
               >
                 <span className="text-[12px]">{contactData.contact.phone}</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 group-hover:text-[#0D542B] transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </a>
@@ -256,7 +256,12 @@ const ContactUs = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 mb-1">Phone Number</p>
-                  <p className="text-sm text-gray-700">{contactData.contact.phone}</p>
+                  <a 
+                    href={`tel:${contactData.contact.phone.replace(/\s/g, '')}`}
+                    className="text-sm text-gray-700 hover:text-[#0D542B] cursor-pointer transition-colors"
+                  >
+                    {contactData.contact.phone}
+                  </a>
                 </div>
               </div>
 
@@ -269,7 +274,12 @@ const ContactUs = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 mb-1">Email Id</p>
-                  <p className="text-sm text-gray-700">{contactData.contact.email}</p>
+                  <a 
+                    href={`mailto:${contactData.contact.email}`}
+                    className="text-sm text-gray-700 hover:text-[#0D542B] cursor-pointer transition-colors"
+                  >
+                    {contactData.contact.email}
+                  </a>
                 </div>
               </div>
 
