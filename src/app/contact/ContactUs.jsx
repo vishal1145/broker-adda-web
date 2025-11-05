@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import contactData from "../data/contact.json";
 import furnitureData from "../data/furnitureData.json";
 import HeaderFile from '../components/Header';
@@ -12,15 +13,84 @@ const ContactUs = () => {
     subject: "",
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Message sent!");
+    setIsSubmitting(true);
+
+    // Trim and validate form fields
+    const trimmedName = form.name?.trim() || '';
+    const trimmedEmail = form.email?.trim() || '';
+    const trimmedMessage = form.message?.trim() || '';
+
+    // Client-side validation
+    if (!trimmedName || !trimmedEmail || !trimmedMessage) {
+      toast.error('Full name, email, and message are required');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      toast.error('Please enter a valid email address');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : null;
+      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      };
+
+      const response = await fetch(`${apiUrl}/contact`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name: trimmedName,
+          fullName: trimmedName,
+          email: trimmedEmail,
+          subject: form.subject?.trim() || 'Get Quotes Inquiry',
+          message: trimmedMessage,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || errorData.error || errorData.data?.message || 'Failed to send message';
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      toast.success(data.message || data.data?.message || 'Contact form submitted successfully');
+      
+      // Reset form
+      setForm({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      const errorMessage = error.message || 'Failed to send message. Please try again.';
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -239,6 +309,7 @@ const ContactUs = () => {
                   type="text"
                   name="name"
                   placeholder="Full Name"
+                  required
                   className="w-full bg-transparent border-b text-sm border-white/30 text-white placeholder-white/70 pb-2 focus:outline-none focus:border-white transition-colors"
                   value={form.name}
                   onChange={handleChange}
@@ -251,6 +322,7 @@ const ContactUs = () => {
                   type="email"
                   name="email"
                   placeholder="Email"
+                  required
                   className="w-full bg-transparent border-b border-white/30 text-sm text-white placeholder-white/70 pb-2 focus:outline-none focus:border-white transition-colors"
                   value={form.email}
                   onChange={handleChange}
@@ -263,6 +335,7 @@ const ContactUs = () => {
                   name="message"
                   placeholder="Message"
                   rows="4"
+                  required
                   className="w-full bg-transparent border-b border-white/30 text-white text-sm placeholder-white/70 pb-2 focus:outline-none focus:border-white transition-colors resize-none"
                   value={form.message}
                   onChange={handleChange}
@@ -272,9 +345,10 @@ const ContactUs = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="bg-white text-[#0D542B] px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors flex items-center gap-2"
+                disabled={isSubmitting}
+                className="bg-white text-[#0D542B] px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit Now
+                {isSubmitting ? 'Submitting...' : 'Submit Now'}
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
@@ -298,6 +372,7 @@ const ContactUs = () => {
           ></iframe>
         </div> */}
       <Features data={furnitureData.features}/>
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
     </>
   );
 };
