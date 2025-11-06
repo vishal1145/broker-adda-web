@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Select, { components } from 'react-select';
 import Link from 'next/link';
 import TabsBar from './TabsBar';
 
 const LeadsComponent = ({ activeTab, setActiveTab }) => {
+  const router = useRouter();
   const [leadFilters, setLeadFilters] = useState({
     leadStatus: [],
     leadType: [],
@@ -1651,6 +1652,24 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               const brokerImage = lead.createdBy?.brokerImage || lead.createdBy?.profileImage || lead.createdBy?.image;
               const brokerName = lead.createdBy?.name || lead.createdBy?.fullName || lead.createdBy?.email || 'Unknown';
               
+              // Extract broker ID for View button
+              let brokerId = null;
+              if (lead.createdBy) {
+                if (typeof lead.createdBy === 'string') {
+                  brokerId = lead.createdBy;
+                } else if (typeof lead.createdBy === 'object' && lead.createdBy !== null) {
+                  const userId = lead.createdBy.userId;
+                  if (userId && typeof userId === 'object' && userId !== null) {
+                    brokerId = userId._id || userId.id;
+                  } else if (userId && typeof userId === 'string') {
+                    brokerId = userId;
+                  }
+                  if (!brokerId) {
+                    brokerId = lead.createdBy._id || lead.createdBy.id || lead.createdBy.brokerId || lead.createdBy.brokerDetailId || lead.createdBy.brokerDetailsId;
+                  }
+                }
+              }
+              
               // Helper function to format region names
               const regionName = (region) => {
                 if (!region) return null;
@@ -1801,10 +1820,10 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           {/* Avatar */}
-                          <div className="relative w-12 h-12 text-sm font-semibold" style={{ color: '#323743' }}>
+                          <div className="relative w-10 h-10 text-sm font-semibold" style={{ color: '#323743' }}>
                             {brokerImage ? (
                               <>
-                                <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] overflow-hidden">
+                                <div className="w-10 h-10 rounded-full bg-[#E5FCE4FF] overflow-hidden">
                                   <img
                                     src={brokerImage}
                                     alt={brokerName}
@@ -1814,11 +1833,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                     }}
                                   />
                                 </div>
-                                <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
                               </>
                             ) : (
                               <>
-                                <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-full bg-[#E5FCE4FF] flex items-center justify-center">
                                   {brokerName
                                     .split(' ')
                                     .map((n) => n[0])
@@ -1826,18 +1845,16 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                     .join('')
                                     .toUpperCase()}
                                 </div>
-                                <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
+                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
                               </>
                             )}
-              </div>
+                          </div>
 
                           {/* Name and icons */}
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
-                                {brokerName}
-                              </p>
-                            </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF] truncate">
+                              {brokerName}
+                            </p>
 
                             {/* Connect / Chat */}
                             <div className="flex items-center gap-3 mt-1">
@@ -1846,18 +1863,61 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                                 </svg>
                                 <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Connect</span>
-                    </span>
+                              </span>
 
-                              <span className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  // Check if user is logged in
+                                  const token = typeof window !== 'undefined' 
+                                    ? localStorage.getItem("token") || localStorage.getItem("authToken")
+                                    : null;
+                                  
+                                  if (!token) {
+                                    // Redirect to login if not authenticated
+                                    router.push('/login');
+                                    return;
+                                  }
+                                  
+                                  // If logged in, open chat
+                                  if (typeof window !== 'undefined') {
+                                    const win = window;
+                                    if (win.openChatWithBroker && lead.createdBy) {
+                                      win.openChatWithBroker({ broker: lead.createdBy });
+                                    }
+                                  }
+                                }}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
                                 <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
                                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                 </svg>
-                                <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Chat</span>
-                        </span>
-                </div>
-              </div>
-              </div>
-            </div>
+                                <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">Chat</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* View button - Right side */}
+                        <div className="flex-shrink-0">
+                          {brokerId ? (
+                            <span
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                router.push(`/broker-details/${brokerId}`);
+                              }}
+                              className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+                            >
+                              View
+                            </span>
+                          ) : (
+                            <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </article>

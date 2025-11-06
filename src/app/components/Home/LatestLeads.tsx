@@ -421,7 +421,7 @@ const LatestLeads: React.FC = () => {
     <div className="flex items-center gap-3">
       {/* Avatar */}
        <div
-         className="relative w-12 h-12 text-sm font-semibold"
+         className="relative w-10 h-10 text-sm font-semibold"
          style={{ color: '#323743' }}
        >
         {(() => {
@@ -449,7 +449,7 @@ const LatestLeads: React.FC = () => {
           if (brokerImage) {
             return (
               <>
-                <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-[#E5FCE4FF] overflow-hidden">
                   <img
                     src={brokerImage}
                     alt={name}
@@ -460,14 +460,14 @@ const LatestLeads: React.FC = () => {
                   />
                 </div>
                  {/* Green active badge */}
-                 <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+                 <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
               </>
             );
           }
 
           return (
             <>
-              <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-[#E5FCE4FF] flex items-center justify-center">
                 {name
                   .split(' ')
                   .map((n) => n[0])
@@ -475,44 +475,28 @@ const LatestLeads: React.FC = () => {
                   .join('')
                   .toUpperCase()}
               </div>
-               <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
+               <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
             </>
           );
         })()}
       </div>
 
       {/* Name and icons */}
-      <div>
-        <div className="flex items-center justify-between gap-6">
-          <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
-            {(() => {
-              const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
-              if (!createdBy) return "Unknown";
-              if (typeof createdBy === "string") return createdBy;
-              const obj = createdBy as { [key: string]: unknown };
-              return (
-                (obj["name"] as string) ||
-                (obj["fullName"] as string) ||
-                (obj["email"] as string) ||
-                "Unknown"
-              );
-            })()}
-          </p>
-          {brokerId ? (
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                router.push(`/broker-details/${brokerId}`);
-              }}
-              className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
-            >
-              View
-            </span>
-          ) : (
-            <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
-          )}
-        </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF] truncate">
+          {(() => {
+            const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
+            if (!createdBy) return "Unknown";
+            if (typeof createdBy === "string") return createdBy;
+            const obj = createdBy as { [key: string]: unknown };
+            return (
+              (obj["name"] as string) ||
+              (obj["fullName"] as string) ||
+              (obj["email"] as string) ||
+              "Unknown"
+            );
+          })()}
+        </p>
 
         {/* Connect / Chat */}
         <div className="flex items-center gap-3 mt-1">
@@ -534,6 +518,17 @@ const LatestLeads: React.FC = () => {
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
+              // Check if user is logged in
+              const token = typeof window !== 'undefined' 
+                ? localStorage.getItem("token") || localStorage.getItem("authToken")
+                : null;
+              
+              if (!token) {
+                // Redirect to login if not authenticated
+                router.push('/login');
+                return;
+              }
+              
               if (typeof window !== 'undefined') {
                 const win = window as Window & { openChatWithBroker?: (params: { broker: unknown }) => void };
                 if (win.openChatWithBroker && broker) {
@@ -558,7 +553,23 @@ const LatestLeads: React.FC = () => {
       </div>
     </div>
 
-
+    {/* View button - Right side */}
+    <div className="flex-shrink-0">
+      {brokerId ? (
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            router.push(`/broker-details/${brokerId}`);
+          }}
+          className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+        >
+          View
+        </span>
+      ) : (
+        <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+      )}
+    </div>
   </div>
 </div>
 
