@@ -9,7 +9,7 @@ const PropertyEnquiryPage = () => {
     customerName: '',
     email: '',
     phoneNumber: '',
-    Requirement: 'buy',
+    requirement: 'buy',
     propertyType: 'residential',
     primaryRegion: '',
     optionalRegion: '',
@@ -88,6 +88,76 @@ const PropertyEnquiryPage = () => {
     }
   };
 
+  // Get admin ID from API
+  const getAdminIdFromAPI = async (apiUrl) => {
+    try {
+      // First check localStorage for adminId
+      if (typeof window !== 'undefined') {
+        const storedAdminId = localStorage.getItem('adminId');
+        if (storedAdminId) return storedAdminId;
+      }
+
+      // Login as admin to get admin ID
+      const loginResponse = await fetch(`${apiUrl}/auth/admin-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: 'admin@brokeradda.com',
+          password: 'admin123',
+        }),
+      });
+
+      if (!loginResponse.ok) {
+        throw new Error('Failed to login as admin');
+      }
+
+      const loginData = await loginResponse.json().catch(() => ({}));
+      
+      // Extract admin ID from response
+      // Try different possible response structures
+      let adminId = 
+        loginData?.data?.admin?._id ||
+        loginData?.data?.user?._id ||
+        loginData?.data?._id ||
+        loginData?.admin?._id ||
+        loginData?.user?._id ||
+        loginData?._id ||
+        '';
+
+      // If not found in response, try to extract from token
+      if (!adminId && loginData?.token) {
+        try {
+          const base64Url = loginData.token.split('.')[1];
+          if (base64Url) {
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(
+              atob(base64)
+                .split('')
+                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+            );
+            const payload = JSON.parse(jsonPayload);
+            adminId = payload.userId || payload.id || payload.adminId || payload.sub || '';
+          }
+        } catch (error) {
+          console.error('Error parsing token for admin ID:', error);
+        }
+      }
+
+      // Store in localStorage for future use
+      if (typeof window !== 'undefined' && adminId) {
+        localStorage.setItem('adminId', adminId);
+      }
+
+      return adminId;
+    } catch (error) {
+      console.error('Error getting admin ID from API:', error);
+      return '';
+    }
+  };
+
   // Fetch regions from API
   useEffect(() => {
     const fetchRegions = async () => {
@@ -140,8 +210,12 @@ const PropertyEnquiryPage = () => {
       
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
       
-      // Use hardcoded admin ID
-      const adminId = '68fb63a99b77c1a9ad2f1b8c';
+      // Get admin ID from API
+      const adminId = await getAdminIdFromAPI(apiUrl);
+      
+      if (!adminId) {
+        throw new Error('Failed to get admin ID. Please try again.');
+      }
       
       // Capitalize requirement and propertyType
       const capitalizeFirst = (str) => {
