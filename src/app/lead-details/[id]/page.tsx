@@ -594,7 +594,60 @@ export default function LeadDetails() {
                           Rental Properties
                             </span>
                       </div>
-                      <button className="w-full px-4 py-2 border border-green-900 text-green-900 hover:bg-green-50 rounded-lg text-sm font-medium transition-colors">
+                      <button 
+                        onClick={() => {
+                          if (!lead?.createdBy) return;
+                          
+                          // Extract broker ID from createdBy
+                          const createdByAny = lead.createdBy as Record<string, unknown>;
+                          let brokerId: string | null = null;
+                          
+                          // Handle string type
+                          if (typeof createdByAny === 'string') {
+                            brokerId = createdByAny;
+                          } else if (typeof createdByAny === 'object' && createdByAny !== null) {
+                            // Prioritize broker-specific IDs first
+                            const brokerDetailId = createdByAny.brokerDetailId;
+                            const brokerDetailsId = createdByAny.brokerDetailsId;
+                            const brokerIdVal = createdByAny.brokerId;
+                            
+                            brokerId = (typeof brokerDetailId === 'string' ? brokerDetailId : null) ||
+                                      (typeof brokerDetailsId === 'string' ? brokerDetailsId : null) ||
+                                      (typeof brokerIdVal === 'string' ? brokerIdVal : null) ||
+                                      null;
+                            
+                            // Try nested userId structure (common pattern)
+                            if (!brokerId && createdByAny.userId) {
+                              const userId = createdByAny.userId;
+                              if (typeof userId === 'object' && userId !== null) {
+                                const userIdObj = userId as Record<string, unknown>;
+                                brokerId = (typeof userIdObj._id === 'string' ? userIdObj._id : null) || 
+                                          (typeof userIdObj.id === 'string' ? userIdObj.id : null) || 
+                                          (typeof userIdObj.brokerId === 'string' ? userIdObj.brokerId : null) ||
+                                          (typeof userIdObj.brokerDetailId === 'string' ? userIdObj.brokerDetailId : null) ||
+                                          null;
+                              } else if (typeof userId === 'string') {
+                                brokerId = userId;
+                              }
+                            }
+                            
+                            // Fallback to direct _id or id
+                            if (!brokerId) {
+                              const idVal = createdByAny._id;
+                              const idVal2 = createdByAny.id;
+                              brokerId = (typeof idVal === 'string' ? idVal : null) || 
+                                        (typeof idVal2 === 'string' ? idVal2 : null) || 
+                                        null;
+                            }
+                          }
+                          
+                          // Navigate to broker details page
+                          if (brokerId) {
+                            router.push(`/broker-details/${brokerId}`);
+                          }
+                        }}
+                        className="w-full px-4 py-2 border border-green-900 text-green-900 hover:bg-green-50 rounded-lg text-sm font-medium transition-colors"
+                      >
                         View Profile
                       </button>
                     </div>
@@ -859,33 +912,150 @@ export default function LeadDetails() {
                                 </div>
 
                                 {/* Bottom Section - Broker Profile and Actions */}
-                                {s.createdBy && (
-                                  <div className="pt-4">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-3">
-                                        {s.createdBy.brokerImage ? (
-                                          <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] overflow-hidden relative">
-                                            <img
-                                              src={s.createdBy.brokerImage}
-                                              alt={s.createdBy.name || ""}
-                                              className="w-full h-full object-cover"
-                                            />
-                                            <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
-                                          </div>
-                                        ) : (
-                                          <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] flex items-center justify-center relative">
-                                            <span className="text-sm font-semibold" style={{ color: '#323743' }}>
-                                              {((s.createdBy.name || "").split(' ').map((n) => n[0]).slice(0, 2).join('') || "—").toUpperCase()}
-                                            </span>
-                                            <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
-                                          </div>
-                                        )}
+                                {(() => {
+                                  // Check if createdBy is admin
+                                  let isAdmin = false;
+                                  if (s.createdBy) {
+                                    const createdByObj = s.createdBy as Record<string, unknown>;
+                                    const userId = createdByObj.userId;
+                                    let role: string | undefined;
+                                    
+                                    if (userId && typeof userId === 'object' && userId !== null) {
+                                      role = (userId as { role?: string })?.role;
+                                    }
+                                    role = role || (createdByObj.role as string);
+                                    const roleLower = role ? role.toLowerCase() : '';
+                                    const name = (createdByObj.name as string) || (createdByObj.fullName as string) || (createdByObj.email as string) || "";
+                                    
+                                    isAdmin = 
+                                      roleLower === 'admin' || 
+                                      createdByObj.isAdmin === true ||
+                                      createdByObj.isAdmin === 'true' ||
+                                      (createdByObj.userType as string)?.toLowerCase() === 'admin' ||
+                                      (createdByObj.type as string)?.toLowerCase() === 'admin' ||
+                                      (name.toLowerCase().includes('admin') && !createdByObj.brokerImage && !createdByObj.profileImage) ||
+                                      (createdByObj.email as string)?.toLowerCase().includes('admin');
+                                  }
+                                  
+                                  // Also check if lead itself indicates admin creation
+                                  // If createdBy is null but lead is verified, it might be admin-created
+                                  if (!isAdmin) {
+                                    const leadObj = s as unknown as { [key: string]: unknown };
+                                    const verificationStatus = leadObj["verificationStatus"] as string;
+                                    if (verificationStatus === 'Verified' || verificationStatus === 'verified') {
+                                      isAdmin = 
+                                        leadObj["adminCreatedBy"] !== undefined ||
+                                        leadObj["createdByAdmin"] === true ||
+                                        leadObj["verifiedByAdmin"] === true ||
+                                        (!s.createdBy && verificationStatus === 'Verified'); // If verified but no createdBy, likely admin-created
+                                    }
+                                  }
+                                  
+                                  // Show broker section only if createdBy exists or isAdmin
+                                  if (!s.createdBy && !isAdmin) {
+                                    return null;
+                                  }
+                                  
+                                  return (
+                                    <div className="pt-4">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                          {/* Avatar - Show logo if admin, otherwise show broker image */}
+                                          {isAdmin ? (
+                                            <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-gray-200 relative p-1.5">
+                                              <img
+                                                src="/images/BROKER GULLY FINAL LOGO ICON SVG.svg"
+                                                alt="Broker Gully"
+                                                className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                  e.currentTarget.style.display = 'none';
+                                                }}
+                                              />
+                                              <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+                                            </div>
+                                          ) : s.createdBy?.brokerImage ? (
+                                            <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] overflow-hidden relative">
+                                              <img
+                                                src={s.createdBy.brokerImage}
+                                                alt={s.createdBy.name || ""}
+                                                className="w-full h-full object-cover"
+                                              />
+                                              <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+                                            </div>
+                                          ) : s.createdBy ? (
+                                            <div className="w-12 h-12 rounded-full bg-[#E5FCE4FF] flex items-center justify-center relative">
+                                              <span className="text-sm font-semibold" style={{ color: '#323743' }}>
+                                                {((s.createdBy.name || "").split(' ').map((n) => n[0]).slice(0, 2).join('') || "—").toUpperCase()}
+                                              </span>
+                                              <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
+                                            </div>
+                                          ) : null}
 
-                                        <div>
-                                          <div className="flex items-center gap-6">
-                                            <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
-                                              {s.createdBy.name || "Unknown"}
-                                            </p>
+                                          <div className="flex-1 min-w-0">
+                                            {/* If admin, only show chip, no name or chat */}
+                                            {isAdmin ? (
+                                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200">
+                                                <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span className="font-inter text-[10px] leading-4 font-medium text-green-700">Verified by Broker Gully</span>
+                                              </span>
+                                            ) : (
+                                              <>
+                                                <div className="flex items-center gap-6">
+                                                  <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF] truncate">
+                                                    {s.createdBy?.name || "Unknown"}
+                                                  </p>
+                                                </div>
+
+                                                {/* Connect / Chat */}
+                                                <div className="flex items-center gap-3 mt-1">
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      e.preventDefault();
+                                                      // Check if user is logged in
+                                                      const token = typeof window !== 'undefined' 
+                                                        ? localStorage.getItem("token") || localStorage.getItem("authToken")
+                                                        : null;
+                                                      
+                                                      if (!token) {
+                                                        // Redirect to login if not authenticated
+                                                        router.push('/login');
+                                                        return;
+                                                      }
+                                                      
+                                                      // If logged in, open chat
+                                                      if (typeof window !== 'undefined') {
+                                                        const win = window as Window & { openChatWithBroker?: (params: { broker: unknown }) => void };
+                                                        if (win.openChatWithBroker && broker) {
+                                                          win.openChatWithBroker({ broker });
+                                                        }
+                                                      }
+                                                    }}
+                                                    className="flex items-center gap-2 cursor-pointer"
+                                                  >
+                                                    <svg
+                                                      className="w-3 h-3 fill-none stroke-[#171A1FFF]"
+                                                      viewBox="0 0 24 24"
+                                                      strokeWidth="2"
+                                                    >
+                                                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                                    </svg>
+                                                    <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">
+                                                      Chat
+                                                    </span>
+                                                  </button>
+                                                </div>
+                                              </>
+                                            )}
+                                          </div>
+                                        </div>
+                                        
+                                        {/* View button - Right side (only for non-admin) */}
+                                        {!isAdmin && (
+                                          <div className="flex-shrink-0">
                                             {brokerId ? (
                                               <span
                                                 onClick={(e) => {
@@ -901,53 +1071,11 @@ export default function LeadDetails() {
                                               <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
                                             )}
                                           </div>
-
-                                          {/* Connect / Chat */}
-                                          <div className="flex items-center gap-3 mt-1">
-                                            {/* <span className="flex items-center gap-2">
-                                              <svg
-                                                className="w-3 h-3 fill-none stroke-[#171A1FFF]"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth="2"
-                                              >
-                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                                              </svg>
-                                              <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">
-                                                Connect
-                                              </span>
-                                            </span> */}
-
-                                            <button
-                                              type="button"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                e.preventDefault();
-                                                if (typeof window !== 'undefined') {
-                                                  const win = window as Window & { openChatWithBroker?: (params: { broker: unknown }) => void };
-                                                  if (win.openChatWithBroker && broker) {
-                                                    win.openChatWithBroker({ broker });
-                                                  }
-                                                }
-                                              }}
-                                              className="flex items-center gap-2 cursor-pointer"
-                                            >
-                                              <svg
-                                                className="w-3 h-3 fill-none stroke-[#171A1FFF]"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth="2"
-                                              >
-                                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                                              </svg>
-                                              <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">
-                                                Chat
-                                              </span>
-                                            </button>
-                                          </div>
-                                        </div>
+                                        )}
                                       </div>
                                     </div>
-                                  </div>
-                                )}
+                                  );
+                                })()}
                               </div>
                             </a>
                             );

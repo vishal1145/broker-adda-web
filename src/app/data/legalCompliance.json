@@ -19,7 +19,7 @@
       "subsections": [
         {
   "title": "Documentation Requirements",
-  "content": "Broker Adda keeps the registration process simple but requires basic documentation to maintain trust and compliance. The requirements differ slightly for Customers and Brokers:",
+  "content": "Broker Gully keeps the registration process simple but requires basic documentation to maintain trust and compliance. The requirements differ slightly for Customers and Brokers:",
   "items": [
     "For Customers: Basic ID proof (Aadhaar, PAN, Passport, or Driving License)",
     "For Customers: Verified mobile number or email via OTP",
@@ -34,9 +34,9 @@
 },
      {
   "title": "Registration Process",
-  "content": "Getting started with Broker Adda is simple and quick. The entire signup process is designed to be secure and role-specific for both brokers and customers.",
+  "content": "Getting started with Broker Gully is simple and quick. The entire signup process is designed to be secure and role-specific for both brokers and customers.",
   "items": [
-    "Go to the Broker Adda website or app and click 'Sign Up'",
+    "Go to the Broker Gully website or app and click 'Sign Up'",
     "Choose your role – Broker or Customer",
     "Enter your mobile number or email and receive an OTP",
     "Verify OTP to confirm your identity",
@@ -92,7 +92,7 @@
   },
   "regulatoryBodies": {
   "title": "Key Regulatory Bodies",
-  "description": "These are the primary regulatory authorities that govern real estate practices in India. Broker Adda aligns with their guidelines to ensure trust, transparency, and compliance.",
+  "description": "These are the primary regulatory authorities that govern real estate practices in India. Broker Gully aligns with their guidelines to ensure trust, transparency, and compliance.",
   "bodies": [
     {
       "name": "Real Estate Regulatory Authority (RERA)",
@@ -131,11 +131,11 @@
   "title": "Legal & Compliance FAQ",
   "questions": [
     {
-      "question": "What documents are required to create an account on Broker Adda?",
+      "question": "What documents are required to create an account on Broker Gully?",
       "answer": "Customers need a basic ID proof (Aadhaar, PAN, Passport, or Driving License) along with mobile/email OTP verification. Brokers need to provide additional documents such as business/RERA ID, address proof, and company details."
     },
     {
-      "question": "Is RERA registration mandatory for brokers on Broker Adda?",
+      "question": "Is RERA registration mandatory for brokers on Broker Gully?",
       "answer": "Yes, in states where RERA regulations apply, brokers are required to provide their RERA registration number. This ensures trust and compliance on the platform."
     },
     {
@@ -143,12 +143,12 @@
       "answer": "No, customers can browse properties after completing basic profile setup and OTP verification. However, ID proof verification is recommended for connecting with brokers and accessing all features."
     },
     {
-      "question": "How are documents verified on Broker Adda?",
-      "answer": "Once documents are uploaded, the Broker Adda compliance team reviews and verifies them. Verification for brokers may take 1–2 working days."
+      "question": "How are documents verified on Broker Gully?",
+      "answer": "Once documents are uploaded, the Broker Gully compliance team reviews and verifies them. Verification for brokers may take 1–2 working days."
     },
     {
-      "question": "Is my data and documentation safe on Broker Adda?",
-      "answer": "Yes, Broker Adda follows industry-standard data protection practices. All documents are stored securely with encryption and are never shared with third parties without consent."
+      "question": "Is my data and documentation safe on Broker Gully?",
+      "answer": "Yes, Broker Gully follows industry-standard data protection practices. All documents are stored securely with encryption and are never shared with third parties without consent."
     },
     {
       "question": "What happens if a broker does not submit documents?",

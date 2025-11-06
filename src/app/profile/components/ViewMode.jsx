@@ -306,15 +306,19 @@ export default function ViewModeProfile() {
                 <div className="text-gray-900 text-[14px]">{profile.address || '-'}</div>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="w-4 h-4 flex items-center justify-center" style={{ color: '#565D6DFF' }}>
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 0 20"/></svg>
-              </span>
-              <div>
-                <div className="text-gray-500 text-[12px]">Website</div>
-                <div className="text-green-900 text-[14px]">{profile.website ? (<a href={profile.website} target="_blank" rel="noreferrer" className="underline hover:text-green-700 transition-colors">{profile.website}</a>) : '-'}</div>
+            {profile.website && profile.website.trim() !== '' && profile.website !== '-' && (
+              <div className="flex items-start gap-3">
+                <span className="w-4 h-4 flex items-center justify-center" style={{ color: '#565D6DFF' }}>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 0 20"/></svg>
+                </span>
+                <div>
+                  <div className="text-gray-500 text-[12px]">Website</div>
+                  <div className="text-green-900 text-[14px]">
+                    <a href={profile.website} target="_blank" rel="noreferrer" className="underline hover:text-green-700 transition-colors">{profile.website}</a>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
             {(profile.socials.linkedin || profile.socials.twitter || profile.socials.instagram || profile.socials.facebook) && (
               <div className="flex items-start gap-3">
                 <span className="w-4 h-4 flex items-center justify-center" style={{ color: '#565D6DFF' }}>
@@ -381,9 +385,18 @@ export default function ViewModeProfile() {
               { label: 'GST Certificate', value: profile.docs.gst },
               { label: 'Broker License', value: profile.docs.license },
               { label: 'Company ID', value: profile.docs.companyId },
-            ].map(({ label, value }) => (
-              <DocRow key={label} label={label} value={value} />
-            ))}
+            ]
+              .filter(({ value }) => {
+                if (!value) return false;
+                if (typeof value === 'string') {
+                  const trimmed = value.trim();
+                  return trimmed !== '' && trimmed !== '-' && trimmed !== 'null' && trimmed !== 'undefined';
+                }
+                return true;
+              })
+              .map(({ label, value }) => (
+                <DocRow key={label} label={label} value={value} />
+              ))}
           </div>
         </div>
 

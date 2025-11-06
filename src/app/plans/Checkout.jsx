@@ -54,7 +54,7 @@ const Plans = () => {
         key: KEY_ID, // public key
         amount: order.amount,
         currency: order.currency,
-        name: 'Broker Adda',
+        name: 'Broker Gully',
         description: `Payment for ${plan.name} plan`,
         order_id: order.id,
         handler: async function (response) {

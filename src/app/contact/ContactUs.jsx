@@ -116,7 +116,7 @@ const ContactUs = () => {
             {/* Green Information Box - Positioned relative to marker */}
             <div className="absolute top-[45%] right-[10%] bg-[#0D542B] text-white p-4 rounded-lg shadow-xl z-10 max-w-xs ml-8 mt-6">
           <div>
-                <p className="font-semibold text-sm mb-1">Broker Adda</p>
+                <p className="font-semibold text-sm mb-1">Broker Gully</p>
                 <p className="text-xs mb-1">{contactData.address}</p>
                 <p className="text-xs">Ph: {contactData.contact.phone}</p>
               </div>

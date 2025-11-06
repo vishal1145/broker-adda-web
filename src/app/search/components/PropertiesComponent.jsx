@@ -910,37 +910,37 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
                 <div className="flex">
                   {/* Image Section Skeleton - Left */}
-                  <div className="relative w-[400px] h-[300px] flex-shrink-0">
+                  <div className="relative w-[400px] h-[260px] flex-shrink-0">
                     <ContentLoader
                       speed={2}
                       width={400}
-                      height={300}
-                      viewBox="0 0 400 300"
+                      height={260}
+                      viewBox="0 0 400 260"
                       backgroundColor="#f3f3f3"
                       foregroundColor="#ecebeb"
                       className="rounded-l-xl"
                     >
                       {/* Main image */}
-                      <rect x="0" y="0" rx="0" ry="0" width="400" height="300" />
+                      <rect x="0" y="0" rx="0" ry="0" width="400" height="260" />
                       {/* Tag overlay top-left */}
                       <rect x="16" y="16" rx="12" ry="12" width="60" height="24" />
                       {/* Rating badge top-right */}
                       <circle cx="370" cy="24" r="16" />
                       <rect x="340" y="20" rx="4" ry="4" width="24" height="8" />
                       {/* Price pill bottom-left */}
-                      <rect x="16" y="268" rx="12" ry="12" width="90" height="24" />
+                      <rect x="16" y="228" rx="12" ry="12" width="90" height="24" />
                       {/* Share button bottom-right */}
-                      <circle cx="370" cy="272" r="20" />
+                      <circle cx="370" cy="232" r="20" />
                     </ContentLoader>
                   </div>
                   
                   {/* Details Section Skeleton - Right */}
-                  <div className="flex-1 p-6 flex flex-col">
+                  <div className="flex-1 p-5 h-[260px] flex flex-col">
                     <ContentLoader
                       speed={2}
                       width={500}
-                      height={300}
-                      viewBox="0 0 500 300"
+                      height={260}
+                      viewBox="0 0 500 260"
                       backgroundColor="#f3f3f3"
                       foregroundColor="#ecebeb"
                     >
@@ -1058,7 +1058,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex">
                   {/* Image Section - Left */}
-                  <div className="relative w-[400px] h-[300px] flex-shrink-0">
+                  <div className="relative w-[400px] h-[260px] flex-shrink-0">
                 {/* Image carousel */}
                     <div className="relative w-full h-full overflow-hidden rounded-l-xl">
                   {(() => {
@@ -1077,7 +1077,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                 </div>
                     {/* Tag overlay - top-left */}
                     <div className="absolute top-4 left-4">
-                  <span className="bg-[#0A421E] text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                  <span 
+                    className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap"
+                    style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}
+                  >
                     {property.type}
                   </span>
                 </div>
@@ -1090,16 +1093,24 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                 </div>
                 {/* Price pill bottom-left */}
                     <div className="absolute bottom-4 left-4 z-10">
-                      <span className="px-2 py-0.5 rounded-full text-sm font-semibold"
-                    style={{
-                          backgroundColor: '#FDC700'
-                    }}
+                      <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap"
+                    style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}
                   >
                     {property.currentPrice}
                   </span>
                 </div>
                 {/* Share icon bottom-right */}
-                    <button aria-label="Share" className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer">
+                    <button 
+                      aria-label="Share" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const propertyUrl = `${window.location.origin}/property-details/${property.id}`;
+                        const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(propertyUrl)}`;
+                        window.open(facebookShareUrl, '_blank', 'width=600,height=400');
+                      }}
+                      className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer"
+                    >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                   </svg>
@@ -1107,7 +1118,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               </div>
               
                   {/* Details Section - Right */}
-                  <div className="flex-1 p-6 flex flex-col">
+                  <div className="flex-1 p-5 h-[260px] flex flex-col">
                     {/* Title */}
                     <h3 className="mb-2 flex items-center gap-2" style={{  fontSize: '16px', lineHeight: '22px', fontWeight: '600', color: '#171A1FFF' }}>
                       {property.name}
@@ -1117,18 +1128,18 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     </h3>
                     
                     {/* Description */}
-                    <p className="mb-4" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF', width: '418px' }}>
+                    <p className="mb-3" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF', width: '418px' }}>
                       {property.description || `A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.`}
                     </p>
                     
                     {/* Location Details */}
-                    <div className="flex flex-col gap-2 mb-4">
-                      <div className="flex items-center text-[12px] text-gray-600">
+                    <div className="flex flex-col gap-2 mb-3">
+                      {/* <div className="flex items-center text-[12px] text-gray-600">
                         <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                         {property.city || 'Agra'}
-                </div>
+                </div> */}
                       <div className="flex items-center text-[12px] text-gray-600">
                         <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
@@ -1141,7 +1152,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                 </div>
 
                     {/* Features */}
-                    <div className="mb-3">
+                    <div className="mb-2">
                       <div className="text-[12px] font-semibold text-gray-900 mb-2">Features</div>
                       <div className="flex flex-wrap gap-2">
                         {property.bedrooms && (
@@ -1167,14 +1178,29 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     <div className="mt-auto">
                       <div className="text-[12px] font-semibold text-gray-900 mb-2">Amenities</div>
                   <div className="flex flex-wrap gap-2 text-[11px]">
-                        {(Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities : ['Gym', 'Parking', 'Security', 'Swimming Pool', 'Clubhouse']).map((amenity, idx) => (
-                      <span
-                        key={idx}
-                            className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
-                      >
-                        {amenity}
-                      </span>
-                    ))}
+                        {(() => {
+                          const amenitiesList = Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities : ['Gym', 'Parking', 'Security', 'Swimming Pool', 'Clubhouse'];
+                          const displayCount = amenitiesList.length > 2 ? 2 : amenitiesList.length;
+                          const remainingCount = amenitiesList.length - displayCount;
+                          
+                          return (
+                            <>
+                              {amenitiesList.slice(0, displayCount).map((amenity, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+                                >
+                                  {amenity}
+                                </span>
+                              ))}
+                              {remainingCount > 0 && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                  +{remainingCount}
+                                </span>
+                              )}
+                            </>
+                          );
+                        })()}
                   </div>
                 </div>
                   </div>

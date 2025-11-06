@@ -575,7 +575,7 @@ const PropertyEnquiryPage = () => {
               <div className="sticky top-6 bg-yellow-50 rounded-2xl p-6 shadow-lg border border-yellow-200">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-6 bg-yellow-400 rounded-full"></div>
-                  <h3 className="text-xl font-bold text-gray-900">Why Choose Broker Adda?</h3>
+                  <h3 className="text-xl font-bold text-gray-900">Why Choose Broker Gully?</h3>
                 </div>
                 <p className="text-xs text-gray-700 mb-5 leading-relaxed">
                   We connect you with verified real estate brokers. Get personalized recommendations and expert guidance tailored to your needs.

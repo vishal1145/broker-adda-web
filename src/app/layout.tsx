@@ -7,7 +7,7 @@ import ConditionalLayout from './components/ConditionalLayout';
 import { AuthProvider } from './contexts/AuthContext';
 
 export const metadata = {
-  title: "Broker Adda Real Estate | Coastal Homes & Luxury Apartments",
+  title: "Broker Gully Real Estate | Coastal Homes & Luxury Apartments",
   description: 'Search homes for sale and rent in A-17, Tajganj, Agra. Beachfront houses, luxury apartments, and family properties with expert local guidance.',
   icons: {
     icon: '/BROKER GULLY FINAL LOGO ICON SVG.svg',

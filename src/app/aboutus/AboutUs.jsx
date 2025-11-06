@@ -28,7 +28,7 @@ const AboutUs = () => {
 
           {/* Descriptive Paragraph */}
           <p className="max-w-2xl mx-auto  mb-10 font-[Inter] text-[12px] leading-[26px] font-normal text-[#565D6D]">
-            At Broker Adda, we believe finding your perfect home should be effortless and exciting. 
+            At Broker Gully, we believe finding your perfect home should be effortless and exciting. 
             Since our founding, we've been dedicated to connecting you with the finest properties, 
             from luxury apartments to commercial spaces. Our expert brokers and comprehensive platform 
             ensure you discover not just a house, but your dream home—where memories are made and futures are built.
@@ -204,7 +204,7 @@ const AboutUs = () => {
                 </span>
               </h3>
               <p className="text-gray-600 mb-8 px-8 mt-1 text-[12px]">
-                Every Broker Adda property is carefully selected from prime locations with modern amenities and 
+                Every Broker Gully property is carefully selected from prime locations with modern amenities and 
                 superior construction quality. Our expert team conducts thorough due diligence on every property, 
                 from legal verification to quality inspection, so you invest in real estate that's not only 
                 valuable but also built to appreciate over time.

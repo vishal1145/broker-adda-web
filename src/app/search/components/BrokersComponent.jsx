@@ -4,9 +4,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Select, { components } from 'react-select';
 import TabsBar from './TabsBar';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  }) => {
   const router = useRouter();
+  const { user, isBroker } = useAuth();
   const [brokerFilters, setBrokerFilters] = useState({
     region: [],
     experienceRange: [0, 20],
@@ -688,6 +690,23 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
   // Filter brokers based on selected filters (client-side filtering)
   const filteredBrokers = brokers.filter(broker => {
+    // Filter out logged-in broker if user is a broker
+    if (isBroker() && user?.userId) {
+      const currentUserId = String(user.userId);
+      const brokerUserId = broker.userIdRaw ? String(broker.userIdRaw) : null;
+      const brokerId = broker._id ? String(broker._id) : (broker.id ? String(broker.id) : null);
+      const brokerUserIdField = broker.userId ? (typeof broker.userId === 'object' ? String(broker.userId._id || broker.userId.id) : String(broker.userId)) : null;
+      
+      // Check if this broker matches the logged-in user (check all possible ID fields)
+      if (
+        (brokerUserId && brokerUserId === currentUserId) ||
+        (brokerId && brokerId === currentUserId) ||
+        (brokerUserIdField && brokerUserIdField === currentUserId)
+      ) {
+        return false; // Hide the logged-in broker
+      }
+    }
+    
     // City filter: backend already applies regionCity when city is selected.
     // To avoid over-filtering due to string mismatches, skip client-side city filtering.
     // Name search filter

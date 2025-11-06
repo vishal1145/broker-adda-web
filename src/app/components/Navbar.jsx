@@ -328,17 +328,17 @@ const enableSuggestions = false;
           <button
             onClick={() => router.push('/')}
             className="flex items-center gap-2 group"
-            aria-label="Broker Adda Home"
+            aria-label="Broker Gully Home"
           >
             <span className="rounded-full overflow-hidden">
               <img
                 src="/images/BROKER GULLY FINAL LOGO ICON SVG.svg"
-                alt="Broker Adda"
+                alt="Broker Gully"
                 className="w-12 h-12 object-contain transition-transform group-hover:scale-[1.03]"
               />
             </span>
             <span className="text-xl font-semibold text-gray-800 cursor-pointer">
-              {data?.logo?.text || 'Broker Adda'}
+              {data?.logo?.text || 'Broker Gully'}
             </span>
           </button>
 
