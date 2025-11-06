@@ -707,7 +707,12 @@ export default function LeadDetails() {
                     </div>
                   </div>
 
-                  <button className="w-full px-4 py-3 bg-green-900 hover:bg-green-900 text-white rounded-lg font-semibold text-sm transition-colors">
+                  <button 
+                    onClick={() => {
+                      router.push('/signup');
+                    }}
+                    className="w-full px-4 py-3 bg-green-900 hover:bg-green-900 text-white rounded-lg font-semibold text-sm transition-colors"
+                  >
                     Join Our Network
                   </button>
                 </div>
@@ -1030,7 +1035,15 @@ export default function LeadDetails() {
                                                       if (typeof window !== 'undefined') {
                                                         const win = window as Window & { openChatWithBroker?: (params: { broker: unknown }) => void };
                                                         if (win.openChatWithBroker && broker) {
-                                                          win.openChatWithBroker({ broker });
+                                                          // Ensure broker has correct status format for chat component
+                                                          const brokerAny = broker as Record<string, unknown>;
+                                                          const chatBroker = {
+                                                            ...broker,
+                                                            status: 'active', // Lowercase 'active' for chat component to show "Active Now"
+                                                            brokerImage: broker.brokerImage || (brokerAny.profileImage as string) || (brokerAny.image as string) || '',
+                                                            name: broker.name || (brokerAny.fullName as string) || broker.email || 'Unknown'
+                                                          };
+                                                          win.openChatWithBroker({ broker: chatBroker });
                                                         }
                                                       }
                                                     }}

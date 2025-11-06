@@ -23,7 +23,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     },
     datePosted: '',
     brokerAgent: [],
-    priority: []
+    priority: [],
+    verificationStatus: true // Default to verified only
   });
 
   const [sortBy, setSortBy] = useState('createdAt');
@@ -619,7 +620,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       dateAdded: { start: '2024-06-01', end: '' }, // Reset to original default
       datePosted: '', // Reset date posted filter
       brokerAgent: [],
-      priority: []
+      priority: [],
+      verificationStatus: true // Reset to verified only
     });
     setSortBy('createdAt'); // Reset sorting to default
     setSortOrder('desc'); // Reset sorting to default
@@ -1426,14 +1428,24 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               {/* Verification Status */}
               <div className="flex items-center justify-between">
                 <label className="block" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Verification Status: Verified</label>
-                <div className="relative inline-block w-[44px] h-6">
+                <div 
+                  className="relative inline-block w-[44px] h-6 cursor-pointer"
+                  onClick={() => {
+                    setLeadFilters(prev => ({ ...prev, verificationStatus: !prev.verificationStatus }));
+                    setCurrentPage(1);
+                  }}
+                >
                   <input
                     type="checkbox"
-                    className="peer sr-only"
-                    defaultChecked
+                    className="sr-only"
+                    checked={leadFilters.verificationStatus}
+                    onChange={(e) => {
+                      setLeadFilters(prev => ({ ...prev, verificationStatus: e.target.checked }));
+                      setCurrentPage(1);
+                    }}
                   />
-                  <div className="absolute inset-0 bg-gray-200 rounded-full cursor-pointer transition-colors duration-200 ease-in-out peer-checked:bg-[#0D542B]">
-                    <div className="absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform duration-200 peer-checked:translate-x-[20px]"></div>
+                  <div className={`absolute inset-0 rounded-full transition-colors duration-200 ease-in-out ${leadFilters.verificationStatus ? 'bg-[#0D542B]' : 'bg-gray-200'}`}>
+                    <div className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform duration-200 ${leadFilters.verificationStatus ? 'translate-x-[20px]' : 'translate-x-0'}`}></div>
                   </div>
                 </div>
               </div>
@@ -1652,9 +1664,45 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
               const brokerImage = lead.createdBy?.brokerImage || lead.createdBy?.profileImage || lead.createdBy?.image;
               const brokerName = lead.createdBy?.name || lead.createdBy?.fullName || lead.createdBy?.email || 'Unknown';
               
+              // Check if createdBy is admin
+              let isAdmin = false;
+              if (lead.createdBy) {
+                const createdByObj = lead.createdBy;
+                const userId = createdByObj.userId;
+                let role = '';
+                
+                if (userId && typeof userId === 'object' && userId !== null) {
+                  role = userId.role || '';
+                }
+                role = role || createdByObj.role || '';
+                const roleLower = role ? role.toLowerCase() : '';
+                const name = createdByObj.name || createdByObj.fullName || createdByObj.email || "";
+                
+                isAdmin = 
+                  roleLower === 'admin' || 
+                  createdByObj.isAdmin === true ||
+                  createdByObj.isAdmin === 'true' ||
+                  (createdByObj.userType || '').toLowerCase() === 'admin' ||
+                  (createdByObj.type || '').toLowerCase() === 'admin' ||
+                  (name.toLowerCase().includes('admin') && !createdByObj.brokerImage && !createdByObj.profileImage) ||
+                  ((createdByObj.email || '').toLowerCase().includes('admin'));
+              }
+              
+              // Also check if lead itself indicates admin creation
+              if (!isAdmin) {
+                const verificationStatus = lead.verificationStatus;
+                if (verificationStatus === 'Verified' || verificationStatus === 'verified') {
+                  isAdmin = 
+                    lead.adminCreatedBy !== undefined ||
+                    lead.createdByAdmin === true ||
+                    lead.verifiedByAdmin === true ||
+                    (!lead.createdBy && verificationStatus === 'Verified'); // If verified but no createdBy, likely admin-created
+                }
+              }
+              
               // Extract broker ID for View button
               let brokerId = null;
-              if (lead.createdBy) {
+              if (lead.createdBy && !isAdmin) {
                 if (typeof lead.createdBy === 'string') {
                   brokerId = lead.createdBy;
                 } else if (typeof lead.createdBy === 'object' && lead.createdBy !== null) {
@@ -1819,9 +1867,21 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     <div className="pt-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          {/* Avatar */}
+                          {/* Avatar - Show logo if admin, otherwise show broker image */}
                           <div className="relative w-10 h-10 text-sm font-semibold" style={{ color: '#323743' }}>
-                            {brokerImage ? (
+                            {isAdmin ? (
+                              <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200 relative p-1.5">
+                                <img
+                                  src="/images/BROKER GULLY FINAL LOGO ICON SVG.svg"
+                                  alt="Broker Gully"
+                                  className="w-full h-full object-contain"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+                              </div>
+                            ) : brokerImage ? (
                               <>
                                 <div className="w-10 h-10 rounded-full bg-[#E5FCE4FF] overflow-hidden">
                                   <img
@@ -1852,71 +1912,85 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
                           {/* Name and icons */}
                           <div className="flex-1 min-w-0">
-                            <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF] truncate">
-                              {brokerName}
-                            </p>
-
-                            {/* Connect / Chat */}
-                            <div className="flex items-center gap-3 mt-1">
-                              <span className="flex items-center gap-2">
-                                <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
-                                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            {/* If admin, only show chip, no name or chat */}
+                            {isAdmin ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200">
+                                <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF]">Connect</span>
+                                <span className="font-inter text-[10px] leading-4 font-medium text-green-700">Verified by Broker Gully</span>
                               </span>
+                            ) : (
+                              <>
+                                <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF] truncate">
+                                  {brokerName}
+                                </p>
 
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                  // Check if user is logged in
-                                  const token = typeof window !== 'undefined' 
-                                    ? localStorage.getItem("token") || localStorage.getItem("authToken")
-                                    : null;
-                                  
-                                  if (!token) {
-                                    // Redirect to login if not authenticated
-                                    router.push('/login');
-                                    return;
-                                  }
-                                  
-                                  // If logged in, open chat
-                                  if (typeof window !== 'undefined') {
-                                    const win = window;
-                                    if (win.openChatWithBroker && lead.createdBy) {
-                                      win.openChatWithBroker({ broker: lead.createdBy });
-                                    }
-                                  }
-                                }}
-                                className="flex items-center gap-2 cursor-pointer"
-                              >
-                                <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
-                                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                                </svg>
-                                <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">Chat</span>
-                              </button>
-                            </div>
+                                {/* Chat */}
+                                <div className="flex items-center gap-3 mt-1">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      // Check if user is logged in
+                                      const token = typeof window !== 'undefined' 
+                                        ? localStorage.getItem("token") || localStorage.getItem("authToken")
+                                        : null;
+                                      
+                                      if (!token) {
+                                        // Redirect to login if not authenticated
+                                        router.push('/login');
+                                        return;
+                                      }
+                                      
+                                      // If logged in, open chat
+                                      if (typeof window !== 'undefined') {
+                                        const win = window;
+                                        if (win.openChatWithBroker && lead.createdBy) {
+                                          // Ensure broker has correct status format for chat component
+                                          const chatBroker = {
+                                            ...lead.createdBy,
+                                            status: 'active', // Lowercase 'active' for chat component to show "Active Now"
+                                            brokerImage: lead.createdBy.brokerImage || lead.createdBy.profileImage || lead.createdBy.image,
+                                            name: lead.createdBy.name || lead.createdBy.fullName || lead.createdBy.email || 'Unknown'
+                                          };
+                                          win.openChatWithBroker({ broker: chatBroker });
+                                        }
+                                      }
+                                    }}
+                                    className="flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
+                                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                    </svg>
+                                    <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">Chat</span>
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
 
-                        {/* View button - Right side */}
-                        <div className="flex-shrink-0">
-                          {brokerId ? (
-                            <span
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                router.push(`/broker-details/${brokerId}`);
-                              }}
-                              className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
-                            >
-                              View
-                            </span>
-                          ) : (
-                            <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
-                          )}
-                        </div>
+                        {/* View button - Right side (only show if not admin) */}
+                        {!isAdmin && (
+                          <div className="flex-shrink-0">
+                            {brokerId ? (
+                              <span
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  router.push(`/broker-details/${brokerId}`);
+                                }}
+                                className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+                              >
+                                View
+                              </span>
+                            ) : (
+                              <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

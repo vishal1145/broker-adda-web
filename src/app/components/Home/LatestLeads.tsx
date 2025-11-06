@@ -262,7 +262,47 @@ const LatestLeads: React.FC = () => {
                 let broker: { _id?: string; id?: string; [key: string]: unknown } | null = null;
                 const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy;
                 
+                // Check if createdBy is admin
+                let isAdmin = false;
                 if (createdBy) {
+                  if (typeof createdBy === 'object' && createdBy !== null) {
+                    const obj = createdBy as { [key: string]: unknown };
+                    const userId = obj['userId'];
+                    let role = '';
+                    
+                    if (userId && typeof userId === 'object' && userId !== null) {
+                      const userIdObj = userId as { [key: string]: unknown };
+                      role = (userIdObj['role'] as string) || '';
+                    }
+                    role = role || (obj['role'] as string) || '';
+                    const roleLower = role ? role.toLowerCase() : '';
+                    const name = (obj['name'] as string) || (obj['fullName'] as string) || (obj['email'] as string) || "";
+                    
+                    isAdmin = 
+                      roleLower === 'admin' || 
+                      obj['isAdmin'] === true ||
+                      obj['isAdmin'] === 'true' ||
+                      ((obj['userType'] as string) || '').toLowerCase() === 'admin' ||
+                      ((obj['type'] as string) || '').toLowerCase() === 'admin' ||
+                      (name.toLowerCase().includes('admin') && !obj['brokerImage'] && !obj['profileImage']) ||
+                      (((obj['email'] as string) || '').toLowerCase().includes('admin'));
+                  }
+                }
+                
+                // Also check if lead itself indicates admin creation
+                if (!isAdmin) {
+                  const leadObj = lead as unknown as { [key: string]: unknown };
+                  const verificationStatus = leadObj['verificationStatus'] as string;
+                  if (verificationStatus === 'Verified' || verificationStatus === 'verified') {
+                    isAdmin = 
+                      leadObj['adminCreatedBy'] !== undefined ||
+                      leadObj['createdByAdmin'] === true ||
+                      leadObj['verifiedByAdmin'] === true ||
+                      (!createdBy && verificationStatus === 'Verified'); // If verified but no createdBy, likely admin-created
+                  }
+                }
+                
+                if (createdBy && !isAdmin) {
                   if (typeof createdBy === 'string') {
                     brokerId = createdBy;
                     broker = { _id: createdBy, id: createdBy };
@@ -419,12 +459,24 @@ const LatestLeads: React.FC = () => {
                   <div className="pt-4">
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-3">
-      {/* Avatar */}
+      {/* Avatar - Show logo if admin, otherwise show broker image */}
        <div
          className="relative w-10 h-10 text-sm font-semibold"
          style={{ color: '#323743' }}
        >
-        {(() => {
+        {isAdmin ? (
+          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200 relative p-1.5">
+            <img
+              src="/images/BROKER GULLY FINAL LOGO ICON SVG.svg"
+              alt="Broker Gully"
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+          </div>
+        ) : (() => {
           const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
           let name = "—";
           let brokerImage: string | undefined;
@@ -483,93 +535,106 @@ const LatestLeads: React.FC = () => {
 
       {/* Name and icons */}
       <div className="flex-1 min-w-0">
-        <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF] truncate">
-          {(() => {
-            const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
-            if (!createdBy) return "Unknown";
-            if (typeof createdBy === "string") return createdBy;
-            const obj = createdBy as { [key: string]: unknown };
-            return (
-              (obj["name"] as string) ||
-              (obj["fullName"] as string) ||
-              (obj["email"] as string) ||
-              "Unknown"
-            );
-          })()}
-        </p>
-
-        {/* Connect / Chat */}
-        <div className="flex items-center gap-3 mt-1">
-          {/* <span className="flex items-center gap-2">
-            <svg
-              className="w-3 h-3 fill-none stroke-[#171A1FFF]"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-            >
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+        {/* If admin, only show chip, no name or chat */}
+        {isAdmin ? (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200">
+            <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">
-              Connect
-            </span>
-          </span> */}
+            <span className="font-inter text-[10px] leading-4 font-medium text-green-700">Verified by Broker Gully</span>
+          </span>
+        ) : (
+          <>
+            <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF] truncate">
+              {(() => {
+                const createdBy = (lead as unknown as { createdBy?: unknown })?.createdBy as unknown;
+                if (!createdBy) return "Unknown";
+                if (typeof createdBy === "string") return createdBy;
+                const obj = createdBy as { [key: string]: unknown };
+                return (
+                  (obj["name"] as string) ||
+                  (obj["fullName"] as string) ||
+                  (obj["email"] as string) ||
+                  "Unknown"
+                );
+              })()}
+            </p>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              // Check if user is logged in
-              const token = typeof window !== 'undefined' 
-                ? localStorage.getItem("token") || localStorage.getItem("authToken")
-                : null;
-              
-              if (!token) {
-                // Redirect to login if not authenticated
-                router.push('/login');
-                return;
-              }
-              
-              if (typeof window !== 'undefined') {
-                const win = window as Window & { openChatWithBroker?: (params: { broker: unknown }) => void };
-                if (win.openChatWithBroker && broker) {
-                  win.openChatWithBroker({ broker });
-                }
-              }
-            }}
-            className="flex items-center gap-2 cursor-pointer"
-          >
-            <svg
-              className="w-3 h-3 fill-none stroke-[#171A1FFF]"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-            <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">
-              Chat
-            </span>
-          </button>
-        </div>
+            {/* Connect / Chat */}
+            <div className="flex items-center gap-3 mt-1">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  // Check if user is logged in
+                  const token = typeof window !== 'undefined' 
+                    ? localStorage.getItem("token") || localStorage.getItem("authToken")
+                    : null;
+                  
+                  if (!token) {
+                    // Redirect to login if not authenticated
+                    router.push('/login');
+                    return;
+                  }
+                  
+                  if (typeof window !== 'undefined') {
+                    const win = window as Window & { openChatWithBroker?: (params: { broker: unknown }) => void };
+                    if (win.openChatWithBroker && broker) {
+                      // Ensure broker has correct status format for chat component
+                      const chatBroker = {
+                        ...broker,
+                        status: 'active', // Lowercase 'active' for chat component to show "Active Now"
+                        brokerImage: (broker as { brokerImage?: string; profileImage?: string; image?: string })?.brokerImage || 
+                                   (broker as { brokerImage?: string; profileImage?: string; image?: string })?.profileImage || 
+                                   (broker as { brokerImage?: string; profileImage?: string; image?: string })?.image,
+                        name: (broker as { name?: string; fullName?: string; email?: string })?.name || 
+                              (broker as { name?: string; fullName?: string; email?: string })?.fullName || 
+                              (broker as { name?: string; fullName?: string; email?: string })?.email || 
+                              'Unknown'
+                      };
+                      win.openChatWithBroker({ broker: chatBroker });
+                    }
+                  }
+                }}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <svg
+                  className="w-3 h-3 fill-none stroke-[#171A1FFF]"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">
+                  Chat
+                </span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
 
-    {/* View button - Right side */}
-    <div className="flex-shrink-0">
-      {brokerId ? (
-        <span
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            router.push(`/broker-details/${brokerId}`);
-          }}
-          className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
-        >
-          View
-        </span>
-      ) : (
-        <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
-      )}
-    </div>
+    {/* View button - Right side (only show if not admin) */}
+    {!isAdmin && (
+      <div className="flex-shrink-0">
+        {brokerId ? (
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              router.push(`/broker-details/${brokerId}`);
+            }}
+            className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+          >
+            View
+          </span>
+        ) : (
+          <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+        )}
+      </div>
+    )}
   </div>
 </div>
 
