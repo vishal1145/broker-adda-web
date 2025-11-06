@@ -418,15 +418,20 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = '' }) 
           
           const computedRating = computeRating(broker);
           return {
-            _id: broker._id || undefined,
+            // Include all raw broker fields first
+            ...broker,
+            // Then override with transformed/calculated fields
+            _id: broker._id || broker.id || undefined,
             userIdRaw: (broker?.userId && typeof broker.userId === 'object') ? broker.userId._id : broker.userId,
             id: broker._id || broker.id,
             name: broker.name || 'Unknown Broker',
             profileImage: broker.brokerImage || '/images/user-1.webp',
+            brokerImage: broker.brokerImage || broker.profileImage || '/images/user-1.webp', // For chat component
             rating: computedRating,
             email: broker.email || '',
             phone: broker.phone || broker.whatsappNumber || '',
             status: broker.approvedByAdmin === 'unblocked' ? 'Verified' : 'Active',
+            statusForChat: 'active', // Lowercase 'active' for chat component
             locations: broker.region ? broker.region.map(r => r.name) : [broker.city || 'Unknown'],
             agency: broker.firmName || 'Unknown Agency',
             experience: (() => {
@@ -1601,8 +1606,16 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = '' }) 
     <button
       onClick={(e) => {
         e.stopPropagation();
-        const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id;
-        router.push(`/broker-details/${brokerId}?chat=1`);
+        e.preventDefault();
+        if (typeof window !== 'undefined' && window.openChatWithBroker) {
+
+          const chatBroker = {
+            ...broker,
+            status: broker.statusForChat || 'active' // Use lowercase 'active' for chat
+          };
+          console.log('Opening chat with broker:', chatBroker);
+          window.openChatWithBroker({ broker: chatBroker });
+        }
       }}
       className="p-2"
       title="Chat"
