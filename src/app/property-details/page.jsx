@@ -18,6 +18,16 @@ function PropertyDetailsPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
+  
+  // Helper function to format price without trailing zeros
+  const formatPrice = (price) => {
+    if (!price || price === 0) return '0';
+    // Convert to number, round to integer, and format with Indian locale
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    const roundedPrice = Math.round(numPrice);
+    return roundedPrice.toLocaleString('en-IN');
+  };
+  
   // Also support dynamic route /property-details/[id] by reading path when query is missing
   const [routeId, setRouteId] = useState(null);
   useEffect(() => {
@@ -43,6 +53,13 @@ function PropertyDetailsPageInner() {
   const [broker, setBroker] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
   const [savingProperty, setSavingProperty] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [ratingReview, setRatingReview] = useState('');
+  const [ratingLoading, setRatingLoading] = useState(false);
+  const [propertyRatings, setPropertyRatings] = useState([]);
+  const [ratingsStats, setRatingsStats] = useState(null);
+  const [ratingsLoading, setRatingsLoading] = useState(false);
 
   // Fetch property details from API
   useEffect(() => {
@@ -196,6 +213,54 @@ function PropertyDetailsPageInner() {
 
     fetchPropertyDetails();
   }, [searchParams, routeId]);
+
+  // Fetch property ratings
+  useEffect(() => {
+    const fetchPropertyRatings = async () => {
+      if (!product?.id && !product?._id) return;
+      
+      setRatingsLoading(true);
+      try {
+        const token = typeof window !== 'undefined'
+          ? localStorage.getItem('token') || localStorage.getItem('authToken')
+          : null;
+        const base = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        };
+
+        const propertyId = product?.id || product?._id;
+        const ratingsEndpoint = `/property-ratings/property/${encodeURIComponent(String(propertyId))}`;
+        
+        const res = await fetch(`${base}${ratingsEndpoint}`, { headers });
+        if (!res.ok) {
+          throw new Error(`Failed to fetch ratings: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        if (data.success && data.data) {
+          // Set ratings array
+          const ratings = Array.isArray(data.data.ratings) ? data.data.ratings : [];
+          setPropertyRatings(ratings);
+          
+          // Set stats (averageRating, totalRatings, distribution)
+          if (data.data.stats) {
+            setRatingsStats(data.data.stats);
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching property ratings:', e);
+        setPropertyRatings([]);
+        setRatingsStats(null);
+      } finally {
+        setRatingsLoading(false);
+      }
+    };
+
+    fetchPropertyRatings();
+  }, [product?.id, product?._id]);
 
   // Check if property is saved when product loads and user is authenticated
   useEffect(() => {
@@ -904,7 +969,22 @@ function PropertyDetailsPageInner() {
                     <span className="px-3 py-1.5  backdrop-blur-sm text-white text-sm font-medium rounded-lg ">Featured</span>
                   </div>
                   <div className="absolute top-4 right-4 flex gap-2">
-                    <button className="w-[40px] h-[40px] px-[10px] flex items-center justify-center text-[#171A1F] bg-white/80 backdrop-blur-sm opacity-100 border-none rounded-full hover:text-[#171A1F] hover:bg-white/80 active:text-[#171A1F] active:bg-white/80 disabled:opacity-40 transition-colors">
+                    <button 
+                      onClick={() => {
+                        // Get current page URL
+                        const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+                        const propertyTitle = product?.name || 'Property';
+                        const propertyDescription = product?.description || product?.propertyDescription || 'Check out this property';
+                        
+                        // Facebook share URL
+                        const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}&quote=${encodeURIComponent(`${propertyTitle} - ${propertyDescription}`)}`;
+                        
+                        // Open Facebook share dialog in a new window
+                        window.open(facebookShareUrl, 'facebook-share-dialog', 'width=626,height=436');
+                      }}
+                      className="w-[40px] h-[40px] px-[10px] flex items-center justify-center text-[#171A1F] bg-white/80 backdrop-blur-sm opacity-100 border-none rounded-full hover:text-[#171A1F] hover:bg-white/80 active:text-[#171A1F] active:bg-white/80 disabled:opacity-40 transition-colors"
+                      title="Share on Facebook"
+                    >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
                       </svg>
@@ -1117,27 +1197,46 @@ function PropertyDetailsPageInner() {
                         <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-8 mb-8">
                           <div className="flex flex-col md:flex-row gap-8 items-center">
                             <div className="text-center md:text-left">
-                              <div className="text-6xl font-bold text-gray-900 mb-2">{(product?.rating || 4.7).toFixed(1)}</div>
+                              <div className="text-6xl font-bold text-gray-900 mb-2">
+                                {ratingsStats?.averageRating ? ratingsStats.averageRating.toFixed(1) : (product?.rating || 0).toFixed(1)}
+                              </div>
                               <div className="flex items-center justify-center md:justify-start gap-1 mb-2">
-                            {[...Array(5)].map((_, i) => (
-                                  <svg key={i} className={`w-6 h-6 ${i < Math.round((product?.rating || 4.7)) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                            {[...Array(5)].map((_, i) => {
+                              const avgRating = ratingsStats?.averageRating || product?.rating || 0;
+                              return (
+                                  <svg key={i} className={`w-6 h-6 ${i < Math.round(avgRating) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                   </svg>
-                            ))}
+                              );
+                            })}
                           </div>
-                              <div className="text-[14px] text-gray-600 mb-1">Excellent</div>
-                              <div className="text-[12px] text-gray-500">Based on {product?.reviewCount || 245} reviews</div>
+                              <div className="text-[14px] text-gray-600 mb-1">
+                                {(() => {
+                                  const avg = ratingsStats?.averageRating || product?.rating || 0;
+                                  if (avg >= 4.5) return 'Excellent';
+                                  if (avg >= 3.5) return 'Very Good';
+                                  if (avg >= 2.5) return 'Good';
+                                  if (avg >= 1.5) return 'Fair';
+                                  return 'Poor';
+                                })()}
+                              </div>
+                              <div className="text-[12px] text-gray-500">
+                                Based on {ratingsStats?.totalRatings || propertyRatings?.length || 0} {ratingsStats?.totalRatings === 1 ? 'review' : 'reviews'}
+                              </div>
                         </div>
                         <div className="flex-1 w-full">
-                          {[5, 4, 3, 2, 1].map((star, idx) => {
-                            const barPercents = [90, 60, 25, 10, 5];
+                          {[5, 4, 3, 2, 1].map((star) => {
+                            const distribution = ratingsStats?.distribution || {};
+                            const count = distribution[star] || 0;
+                            const total = ratingsStats?.totalRatings || propertyRatings?.length || 1;
+                            const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
                             return (
                                   <div key={star} className="flex items-center gap-3 mb-3">
                                     <span className="w-12 text-gray-700 text-[12px] font-medium">{star} Star</span>
                                     <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-                                      <div className="h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full transition-all duration-500" style={{ width: `${barPercents[idx]}%` }}></div>
+                                      <div className="h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full transition-all duration-500" style={{ width: `${percentage}%` }}></div>
                                 </div>
-                                    <span className="text-[12px] text-gray-600 w-8 text-right">{barPercents[idx]}%</span>
+                                    <span className="text-[12px] text-gray-600 w-8 text-right">{percentage}%</span>
                               </div>
                             );
                           })}
@@ -1148,62 +1247,66 @@ function PropertyDetailsPageInner() {
                         {/* Individual Reviews */}
                         <div className="space-y-6">
                           <h4 className="text-[18px] font-bold text-gray-900 mb-4">Recent Reviews</h4>
-                          {[
-                            {
-                              name: 'Rajesh Kumar',
-                              rating: 5,
-                              date: '2 days ago',
-                              comment: 'Excellent property with great amenities. The location is perfect with metro connectivity. Highly recommended!',
-                              verified: true
-                            },
-                            {
-                              name: 'Priya Sharma',
-                              rating: 4,
-                              date: '1 week ago',
-                              comment: 'Good property overall. The maintenance is well taken care of. Only minor issue is the parking space.',
-                              verified: true
-                            },
-                            {
-                              name: 'Amit Singh',
-                              rating: 5,
-                              date: '2 weeks ago',
-                              comment: 'Amazing property! The view from the balcony is breathtaking. The builder has maintained high quality standards.',
-                              verified: false
-                            }
-                          ].map((review, index) => (
-                            <div key={index} className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                              <div className="flex items-start justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold">
-                                    {review.name.split(' ').map(n => n[0]).join('')}
-                                  </div>
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <h5 className="font-semibold text-[14px] text-gray-900">{review.name}</h5>
-                                      {review.verified && (
-                                        <span className="px-2 py-1 bg-green-100 text-green-800 text-[12px] font-medium rounded-full">Verified</span>
-                )}
-              </div>
-                                    <div className="flex items-center gap-2">
-                                      <div className="flex items-center gap-1">
-                                        {[...Array(5)].map((_, i) => (
-                                          <svg key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                          </svg>
-                                        ))}
-            </div>
-                                      <span className="text-[12px] text-gray-500">{review.date}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <p className="text-[12px] text-gray-700 leading-6">{review.comment}</p>
+                          {ratingsLoading ? (
+                            <div className="text-center py-8">
+                              <div className="text-gray-400">Loading reviews...</div>
                             </div>
-                          ))}
-                          
-                          <button className="w-full py-3 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-[12px] font-medium transition-colors">
-                            Load More Reviews
-                          </button>
+                          ) : propertyRatings && propertyRatings.length > 0 ? (
+                            <>
+                              {propertyRatings.map((review) => {
+                                const userName = review.userId?.name || 'Anonymous';
+                                const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                                const reviewDate = review.createdAt ? new Date(review.createdAt) : null;
+                                const formatDate = (date) => {
+                                  if (!date) return 'Recently';
+                                  const now = new Date();
+                                  const diffTime = Math.abs(now - date);
+                                  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                                  if (diffDays === 0) return 'Today';
+                                  if (diffDays === 1) return 'Yesterday';
+                                  if (diffDays < 7) return `${diffDays} days ago`;
+                                  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+                                  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+                                  return date.toLocaleDateString();
+                                };
+                                
+                                return (
+                                  <div key={review._id} className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                                    <div className="flex items-start justify-between mb-4">
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-[14px]">
+                                          {userInitials}
+                                        </div>
+                                        <div>
+                                          <div className="flex items-center gap-2">
+                                            <h5 className="font-semibold text-[14px] text-gray-900">{userName}</h5>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1">
+                                              {[...Array(5)].map((_, i) => (
+                                                <svg key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                </svg>
+                                              ))}
+                                            </div>
+                                            <span className="text-[12px] text-gray-500">{formatDate(reviewDate)}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {review.review && (
+                                      <p className="text-[12px] text-gray-700 leading-6">{review.review}</p>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </>
+                          ) : (
+                            <div className="text-center py-8">
+                              <div className="text-gray-400 mb-2">No reviews yet</div>
+                              <div className="text-[12px] text-gray-500">Be the first to review this property!</div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1334,6 +1437,18 @@ function PropertyDetailsPageInner() {
       {broker && (
         <button 
           onClick={() => {
+            // Check if user is logged in
+            const token = typeof window !== 'undefined'
+              ? localStorage.getItem('token') || localStorage.getItem('authToken')
+              : null;
+            
+            if (!token) {
+              // User not logged in, redirect to login page
+              router.push('/login');
+              return;
+            }
+            
+            // User is logged in, open chat
             if (window.openChatWithBroker) {
               window.openChatWithBroker({broker});
             }
@@ -1360,16 +1475,18 @@ function PropertyDetailsPageInner() {
             <div className="flex items-center justify-center gap-2">
   {/* Rating Number */}
   <div className="text-[36px] leading-[40px] font-bold text-[#171A1F]">
-    {(product?.rating || 4.6).toFixed(1)}
+    {ratingsStats?.averageRating ? ratingsStats.averageRating.toFixed(1) : (product?.rating || 0).toFixed(1)}
   </div>
 
   {/* Stars */}
   <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
+                  {[...Array(5)].map((_, i) => {
+                    const avgRating = ratingsStats?.averageRating || product?.rating || 0;
+                    return (
       <svg
         key={i}
         className={`w-[24px] h-[24px] ${
-          i < Math.round(product?.rating || 4.6)
+          i < Math.round(avgRating)
             ? 'text-yellow-400'
             : 'text-gray-300'
         }`}
@@ -1378,14 +1495,36 @@ function PropertyDetailsPageInner() {
       >
         <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.786 1.4 8.164L12 18.896l-7.334 3.864 1.4-8.164L.132 9.21l8.2-1.192z" />
                     </svg>
-                ))}
+                    );
+                  })}
               </div>
             </div>
 
 <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D] text-center  mt-2">
-  Based on 100 reviews
+  Based on {ratingsStats?.totalRatings || propertyRatings?.length || 0} {ratingsStats?.totalRatings === 1 ? 'review' : 'reviews'}
 </div>
 
+              {/* Rating Button */}
+              <button
+                onClick={() => {
+                  // Check if user is logged in
+                  const token = typeof window !== 'undefined'
+                    ? localStorage.getItem('token') || localStorage.getItem('authToken')
+                    : null;
+                  
+                  if (!token) {
+                    router.push('/login');
+                    return;
+                  }
+                  setShowRatingModal(true);
+                }}
+                className="w-full h-[40px] px-3 mt-4 flex items-center justify-center gap-2 font-inter text-[12px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] hover:bg-[#EDFDF4] hover:active:bg-[#D9F5E8] disabled:opacity-40 rounded-md transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+                Rate This Property
+              </button>
           </div>
 
           
@@ -1767,12 +1906,12 @@ function PropertyDetailsPageInner() {
                         <span>{p.bedrooms || 0} BHK • {p.areaSqft?.toLocaleString('en-IN') || '0'} sq.ft</span>
                       </div>
                       
-                      {/* Price (hidden but keeping structure in case needed) */}
+                      {/* Price */}
                       <div className="flex items-center gap-2 pt-1">
-                        <span className="text-gray-900 font-semibold text-base">₹{Math.round(p.price || 0).toLocaleString('en-IN')}</span>
-                        {p.originalPrice && p.originalPrice > (p.price || 0) && (
-                          <span className="text-xs text-gray-500 line-through">₹{Math.round(p.originalPrice).toLocaleString('en-IN')}</span>
-                        )}
+                        <span className="text-gray-900 font-semibold text-base">₹{formatPrice(p.price)}</span>
+                        {/* {p.originalPrice && p.originalPrice > (p.price || 0) && (
+                          <span className="text-xs text-gray-500 line-through">₹{formatPrice(p.originalPrice)}</span>
+                        )} */}
                       </div>
                     </div>
                   </Link>
@@ -1921,6 +2060,233 @@ function PropertyDetailsPageInner() {
           product?._raw?.brokerId || null
         }
       />
+
+      {/* Rating Modal */}
+      {showRatingModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+          onClick={() => setShowRatingModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 relative border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[18px] font-bold text-gray-900">
+                  Rate This Property
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowRatingModal(false);
+                    setUserRating(0);
+                    setRatingReview('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Property Info */}
+              {product && (
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
+                  <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                    <img
+                      src={product.images?.[0] || product.image || '/images/pexels-binyaminmellish-106399.jpg'}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-[14px] font-semibold text-gray-900 truncate">{product.name}</h4>
+                    <p className="text-[12px] text-gray-500 truncate">
+                      {typeof product.region === 'object' ? (product.region?.name || [product.region?.city, product.region?.state].filter(Boolean).join(', ')) : product.region}
+                    </p>
+                    <p className="text-[12px] font-medium text-[#0D542B] mt-1">
+                      ₹{Math.round(product.price || 0).toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Star Rating */}
+              <div className="mb-6">
+                <label className="block text-[14px] font-medium text-gray-700 mb-3">
+                  Your Rating
+                </label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setUserRating(star)}
+                      className="focus:outline-none transition-transform hover:scale-110"
+                    >
+                      <svg
+                        className={`w-8 h-8 ${
+                          star <= userRating
+                            ? 'text-yellow-400 fill-yellow-400'
+                            : 'text-gray-300 fill-gray-300'
+                        }`}
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </button>
+                  ))}
+                </div>
+                {userRating > 0 && (
+                  <p className="text-[12px] text-gray-600 mt-2">
+                    {userRating === 1 && 'Poor'}
+                    {userRating === 2 && 'Fair'}
+                    {userRating === 3 && 'Good'}
+                    {userRating === 4 && 'Very Good'}
+                    {userRating === 5 && 'Excellent'}
+                  </p>
+                )}
+              </div>
+
+              {/* Comment */}
+              <div className="mb-6">
+                <label className="block text-[14px] font-medium text-gray-700 mb-2">
+                  Your Review (Optional)
+                </label>
+                <textarea
+                  value={ratingReview}
+                  onChange={(e) => setRatingReview(e.target.value)}
+                  placeholder="Share your experience with this property..."
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0D542B] focus:border-[#0D542B] resize-none"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowRatingModal(false);
+                    setUserRating(0);
+                    setRatingReview('');
+                  }}
+                  className="flex-1 h-[40px] px-4 flex items-center justify-center font-inter text-[13px] leading-[22px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    if (userRating === 0) {
+                      toast.error('Please select a rating');
+                      return;
+                    }
+
+                    setRatingLoading(true);
+                    try {
+                      const token = typeof window !== 'undefined'
+                        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+                        : null;
+
+                      if (!token) {
+                        toast.error('Please login to submit a rating');
+                        setShowRatingModal(false);
+                        router.push('/login');
+                        return;
+                      }
+
+                      const base = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+                      const headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                      };
+
+                      const propertyId = product?.id || product?._id;
+                      
+                      // API expects: propertyId, rating, and review (optional)
+                      const ratingData = {
+                        propertyId: propertyId,
+                        rating: userRating,
+                        review: ratingReview || ''
+                      };
+
+                      console.log('Submitting rating to:', `${base}/property-ratings`);
+                      console.log('Rating data:', ratingData);
+
+                      const res = await fetch(`${base}/property-ratings`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(ratingData)
+                      });
+
+                      const responseData = await res.json().catch(() => ({}));
+                      
+                      if (!res.ok) {
+                        throw new Error(responseData.message || 'Failed to submit rating');
+                      }
+
+                      // Handle success response
+                      if (responseData.success && responseData.data) {
+                        toast.success(responseData.message || 'Thank you for your rating!');
+                        console.log('Rating submitted successfully:', responseData.data);
+                      } else {
+                        toast.success('Thank you for your rating!');
+                      }
+
+                      setShowRatingModal(false);
+                      setUserRating(0);
+                      setRatingReview('');
+                      
+                      // Refresh ratings after submitting
+                      const refreshRatings = async () => {
+                        try {
+                          const refreshToken = typeof window !== 'undefined'
+                            ? localStorage.getItem('token') || localStorage.getItem('authToken')
+                            : null;
+                          const refreshBase = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+                          const refreshHeaders = {
+                            'Content-Type': 'application/json',
+                            ...(refreshToken ? { 'Authorization': `Bearer ${refreshToken}` } : {})
+                          };
+
+                          const propertyId = product?.id || product?._id;
+                          const ratingsEndpoint = `/property-ratings/property/${encodeURIComponent(String(propertyId))}`;
+                          
+                          const refreshRes = await fetch(`${refreshBase}${ratingsEndpoint}`, { headers: refreshHeaders });
+                          if (refreshRes.ok) {
+                            const refreshData = await refreshRes.json();
+                            if (refreshData.success && refreshData.data) {
+                              const ratings = Array.isArray(refreshData.data.ratings) ? refreshData.data.ratings : [];
+                              setPropertyRatings(ratings);
+                              if (refreshData.data.stats) {
+                                setRatingsStats(refreshData.data.stats);
+                              }
+                            }
+                          }
+                        } catch (e) {
+                          console.error('Error refreshing ratings:', e);
+                        }
+                      };
+                      
+                      refreshRatings();
+                    } catch (error) {
+                      console.error('Error submitting rating:', error);
+                      toast.error(error.message || 'Failed to submit rating. Please try again.');
+                    } finally {
+                      setRatingLoading(false);
+                    }
+                  }}
+                  disabled={userRating === 0 || ratingLoading}
+                  className="flex-1 h-[40px] px-4 flex items-center justify-center font-inter text-[13px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                >
+                  {ratingLoading ? 'Submitting...' : 'Submit Rating'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

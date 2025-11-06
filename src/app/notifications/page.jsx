@@ -6,10 +6,78 @@ import ProtectedRoute from '../components/ProtectedRoute';
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
+  const [allNotifications, setAllNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
 
- 
+  // SVG Icon Components
+  const FilterIcons = {
+    all: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      </svg>
+    ),
+    lead: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+    ),
+    property: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
+    broker: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    ),
+    unread: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      </svg>
+    )
+  };
+
+  // Filter options
+  const filterOptions = [
+    { id: 'all', label: 'All', iconKey: 'all' },
+    { id: 'lead', label: 'New Leads', iconKey: 'lead' },
+    { id: 'property', label: 'Properties', iconKey: 'property' },
+    { id: 'broker', label: 'Broker', iconKey: 'broker' },
+    { id: 'unread', label: 'Unread', iconKey: 'unread' }
+  ];
+
+  // Filter notifications based on active filter
+  const getFilteredNotifications = () => {
+    if (activeFilter === 'all') {
+      return allNotifications;
+    }
+    
+    return allNotifications.filter(notif => {
+      const title = (notif.title || '').toLowerCase();
+      const message = (notif.message || '').toLowerCase();
+      
+      switch (activeFilter) {
+        case 'lead':
+          return title.includes('lead') || message.includes('lead') || title.includes('new lead');
+        case 'property':
+          return title.includes('property') || message.includes('property') || 
+                 title.includes('sold') || title.includes('listing') ||
+                 message.includes('apartment') || message.includes('house') ||
+                 message.includes('commercial') || message.includes('residential');
+        case 'broker':
+          return title.includes('broker') || message.includes('broker') ||
+                 title.includes('connection') || title.includes('transfer') ||
+                 message.includes('connect');
+        case 'unread':
+          return notif.unread === true;
+        default:
+          return true;
+      }
+    });
+  };
 
   // Get broker ID from token
   const getBrokerIdFromToken = () => {
@@ -129,12 +197,13 @@ const NotificationsPage = () => {
 
       console.log('Transformed notifications:', transformedNotifications);
       // Use API data if available, even if empty (don't use fallback for empty API response)
-      setNotifications(transformedNotifications);
+      setAllNotifications(transformedNotifications);
+      // Filter will be applied via useEffect
     } catch (err) {
       console.error('Error fetching notifications:', err);
       setError('Failed to load notifications. Please try again.');
-      // Use fallback notifications on error
-      setNotifications(fallbackNotifications);
+      setAllNotifications([]);
+      setNotifications([]);
     } finally {
       setIsLoading(false);
     }
@@ -143,6 +212,18 @@ const NotificationsPage = () => {
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  // Update filtered notifications when filter changes
+  useEffect(() => {
+    if (allNotifications.length === 0) {
+      setNotifications([]);
+      return;
+    }
+    
+    const filtered = getFilteredNotifications();
+    setNotifications(filtered);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFilter, allNotifications]);
 
   const headerData = {
     title: 'Notifications',
@@ -156,16 +237,47 @@ const NotificationsPage = () => {
     <ProtectedRoute>
       <HeaderFile data={headerData} />
       
-      <div className="min-h-screen bg-white py-16">
-        <div className=" mx-auto px-2">
+      <div className="min-h-screen bg-gray-50 py-8 w-screen relative left-1/2 -translate-x-1/2 overflow-x-hidden">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           {/* Header Section */}
-          <div className="mb-8">
-            <h1 className="text-[18px] font-bold text-gray-900 mb-2">
+          <div className="mb-6">
+            <h1 className="text-[24px] font-bold text-gray-900 mb-2">
               Notifications
             </h1>
-            <p className="text-[12px] font-normal text-gray-600">
+            <p className="text-[14px] font-normal text-gray-600">
               View and manage all your notifications
             </p>
+          </div>
+
+          {/* Filter Section */}
+          <div className="mb-6 bg-blue-50/30 rounded-xl border border-gray-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[14px] font-semibold text-gray-700">Filter by</h2>
+              <span className="text-[12px] text-gray-500">
+                {notifications.length} {notifications.length === 1 ? 'notification' : 'notifications'}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {filterOptions.map((filter) => (
+                <button
+                  key={filter.id}
+                  onClick={() => setActiveFilter(filter.id)}
+                  className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 flex items-center gap-2 ${
+                    activeFilter === filter.id
+                      ? 'bg-[#0D542B] text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {FilterIcons[filter.iconKey]}
+                  <span>{filter.label}</span>
+                  {activeFilter === filter.id && (
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Loading State */}
@@ -199,7 +311,7 @@ const NotificationsPage = () => {
 
           {/* Notifications List */}
           {!isLoading && !error && (
-            <div className="bg-white border border-gray-200 rounded-xl shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
               {notifications.length === 0 ? (
                 <div className="p-12 text-center">
                   <div className="text-gray-300 mb-4">
@@ -207,42 +319,120 @@ const NotificationsPage = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
                   </div>
-                  <h3 className="text-[18px] font-semibold text-gray-900 mb-2">No notifications</h3>
+                  <h3 className="text-[18px] font-semibold text-gray-900 mb-2">
+                    {activeFilter === 'all' ? 'No notifications' : `No ${filterOptions.find(f => f.id === activeFilter)?.label.toLowerCase()} notifications`}
+                  </h3>
                   <p className="text-[14px] text-gray-600">
-                    You don't have any notifications yet.
+                    {activeFilter === 'all' 
+                      ? "You don't have any notifications yet."
+                      : `Try selecting a different filter or check back later.`
+                    }
                   </p>
                 </div>
               ) : (
-              <div className="divide-y divide-gray-200">
-                {notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className="px-6 py-4"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-[12px] font-normal text-gray-900">
-                            {notification.title}
-                          </h3>
-                          {notification.unread && (
-                            <span className="w-1.5 h-1.5 bg-gray-500 rounded-full flex-shrink-0"></span>
-                          )}
+              <div className="divide-y divide-gray-100">
+                {notifications.map((notification) => {
+                  // Determine notification type for icon
+                  const getNotificationIcon = () => {
+                    const title = (notification.title || '').toLowerCase();
+                    const message = (notification.message || '').toLowerCase();
+                    
+                    if (title.includes('lead') || message.includes('lead')) {
+                      return (
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
                         </div>
-                        <p className="text-[12px] text-gray-500">
-                          {notification.time}
-                        </p>
+                      );
+                    }
+                    if (title.includes('property') || message.includes('property') || title.includes('sold') || title.includes('listing')) {
+                      return (
+                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                          </svg>
+                        </div>
+                      );
+                    }
+                    if (title.includes('broker') || title.includes('connection') || title.includes('transfer')) {
+                      return (
+                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                      </div>
+                    );
+                  };
+
+                  return (
+                    <div
+                      key={notification.id}
+                      className={`px-6 py-4 hover:bg-gray-50 transition-colors ${
+                        notification.unread ? 'bg-blue-50/30' : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        {/* Icon */}
+                        {getNotificationIcon()}
+                        
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-4 mb-1">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className={`text-[14px] font-semibold ${
+                                  notification.unread ? 'text-gray-900' : 'text-gray-700'
+                                }`}>
+                                  {notification.title}
+                                </h3>
+                                {notification.unread && (
+                                  <span className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 animate-pulse"></span>
+                                )}
+                              </div>
+                              {notification.message && (
+                                <p className="text-[13px] text-gray-600 mt-1 line-clamp-2">
+                                  {notification.message}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-[12px] text-gray-500">
+                              {notification.time}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               )}
 
               {/* Footer Actions */}
               {notifications.length > 0 && (
-                <div className="p-4 border-t border-gray-200">
-                  <button className="w-full text-center text-sm text-[#0d542b] font-normal py-2">
+                <div className="p-4 border-t border-gray-200 bg-gray-50">
+                  <button 
+                    onClick={() => {
+                      // Mark all as read functionality
+                      const updated = allNotifications.map(n => ({ ...n, unread: false }));
+                      setAllNotifications(updated);
+                      // Filter will be updated automatically via useEffect
+                    }}
+                    className="w-full text-center text-[13px] text-[#0d542b] font-medium py-2 hover:text-[#0B4624] transition-colors"
+                  >
                     Mark all as read
                   </button>
                 </div>

@@ -483,82 +483,85 @@ const enableSuggestions = false;
             )}
 
 
-            {/* Notification Icon */}
-            <div className="relative notification-container">
-              <button
-                onClick={() => {
-                  setShowNotifications(!showNotifications);
-                  setShowAllNotifications(false);
-                }}
-                className="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
-                aria-label="Notifications"
-              >
-                <FaBell className="w-4 h-4" />
-                {/* Notification badge */}
-                {user && notifications.filter(n => n.unread).length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
-                    {notifications.filter(n => n.unread).length}
-                  </span>
-                )}
-              </button>
+            {/* Notification Icon - Only show when logged in */}
+            {isMounted && user && (
+              <div className="relative notification-container">
+                <button
+                  onClick={() => {
+                    setShowNotifications(!showNotifications);
+                    setShowAllNotifications(false);
+                  }}
+                  className="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
+                  aria-label="Notifications"
+                >
+                  <FaBell className="w-4 h-4" />
+                  {/* Notification badge */}
+                  {notifications.filter(n => n.unread).length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
+                      {notifications.filter(n => n.unread).length}
+                    </span>
+                  )}
+                </button>
 
-              {/* Notification Dropdown */}
-              {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
-                  <div className="p-4 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-base font-semibold text-gray-900">Notifications</h3>
-                      {!showAllNotifications && notifications.length > 3 && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowNotifications(false);
-                            router.push('/notifications');
-                          }}
-                          className="text-sm text-[#0d542b] hover:opacity-80 font-medium cursor-pointer"
-                        >
-                          View All
-                        </button>
+                {/* Notification Dropdown */}
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                    <div className="p-4 border-b border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-base font-semibold text-gray-900">Notifications</h3>
+                        {!showAllNotifications && notifications.length > 3 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowNotifications(false);
+                              router.push('/notifications');
+                            }}
+                            className="text-sm text-[#0d542b] hover:opacity-80 font-medium cursor-pointer"
+                          >
+                            View All
+                          </button>
+                        )}
+                      </div>
+                      {/* <p className="text-xs text-gray-500">{notifications.length} total</p> */}
+                    </div>
+                    <div className="py-2">
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-8 text-center">
+                          <p className="text-sm text-gray-500">No notifications</p>
+                        </div>
+                      ) : (
+                        (showAllNotifications ? notifications : notifications.slice(0, 3)).map((n) => (
+                          <div
+                            key={n.id}
+                            className={
+                              'px-4 py-3 hover:bg-gray-50 ' +
+                              (n.unread)
+                            }
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className={'text-[12px] font-medium ' + (n.unread ? 'text-gray-900' : 'text-gray-700')}>
+                                  {n.title}
+                                </h4>
+                                <p className="text-xs text-gray-400  mt-1">{n.time}</p>
+                              </div>
+                              {n.unread}
+                               {/* && <span className="w-2 h-2 bg-green-500 rounded-full mt-1 ml-2" /> */}
+                            </div>
+                          </div>
+                        ))
                       )}
                     </div>
-                    {/* <p className="text-xs text-gray-500">{notifications.length} total</p> */}
+                    {/* <div className="p-3 border-t border-gray-200">
+                      <button className="w-full text-center text-sm text-[#0d542b] hover:opacity-80 font-medium">
+                        Mark all as read
+                      </button>
+                    </div> */}
                   </div>
-                  <div className="py-2">
-                    {notifications.length === 0 ? (
-                      <div className="px-4 py-8 text-center">
-                        <p className="text-sm text-gray-500">No notifications</p>
-                      </div>
-                    ) : (
-                      (showAllNotifications ? notifications : notifications.slice(0, 3)).map((n) => (
-                        <div
-                          key={n.id}
-                          className={
-                            'px-4 py-3 hover:bg-gray-50 border-l-4 ' +
-                            (n.unread ? 'border-green-500 bg-green-50' : 'border-transparent')
-                          }
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className={'text-[12px] font-medium ' + (n.unread ? 'text-gray-900' : 'text-gray-700')}>
-                                {n.title}
-                              </h4>
-                              <p className="text-xs text-gray-400 mt-1">{n.time}</p>
-                            </div>
-                            {n.unread && <span className="w-2 h-2 bg-green-500 rounded-full mt-1 ml-2" />}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <div className="p-3 border-t border-gray-200">
-                    <button className="w-full text-center text-sm text-[#0d542b] hover:opacity-80 font-medium">
-                      Mark all as read
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Wishlist */}
             {/* <Link

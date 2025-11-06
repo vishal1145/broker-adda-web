@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import ContentLoader from 'react-content-loader';
 import HeaderFile from '../../components/Header';
+import toast, { Toaster } from 'react-hot-toast';
 
 const headerData = {
   title: 'Broker Details',
@@ -26,6 +27,10 @@ export default function BrokerDetailsPage() {
   const [brokerLeads, setBrokerLeads] = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [leadsError, setLeadsError] = useState('');
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [ratingReview, setRatingReview] = useState('');
+  const [ratingLoading, setRatingLoading] = useState(false);
 
   useEffect(() => {
     const fetchBroker = async () => {
@@ -79,6 +84,8 @@ export default function BrokerDetailsPage() {
     : [];
   const years = (typeof broker?.experience === 'object' ? broker?.experience?.years : broker?.experience) || '';
   const leads = broker?.leadsCreated?.count ?? broker?.closedDeals ?? 0;
+  const propertiesCount = broker?.propertiesListed?.count ?? broker?.propertyCount ?? 0;
+  const rating = broker?.rating ?? 4.8;
   const status = nonEmpty(broker?.status) ? broker.status : '';
   const about = nonEmpty(broker?.content) ? broker.content : (nonEmpty(broker?.about) ? broker.about : (nonEmpty(broker?.bio) ? broker.bio : (broker?.experience?.description || '')));
   const phone = nonEmpty(broker?.phone) ? broker.phone : (nonEmpty(broker?.whatsappNumber) ? broker.whatsappNumber : '');
@@ -462,6 +469,7 @@ export default function BrokerDetailsPage() {
 
   return (
     <div className="min-h-screen ">
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <HeaderFile data={headerData} />
       <div className="py-8">
         <div className="w-full mx-auto">
@@ -609,7 +617,7 @@ export default function BrokerDetailsPage() {
   className="w-3 h-3 mr-1.5 inline-block  fill-[#565D6D]"
 />
 
-                     {leads} Properties Sold
+                     {propertiesCount} Properties
                    </span>
                    <span className="inline-flex items-center px-2.5 h-[26px] bg-[#0D542B] rounded-full border border-transparent font-[Inter] text-[12px] leading-[16px] font-medium text-white">
                                     <img
@@ -679,10 +687,20 @@ export default function BrokerDetailsPage() {
               </section>
    {/* Leads Section */}
               <div className="">
-                <div className="flex items-center gap-2 mb-6">
+                <div className="flex items-center justify-between mb-6">
                   {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
                   <h3 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">Leads posted by this broker</h3>
-                </div>
+                  {broker?._id && (
+                    <p 
+                      onClick={() => {
+                        router.push(`/leads?createdBy=${encodeURIComponent(String(broker._id))}`);
+                      }}
+                      className=" text-gray-600 rounded-lg text-sm font-medium  cursor-pointer hover:text-[#0D542B] transition-colors"
+                    >
+                      View All
+                    </p>
+                  )}
+                 </div>
                 
                 {leadsLoading ? (
                   <div className="space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -732,7 +750,7 @@ export default function BrokerDetailsPage() {
                   </div>
                 ) : brokerLeads.length > 0 ? (
                   <div className="space-y-4  grid  md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {brokerLeads.slice(0, 6).map((lead, index) => {
+                    {brokerLeads.slice(0, 3).map((lead, index) => {
                       const leadId = lead?._id || lead?.id || index;
                       const title = `${lead?.customerName || 'Customer'} - ${lead?.requirement || 'Property'} Lead`;
                       const description = `${lead?.propertyType || 'Property'} in ${lead?.primaryRegion?.name || lead?.region?.name || 'Location'}`;
@@ -775,9 +793,9 @@ export default function BrokerDetailsPage() {
                           className="block h-full"
                         >
                         <article className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer">
-                          <div className="p-6">
+                          <div className="p-4">
                             {/* Top Section - Main Title */}
-                            <div className="mb-4">
+                            <div className="mb-3">
                               <h3 className="text-[18px] leading-[20px] font-semibold mb-2" style={{ color: '#323743' }}>
                                 {lead?.propertyType || 'Property'} for {lead?.requirement || 'inquiry'}
                               </h3>
@@ -785,12 +803,12 @@ export default function BrokerDetailsPage() {
                               <div className="flex items-center justify-between gap-2 flex-nowrap">
                                 <div className="flex items-center gap-2 flex-nowrap">
                                   {lead?.requirement && (
-                                    <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                                    <span className="inline-flex items-center justify-center rounded-full h-[22px] px-3 whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
                                       {lead.requirement}
                                     </span>
                                   )}
                                   {lead?.propertyType && (
-                                    <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                                    <span className="inline-flex items-center justify-center rounded-full h-[22px] px-3 whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
                                       {lead.propertyType}
                                     </span>
                                   )}
@@ -805,11 +823,8 @@ export default function BrokerDetailsPage() {
                               </div>
                             </div>
 
-                            {/* Horizontal Divider */}
-                            <div className="border-t border-gray-200 my-4"></div>
-
                             {/* Middle Section - Property Details */}
-                            <div className="space-y-3 mb-4">
+                            <div className="space-y-2">
                               {/* Preferred Location */}
                               <div className="flex items-center gap-2">
                                 <svg className="h-3 w-3 flex-shrink-0 text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -835,10 +850,10 @@ export default function BrokerDetailsPage() {
                                 </div>
                               )}
                               {/* Budget */}
-                              <div className="flex items-start gap-2">
-                                <svg className="h-4 w-4 flex-shrink-0 text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <rect x="3" y="8" width="18" height="12" rx="2" />
-                                  <path d="M3 12h18M9 8v8" />
+                              <div className="flex items-center gap-2">
+                                <svg className="h-3 w-3 flex-shrink-0 text-[#565D6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="3" y="7" width="18" height="11" rx="2" />
+                                  <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                 </svg>
                                 <div className="flex items-center flex-wrap gap-1">
                                   <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>
@@ -849,11 +864,11 @@ export default function BrokerDetailsPage() {
                               </div>
                             </div>
 
-                            {/* Bottom Section - Broker Profile and Actions */}
+                            {/* Bottom Section - Broker Profile and Actions - Commented out */}
+                            {false && (
                             <div className="pt-4">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                  {/* Avatar */}
                                   <div className="relative w-12 h-12 text-sm font-semibold" style={{ color: '#323743' }}>
                                     {(() => {
                                       const createdBy = lead?.createdBy;
@@ -887,7 +902,6 @@ export default function BrokerDetailsPage() {
                                       );
                                     })()}
                                   </div>
-                                  {/* Name */}
                                   <div>
                                     <div className="flex items-center gap-6">
                                       <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
@@ -914,10 +928,6 @@ export default function BrokerDetailsPage() {
                                       )}
                                     </div>
                                     <div className="flex items-center gap-3 mt-1">
-                                      {/* <span className="flex items-center gap-2">
-                                        <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                                        <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF]">Connect</span>
-                                      </span> */}
                                       <button
                                         type="button"
                                         onClick={(e) => {
@@ -937,18 +947,12 @@ export default function BrokerDetailsPage() {
                                 </div>
                               </div>
                             </div>
+                            )}
                           </div>
                         </article>
                         </Link>
                       );
                     })}
-                    {brokerLeads.length > 6 && (
-                      <div className="text-center pt-4">
-                        <button className="text-green-600 hover:text-green-700 font-medium text-sm">
-                          View all {brokerLeads.length} leads →
-                        </button>
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8">
@@ -1096,11 +1100,11 @@ export default function BrokerDetailsPage() {
               {/* Performance Metrics Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[#EDFDF4] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{leads}</div>
-                  <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Properties Sold</div>
+                  <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{propertiesCount}</div>
+                  <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Properties</div>
                 </div>
                 <div className="bg-[#FFF9E6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">4.8</div>
+                  <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{rating}</div>
                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Client Rating</div>
                 </div>
                  <div className="bg-[#FAFAFB] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
@@ -1180,6 +1184,28 @@ export default function BrokerDetailsPage() {
                 <Link href="/signup" className="w-full h-[40px] px-3 mt-4 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md transition-colors">
                   Join Our Network
                 </Link>
+                
+                {/* Rating Button */}
+                <button
+                  onClick={() => {
+                    // Check if user is logged in
+                    const token = typeof window !== 'undefined'
+                      ? localStorage.getItem('token') || localStorage.getItem('authToken')
+                      : null;
+                    
+                    if (!token) {
+                      router.push('/login');
+                      return;
+                    }
+                    setShowRatingModal(true);
+                  }}
+                  className="w-full h-[40px] px-3 mt-3 flex items-center justify-center gap-2 font-[Inter] text-[12px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] hover:bg-[#EDFDF4] hover:active:bg-[#D9F5E8] disabled:opacity-40 rounded-md transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                  Rate This Broker
+                </button>
               </div>
             </div>
 
@@ -1418,6 +1444,18 @@ export default function BrokerDetailsPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
               <button 
                 onClick={() => {
+                  // Check if user is logged in
+                  const token = typeof window !== 'undefined'
+                    ? localStorage.getItem('token') || localStorage.getItem('authToken')
+                    : null;
+                  
+                  if (!token) {
+                    // User not logged in, redirect to login page
+                    router.push('/login');
+                    return;
+                  }
+                  
+                  // User is logged in, open chat
                   if (window.openChatWithBroker) {
                     window.openChatWithBroker({broker});
                   }
@@ -1475,6 +1513,195 @@ export default function BrokerDetailsPage() {
         </div>
       </div>
       </div>
+
+      {/* Rating Modal */}
+      {showRatingModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+          onClick={() => setShowRatingModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 relative border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[18px] font-bold text-gray-900">
+                  Rate This Broker
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowRatingModal(false);
+                    setUserRating(0);
+                    setRatingReview('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Broker Info */}
+              {broker && (
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
+                  <div className="w-12 h-12 rounded-full bg-[#E5F0FA] overflow-hidden">
+                    <img
+                      src={pickImage(broker?.brokerImage, broker?.profileImage, broker?.image) || '/images/user-2.jpeg'}
+                      alt={displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="text-[14px] font-semibold text-gray-900">{displayName}</h4>
+                    <p className="text-[12px] text-gray-500">{firmDisplay}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Star Rating */}
+              <div className="mb-6">
+                <label className="block text-[14px] font-medium text-gray-700 mb-3">
+                  Your Rating
+                </label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setUserRating(star)}
+                      className="focus:outline-none transition-transform hover:scale-110"
+                    >
+                      <svg
+                        className={`w-8 h-8 ${
+                          star <= userRating
+                            ? 'text-yellow-400 fill-yellow-400'
+                            : 'text-gray-300 fill-gray-300'
+                        }`}
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </button>
+                  ))}
+                </div>
+                {userRating > 0 && (
+                  <p className="text-[12px] text-gray-600 mt-2">
+                  {userRating === 1 && 'Poor'}
+                  {userRating === 2 && 'Fair'}
+                  {userRating === 3 && 'Good'}
+                  {userRating === 4 && 'Very Good'}
+                  {userRating === 5 && 'Excellent'}
+                </p>
+                )}
+              </div>
+
+              {/* Comment */}
+              <div className="mb-6">
+                <label className="block text-[14px] font-medium text-gray-700 mb-2">
+                  Your Review (Optional)
+                </label>
+                <textarea
+                  value={ratingReview}
+                  onChange={(e) => setRatingReview(e.target.value)}
+                  placeholder="Share your experience with this broker..."
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0D542B] focus:border-[#0D542B] resize-none"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowRatingModal(false);
+                    setUserRating(0);
+                    setRatingReview('');
+                  }}
+                  className="flex-1 h-[40px] px-4 flex items-center justify-center font-[Inter] text-[13px] leading-[22px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    if (userRating === 0) {
+                      toast.error('Please select a rating');
+                      return;
+                    }
+
+                    setRatingLoading(true);
+                    try {
+                      const token = typeof window !== 'undefined'
+                        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+                        : null;
+
+                      if (!token) {
+                        toast.error('Please login to submit a rating');
+                        setShowRatingModal(false);
+                        router.push('/login');
+                        return;
+                      }
+
+                      const base = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+                      const headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                      };
+
+                      const brokerMongoId = broker?._id || brokerId;
+                      
+                      // API expects: brokerId, rating, and review (optional)
+                      const ratingData = {
+                        brokerId: brokerMongoId,
+                        rating: userRating,
+                        review: ratingReview || ''
+                      };
+
+                      console.log('Submitting rating to:', `${base}/broker-ratings`);
+                      console.log('Rating data:', ratingData);
+
+                      const res = await fetch(`${base}/broker-ratings`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(ratingData)
+                      });
+
+                      const responseData = await res.json().catch(() => ({}));
+                      
+                      if (!res.ok) {
+                        throw new Error(responseData.message || 'Failed to submit rating');
+                      }
+
+                      // Handle success response
+                      if (responseData.success && responseData.data) {
+                        toast.success(responseData.message || 'Thank you for your rating!');
+                        console.log('Rating submitted successfully:', responseData.data);
+                      } else {
+                        toast.success('Thank you for your rating!');
+                      }
+
+                      setShowRatingModal(false);
+                      setUserRating(0);
+                      setRatingReview('');
+                    } catch (error) {
+                      console.error('Error submitting rating:', error);
+                      toast.error(error.message || 'Failed to submit rating. Please try again.');
+                    } finally {
+                      setRatingLoading(false);
+                    }
+                  }}
+                  disabled={userRating === 0 || ratingLoading}
+                  className="flex-1 h-[40px] px-4 flex items-center justify-center font-[Inter] text-[13px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                >
+                  {ratingLoading ? 'Submitting...' : 'Submit Rating'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
