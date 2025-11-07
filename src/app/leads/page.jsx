@@ -259,6 +259,66 @@ export default function BrokerLeadsPage() {
     if (effectiveCreatedBy) loadMetrics();
   }, [brokerId, urlCreatedBy, loadMetrics]);
 
+  /* ───────────── Notifications API ───────────── */
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notificationsError, setNotificationsError] = useState("");
+
+  const loadNotifications = useCallback(async () => {
+    if (!token) return;
+    try {
+      setNotificationsLoading(true);
+      setNotificationsError("");
+      const notificationsUrl = `${apiUrl}/notifications/recent?days=7&type=lead`;
+      const res = await fetch(notificationsUrl, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          setNotificationsError(
+            err?.message || err?.error || "Failed to load notifications"
+          );
+        } catch {
+          setNotificationsError("Failed to load notifications");
+        }
+        return;
+      }
+      const data = await res.json();
+      let notificationsList = [];
+      if (Array.isArray(data?.data?.items)) notificationsList = data.data.items;
+      else if (Array.isArray(data?.data?.notifications)) notificationsList = data.data.notifications;
+      else if (Array.isArray(data?.data)) notificationsList = data.data;
+      else if (Array.isArray(data?.notifications)) notificationsList = data.notifications;
+      else if (Array.isArray(data)) notificationsList = data;
+      
+      // Sort by createdAt (newest first) and take latest 3
+      const sortedNotifications = notificationsList
+        .sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        })
+        .slice(0, 3);
+      
+      setNotifications(sortedNotifications);
+    } catch {
+      setNotificationsError("Error loading notifications");
+    } finally {
+      setNotificationsLoading(false);
+    }
+  }, [apiUrl, token]);
+
+  // Load notifications when token is available
+  useEffect(() => {
+    if (token) {
+      loadNotifications();
+    }
+  }, [token, loadNotifications]);
+
   /* ───────────── Leads API ───────────── */
   const [leads, setLeads] = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
@@ -760,6 +820,108 @@ export default function BrokerLeadsPage() {
     const primary = getRegionName(row?.primaryRegion || row?.region);
     const secondary = getRegionName(row?.secondaryRegion);
     return { primary, secondary };
+  };
+
+  /* ───────────── Notification helpers ───────────── */
+  const formatNotificationDate = (dateString) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return "Just now";
+      if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+      if (diffDays === 1) return "Yesterday";
+      if (diffDays < 7) return `${diffDays} days ago`;
+      
+      // Format as date if older than a week
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+      });
+    } catch {
+      return "";
+    }
+  };
+
+  const getNotificationIcon = (notification) => {
+    const type = (notification?.type || notification?.notificationType || "").toLowerCase();
+    const title = (notification?.title || notification?.message || "").toLowerCase();
+    
+    // Check for specific keywords in title/message
+    if (type.includes("lead") || title.includes("lead created") || title.includes("new lead")) {
+      return (
+        <svg
+          className="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="10" cy="7" r="4" />
+          <path d="M19 8v6M22 11h-6" />
+        </svg>
+      );
+    }
+    if (type.includes("email") || title.includes("email") || title.includes("follow-up")) {
+      return (
+        <svg
+          className="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="M22 7 12 13 2 7" />
+        </svg>
+      );
+    }
+    if (type.includes("status") || title.includes("status changed") || title.includes("qualified") || title.includes("closed")) {
+      return (
+        <svg
+          className="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      );
+    }
+    // Default icon
+    return (
+      <svg
+        className="w-4 h-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 7v5l4 2" />
+      </svg>
+    );
   };
 
   /* ───────────── Add Lead modal ───────────── */
@@ -2396,89 +2558,65 @@ export default function BrokerLeadsPage() {
                 </h4>
 
                 <ul className="text-sm text-slate-900 space-y-3">
-                  {/* New lead created */}
-                  <li className="flex items-start gap-3">
-                    <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200">
-                      {/* user-plus */}
-                      <svg
-                        className="w-=4 h-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                        <circle cx="10" cy="7" r="4" />
-                        <path d="M19 8v6M22 11h-6" />
-                      </svg>
-                    </span>
-                    <div className="flex-1">
-                      <div className="text-[12px] leading-5 font-normal text-[#171A1F]">
-                        New lead created
+                  {notificationsLoading ? (
+                    <li className="flex items-center justify-center py-4">
+                      <div className="flex items-center gap-2 text-[12px] text-gray-500">
+                        <svg
+                          className="w-4 h-4 animate-spin"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Loading...
                       </div>
-                      <div className="text-[10px] leading-5 font-normal text-[#565D6D]">
-                        Today, 10:45 AM
+                    </li>
+                  ) : notificationsError ? (
+                    <li className="flex items-center justify-center py-4">
+                      <div className="text-[12px] text-red-600">
+                        {notificationsError}
                       </div>
-                    </div>
-                  </li>
-
-                  {/* Follow-up email */}
-                  <li className="flex items-start gap-3">
-                    <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200">
-                      {/* mail */}
-                      <svg
-                        className="w-4 h-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <rect x="3" y="5" width="18" height="14" rx="2" />
-                        <path d="M22 7 12 13 2 7" />
-                      </svg>
-                    </span>
-                    <div className="flex-1">
-                      <div className="text-[12px] leading-5 font-normal text-[#171A1F]">
-                        Follow-up email sent to Michael Chen
+                    </li>
+                  ) : notifications.length === 0 ? (
+                    <li className="flex items-center justify-center py-4">
+                      <div className="text-[12px] text-gray-500">
+                        No recent activity
                       </div>
-                      <div className="text-[10px] leading-5 font-normal text-[#565D6D]">
-                        Yesterday, 3:20 PM
-                      </div>
-                    </div>
-                  </li>
-
-                  {/* Qualified */}
-                  <li className="flex items-start gap-3">
-                    <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200">
-                      {/* check */}
-                      <svg
-                        className="w-4 h-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                    </span>
-                    <div className="flex-1">
-                      <div className="text-[12px] leading-5 font-normal text-[#171A1F]">
-                        Lead status changed to Qualified
-                      </div>
-                      <div className="text-[10px] leading-5 font-normal text-[#565D6D]">
-                        Yesterday, 11:15 AM
-                      </div>
-                    </div>
-                  </li>
+                    </li>
+                  ) : (
+                    notifications.map((notification, index) => {
+                      const notificationTitle = notification?.title || notification?.message || notification?.text || "Notification";
+                      const notificationDate = notification?.createdAt || notification?.date || notification?.timestamp;
+                      
+                      return (
+                        <li key={notification?._id || notification?.id || index} className="flex items-start gap-3">
+                          <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200">
+                            {getNotificationIcon(notification)}
+                          </span>
+                          <div className="flex-1">
+                            <div className="text-[12px] leading-5 font-normal text-[#171A1F]">
+                              {notificationTitle}
+                            </div>
+                            <div className="text-[10px] leading-5 font-normal text-[#565D6D]">
+                              {formatNotificationDate(notificationDate)}
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })
+                  )}
                 </ul>
               </div>
 
