@@ -1872,7 +1872,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                             {isAdmin ? (
                               <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200 relative p-1.5">
                                 <img
-                                  src="/images/BROKER GULLY FINAL LOGO ICON SVG.svg"
+                                  src="/BROKER_GULLY_FINAL_LOGO_ICON_JPG__1_-removebg-preview.png"
                                   alt="Broker Gully"
                                   className="w-full h-full object-contain"
                                   onError={(e) => {

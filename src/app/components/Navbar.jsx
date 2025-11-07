@@ -348,9 +348,9 @@ const enableSuggestions = false;
           >
             <span className="rounded-full overflow-hidden">
               <img
-                src="/images/BROKER GULLY FINAL LOGO ICON SVG.svg"
+                src="/BROKER_GULLY_FINAL_LOGO_ICON_JPG__1_-removebg-preview.png"
                 alt="Broker Gully"
-                className="w-12 h-12 object-contain transition-transform group-hover:scale-[1.03]"
+                className="w-10 h-10 object-contain transition-transform group-hover:scale-[1.03]"
               />
             </span>
             <span className="text-xl font-semibold text-gray-800 cursor-pointer">
