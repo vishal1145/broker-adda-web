@@ -44,6 +44,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [regions, setRegions] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
+  const [propertyRatings, setPropertyRatings] = useState({}); // Map of propertyId -> average rating
+  const [ratingsLoading, setRatingsLoading] = useState(false);
   const timersRef = useRef({});
 
   // Trigger skeleton loader when switching between tabs from header
@@ -86,6 +88,63 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       }
     };
     fetchRegions();
+  }, []);
+
+  // Fetch property ratings from API
+  useEffect(() => {
+    const fetchRatings = async () => {
+      try {
+        setRatingsLoading(true);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetch(`${apiUrl}/property-ratings/all`);
+        if (res.ok) {
+          const data = await res.json().catch(() => ({}));
+          let ratingsList = [];
+          if (Array.isArray(data?.data?.items)) ratingsList = data.data.items;
+          else if (Array.isArray(data?.data?.ratings)) ratingsList = data.data.ratings;
+          else if (Array.isArray(data?.data)) ratingsList = data.data;
+          else if (Array.isArray(data?.ratings)) ratingsList = data.ratings;
+          else if (Array.isArray(data)) ratingsList = data;
+          
+          // Group ratings by propertyId and calculate average
+          const ratingsMap = {};
+          ratingsList.forEach(rating => {
+            const propertyId = rating.propertyId || rating.property?._id || rating.property?.id;
+            if (propertyId) {
+              if (!ratingsMap[propertyId]) {
+                ratingsMap[propertyId] = {
+                  total: 0,
+                  count: 0,
+                  average: 0
+                };
+              }
+              const ratingValue = typeof rating.rating === 'number' ? rating.rating : parseFloat(rating.rating) || 0;
+              if (ratingValue > 0) {
+                ratingsMap[propertyId].total += ratingValue;
+                ratingsMap[propertyId].count += 1;
+              }
+            }
+          });
+          
+          // Calculate averages
+          const averagesMap = {};
+          Object.keys(ratingsMap).forEach(propertyId => {
+            const { total, count } = ratingsMap[propertyId];
+            if (count > 0) {
+              averagesMap[propertyId] = (total / count).toFixed(1);
+            }
+          });
+          
+          setPropertyRatings(averagesMap);
+        }
+      } catch (err) {
+        console.error('Error fetching property ratings:', err);
+        setPropertyRatings({});
+      } finally {
+        setRatingsLoading(false);
+      }
+    };
+    fetchRatings();
   }, []);
 
   // Fetch properties from API with all filters
@@ -227,7 +286,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           const amenities = Array.isArray(p.amenities) ? p.amenities : [];
           const images = Array.isArray(p.images) && p.images.length > 0 ? p.images : [];
           const image = images[0] || '/images/pexels-binyaminmellish-106399.jpg';
-          const rating = p.rating || '4.7';
+          // Use rating from API if available, otherwise fall back to property rating or default
+          const rating = propertyRatings[id] || p.rating || '4.7';
           const price = typeof p.price === 'number' ? p.price : undefined;
           const currentPrice = price ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price) : '-';
           const status = p.status || '';
@@ -269,6 +329,19 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     };
     fetchProperties();
   }, [currentPage, itemsPerPage, filters, secondaryFilters, selectedRegion, sortBy, sortOrder]);
+
+  // Update property ratings when ratings data is loaded (without re-fetching properties)
+  useEffect(() => {
+    if (Object.keys(propertyRatings).length > 0 && propertyItems.length > 0) {
+      setPropertyItems(prevItems => 
+        prevItems.map(item => ({
+          ...item,
+          rating: propertyRatings[item.id] || item.rating || '4.7'
+        }))
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyRatings]);
 
   // Handle sort change from TabsBar
   const handleSortChange = (newSortBy, newSortOrder) => {

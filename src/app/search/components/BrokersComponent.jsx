@@ -36,6 +36,10 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   // Store full region objects for ID mapping
   const [regionsData, setRegionsData] = useState([]);
   
+  // Broker ratings API state
+  const [brokerRatings, setBrokerRatings] = useState({}); // Map of brokerId -> average rating
+  const [ratingsLoading, setRatingsLoading] = useState(false);
+  
   // Brokers API state
   const [brokers, setBrokers] = useState([]);
   const [brokersLoading, setBrokersLoading] = useState(true);
@@ -177,6 +181,65 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
     fetchRegions();
   }, [brokerFilters.city]);
+
+  // Fetch broker ratings from API
+  useEffect(() => {
+    const fetchRatings = async () => {
+      try {
+        setRatingsLoading(true);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetch(`${apiUrl}/broker-ratings/all`);
+        if (res.ok) {
+          const data = await res.json().catch(() => ({}));
+          let ratingsList = [];
+          if (Array.isArray(data?.data?.items)) ratingsList = data.data.items;
+          else if (Array.isArray(data?.data?.ratings)) ratingsList = data.data.ratings;
+          else if (Array.isArray(data?.data)) ratingsList = data.data;
+          else if (Array.isArray(data?.ratings)) ratingsList = data.ratings;
+          else if (Array.isArray(data)) ratingsList = data;
+          
+          // Group ratings by brokerId and calculate average
+          const ratingsMap = {};
+          ratingsList.forEach(rating => {
+            // Normalize brokerId to string for consistent lookup
+            const brokerIdRaw = rating.brokerId || rating.broker?._id || rating.broker?.id || rating.userId || rating.userId?._id || rating.userId?.id;
+            const brokerId = brokerIdRaw ? String(brokerIdRaw) : null;
+            if (brokerId) {
+              if (!ratingsMap[brokerId]) {
+                ratingsMap[brokerId] = {
+                  total: 0,
+                  count: 0,
+                  average: 0
+                };
+              }
+              const ratingValue = typeof rating.rating === 'number' ? rating.rating : parseFloat(rating.rating) || 0;
+              if (ratingValue > 0) {
+                ratingsMap[brokerId].total += ratingValue;
+                ratingsMap[brokerId].count += 1;
+              }
+            }
+          });
+          
+          // Calculate averages
+          const averagesMap = {};
+          Object.keys(ratingsMap).forEach(brokerId => {
+            const { total, count } = ratingsMap[brokerId];
+            if (count > 0) {
+              averagesMap[brokerId] = (total / count).toFixed(1);
+            }
+          });
+          
+          setBrokerRatings(averagesMap);
+        }
+      } catch (err) {
+        console.error('Error fetching broker ratings:', err);
+        setBrokerRatings({});
+      } finally {
+        setRatingsLoading(false);
+      }
+    };
+    fetchRatings();
+  }, []);
 
   // Fetch brokers from API with all filters
   const fetchBrokers = async (regionIds = null) => {
@@ -405,7 +468,34 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           console.log(`Broker firmName:`, broker.firmName);
           console.log(`Broker leadsCreated:`, broker.leadsCreated);
           
+          // Get broker ID for rating lookup (try multiple possible ID fields)
+          // Normalize to string for consistent comparison with ratings map
+          const userIdRaw = (broker?.userId && typeof broker.userId === 'object') ? broker.userId._id : broker.userId;
+          const brokerIdRaw = broker._id || broker.id || userIdRaw || null;
+          const brokerId = brokerIdRaw ? String(brokerIdRaw) : null;
+          
+          // Priority: 1. Rating from broker object itself, 2. Rating from brokerRatings map, 3. Computed rating
+          const brokerObjectRating = typeof broker.rating === 'number' ? broker.rating : (broker.rating ? parseFloat(broker.rating) : null);
+          const ratingsMapRating = brokerId && brokerRatings[brokerId] ? parseFloat(brokerRatings[brokerId]) : null;
           const computedRating = computeRating(broker);
+          
+          const finalRating = brokerObjectRating !== null && brokerObjectRating > 0 
+            ? brokerObjectRating 
+            : (ratingsMapRating !== null ? ratingsMapRating : computedRating);
+          
+          // Debug logging for rating lookup
+          if (index === 0) {
+            console.log('Rating lookup for broker:', {
+              name: broker.name,
+              brokerId,
+              brokerObjectRating,
+              ratingsMapRating,
+              computedRating,
+              finalRating,
+              availableRatingsKeys: Object.keys(brokerRatings).slice(0, 5)
+            });
+          }
+          
           return {
             // Include all raw broker fields first
             ...broker,
@@ -416,7 +506,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
             name: broker.name || 'Unknown Broker',
             profileImage: broker.brokerImage || '/images/user-1.webp',
             brokerImage: broker.brokerImage || broker.profileImage || '/images/user-1.webp', // For chat component
-            rating: computedRating,
+            rating: finalRating,
             email: broker.email || '',
             phone: broker.phone || broker.whatsappNumber || '',
             status: broker.approvedByAdmin === 'unblocked' ? 'Verified' : 'Active',
@@ -510,6 +600,36 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
     currentPage,
     regionsData.length
   ]);
+
+  // Update broker ratings when ratings data is loaded (without re-fetching brokers)
+  useEffect(() => {
+    if (brokers.length > 0) {
+      setBrokers(prevBrokers => 
+        prevBrokers.map(broker => {
+          // Priority: 1. Rating from broker object itself, 2. Rating from brokerRatings map
+          const brokerObjectRating = typeof broker.rating === 'number' ? broker.rating : (broker.rating ? parseFloat(broker.rating) : null);
+          
+          // Only update if broker object doesn't have a rating or if we have a better rating from the map
+          if (brokerObjectRating === null || brokerObjectRating === 0) {
+            // Get broker ID for rating lookup (try multiple possible ID fields)
+            // Normalize to string for consistent comparison with ratings map
+            const brokerIdRaw = broker._id || broker.id || broker.userIdRaw || broker.userId || (broker.userId && typeof broker.userId === 'object' ? broker.userId._id : null);
+            const brokerId = brokerIdRaw ? String(brokerIdRaw) : null;
+            const ratingsMapRating = brokerId && brokerRatings[brokerId] ? parseFloat(brokerRatings[brokerId]) : null;
+            
+            if (ratingsMapRating !== null) {
+              return {
+                ...broker,
+                rating: ratingsMapRating
+              };
+            }
+          }
+          return broker;
+        })
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brokerRatings]);
 
   // Specialization options - matching the dropdown/image
   const specializationOptions = [
@@ -1435,15 +1555,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
         <span className="text-[12px] font-semibold text-gray-800">
-          {(() => {
-            let rating = 3.0;
-            const leadsCount = broker.leadsCreated?.count || 0;
-            if (leadsCount > 0) rating += 0.5;
-            if ((broker.specializations || []).length > 0) rating += 0.3;
-            if (broker.firmName) rating += 0.2;
-            if (broker.approvedByAdmin === 'unblocked') rating += 0.5;
-            return Math.min(rating, 5.0).toFixed(1);
-          })()}
+          {typeof broker.rating === 'number' ? broker.rating.toFixed(1) : (broker.rating || '3.0')}
         </span>
       </span>
     </div>
