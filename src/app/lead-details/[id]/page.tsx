@@ -439,11 +439,11 @@ export default function LeadDetails() {
             <h1 className="text-[20px] font-bold text-gray-900 mb-2">
               {lead.propertyType } 
             </h1>
-            <div className="flex items-center gap-4 text-[12px] leading-[20px] font-[400]" style={{ color: '#565D6DFF', fontFamily: 'Inter, sans-serif' }}>
+              <div className="flex items-center gap-4 text-[12px] leading-[20px] font-[400]" style={{ color: '#565D6DFF', fontFamily: 'Inter, sans-serif' }}>
               <span>Active {lead?.addedAgo || "5 days ago"}</span>
               <span className="text-gray-300">|</span>
               <span>Last contact {lead?.lastContact || "2 hours ago"}</span>
-            </div>
+              </div>
           </div>
               {/* Requirements Section */}
               <div className="">
@@ -522,34 +522,42 @@ export default function LeadDetails() {
                 </div>
               </div>
 
-              {/* Notes Section */}
-              <div className="pb-16">
-                <div className="bg-white rounded-[10px] p-5 border border-[#DEE1E6]">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[18px] font-semibold text-gray-900">Notes</h3>
+              {/* Notes Section - Only show if notes exist */}
+              {lead?.notes && (
+                <div className="pb-16">
+                  <div className="bg-white rounded-[10px] p-5 border border-[#DEE1E6]">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-[18px] font-semibold text-gray-900">Notes</h3>
                     <span className="px-2.5 py-1 rounded-full bg-yellow-500 text-black text-xs font-medium">
                     Important
                   </span>
-                </div>
-                  <p className="text-[12px] text-gray-700 leading-6 mb-4">
-                    {lead?.notes || "Looking for a modern apartment with good connectivity and schools nearby. Prefers Higher floors and east facing."}
-                  </p>
-                  <div className="flex items-center gap-5 text-[12px] text-gray-400">
-                    <span className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {lead?.noteAddedAgo || "2 hours ago"}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      {lead?.noteAddedBy || "Rashed Johnson"}
-                    </span>
+                    </div>
+                    <p className="text-[12px] text-gray-700 leading-6 mb-4">
+                      {lead.notes}
+                    </p>
+                    {(lead?.noteAddedAgo || lead?.noteAddedBy) && (
+                      <div className="flex items-center gap-5 text-[12px] text-gray-400">
+                        {lead?.noteAddedAgo && (
+                          <span className="flex items-center gap-1.5">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {lead.noteAddedAgo}
+                          </span>
+                        )}
+                        {lead?.noteAddedBy && (
+                          <span className="flex items-center gap-1.5">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            {lead.noteAddedBy}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+              )}
 
               
             </section>
@@ -572,20 +580,20 @@ export default function LeadDetails() {
                           <h4 className="font-semibold text-gray-900 text-[14px]">
                             {lead.createdBy.name || "Yash Gupta"}
                           </h4>
-                          <p className="text-[12px] text-gray-500">
+                            <p className="text-[12px] text-gray-500">
                             {lead.createdBy.firmName || "Gupta Properties"}
-                          </p>
+                            </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 mb-4 text-sm">
+                        <div className="flex items-center gap-2 mb-4 text-sm">
                         <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                             </svg>
                         <span className="font-semibold text-gray-900 text-[12px]">4.0</span>
-                        <span className="text-gray-500 text-[12px]">
+                          <span className="text-gray-500 text-[12px]">
                           {typeof lead.createdBy.experience === 'number' ? `${lead.createdBy.experience}+` : lead.createdBy.experience || '11+'} years
-                            </span>
-                          </div>
+                          </span>
+                        </div>
                       <div className="flex flex-wrap gap-2 mb-4">
                         <span className="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium">
                           Residential Sales
