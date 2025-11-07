@@ -53,6 +53,7 @@ export default function LeadDetails() {
   const [sameLeads, setSameLeads] = useState<LeadItem[]>([]);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [brokerRating, setBrokerRating] = useState<number | null>(null);
   useEffect(() => {
     if (!id) return;
 
@@ -153,6 +154,186 @@ export default function LeadDetails() {
       return () => carousel.removeEventListener('scroll', updateScrollState);
     }
   }, [sameLeads]);
+
+  // Helper function to extract broker ID from createdBy
+  const getBrokerIdFromCreatedBy = (createdBy: LeadItem['createdBy']): { brokerId: string | null; userId: string | null } => {
+    if (!createdBy) return { brokerId: null, userId: null };
+    
+    const createdByAny = createdBy as Record<string, unknown>;
+    
+    // Handle string type
+    if (typeof createdByAny === 'string') {
+      return { brokerId: createdByAny, userId: createdByAny };
+    }
+    
+    if (typeof createdByAny === 'object' && createdByAny !== null) {
+      console.log('🔍 Extracting broker ID from createdBy:', createdByAny);
+      
+      // Extract user ID first (for fallback)
+      let userId: string | null = null;
+      if (createdByAny.userId) {
+        const userIdVal = createdByAny.userId;
+        if (typeof userIdVal === 'object' && userIdVal !== null) {
+          const userIdObj = userIdVal as Record<string, unknown>;
+          userId = (typeof userIdObj._id === 'string' ? userIdObj._id : null) || 
+                   (typeof userIdObj.id === 'string' ? userIdObj.id : null) || 
+                   null;
+        } else if (typeof userIdVal === 'string') {
+          userId = userIdVal;
+        }
+      }
+      
+      // Prioritize broker-specific IDs first (broker document ID)
+      const brokerDetailId = createdByAny.brokerDetailId;
+      const brokerDetailsId = createdByAny.brokerDetailsId;
+      const brokerIdVal = createdByAny.brokerId;
+      
+      let brokerId = (typeof brokerDetailId === 'string' ? brokerDetailId : null) ||
+                    (typeof brokerDetailsId === 'string' ? brokerDetailsId : null) ||
+                    (typeof brokerIdVal === 'string' ? brokerIdVal : null) ||
+                    null;
+      
+      // Try nested userId structure for broker ID
+      if (!brokerId && createdByAny.userId) {
+        const userIdVal = createdByAny.userId;
+        if (typeof userIdVal === 'object' && userIdVal !== null) {
+          const userIdObj = userIdVal as Record<string, unknown>;
+          brokerId = (typeof userIdObj.brokerId === 'string' ? userIdObj.brokerId : null) ||
+                    (typeof userIdObj.brokerDetailId === 'string' ? userIdObj.brokerDetailId : null) ||
+                    null;
+        }
+      }
+      
+      // Fallback to direct _id or id (may be broker document ID or user ID)
+      if (!brokerId) {
+        const idVal = createdByAny._id;
+        const idVal2 = createdByAny.id;
+        brokerId = (typeof idVal === 'string' ? idVal : null) || 
+                  (typeof idVal2 === 'string' ? idVal2 : null) || 
+                  null;
+      }
+      
+      // If we still don't have userId, use brokerId as userId
+      if (!userId && brokerId) {
+        userId = brokerId;
+      }
+      
+      console.log('✅ Extracted IDs:', { brokerId, userId });
+      return { brokerId, userId };
+    }
+    
+    return { brokerId: null, userId: null };
+  };
+
+  // Fetch broker rating when lead is loaded
+  useEffect(() => {
+    const fetchBrokerRating = async () => {
+      if (!lead?.createdBy) {
+        setBrokerRating(null);
+        return;
+      }
+
+      const { brokerId, userId } = getBrokerIdFromCreatedBy(lead.createdBy);
+      if (!brokerId && !userId) {
+        console.log('❌ No broker ID or user ID found');
+        setBrokerRating(null);
+        return;
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("token") || localStorage.getItem("authToken")
+          : null;
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      // Try broker ID first (broker document ID)
+      let ratingFound = false;
+      if (brokerId) {
+        try {
+          console.log(`🔍 Fetching rating with broker ID: ${brokerId}`);
+          const res = await fetch(`${apiUrl}/broker-ratings/broker/${brokerId}`, {
+            method: 'GET',
+            headers: headers
+          });
+
+          if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            const averageRating = data?.data?.stats?.averageRating;
+            if (averageRating !== undefined && averageRating !== null) {
+              console.log(`✅ Rating fetched with broker ID: ${averageRating}`);
+              setBrokerRating(averageRating);
+              ratingFound = true;
+            }
+          } else if (res.status === 404) {
+            console.log(`❌ Broker not found with broker ID: ${brokerId} (404)`);
+            // Try userId as fallback if broker ID failed
+            if (userId && userId !== brokerId) {
+              console.log(`🔄 Trying user ID as fallback: ${userId}`);
+              try {
+                const fallbackRes = await fetch(`${apiUrl}/broker-ratings/broker/${userId}`, {
+                  method: 'GET',
+                  headers: headers
+                });
+                if (fallbackRes.ok) {
+                  const fallbackData = await fallbackRes.json().catch(() => ({}));
+                  const fallbackRating = fallbackData?.data?.stats?.averageRating;
+                  if (fallbackRating !== undefined && fallbackRating !== null) {
+                    console.log(`✅ Rating fetched with user ID: ${fallbackRating}`);
+                    setBrokerRating(fallbackRating);
+                    ratingFound = true;
+                  }
+                } else {
+                  console.log(`❌ Broker not found with user ID: ${userId} (${fallbackRes.status})`);
+                }
+              } catch (fallbackError) {
+                console.error('Error fetching rating with user ID:', fallbackError);
+              }
+            }
+          } else {
+            console.error(`Error fetching rating: ${res.status} ${res.statusText}`);
+          }
+        } catch (error) {
+          console.error('Error fetching broker rating:', error);
+        }
+      } else if (userId) {
+        // If no broker ID, try userId directly
+        try {
+          console.log(`🔍 Fetching rating with user ID: ${userId}`);
+          const res = await fetch(`${apiUrl}/broker-ratings/broker/${userId}`, {
+            method: 'GET',
+            headers: headers
+          });
+
+          if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            const averageRating = data?.data?.stats?.averageRating;
+            if (averageRating !== undefined && averageRating !== null) {
+              console.log(`✅ Rating fetched with user ID: ${averageRating}`);
+              setBrokerRating(averageRating);
+              ratingFound = true;
+            }
+          } else {
+            console.log(`❌ Broker not found with user ID: ${userId} (${res.status})`);
+          }
+        } catch (error) {
+          console.error('Error fetching broker rating with user ID:', error);
+        }
+      }
+
+      if (!ratingFound) {
+        setBrokerRating(null);
+      }
+    };
+
+    fetchBrokerRating();
+  }, [lead?.createdBy]);
 
   if (loading) {
   return (
@@ -589,7 +770,9 @@ export default function LeadDetails() {
                         <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                             </svg>
-                        <span className="font-semibold text-gray-900 text-[12px]">4.0</span>
+                        {brokerRating !== null && (
+                          <span className="font-semibold text-gray-900 text-[12px]">{brokerRating.toFixed(1)}</span>
+                        )}
                           <span className="text-gray-500 text-[12px]">
                           {typeof lead.createdBy.experience === 'number' ? `${lead.createdBy.experience}+` : lead.createdBy.experience || '11+'} years
                           </span>
