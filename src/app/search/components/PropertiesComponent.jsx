@@ -1261,13 +1261,13 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                               {amenitiesList.slice(0, displayCount).map((amenity, idx) => (
                                 <span
                                   key={idx}
-                                  className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+                                  className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
                                 >
                                   {amenity}
                                 </span>
                               ))}
                               {remainingCount > 0 && (
-                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
                                   +{remainingCount}
                                 </span>
                               )}
