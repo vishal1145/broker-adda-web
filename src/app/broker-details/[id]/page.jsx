@@ -31,6 +31,8 @@ export default function BrokerDetailsPage() {
   const [userRating, setUserRating] = useState(0);
   const [ratingReview, setRatingReview] = useState('');
   const [ratingLoading, setRatingLoading] = useState(false);
+  const [brokerRatingsStats, setBrokerRatingsStats] = useState(null);
+  const [ratingsLoading, setRatingsLoading] = useState(false);
 
   useEffect(() => {
     const fetchBroker = async () => {
@@ -85,7 +87,8 @@ export default function BrokerDetailsPage() {
   const years = (typeof broker?.experience === 'object' ? broker?.experience?.years : broker?.experience) || '';
   const leads = broker?.leadsCreated?.count ?? broker?.closedDeals ?? 0;
   const propertiesCount = broker?.propertiesListed?.count ?? broker?.propertyCount ?? 0;
-  const rating = broker?.rating ?? 4.8;
+  // Use averageRating from API if available, otherwise fallback to broker.rating or default
+  const rating = brokerRatingsStats?.averageRating ?? broker?.rating ?? 4.8;
   const status = nonEmpty(broker?.status) ? broker.status : '';
   const about = nonEmpty(broker?.content) ? broker.content : (nonEmpty(broker?.about) ? broker.about : (nonEmpty(broker?.bio) ? broker.bio : (broker?.experience?.description || '')));
   const phone = nonEmpty(broker?.phone) ? broker.phone : (nonEmpty(broker?.whatsappNumber) ? broker.whatsappNumber : '');
@@ -228,6 +231,63 @@ export default function BrokerDetailsPage() {
 
     fetchBrokerLeads();
   }, [broker]); // Changed dependency from brokerId to broker
+
+  // Fetch broker ratings
+  useEffect(() => {
+    const fetchBrokerRatings = async () => {
+      // Use broker._id if available (from API), otherwise fallback to brokerId from URL
+      const brokerMongoId = broker?._id || brokerId;
+      if (!brokerMongoId) return;
+      
+      setRatingsLoading(true);
+      try {
+        const token = typeof window !== 'undefined'
+          ? localStorage.getItem('token') || localStorage.getItem('authToken')
+          : null;
+        const base = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        };
+
+        const ratingsEndpoint = `/broker-ratings/broker/${encodeURIComponent(String(brokerMongoId))}`;
+        
+        console.log('Fetching broker ratings from:', `${base}${ratingsEndpoint}`);
+        
+        const res = await fetch(`${base}${ratingsEndpoint}`, { headers });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+          // Check if it's a "Broker not found" error
+          if (data.message && data.message.includes('not found')) {
+            console.warn('Broker not found in ratings API, brokerId:', brokerMongoId);
+            setBrokerRatingsStats(null);
+            return;
+          }
+          throw new Error(data.message || `Failed to fetch ratings: ${res.status}`);
+        }
+        
+        if (data.success && data.data && data.data.stats) {
+          setBrokerRatingsStats(data.data.stats);
+          console.log('Broker ratings stats:', data.data.stats);
+        } else {
+          console.warn('No stats in ratings response:', data);
+          setBrokerRatingsStats(null);
+        }
+      } catch (e) {
+        console.error('Error fetching broker ratings:', e);
+        setBrokerRatingsStats(null);
+      } finally {
+        setRatingsLoading(false);
+      }
+    };
+
+    // Only fetch ratings after broker data is loaded
+    if (broker) {
+      fetchBrokerRatings();
+    }
+  }, [broker, brokerId]);
   if (loading) {
     return (
       <div className="min-h-screen">
@@ -1104,7 +1164,9 @@ export default function BrokerDetailsPage() {
                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Properties</div>
                 </div>
                 <div className="bg-[#FFF9E6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{rating}</div>
+                  <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">
+                    {typeof rating === 'number' ? rating.toFixed(1) : rating}
+                  </div>
                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Client Rating</div>
                 </div>
                  <div className="bg-[#FAFAFB] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
@@ -1685,6 +1747,35 @@ export default function BrokerDetailsPage() {
                       setShowRatingModal(false);
                       setUserRating(0);
                       setRatingReview('');
+                      
+                      // Refresh ratings after submitting
+                      const refreshRatings = async () => {
+                        try {
+                          const refreshToken = typeof window !== 'undefined'
+                            ? localStorage.getItem('token') || localStorage.getItem('authToken')
+                            : null;
+                          const refreshBase = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+                          const refreshHeaders = {
+                            'Content-Type': 'application/json',
+                            ...(refreshToken ? { 'Authorization': `Bearer ${refreshToken}` } : {})
+                          };
+
+                          const brokerMongoId = broker?._id || brokerId;
+                          const ratingsEndpoint = `/broker-ratings/broker/${encodeURIComponent(String(brokerMongoId))}`;
+                          
+                          const refreshRes = await fetch(`${refreshBase}${ratingsEndpoint}`, { headers: refreshHeaders });
+                          if (refreshRes.ok) {
+                            const refreshData = await refreshRes.json();
+                            if (refreshData.success && refreshData.data && refreshData.data.stats) {
+                              setBrokerRatingsStats(refreshData.data.stats);
+                            }
+                          }
+                        } catch (e) {
+                          console.error('Error refreshing ratings:', e);
+                        }
+                      };
+                      
+                      refreshRatings();
                     } catch (error) {
                       console.error('Error submitting rating:', error);
                       toast.error(error.message || 'Failed to submit rating. Please try again.');

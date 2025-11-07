@@ -248,7 +248,13 @@ function PropertyDetailsPageInner() {
           // Set stats (averageRating, totalRatings, distribution)
           if (data.data.stats) {
             setRatingsStats(data.data.stats);
+            console.log('Property ratings stats:', data.data.stats);
+            console.log('Total ratings/comments:', data.data.stats.totalRatings);
           }
+        } else {
+          // If no ratings found, set empty state
+          setPropertyRatings([]);
+          setRatingsStats(null);
         }
       } catch (e) {
         console.error('Error fetching property ratings:', e);
@@ -1472,39 +1478,50 @@ function PropertyDetailsPageInner() {
                 {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
                 <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F]">Property Rating</h3>
               </div>
-            <div className="flex items-center justify-center gap-2">
-  {/* Rating Number */}
-  <div className="text-[36px] leading-[40px] font-bold text-[#171A1F]">
-    {ratingsStats?.averageRating ? ratingsStats.averageRating.toFixed(1) : (product?.rating || 0).toFixed(1)}
-  </div>
+              
+              {/* Only show rating display if rating exists */}
+              {ratingsStats?.averageRating ? (
+                <>
+                  <div className="flex items-center justify-center">
+                    {/* Stars with partial fill support - only show stars, no rating number */}
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => {
+                        const avgRating = ratingsStats.averageRating;
+                        const fillPercentage = Math.max(0, Math.min(100, ((avgRating - i) * 100)));
+                        
+                        return (
+                          <div key={i} className="relative w-[24px] h-[24px]">
+                            {/* Gray background star */}
+                            <svg
+                              className="w-[24px] h-[24px] text-gray-300 absolute inset-0"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                            >
+                              <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.786 1.4 8.164L12 18.896l-7.334 3.864 1.4-8.164L.132 9.21l8.2-1.192z" />
+                            </svg>
+                            {/* Yellow filled star (with clip path for partial fill) */}
+                            {fillPercentage > 0 && (
+                              <div className="absolute inset-0 overflow-hidden">
+                                <svg
+                                  className="w-[24px] h-[24px] text-yellow-400"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  style={{ clipPath: `inset(0 ${100 - fillPercentage}% 0 0)` }}
+                                >
+                                  <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.786 1.4 8.164L12 18.896l-7.334 3.864 1.4-8.164L.132 9.21l8.2-1.192z" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-  {/* Stars */}
-  <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => {
-                    const avgRating = ratingsStats?.averageRating || product?.rating || 0;
-                    return (
-      <svg
-        key={i}
-        className={`w-[24px] h-[24px] ${
-          i < Math.round(avgRating)
-            ? 'text-yellow-400'
-            : 'text-gray-300'
-        }`}
-        viewBox="0 0 24 24"
-        fill="currentColor"
-      >
-        <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.786 1.4 8.164L12 18.896l-7.334 3.864 1.4-8.164L.132 9.21l8.2-1.192z" />
-                    </svg>
-                    );
-                  })}
-              </div>
-            </div>
+                </>
+              ) : null}
 
-<div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D] text-center  mt-2">
-  Based on {ratingsStats?.totalRatings || propertyRatings?.length || 0} {ratingsStats?.totalRatings === 1 ? 'review' : 'reviews'}
-</div>
-
-              {/* Rating Button */}
+              {/* Rating Button - Always show */}
               <button
                 onClick={() => {
                   // Check if user is logged in
@@ -1518,7 +1535,7 @@ function PropertyDetailsPageInner() {
                   }
                   setShowRatingModal(true);
                 }}
-                className="w-full h-[40px] px-3 mt-4 flex items-center justify-center gap-2 font-inter text-[12px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] hover:bg-[#EDFDF4] hover:active:bg-[#D9F5E8] disabled:opacity-40 rounded-md transition-colors"
+                className={`w-full h-[40px] px-3 flex items-center justify-center gap-2 font-inter text-[12px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] hover:bg-[#EDFDF4] hover:active:bg-[#D9F5E8] disabled:opacity-40 rounded-md transition-colors ${ratingsStats?.averageRating ? 'mt-4' : 'mt-0'}`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />

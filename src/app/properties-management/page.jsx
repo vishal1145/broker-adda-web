@@ -122,6 +122,7 @@ const PropertiesManagement = () => {
   const [isFeatured, setIsFeatured] = useState(false);
   const [notes, setNotes] = useState("");
   const [allProperties, setAllProperties] = useState([]); // Store all properties for pagination
+  const [propertyRatings, setPropertyRatings] = useState({}); // Store ratings for each property: { propertyId: averageRating }
   
   // Debug flag - set to true to temporarily disable broker filtering
   const DEBUG_DISABLE_BROKER_FILTER = false;
@@ -404,6 +405,9 @@ const PropertiesManagement = () => {
         setItems(finalProperties);
         console.log(`Found ${finalProperties.length} properties for broker ID: ${brokerIdToUse}`);
         console.log('Properties data:', finalProperties);
+        
+        // Fetch ratings for all properties
+        fetchPropertyRatings(finalProperties);
       } else {
         const errorData = await response.json().catch(() => ({}));
         setError(errorData.message || 'Failed to fetch properties');
@@ -419,6 +423,49 @@ const PropertiesManagement = () => {
       setLoading(false);
     }
   }, [brokerId, brokerIdLoading, token, apiUrl]);
+
+  // Fetch ratings for properties
+  const fetchPropertyRatings = async (properties) => {
+    if (!properties || properties.length === 0) return;
+    
+    const token = typeof window !== 'undefined' 
+      ? localStorage.getItem('token') || localStorage.getItem('authToken')
+      : null;
+    const base = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+    
+    const ratingsMap = {};
+    
+    // Fetch ratings for each property in parallel
+    const ratingPromises = properties.map(async (property) => {
+      const propertyId = property.id || property._id;
+      if (!propertyId) return;
+      
+      try {
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        };
+        
+        const ratingsEndpoint = `/property-ratings/property/${encodeURIComponent(String(propertyId))}`;
+        const res = await fetch(`${base}${ratingsEndpoint}`, { headers });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data && data.data.stats && data.data.stats.averageRating) {
+            ratingsMap[propertyId] = data.data.stats.averageRating;
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching rating for property ${propertyId}:`, error);
+      }
+    });
+    
+    // Wait for all rating fetches to complete
+    await Promise.all(ratingPromises);
+    
+    // Update state with all ratings
+    setPropertyRatings(prev => ({ ...prev, ...ratingsMap }));
+  };
 
   // Delete property via API
   const deleteProperty = async (propertyId) => {
@@ -1029,13 +1076,23 @@ const PropertiesManagement = () => {
                             {property.propertyType}
                           </span>
                         </div>
-                        {/* Rating - top-right */}
-                        <div className="absolute top-4 right-4 flex items-center bg-white/90 backdrop-blur rounded-full px-2 py-1 shadow-sm">
-                          <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                          <span className="text-xs font-medium text-gray-700">{property.rating || '4.7'}</span>
-                        </div>
+                        {/* Rating - top-right - only show if rating exists */}
+                        {(() => {
+                          const propertyId = property.id || property._id;
+                          const averageRating = propertyRatings[propertyId];
+                          
+                          // Only show rating chip if rating exists
+                          if (!averageRating) return null;
+                          
+                          return (
+                            <div className="absolute top-4 right-4 flex items-center bg-white/90 backdrop-blur rounded-full px-2 py-1 shadow-sm">
+                              <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              <span className="text-xs font-medium text-gray-700">{averageRating.toFixed(1)}</span>
+                            </div>
+                          );
+                        })()}
                         {/* Price pill bottom-left */}
                         <div className="absolute bottom-4 left-4 z-10">
                           <span className="px-3 py-1 rounded-full text-sm font-semibold"

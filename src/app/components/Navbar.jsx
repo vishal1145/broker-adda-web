@@ -178,6 +178,22 @@ const Navbar = ({ data }) => {
     }
   }, [isMounted, user]);
 
+  // Listen for notifications update event (from notifications page)
+  useEffect(() => {
+    const handleNotificationsUpdate = () => {
+      if (user && isMounted) {
+        fetchNotifications();
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('notificationsUpdated', handleNotificationsUpdate);
+      return () => {
+        window.removeEventListener('notificationsUpdated', handleNotificationsUpdate);
+      };
+    }
+  }, [user, isMounted]);
+
   const router = useRouter();
   const pathname = usePathname();
   const isCartPage = pathname === '/cart';
