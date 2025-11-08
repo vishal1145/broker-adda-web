@@ -976,88 +976,102 @@ const Dashboard = () => {
   {/* bottom CTA */}
 <div className="flex justify-center mt-22 text-[14px]">
   <button 
-    onClick={() => {
-      // Extract region ID from profile data (as shown in the API response)
-      let regionId = '';
-      
-      console.log('=== FIND BROKER BUTTON CLICKED ===');
-      console.log('Profile loading:', profileLoading);
-      console.log('Profile data:', profileData);
-      console.log('Profile region:', profileData?.region);
-      
-      // First try to get region from profileData
-      if (profileData?.region) {
-        const region = profileData.region;
-        console.log('Region type:', typeof region, 'Is array:', Array.isArray(region));
+    onClick={async () => {
+      try {
+        console.log('=== FIND BROKER BUTTON CLICKED ===');
         
-        // Handle array of regions - use the first one
-        if (Array.isArray(region) && region.length > 0) {
-          const firstRegion = region[0];
-          console.log('First region from array:', firstRegion);
-          if (typeof firstRegion === 'object' && firstRegion !== null) {
-            regionId = firstRegion._id || firstRegion.id || '';
-            console.log('Extracted regionId from object:', regionId);
-          } else if (typeof firstRegion === 'string' && /^[0-9a-fA-F]{24}$/.test(firstRegion)) {
-            regionId = firstRegion;
-            console.log('Extracted regionId from string:', regionId);
+        // Get user ID from token
+        const getCurrentUserIdFromToken = () => {
+          try {
+            if (typeof window === 'undefined') return '';
+            const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+            if (!token) return '';
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.brokerId || payload.userId || payload.id || payload.sub || '';
+          } catch { 
+            return ''; 
           }
-        } 
-        // Handle single region object
-        else if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
-          regionId = region._id || region.id || '';
-          console.log('Extracted regionId from single object:', regionId);
-        } 
-        // Handle string region ID
-        else if (typeof region === 'string' && /^[0-9a-fA-F]{24}$/.test(region)) {
-          regionId = region;
-          console.log('Extracted regionId from string:', regionId);
-        }
-      }
-      
-      // Fallback: Try to get region from property data if profileData doesn't have it
-      if (!regionId && originalPropertyCards.length > 0) {
-        const originalProperty = originalPropertyCards[0];
-        const region = originalProperty?.region;
-        console.log('Trying fallback - Property region:', region);
+        };
         
-        if (region) {
-          if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
+        const currentUserId = getCurrentUserIdFromToken();
+        console.log('Current user ID from token:', currentUserId);
+        
+        if (!currentUserId) {
+          alert('User ID not found. Please login again.');
+          return;
+        }
+        
+        // Call broker API with user ID to get broker data
+        const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+        const token = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : '';
+        
+        console.log('Fetching broker data for user ID:', currentUserId);
+        const res = await fetch(`${baseApi}/brokers/${encodeURIComponent(currentUserId)}`, {
+          headers: { 
+            'Content-Type': 'application/json', 
+            ...(token ? { Authorization: `Bearer ${token}` } : {}) 
+          },
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Failed to fetch broker data: ${res.status}`);
+        }
+        
+        const brokerResponse = await res.json().catch(() => ({}));
+        const brokerData = brokerResponse?.data?.broker || brokerResponse?.broker || brokerResponse?.data || brokerResponse;
+        
+        console.log('Broker data fetched:', brokerData);
+        console.log('Broker region:', brokerData?.region);
+        
+        // Extract region ID from broker data
+        let regionId = '';
+        
+        if (brokerData?.region) {
+          const region = brokerData.region;
+          console.log('Region type:', typeof region, 'Is array:', Array.isArray(region));
+          
+          // Handle array of regions - use the first one
+          if (Array.isArray(region) && region.length > 0) {
+            const firstRegion = region[0];
+            console.log('First region from array:', firstRegion);
+            if (typeof firstRegion === 'object' && firstRegion !== null) {
+              regionId = firstRegion._id || firstRegion.id || '';
+              console.log('Extracted regionId from broker data:', regionId);
+            } else if (typeof firstRegion === 'string' && /^[0-9a-fA-F]{24}$/.test(firstRegion)) {
+              regionId = firstRegion;
+              console.log('Extracted regionId from broker data (string):', regionId);
+            }
+          } 
+          // Handle single region object
+          else if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
             regionId = region._id || region.id || '';
-            console.log('Extracted regionId from property:', regionId);
-          } else if (typeof region === 'string' && /^[0-9a-fA-F]{24}$/.test(region)) {
+            console.log('Extracted regionId from broker data (single object):', regionId);
+          } 
+          // Handle string region ID
+          else if (typeof region === 'string' && /^[0-9a-fA-F]{24}$/.test(region)) {
             regionId = region;
-            console.log('Extracted regionId from property string:', regionId);
+            console.log('Extracted regionId from broker data (string ID):', regionId);
           }
         }
-      }
-      
-      if (!regionId) {
-        console.warn('No region found in profileData or property data');
-      }
-      
-      // Navigate to search page with brokers tab and regionId filter
-      if (regionId && regionId.trim() !== '') {
-        const url = `/search?tab=brokers&regionId=${encodeURIComponent(regionId)}`;
-        console.log('✅ RegionId extracted:', regionId);
-        console.log('✅ Navigating to:', url);
         
-        // Use router.push with string URL (Next.js app router format)
-        router.push(url);
-        
-        // Also log after a small delay to verify URL was set
-        setTimeout(() => {
-          if (typeof window !== 'undefined') {
-            console.log('✅ Current URL after navigation:', window.location.href);
-            console.log('✅ URL search params:', window.location.search);
-          }
-        }, 100);
-      } else {
-        console.log('❌ No regionId found, navigating without filter');
-        console.log('Profile data available:', !!profileData);
-        console.log('Profile region exists:', !!profileData?.region);
-        console.log('Profile region value:', profileData?.region);
-        // Otherwise, just navigate to search page with brokers tab
-        router.push('/search?tab=brokers');
+        // Navigate to search page with brokers tab and regionId filter
+        if (regionId && regionId.trim() !== '') {
+          const url = `/search?tab=brokers&regionId=${encodeURIComponent(regionId)}`;
+          console.log('✅ RegionId from broker API:', regionId);
+          console.log('✅ Navigating to:', url);
+          
+          router.push(url);
+        } else {
+          console.warn('❌ No region found in broker data');
+          console.log('Broker data:', brokerData);
+          console.log('Broker region:', brokerData?.region);
+          alert('Region information not found in your profile. Please update your profile with region information.');
+          // Navigate to search page without filter
+          router.push('/search?tab=brokers');
+        }
+      } catch (error) {
+        console.error('Error fetching broker data:', error);
+        alert('Failed to fetch broker data. Please try again.');
       }
     }}
     className="px-6 py-3 bg-green-900 text-white rounded-lg font-medium hover:bg-green-800 transition-colors flex items-center justify-center gap-2 cursor-pointer"
