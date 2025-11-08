@@ -128,15 +128,32 @@ const Navbar = ({ data }) => {
       }
 
       // Transform API data to match expected format
-      const transformedNotifications = notificationsList.map((notif, index) => ({
-        id: notif?._id || notif?.id || index + 1,
-        title: notif?.title || notif?.type || 'Notification',
-        message: notif?.message || notif?.body || notif?.description || '',
-        time: notif?.createdAt ? formatTimeAgo(notif.createdAt) : notif?.time || 'Recently',
-        unread: notif?.isRead === false || notif?.read === false || notif?.unread === true || false
-      }));
+      const transformedNotifications = notificationsList.map((notif, index) => {
+        // Determine unread status - check multiple possible fields
+        let isUnread = false;
+        if (notif?.isRead === false) {
+          isUnread = true;
+        } else if (notif?.read === false) {
+          isUnread = true;
+        } else if (notif?.unread === true) {
+          isUnread = true;
+        } else if (notif?.isRead === undefined && notif?.read === undefined && notif?.unread === undefined) {
+          // If no read status is provided, assume unread
+          isUnread = true;
+        }
+        
+        return {
+          id: notif?._id || notif?.id || index + 1,
+          title: notif?.title || notif?.type || 'Notification',
+          message: notif?.message || notif?.body || notif?.description || '',
+          time: notif?.createdAt ? formatTimeAgo(notif.createdAt) : notif?.time || 'Recently',
+          unread: isUnread
+        };
+      });
 
       console.log('Transformed notifications:', transformedNotifications);
+      const unreadCount = transformedNotifications.filter(n => n.unread === true).length;
+      console.log('Unread notifications count:', unreadCount);
       // Use API data if available, even if empty (don't use fallback for empty API response)
       setNotifications(transformedNotifications);
     } catch (err) {
@@ -182,6 +199,7 @@ const Navbar = ({ data }) => {
   useEffect(() => {
     const handleNotificationsUpdate = () => {
       if (user && isMounted) {
+        console.log('Notifications update event received, refreshing notifications...');
         fetchNotifications();
       }
     };
@@ -197,6 +215,19 @@ const Navbar = ({ data }) => {
   const router = useRouter();
   const pathname = usePathname();
   const isCartPage = pathname === '/cart';
+
+  // Refresh notifications when navigating to/from notifications page
+  useEffect(() => {
+    if (isMounted && user && pathname === '/notifications') {
+      // When user navigates to notifications page, refresh notifications after a short delay
+      // This ensures the read-all API call has completed
+      const timer = setTimeout(() => {
+        console.log('On notifications page, refreshing notifications...');
+        fetchNotifications();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, isMounted, user]);
 
   // Load profile image from API (JS only)
   useEffect(() => {
@@ -501,7 +532,7 @@ const enableSuggestions = false;
 
             {/* Notification Icon - Only show when logged in */}
             {isMounted && user && (
-              <div className="relative notification-container">
+              <div className="relative notification-container" style={{ position: 'relative' }}>
                 <button
                   onClick={() => {
                     setShowNotifications(!showNotifications);
@@ -509,14 +540,32 @@ const enableSuggestions = false;
                   }}
                   className="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
                   aria-label="Notifications"
+                  style={{ position: 'relative', overflow: 'visible' }}
                 >
                   <FaBell className="w-4 h-4" />
-                  {/* Notification badge */}
-                  {notifications.filter(n => n.unread).length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
-                      {notifications.filter(n => n.unread).length}
-                    </span>
-                  )}
+                  {/* Notification badge - Only show unread count */}
+                  {(() => {
+                    const unreadCount = notifications.filter(n => n.unread === true).length;
+                    
+                    // Only show badge if there are unread notifications
+                    if (unreadCount > 0) {
+                      return (
+                        <span 
+                          className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center z-50 px-1"
+                          style={{ 
+                            boxShadow: '0 2px 6px rgba(220, 38, 38, 0.4)',
+                            lineHeight: '1',
+                            position: 'absolute',
+                            top: '-4px',
+                            right: '-4px'
+                          }}
+                        >
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </button>
 
                 {/* Notification Dropdown */}

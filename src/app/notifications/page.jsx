@@ -46,7 +46,7 @@ const NotificationsPage = () => {
     { id: 'lead', label: 'New Leads', iconKey: 'lead' },
     { id: 'property', label: 'Properties', iconKey: 'property' },
     { id: 'broker', label: 'Broker', iconKey: 'broker' },
-    { id: 'unread', label: 'Unread', iconKey: 'unread' }
+    // { id: 'unread', label: 'Unread', iconKey: 'unread' }
   ];
 
   // Filter notifications based on active filter
@@ -335,7 +335,7 @@ const NotificationsPage = () => {
       <HeaderFile data={headerData} />
       
       <div className="min-h-screen bg-gray-50 py-8 w-screen relative left-1/2 -translate-x-1/2 overflow-x-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+        <div className="w-full mx-auto px-[6rem] pt-4 ">
           {/* Header Section */}
           <div className="mb-6">
             <h1 className="text-[24px] font-bold text-gray-900 mb-2">
@@ -518,7 +518,7 @@ const NotificationsPage = () => {
               </div>
               )}
 
-              {/* Footer Actions */}
+              {/* Footer Actions
               {notifications.length > 0 && (
                 <div className="p-4 border-t border-gray-200 bg-gray-50">
                   <button 
@@ -530,7 +530,7 @@ const NotificationsPage = () => {
                     Mark all as read
                   </button>
                 </div>
-              )}
+              )} */}
             </div>
           )}
         </div>

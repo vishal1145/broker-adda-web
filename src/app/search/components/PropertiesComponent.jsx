@@ -33,20 +33,51 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     hasPrevPage: false
   });
   const [showSecondaryFilters, setShowSecondaryFilters] = useState(false);
-  const [secondaryFilters, setSecondaryFilters] = useState({
-    bathrooms: null,
-    furnishingType: null,
-    facingDirection: null,
-    possessionStatus: null,
-    postedBy: null,
-    verificationStatus: null
-  });
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [regions, setRegions] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [propertyRatings, setPropertyRatings] = useState({}); // Map of propertyId -> average rating
   const [ratingsLoading, setRatingsLoading] = useState(false);
   const timersRef = useRef({});
+
+  // Initialize broker filter from URL params synchronously
+  const getInitialBrokerFilter = () => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      return sp.get('createdBy');
+    } catch {
+      return null;
+    }
+  };
+
+  const [secondaryFilters, setSecondaryFilters] = useState({
+    bathrooms: null,
+    furnishingType: null,
+    facingDirection: null,
+    possessionStatus: null,
+    postedBy: null,
+    broker: getInitialBrokerFilter(),
+    verificationStatus: null
+  });
+  
+  // Also listen for URL changes (back/forward buttons)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handlePopState = () => {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const createdBy = sp.get('createdBy');
+        if (createdBy) {
+          setSecondaryFilters(prev => ({ ...prev, broker: createdBy }));
+        } else {
+          setSecondaryFilters(prev => ({ ...prev, broker: null }));
+        }
+      } catch {}
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Trigger skeleton loader when switching between tabs from header
   useEffect(() => {
@@ -216,6 +247,11 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         // Posted by
         if (secondaryFilters.postedBy) {
           queryParams.append('postedBy', secondaryFilters.postedBy);
+        }
+        
+        // Broker filter (for filtering properties by specific broker)
+        if (secondaryFilters.broker) {
+          queryParams.append('broker', secondaryFilters.broker);
         }
         
         // Verification status
@@ -439,13 +475,15 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       amenities: [],
       city: '' // Reset city filter if it exists
     });
-    // Reset secondary filters
+    // Reset secondary filters (but preserve broker from URL if present)
+    const currentBroker = secondaryFilters.broker;
     setSecondaryFilters({
       bathrooms: null,
       furnishingType: null,
       facingDirection: null,
       possessionStatus: null,
       postedBy: null,
+      broker: currentBroker,
       verificationStatus: null
     });
     // Reset region selection

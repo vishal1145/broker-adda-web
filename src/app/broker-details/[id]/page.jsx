@@ -670,7 +670,15 @@ export default function BrokerDetailsPage() {
 
                       {years !== '' ? `${years}+ Years Experience` : '0 Years Experience'}
                     </span>
-                   <span className="inline-flex items-center  px-2.5  rounded-full  h-[26px] bg-[#F3F4F6] border border-transparent">
+                   <span 
+                     onClick={() => {
+                       const brokerMongoId = broker?._id || brokerId;
+                       if (brokerMongoId) {
+                         router.push(`/search?tab=properties&createdBy=${encodeURIComponent(String(brokerMongoId))}`);
+                       }
+                     }}
+                     className="inline-flex items-center  px-2.5  rounded-full  h-[26px] bg-[#F3F4F6] border border-transparent cursor-pointer hover:bg-[#E5E7EB] transition-colors"
+                   >
                                                        <img
   src="/images/lucide-Building2-Outlined (2).svg"
   alt="status"
@@ -1159,7 +1167,16 @@ export default function BrokerDetailsPage() {
 
               {/* Performance Metrics Grid */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-[#EDFDF4] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                <div 
+                  onClick={() => {
+                    const brokerMongoId = broker?._id || brokerId;
+                    if (brokerMongoId) {
+                      router.push(`/search?tab=properties&createdBy=${encodeURIComponent(String(brokerMongoId))}`);
+                    }
+                  }}
+                  className="bg-[#EDFDF4] rounded-[10px] p-4 text-center cursor-pointer hover:bg-[#D9F5E8] transition-colors" 
+                  style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}
+                >
                   <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{propertiesCount}</div>
                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Properties</div>
                 </div>
