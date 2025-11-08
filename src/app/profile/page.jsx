@@ -3136,6 +3136,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('aadharFile');
                                       }}
@@ -3167,6 +3168,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('aadharFile');
                                       }}
@@ -3235,6 +3237,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('panFile');
                                       }}
@@ -3266,6 +3269,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('panFile');
                                       }}
@@ -3334,6 +3338,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('gstFile');
                                       }}
@@ -3365,6 +3370,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('gstFile');
                                       }}
@@ -3433,6 +3439,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('brokerLicenseFile');
                                       }}
@@ -3464,6 +3471,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('brokerLicenseFile');
                                       }}
@@ -3531,6 +3539,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('companyIdFile');
                                       }}
@@ -3562,6 +3571,7 @@ const Profile = () => {
                                     <button
                                       type="button"
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         handleFileRemove('companyIdFile');
                                       }}

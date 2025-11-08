@@ -267,7 +267,25 @@ export default function ViewModeProfile() {
       {/* Contact + Documents */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Contact Details */}
-        <div className="lg:col-span-7 rounded-[10px] bg-white shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-6">
+        {(() => {
+          // Check if there are any documents with values
+          const documentsList = [
+            { label: 'Aadhar Card', value: profile.docs.aadhar },
+            { label: 'PAN Card', value: profile.docs.pan },
+            { label: 'GST Certificate', value: profile.docs.gst },
+            { label: 'Broker License', value: profile.docs.license },
+            { label: 'Company ID', value: profile.docs.companyId },
+          ].filter(({ value }) => {
+            if (!value) return false;
+            if (typeof value === 'string') {
+              const trimmed = value.trim();
+              return trimmed !== '' && trimmed !== '-' && trimmed !== 'null' && trimmed !== 'undefined';
+            }
+            return true;
+          });
+          const hasDocuments = documentsList.length > 0;
+          return (
+            <div className={`${hasDocuments ? 'lg:col-span-7' : 'lg:col-span-12'} rounded-[10px] bg-white shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-6`}>
           <div className="text-[16px] font-semibold text-gray-900 mb-4">Contact Details</div>
           <div className="space-y-4 text-sm">
             <div className="flex items-start gap-3">
@@ -369,36 +387,46 @@ export default function ViewModeProfile() {
               </div>
             )}
           </div>
-        </div>
+            </div>
+          );
+        })()}
 
-        {/* Documents */}
-        <div className="lg:col-span-5 rounded-[10px] bg-white shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-6">
-          <div className="text-[16px] font-semibold text-gray-900 mb-4">Documents</div>
-          <div className="mb-2 grid grid-cols-2 text-[12px] text-gray-500 px-1">
-            <span>Document</span>
-            <span className="text-right pr-1">Actions</span>
-          </div>
-          <div className="divide-y divide-gray-100 border-t border-gray-100">
-            {[
-              { label: 'Aadhar Card', value: profile.docs.aadhar },
-              { label: 'PAN Card', value: profile.docs.pan },
-              { label: 'GST Certificate', value: profile.docs.gst },
-              { label: 'Broker License', value: profile.docs.license },
-              { label: 'Company ID', value: profile.docs.companyId },
-            ]
-              .filter(({ value }) => {
-                if (!value) return false;
-                if (typeof value === 'string') {
-                  const trimmed = value.trim();
-                  return trimmed !== '' && trimmed !== '-' && trimmed !== 'null' && trimmed !== 'undefined';
-                }
-                return true;
-              })
-              .map(({ label, value }) => (
-                <DocRow key={label} label={label} value={value} />
-              ))}
-          </div>
-        </div>
+        {/* Documents - Only show if there are documents */}
+        {(() => {
+          const documentsList = [
+            { label: 'Aadhar Card', value: profile.docs.aadhar },
+            { label: 'PAN Card', value: profile.docs.pan },
+            { label: 'GST Certificate', value: profile.docs.gst },
+            { label: 'Broker License', value: profile.docs.license },
+            { label: 'Company ID', value: profile.docs.companyId },
+          ].filter(({ value }) => {
+            if (!value) return false;
+            if (typeof value === 'string') {
+              const trimmed = value.trim();
+              return trimmed !== '' && trimmed !== '-' && trimmed !== 'null' && trimmed !== 'undefined';
+            }
+            return true;
+          });
+          
+          if (documentsList.length === 0) {
+            return null; // Don't render Documents section if no documents
+          }
+          
+          return (
+            <div className="lg:col-span-5 rounded-[10px] bg-white shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-6">
+              <div className="text-[16px] font-semibold text-gray-900 mb-4">Documents</div>
+              <div className="mb-2 grid grid-cols-2 text-[12px] text-gray-500 px-1">
+                <span>Document</span>
+                <span className="text-right pr-1">Actions</span>
+              </div>
+              <div className="divide-y divide-gray-100 border-t border-gray-100">
+                {documentsList.map(({ label, value }) => (
+                  <DocRow key={label} label={label} value={value} />
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {subscription && (
           <div className="lg:col-span-5 rounded-[10px] bg-white shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-6">
