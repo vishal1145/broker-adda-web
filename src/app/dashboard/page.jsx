@@ -20,12 +20,14 @@ const Dashboard = () => {
   const [currentBrokerId, setCurrentBrokerId] = useState('');
   const [metrics, setMetrics] = useState({
     totalLeads: null,
+    totalLeadsPercentage: null,
     propertiesListed: null,
+    propertiesListedPercentage: null,
     inquiriesReceived: 743,
     connections: null,
+    connectionsPercentage: null,
   });
   const [metricsLoading, setMetricsLoading] = useState(true);
-  const [connectionsLoading, setConnectionsLoading] = useState(true);
   const [leadRows, setLeadRows] = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
   const [propertyCards, setPropertyCards] = useState([]);
@@ -119,82 +121,58 @@ const Dashboard = () => {
           const metricsUrl = `${baseApi}/leads/metrics?createdBy=${encodeURIComponent(brokerId)}`;
           const { data } = await axios.get(metricsUrl, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
           const payload = data?.data ?? data;
+          
+          // Extract percentages from API response
+          const totalLeadsPercentage = 
+            payload?.totalLeadsPercentageChange ?? 
+            payload?.totalLeadsPercentage ?? 
+            payload?.leadsPercentageChange ??
+            null;
+          
+          const propertiesListedPercentage = 
+            payload?.totalPropertiesPercentageChange ?? 
+            payload?.totalPropertiesPercentage ?? 
+            payload?.propertiesPercentageChange ??
+            null;
+          
+          const connectionsPercentage = 
+            payload?.totalConnectionsPercentageChange ?? 
+            payload?.connectionsPercentageChange ?? 
+            payload?.connectionsPercentage ?? 
+            payload?.connectionsGrowth ?? 
+            payload?.connections?.percentage ?? 
+            payload?.connections?.growth ?? 
+            payload?.stats?.connectionsPercentage ?? 
+            payload?.stats?.connectionsGrowth ??
+            null;
+          
           setMetrics(prev => ({
             ...prev,
             totalLeads: payload?.totalLeads ?? 0,
+            totalLeadsPercentage: totalLeadsPercentage,
             propertiesListed: payload?.totalProperties ?? 0,
+            propertiesListedPercentage: propertiesListedPercentage,
             inquiriesReceived: payload?.inquiriesReceived ?? 743,
-            // Don't override connections - it's handled by fetchConnections
+            connections: payload?.connections ?? payload?.totalConnections ?? 0,
+            connectionsPercentage: connectionsPercentage,
           }));
         } catch (e) {
           setMetrics(prev => ({ 
             ...prev, 
-            totalLeads: prev.totalLeads ?? 0, 
-            propertiesListed: prev.propertiesListed ?? 0 
+            totalLeads: prev.totalLeads ?? 0,
+            totalLeadsPercentage: prev.totalLeadsPercentage ?? null,
+            propertiesListed: prev.propertiesListed ?? 0,
+            propertiesListedPercentage: prev.propertiesListedPercentage ?? null,
+            connections: prev.connections ?? 0,
+            connectionsPercentage: prev.connectionsPercentage ?? null,
           }));
         } finally {
           setMetricsLoading(false);
         }
       };
 
-      const fetchConnections = async () => {
-        try {
-          setConnectionsLoading(true);
-          const headers = {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          };
-
-          const response = await fetch(`${baseApi}/chats`, {
-            method: 'GET',
-            headers
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to fetch connections');
-          }
-
-          const data = await response.json();
-          
-          // Handle different response structures and count connections using map
-          let connectionsList = [];
-          if (Array.isArray(data?.data)) {
-            connectionsList = data.data;
-          } else if (Array.isArray(data?.connections)) {
-            connectionsList = data.connections;
-          } else if (Array.isArray(data?.chats)) {
-            connectionsList = data.chats;
-          } else if (data?.data?.chats && Array.isArray(data.data.chats)) {
-            connectionsList = data.data.chats;
-          } else if (data?.data?.connections && Array.isArray(data.data.connections)) {
-            connectionsList = data.data.connections;
-          }
-
-          // Count connections using map function
-          const connectionsCount = connectionsList.map(() => 1).reduce((sum, count) => sum + count, 0) || connectionsList.length;
-          
-          // Update metrics with the connections count
-          setMetrics(prev => ({
-            ...prev,
-            connections: connectionsCount
-          }));
-        } catch (e) {
-          console.error('Error fetching connections:', e);
-          // Set connections to 0 on error
-          setMetrics(prev => ({
-            ...prev,
-            connections: 0
-          }));
-        } finally {
-          setConnectionsLoading(false);
-        }
-      };
-
-      // Run metrics and connections in parallel for faster loading
-      Promise.all([
-        fetchMetrics(),
-        fetchConnections()
-      ]);
+      // Fetch metrics (includes connections data)
+      fetchMetrics();
     };
 
     initAndFetch();
@@ -424,12 +402,20 @@ const Dashboard = () => {
                     <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">
                       {fmt(metrics.totalLeads)}
                     </div>
-                    <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                      </svg>
-                      12.5%
-                    </div>
+                    {metrics.totalLeadsPercentage !== null && metrics.totalLeadsPercentage !== undefined && (
+                      <div className={`text-[12px] flex items-center gap-1 mt-1 ${metrics.totalLeadsPercentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          {metrics.totalLeadsPercentage >= 0 ? (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                          ) : (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                          )}
+                        </svg>
+                        {typeof metrics.totalLeadsPercentage === 'number' 
+                          ? `${metrics.totalLeadsPercentage > 0 ? '+' : ''}${metrics.totalLeadsPercentage}%`
+                          : metrics.totalLeadsPercentage}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -460,12 +446,20 @@ const Dashboard = () => {
                     <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">
                       {fmt(metrics.propertiesListed)}
                     </div>
-                    <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                      </svg>
-                      8.2%
-                    </div>
+                    {metrics.propertiesListedPercentage !== null && metrics.propertiesListedPercentage !== undefined && (
+                      <div className={`text-[12px] flex items-center gap-1 mt-1 ${metrics.propertiesListedPercentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          {metrics.propertiesListedPercentage >= 0 ? (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                          ) : (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                          )}
+                        </svg>
+                        {typeof metrics.propertiesListedPercentage === 'number' 
+                          ? `${metrics.propertiesListedPercentage > 0 ? '+' : ''}${metrics.propertiesListedPercentage}%`
+                          : metrics.propertiesListedPercentage}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -507,7 +501,7 @@ const Dashboard = () => {
                     </svg>
                   </div>
                 </div>
-                {connectionsLoading ? (
+                {metricsLoading ? (
                   <div className="animate-pulse">
                     <div className="h-6 bg-gray-200 rounded w-16 mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded w-12"></div>
@@ -515,12 +509,20 @@ const Dashboard = () => {
                 ) : (
                   <>
                     <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">{fmt(metrics.connections)}</div>
-                    <div className="text-[12px] text-green-600 flex items-center gap-1 mt-1">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                      </svg>
-                      20%
-                    </div>
+                    {metrics.connectionsPercentage !== null && metrics.connectionsPercentage !== undefined && (
+                      <div className={`text-[12px] flex items-center gap-1 mt-1 ${metrics.connectionsPercentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          {metrics.connectionsPercentage >= 0 ? (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                          ) : (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                          )}
+                        </svg>
+                        {typeof metrics.connectionsPercentage === 'number' 
+                          ? `${metrics.connectionsPercentage > 0 ? '+' : ''}${metrics.connectionsPercentage}%`
+                          : metrics.connectionsPercentage}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -1339,11 +1341,39 @@ const Dashboard = () => {
             const metricsUrl = `${baseApi}/leads/metrics?createdBy=${encodeURIComponent(bid)}`;
             const { data } = await axios.get(metricsUrl, { headers: tok ? { Authorization: `Bearer ${tok}` } : {} });
             const payload = data?.data ?? data;
+            
+            // Extract percentages from API response
+            const totalLeadsPercentage = 
+              payload?.totalLeadsPercentageChange ?? 
+              payload?.totalLeadsPercentage ?? 
+              payload?.leadsPercentageChange ??
+              null;
+            
+            const propertiesListedPercentage = 
+              payload?.totalPropertiesPercentageChange ?? 
+              payload?.totalPropertiesPercentage ?? 
+              payload?.propertiesPercentageChange ??
+              null;
+            
+            const connectionsPercentage = 
+              payload?.totalConnectionsPercentageChange ?? 
+              payload?.connectionsPercentageChange ?? 
+              payload?.connectionsPercentage ?? 
+              payload?.connectionsGrowth ?? 
+              payload?.connections?.percentage ?? 
+              payload?.connections?.growth ?? 
+              payload?.stats?.connectionsPercentage ?? 
+              payload?.stats?.connectionsGrowth ??
+              null;
+            
             setMetrics({
               totalLeads: payload?.totalLeads ?? 0,
+              totalLeadsPercentage: totalLeadsPercentage,
               propertiesListed: payload?.totalProperties ?? 0,
+              propertiesListedPercentage: propertiesListedPercentage,
               inquiriesReceived: payload?.inquiriesReceived ?? 743,
-              connections: payload?.connections ?? 45,
+              connections: payload?.connections ?? payload?.totalConnections ?? 0,
+              connectionsPercentage: connectionsPercentage,
             });
           } catch (e) {
             console.error('Error refreshing metrics:', e);

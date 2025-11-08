@@ -957,6 +957,21 @@ const Profile = () => {
     }
   };
 
+  const handleFileRemove = (fileName) => {
+    if (userRole === "broker") {
+      setBrokerFormData((prev) => ({ ...prev, [fileName]: null }));
+      // Reset the file input
+      const fileInput = document.getElementById(fileName === 'aadharFile' ? 'aadhar-upload' :
+                                                    fileName === 'panFile' ? 'pan-upload' :
+                                                    fileName === 'gstFile' ? 'gst-upload' :
+                                                    fileName === 'brokerLicenseFile' ? 'broker-license-upload' :
+                                                    fileName === 'companyIdFile' ? 'company-id-upload' : '');
+      if (fileInput) {
+        fileInput.value = '';
+      }
+    }
+  };
+
   // Gate to enable documents after preferred region selection
   const [canUploadDocs, setCanUploadDocs] = useState(false);
   useEffect(() => {
@@ -1205,9 +1220,8 @@ const Profile = () => {
         );
       case 2: // Professional/Preferences
         if (userRole === "broker") {
-          // Require license number and address for brokers
+          // Require only address for brokers
           return (
-            Boolean(currentFormData.licenseNumber) &&
             Boolean(currentFormData.officeAddress)
           );
         } else {
@@ -1977,8 +1991,7 @@ const Profile = () => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                               <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
-                                License Number{" "}
-                                <span className="text-red-500">*</span>
+                                License Number
                               </label>
                               <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -2008,14 +2021,14 @@ const Profile = () => {
                                   value={brokerFormData.licenseNumber}
                                   onChange={handleChange}
                                   placeholder="e.g., BRE #01234567"
-                                  className="w-full pl-10 pr-4 py-2   text-[12px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
+                                  className="w-full pl-10 pr-4 py-2 text-[12px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
                                 />
                               </div>
                             </div>
 
                             <div>
-                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">Experience (years)
-                                   <span className="text-red-500"> * </span>
+                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
+                                Experience (years)
                               </label>
                               <input
                                 type="number"
@@ -2028,7 +2041,7 @@ const Profile = () => {
                                   setBrokerFormData((prev) => ({ ...prev, experience: numeric }));
                                 }}
                                 placeholder="e.g., 15"
-                                className="w-full pl-10 pr-4 py-2 border  text-[12px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
+                                className="w-full px-4 py-2 border text-[12px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600"
                               />
                             </div>
 
@@ -2159,12 +2172,13 @@ const Profile = () => {
 
                             {/* About (hardcoded, read-only) */}
                             <div className="md:col-span-2">
-                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">About  <span className="text-red-500">*</span></label>
+                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">About</label>
                               <textarea
                                 rows={4}
                                 value={brokerFormData.about || ""}
                                 onChange={(e) => setBrokerFormData((prev) => ({ ...prev, about: e.target.value }))}
-                                className="w-full px-4 py-3 border border-gray-300  text-[12px] rounded-lg bg-gray-50 text-gray-700"
+                                placeholder="Tell us about yourself, your experience, and what makes you a great broker. Share your background, expertise, and any notable achievements in real estate."
+                                className="w-full px-4 py-3 border border-gray-300  text-[12px] rounded-lg bg-gray-50 text-gray-700 placeholder-gray-400"
                               />
                              
                             </div>
@@ -3109,15 +3123,27 @@ const Profile = () => {
                               {isImageFile(brokerFormData.aadharFile) && getImageSrc(brokerFormData.aadharFile) ? (
                                 <div className="absolute inset-0">
                                   <img src={getImageSrc(brokerFormData.aadharFile)} alt="Aadhar Preview" className="w-full h-full object-contain" />
-                                  <a
-                                    href={getImageSrc(brokerFormData.aadharFile)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="absolute top-2 right-2 px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View
-                                  </a>
+                                  <div className="absolute top-2 right-2 flex gap-2">
+                                    <a
+                                      href={getImageSrc(brokerFormData.aadharFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('aadharFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               ) : isPdfFile(brokerFormData.aadharFile) && getPdfSrc(brokerFormData.aadharFile) ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
@@ -3128,15 +3154,27 @@ const Profile = () => {
                                   <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.aadharFile?.name || 'PDF File'}>
                                     {brokerFormData.aadharFile?.name || 'PDF File'}
                                   </div>
-                                  <a
-                                    href={getPdfSrc(brokerFormData.aadharFile)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View PDF
-                                  </a>
+                                  <div className="flex gap-2 mt-2">
+                                    <a
+                                      href={getPdfSrc(brokerFormData.aadharFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View PDF
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('aadharFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -3184,15 +3222,27 @@ const Profile = () => {
                               {isImageFile(brokerFormData.panFile) && getImageSrc(brokerFormData.panFile) ? (
                                 <div className="absolute inset-0">
                                   <img src={getImageSrc(brokerFormData.panFile)} alt="PAN Preview" className="w-full h-full object-contain" />
-                                  <a
-                                    href={getImageSrc(brokerFormData.panFile)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="absolute top-2 right-2 px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View
-                                  </a>
+                                  <div className="absolute top-2 right-2 flex gap-2">
+                                    <a
+                                      href={getImageSrc(brokerFormData.panFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('panFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               ) : isPdfFile(brokerFormData.panFile) && getPdfSrc(brokerFormData.panFile) ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
@@ -3203,15 +3253,27 @@ const Profile = () => {
                                   <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.panFile?.name || 'PDF File'}>
                                     {brokerFormData.panFile?.name || 'PDF File'}
                                   </div>
-                                  <a
-                                    href={getPdfSrc(brokerFormData.panFile)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View PDF
-                                  </a>
+                                  <div className="flex gap-2 mt-2">
+                                    <a
+                                      href={getPdfSrc(brokerFormData.panFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View PDF
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('panFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -3259,15 +3321,27 @@ const Profile = () => {
                               {isImageFile(brokerFormData.gstFile) && getImageSrc(brokerFormData.gstFile) ? (
                                 <div className="absolute inset-0">
                                   <img src={getImageSrc(brokerFormData.gstFile)} alt="GST Preview" className="w-full h-full object-contain" />
-                                  <a
-                                    href={getImageSrc(brokerFormData.gstFile)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="absolute top-2 right-2 px-2 py-1 bg-green-900 text-white text-xs rounded hover:green-900 transition-colors shadow-lg"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View
-                                  </a>
+                                  <div className="absolute top-2 right-2 flex gap-2">
+                                    <a
+                                      href={getImageSrc(brokerFormData.gstFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('gstFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               ) : isPdfFile(brokerFormData.gstFile) && getPdfSrc(brokerFormData.gstFile) ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
@@ -3278,15 +3352,27 @@ const Profile = () => {
                                   <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.gstFile?.name || 'PDF File'}>
                                     {brokerFormData.gstFile?.name || 'PDF File'}
                                   </div>
-                                  <a
-                                    href={getPdfSrc(brokerFormData.gstFile)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View PDF
-                                  </a>
+                                  <div className="flex gap-2 mt-2">
+                                    <a
+                                      href={getPdfSrc(brokerFormData.gstFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View PDF
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('gstFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -3334,15 +3420,27 @@ const Profile = () => {
                               {isImageFile(brokerFormData.brokerLicenseFile) && getImageSrc(brokerFormData.brokerLicenseFile) ? (
                                 <div className="absolute inset-0">
                                   <img src={getImageSrc(brokerFormData.brokerLicenseFile)} alt="License Preview" className="w-full h-full object-contain" />
-                                  <a
-                                    href={getImageSrc(brokerFormData.brokerLicenseFile)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="absolute top-2 right-2 px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View
-                                  </a>
+                                  <div className="absolute top-2 right-2 flex gap-2">
+                                    <a
+                                      href={getImageSrc(brokerFormData.brokerLicenseFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('brokerLicenseFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               ) : isPdfFile(brokerFormData.brokerLicenseFile) && getPdfSrc(brokerFormData.brokerLicenseFile) ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
@@ -3353,15 +3451,27 @@ const Profile = () => {
                                   <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.brokerLicenseFile?.name || 'PDF File'}>
                                     {brokerFormData.brokerLicenseFile?.name || 'PDF File'}
                                   </div>
-                                  <a
-                                    href={getPdfSrc(brokerFormData.brokerLicenseFile)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View PDF
-                                  </a>
+                                  <div className="flex gap-2 mt-2">
+                                    <a
+                                      href={getPdfSrc(brokerFormData.brokerLicenseFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View PDF
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('brokerLicenseFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -3406,7 +3516,30 @@ const Profile = () => {
                           >
                             <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
                               {isImageFile(brokerFormData.companyIdFile) && getImageSrc(brokerFormData.companyIdFile) ? (
-                                <img src={getImageSrc(brokerFormData.companyIdFile)} alt="Company ID Preview" className="absolute inset-0 w-full h-full object-contain" />
+                                <div className="absolute inset-0">
+                                  <img src={getImageSrc(brokerFormData.companyIdFile)} alt="Company ID Preview" className="w-full h-full object-contain" />
+                                  <div className="absolute top-2 right-2 flex gap-2">
+                                    <a
+                                      href={getImageSrc(brokerFormData.companyIdFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('companyIdFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                </div>
                               ) : isPdfFile(brokerFormData.companyIdFile) && getPdfSrc(brokerFormData.companyIdFile) ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
                                   <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3416,15 +3549,27 @@ const Profile = () => {
                                   <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.companyIdFile?.name || 'PDF File'}>
                                     {brokerFormData.companyIdFile?.name || 'PDF File'}
                                   </div>
-                                  <a
-                                    href={getPdfSrc(brokerFormData.companyIdFile)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View PDF
-                                  </a>
+                                  <div className="flex gap-2 mt-2">
+                                    <a
+                                      href={getPdfSrc(brokerFormData.companyIdFile)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View PDF
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFileRemove('companyIdFile');
+                                      }}
+                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -3667,43 +3812,31 @@ const Profile = () => {
                                 );
                               }
 
-                              // Add social media
-                              if (currentFormData.linkedin) {
-                                formDataToSend.append(
-                                  "brokerDetails[socialMedia][linkedin]",
-                                  currentFormData.linkedin
-                                );
-                              }
-                              if (currentFormData.twitter) {
-                                formDataToSend.append(
-                                  "brokerDetails[socialMedia][twitter]",
-                                  currentFormData.twitter
-                                );
-                              }
-                              if (currentFormData.instagram) {
-                                formDataToSend.append(
-                                  "brokerDetails[socialMedia][instagram]",
-                                  currentFormData.instagram
-                                );
-                              }
-                              if (currentFormData.facebook) {
-                                formDataToSend.append(
-                                  "brokerDetails[socialMedia][facebook]",
-                                  currentFormData.facebook
-                                );
-                              }
-                              if (currentFormData.whatsapp) {
-                                formDataToSend.append(
-                                  "brokerDetails[whatsappNumber]",
-                                  currentFormData.whatsapp
-                                );
-                              }
-                              if (currentFormData.website) {
-                                formDataToSend.append(
-                                  "brokerDetails[website]",
-                                  currentFormData.website
-                                );
-                              }
+                              // Add social media - always append even if empty to allow clearing
+                              formDataToSend.append(
+                                "brokerDetails[socialMedia][linkedin]",
+                                currentFormData.linkedin || ""
+                              );
+                              formDataToSend.append(
+                                "brokerDetails[socialMedia][twitter]",
+                                currentFormData.twitter || ""
+                              );
+                              formDataToSend.append(
+                                "brokerDetails[socialMedia][instagram]",
+                                currentFormData.instagram || ""
+                              );
+                              formDataToSend.append(
+                                "brokerDetails[socialMedia][facebook]",
+                                currentFormData.facebook || ""
+                              );
+                              formDataToSend.append(
+                                "brokerDetails[whatsappNumber]",
+                                currentFormData.whatsapp || ""
+                              );
+                              formDataToSend.append(
+                                "brokerDetails[website]",
+                                currentFormData.website || ""
+                              );
 
                               // Add regions
                               currentFormData.regions.forEach(

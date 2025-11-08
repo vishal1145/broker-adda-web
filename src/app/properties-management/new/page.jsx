@@ -43,6 +43,15 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
   const amenityPresetOptions = [
     "Parking","Power Backup","Lift","Garden","Security","Gym","Water Supply","Swimming Pool"
   ];
+  const featurePresetOptions = [
+    "Modern Design","Spacious","Well Ventilated","Natural Light","Premium Location"
+  ];
+  const nearbyAmenityPresetOptions = [
+    "School","Hospital","Shopping Mall","Metro Station","Park"
+  ];
+  const locationBenefitPresetOptions = [
+    "Prime Location","Near Highway","City Center","Well Connected","Peaceful Area"
+  ];
   const [facingDirection, setFacingDirection] = useState("");
   const [possessionStatus, setPossessionStatus] = useState("");
   const [propertyAge, setPropertyAge] = useState("");
@@ -1334,8 +1343,9 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
                 <div className="space-y-3">
                   <label className="block text-sm font-semibold text-gray-900">Property Amenities</label>
                   
-                  {/* Preset amenities as clickable chips */}
-                  <div className="flex flex-wrap gap-2 mb-3">
+                  {/* All chips in one line: preset + custom */}
+                  <div className="flex flex-wrap gap-2">
+                    {/* Preset amenities as clickable chips */}
                     {amenityPresetOptions.map((preset) => {
                       const isSelected = amenities.includes(preset);
                       return (
@@ -1362,42 +1372,35 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
                         </button>
                       );
                     })}
+                    
+                    {/* Custom amenities as chips (not in preset list) */}
+                    {amenities.filter(a => !amenityPresetOptions.includes(a)).map(a => (
+                      <button
+                        key={a}
+                        type="button"
+                        onClick={() => removeFrom(a, setAmenities)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] bg-green-900 text-white border border-green-900 hover:bg-green-800 transition-colors"
+                      >
+                        {a}
+                        <span className="ml-1">✓</span>
+                      </button>
+                    ))}
                   </div>
                   
-                  {/* Custom input field - type and press Enter to add */}
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      value={amenityInput}
-                      onChange={(e) => setAmenityInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addAmenity();
-                        }
-                      }}
-                      className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                      placeholder="Type amenity and press Enter to add"
-                      />
-                    </div>
-                  
-                  {/* Selected amenities as chips */}
-                  {amenities.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {amenities.map(a => (
-                        <span key={a} className="inline-flex items-center gap-1 text-[12px] bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">
-                          {a}
-                      <button 
-                        type="button" 
-                            onClick={() => removeFrom(a, setAmenities)} 
-                            className="text-green-900 hover:text-green-800 cursor-pointer"
-                      >
-                            ×
-                      </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  {/* Custom input field - below chips */}
+                  <input
+                    type="text"
+                    value={amenityInput}
+                    onChange={(e) => setAmenityInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addAmenity();
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-xl text-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                    placeholder="Type amenity and press Enter to add"
+                  />
                 </div>
 
         
@@ -1576,48 +1579,195 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
               </div>
               )}
           {currentStep === 2 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nearby Amenities</label>
-            <div className="flex gap-2">
-              <input value={nearbyAmenityInput} onChange={(e)=>setNearbyAmenityInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(nearbyAmenityInput, setNearbyAmenities, nearbyAmenities, setNearbyAmenityInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Type nearby amenity and press Enter to add" />
+          <div className="space-y-3">
+            <label className="block text-sm font-semibold text-gray-900">Nearby Amenities</label>
+            
+            {/* All chips in one line: preset + custom */}
+            <div className="flex flex-wrap gap-2">
+              {/* Preset nearby amenities as clickable chips */}
+              {nearbyAmenityPresetOptions.map((preset) => {
+                const isSelected = nearbyAmenities.includes(preset);
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        removeFrom(preset, setNearbyAmenities);
+                      } else {
+                        if (!nearbyAmenities.includes(preset)) {
+                          setNearbyAmenities(prev => [...prev, preset]);
+                        }
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-[12px] border transition-colors ${
+                      isSelected
+                        ? 'bg-green-900 text-white border-green-900'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    {preset}
+                    {isSelected && <span className="ml-1">✓</span>}
+                  </button>
+                );
+              })}
+              
+              {/* Custom nearby amenities as chips (not in preset list) */}
+              {nearbyAmenities.filter(a => !nearbyAmenityPresetOptions.includes(a)).map(a => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => removeFrom(a, setNearbyAmenities)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] bg-green-900 text-white border border-green-900 hover:bg-green-800 transition-colors"
+                >
+                  {a}
+                  <span className="ml-1">✓</span>
+                </button>
+              ))}
             </div>
-            {nearbyAmenities.length>0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {nearbyAmenities.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700  px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setNearbyAmenities)} className="text-green-900 hover:text-green-800 cursor-pointer">×</button></span>
-                ))}
-              </div>
-            )}
+            
+            {/* Custom input field - below chips */}
+            <input
+              type="text"
+              value={nearbyAmenityInput}
+              onChange={(e) => setNearbyAmenityInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addTag(nearbyAmenityInput, setNearbyAmenities, nearbyAmenities, setNearbyAmenityInput);
+                }
+              }}
+              className="w-full border border-gray-300 rounded-xl text-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+              placeholder="Type nearby amenity and press Enter to add"
+            />
           </div>
           )}
           {currentStep === 2 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Features</label>
-            <div className="flex gap-2">
-              <input value={featureInput} onChange={(e)=>setFeatureInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(featureInput, setFeatures, features, setFeatureInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Type feature and press Enter to add" />
+          <div className="space-y-3">
+            <label className="block text-sm font-semibold text-gray-900">Features</label>
+            
+            {/* All chips in one line: preset + custom */}
+            <div className="flex flex-wrap gap-2">
+              {/* Preset features as clickable chips */}
+              {featurePresetOptions.map((preset) => {
+                const isSelected = features.includes(preset);
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        removeFrom(preset, setFeatures);
+                      } else {
+                        if (!features.includes(preset)) {
+                          setFeatures(prev => [...prev, preset]);
+                        }
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-[12px] border transition-colors ${
+                      isSelected
+                        ? 'bg-green-900 text-white border-green-900'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    {preset}
+                    {isSelected && <span className="ml-1">✓</span>}
+                  </button>
+                );
+              })}
+              
+              {/* Custom features as chips (not in preset list) */}
+              {features.filter(a => !featurePresetOptions.includes(a)).map(a => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => removeFrom(a, setFeatures)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] bg-green-900 text-white border border-green-900 hover:bg-green-800 transition-colors"
+                >
+                  {a}
+                  <span className="ml-1">✓</span>
+                </button>
+              ))}
             </div>
-            {features.length>0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {features.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setFeatures)} className="text-green-900 hover:text-green-800 cursor-pointer">×</button></span>
-                ))}
-              </div>
-            )}
+            
+            {/* Custom input field - below chips */}
+            <input
+              type="text"
+              value={featureInput}
+              onChange={(e) => setFeatureInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addTag(featureInput, setFeatures, features, setFeatureInput);
+                }
+              }}
+              className="w-full border border-gray-300 rounded-xl text-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+              placeholder="Type feature and press Enter to add"
+            />
           </div>
           )}
           {currentStep === 2 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Location Benefits</label>
-            <div className="flex gap-2">
-              <input value={locationBenefitInput} onChange={(e)=>setLocationBenefitInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(locationBenefitInput, setLocationBenefits, locationBenefits, setLocationBenefitInput); } }} className="flex-1 border border-gray-300 rounded-xl text-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder="Type location benefit and press Enter to add" />
+          <div className="space-y-3">
+            <label className="block text-sm font-semibold text-gray-900">Location Benefits</label>
+            
+            {/* All chips in one line: preset + custom */}
+            <div className="flex flex-wrap gap-2">
+              {/* Preset location benefits as clickable chips */}
+              {locationBenefitPresetOptions.map((preset) => {
+                const isSelected = locationBenefits.includes(preset);
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        removeFrom(preset, setLocationBenefits);
+                      } else {
+                        if (!locationBenefits.includes(preset)) {
+                          setLocationBenefits(prev => [...prev, preset]);
+                        }
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-[12px] border transition-colors ${
+                      isSelected
+                        ? 'bg-green-900 text-white border-green-900'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    {preset}
+                    {isSelected && <span className="ml-1">✓</span>}
+                  </button>
+                );
+              })}
+              
+              {/* Custom location benefits as chips (not in preset list) */}
+              {locationBenefits.filter(a => !locationBenefitPresetOptions.includes(a)).map(a => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => removeFrom(a, setLocationBenefits)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] bg-green-900 text-white border border-green-900 hover:bg-green-800 transition-colors"
+                >
+                  {a}
+                  <span className="ml-1">✓</span>
+                </button>
+              ))}
             </div>
-            {locationBenefits.length>0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {locationBenefits.map((a)=> (
-                  <span key={a} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">{a}<button type="button" onClick={()=>removeFrom(a, setLocationBenefits)} className="cursor-pointer text-green-900 hover:text-green-800">×</button></span>
-                ))}
-              </div>
-            )}
+            
+            {/* Custom input field - below chips */}
+            <input
+              type="text"
+              value={locationBenefitInput}
+              onChange={(e) => setLocationBenefitInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addTag(locationBenefitInput, setLocationBenefits, locationBenefits, setLocationBenefitInput);
+                }
+              }}
+              className="w-full border border-gray-300 rounded-xl text-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+              placeholder="Type location benefit and press Enter to add"
+            />
           </div>
           )}
               {/* Submit Section */}
