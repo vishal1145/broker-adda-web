@@ -191,7 +191,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
   // Once regions data is loaded, try to find and set the region name from stored regionId
   useEffect(() => {
-    if (urlRegionId && regionsData.length > 0) {
+    if (urlRegionId && regionsData.length > 0 && regions.length > 0 && !hasProcessedInitialQuery) {
       const region = regionsData.find(r => {
         if (typeof r === 'object' && r !== null) {
           return (r._id === urlRegionId || r.id === urlRegionId);
@@ -199,21 +199,42 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         return false;
       });
       if (region) {
-        const regionName = region.name || region.city || region.state || '';
-        if (regionName) {
+        // Extract region name using the same logic as in fetchRegions
+        let regionName = '';
+        if (typeof region === 'string') {
+          regionName = region;
+        } else if (typeof region === 'object' && region !== null) {
+          regionName = region.name || region.city || region.state || region._id || String(region);
+        }
+        
+        // Find the exact match in the regions array to ensure consistency
+        const matchingRegionInArray = regions.find(r => {
+          const rName = typeof r === 'string' ? r : String(r);
+          return rName === regionName || rName.toLowerCase() === regionName.toLowerCase();
+        });
+        
+        // Use the exact name from regions array if found, otherwise use extracted name
+        const finalRegionName = matchingRegionInArray || regionName;
+        
+        if (finalRegionName) {
+          console.log('Setting region filter from regionId:', urlRegionId, 'Region name:', finalRegionName);
           setBrokerFilters(prev => ({
             ...prev,
-            region: [regionName]
+            region: [finalRegionName]
           }));
           // Clear broker name filter when regionId is set
           setSecondaryFilters(prev => ({ ...prev, brokerName: '' }));
           setShowSecondaryFilters(true);
           setHasProcessedInitialQuery(true);
           setLastProcessedQuery(''); // Mark as processed with regionId
+        } else {
+          console.warn('Region found by ID but no name available:', region);
         }
+      } else {
+        console.warn('Region not found for regionId:', urlRegionId, 'Available regions:', regionsData);
       }
     }
-  }, [urlRegionId, regionsData]);
+  }, [urlRegionId, regionsData, regions, hasProcessedInitialQuery]);
 
   // Fetch regions from API (refetch when city changes)
   useEffect(() => {

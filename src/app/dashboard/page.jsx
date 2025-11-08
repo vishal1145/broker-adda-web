@@ -977,28 +977,85 @@ const Dashboard = () => {
 <div className="flex justify-center mt-22 text-[14px]">
   <button 
     onClick={() => {
-      // Extract region ID from the original property data (before normalization)
-      const originalProperty = originalPropertyCards[0] || propertyCards[0];
-      const region = originalProperty?.region;
+      // Extract region ID from profile data (as shown in the API response)
       let regionId = '';
       
-      // Handle different region data formats
-      if (region) {
-        if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
-          // If region is an object, try to get _id or id
+      console.log('=== FIND BROKER BUTTON CLICKED ===');
+      console.log('Profile loading:', profileLoading);
+      console.log('Profile data:', profileData);
+      console.log('Profile region:', profileData?.region);
+      
+      // First try to get region from profileData
+      if (profileData?.region) {
+        const region = profileData.region;
+        console.log('Region type:', typeof region, 'Is array:', Array.isArray(region));
+        
+        // Handle array of regions - use the first one
+        if (Array.isArray(region) && region.length > 0) {
+          const firstRegion = region[0];
+          console.log('First region from array:', firstRegion);
+          if (typeof firstRegion === 'object' && firstRegion !== null) {
+            regionId = firstRegion._id || firstRegion.id || '';
+            console.log('Extracted regionId from object:', regionId);
+          } else if (typeof firstRegion === 'string' && /^[0-9a-fA-F]{24}$/.test(firstRegion)) {
+            regionId = firstRegion;
+            console.log('Extracted regionId from string:', regionId);
+          }
+        } 
+        // Handle single region object
+        else if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
           regionId = region._id || region.id || '';
-        } else if (typeof region === 'string') {
-          // Check if string looks like a MongoDB ObjectId (24 hex characters)
-          if (/^[0-9a-fA-F]{24}$/.test(region)) {
+          console.log('Extracted regionId from single object:', regionId);
+        } 
+        // Handle string region ID
+        else if (typeof region === 'string' && /^[0-9a-fA-F]{24}$/.test(region)) {
+          regionId = region;
+          console.log('Extracted regionId from string:', regionId);
+        }
+      }
+      
+      // Fallback: Try to get region from property data if profileData doesn't have it
+      if (!regionId && originalPropertyCards.length > 0) {
+        const originalProperty = originalPropertyCards[0];
+        const region = originalProperty?.region;
+        console.log('Trying fallback - Property region:', region);
+        
+        if (region) {
+          if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
+            regionId = region._id || region.id || '';
+            console.log('Extracted regionId from property:', regionId);
+          } else if (typeof region === 'string' && /^[0-9a-fA-F]{24}$/.test(region)) {
             regionId = region;
+            console.log('Extracted regionId from property string:', regionId);
           }
         }
       }
       
+      if (!regionId) {
+        console.warn('No region found in profileData or property data');
+      }
+      
       // Navigate to search page with brokers tab and regionId filter
-      if (regionId) {
-        router.push(`/search?tab=brokers&regionId=${encodeURIComponent(regionId)}`);
+      if (regionId && regionId.trim() !== '') {
+        const url = `/search?tab=brokers&regionId=${encodeURIComponent(regionId)}`;
+        console.log('✅ RegionId extracted:', regionId);
+        console.log('✅ Navigating to:', url);
+        
+        // Use router.push with string URL (Next.js app router format)
+        router.push(url);
+        
+        // Also log after a small delay to verify URL was set
+        setTimeout(() => {
+          if (typeof window !== 'undefined') {
+            console.log('✅ Current URL after navigation:', window.location.href);
+            console.log('✅ URL search params:', window.location.search);
+          }
+        }, 100);
       } else {
+        console.log('❌ No regionId found, navigating without filter');
+        console.log('Profile data available:', !!profileData);
+        console.log('Profile region exists:', !!profileData?.region);
+        console.log('Profile region value:', profileData?.region);
         // Otherwise, just navigate to search page with brokers tab
         router.push('/search?tab=brokers');
       }
