@@ -23,11 +23,11 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const [imageIndexById, setImageIndexById] = useState({});
   const [propertyItems, setPropertyItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6);
+  const [itemsPerPage] = useState(7); // 7 properties per page from API
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
-    limit: 6,
+    limit: 7,
     totalPages: 0,
     hasNextPage: false,
     hasPrevPage: false
@@ -273,7 +273,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           queryParams.append('sortOrder', 'desc');
         }
         
-        // Pagination (always include)
+        // Pagination from API
         queryParams.append('page', String(currentPage));
         queryParams.append('limit', String(itemsPerPage));
         
@@ -303,7 +303,61 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             hasPrevPage: data.pagination.hasPrevPage || false
           };
           setPagination(paginationData);
-          // Don't update currentPage here as it's controlled by user pagination
+        } else {
+          // Fallback: Fetch all properties to get accurate total count
+          // This is needed because list.length only contains current page items (e.g., 7 items)
+          // We need the total count to calculate pagination correctly
+          try {
+            const countQueryParams = new URLSearchParams(queryParams);
+            countQueryParams.set('page', '1');
+            countQueryParams.set('limit', '10000'); // Fetch all to get total count
+            
+            const countUrl = `${apiUrl}/properties?${countQueryParams.toString()}`;
+            const countRes = await fetch(countUrl);
+            
+            if (countRes.ok) {
+              const countData = await countRes.json().catch(() => ({}));
+              let allList = [];
+              if (Array.isArray(countData?.data?.items)) allList = countData.data.items;
+              else if (Array.isArray(countData?.data?.properties)) allList = countData.data.properties;
+              else if (Array.isArray(countData?.data)) allList = countData.data;
+              else if (Array.isArray(countData?.properties)) allList = countData.properties;
+              else if (Array.isArray(countData)) allList = countData;
+              
+              const totalProperties = allList.length;
+              const totalPages = Math.ceil(totalProperties / itemsPerPage);
+              setPagination({
+                total: totalProperties,
+                page: currentPage,
+                limit: itemsPerPage,
+                totalPages: totalPages,
+                hasNextPage: currentPage < totalPages,
+                hasPrevPage: currentPage > 1
+              });
+            } else {
+              // If count fetch fails, disable pagination
+              console.warn('Failed to fetch total count for pagination');
+              setPagination({
+                total: list.length,
+                page: currentPage,
+                limit: itemsPerPage,
+                totalPages: 1,
+                hasNextPage: false,
+                hasPrevPage: false
+              });
+            }
+          } catch (countErr) {
+            console.error('Error fetching total count:', countErr);
+            // If count fetch fails, disable pagination
+            setPagination({
+              total: list.length,
+              page: currentPage,
+              limit: itemsPerPage,
+              totalPages: 1,
+              hasNextPage: false,
+              hasPrevPage: false
+            });
+          }
         }
 
         const mapped = list.map((p, idx) => {
@@ -353,6 +407,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           };
         });
 
+        // Set properties directly from API (already paginated)
         setPropertyItems(mapped);
         setHasLoaded(true);
       } catch (err) {
@@ -1164,7 +1219,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           <>
           <div className="space-y-6">
             {/* Property cards - horizontal layout */}
-            {propertyItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((property) => (
+            {propertyItems.map((property) => (
             <Link key={property.id} href={`/property-details/${property.id}`} className="block">
               <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex">
