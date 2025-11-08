@@ -51,7 +51,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   // Secondary filters state
   const [showSecondaryFilters, setShowSecondaryFilters] = useState(false);
   const [secondaryFilters, setSecondaryFilters] = useState({
-  companyName: initialSearchQuery || '',
+    brokerName: '', // Don't set from initialSearchQuery here - let useEffect handle it after checking if it's a region
     language: '',
     brokerStatus: '', // Changed from array to single string
     responseRate: [],
@@ -59,13 +59,72 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
     sortBy: 'rating-high'
   });
 
-  // Initialize firm name filter from URL query parameter
+  // Track if we've processed the initial search query to avoid re-processing
+  const [hasProcessedInitialQuery, setHasProcessedInitialQuery] = useState(false);
+  const [lastProcessedQuery, setLastProcessedQuery] = useState('');
+  
+  // Store regionId from URL to use for filtering (must be declared before useEffects that use it)
+  const [urlRegionId, setUrlRegionId] = useState(null);
+
+  // Reset processing flag when search query changes
   useEffect(() => {
-    if (initialSearchQuery && initialSearchQuery.trim()) {
-      setSecondaryFilters(prev => ({ ...prev, companyName: initialSearchQuery.trim() }));
-      setShowSecondaryFilters(true); // Show filters section if search query exists
+    if (initialSearchQuery !== lastProcessedQuery) {
+      setHasProcessedInitialQuery(false);
+      // Clear filters when new search comes in
+      if (initialSearchQuery !== lastProcessedQuery && lastProcessedQuery !== '') {
+        setBrokerFilters(prev => ({ ...prev, region: [] }));
+        setSecondaryFilters(prev => ({ ...prev, brokerName: '' }));
+      }
     }
-  }, [initialSearchQuery]);
+  }, [initialSearchQuery, lastProcessedQuery]);
+
+  // Initialize search query - check if it's a region name or broker name
+  useEffect(() => {
+    // Skip if we've already processed this query or if urlRegionId is set (handled separately)
+    if (urlRegionId || hasProcessedInitialQuery) return;
+    
+    if (initialSearchQuery && initialSearchQuery.trim() && regionsData.length > 0) {
+      const queryLower = initialSearchQuery.toLowerCase().trim();
+      
+      // Check if query matches any region name (case-insensitive, exact or partial match)
+      const matchedRegion = regionsData.find(region => {
+        const regionName = typeof region === 'string' 
+          ? region 
+          : (region.name || region.city || region.state || '');
+        const regionNameLower = regionName.toLowerCase().trim();
+        // Exact match or if query is contained in region name
+        return regionNameLower === queryLower || regionNameLower.includes(queryLower) || queryLower.includes(regionNameLower);
+      });
+      
+      if (matchedRegion) {
+        // If it's a region match, set region filter and CLEAR broker name
+        const regionName = typeof matchedRegion === 'string' 
+          ? matchedRegion 
+          : (matchedRegion.name || matchedRegion.city || matchedRegion.state || '');
+        if (regionName) {
+          setBrokerFilters(prev => ({
+            ...prev,
+            region: [regionName]
+          }));
+          // Clear broker name filter when region is matched
+          setSecondaryFilters(prev => ({ ...prev, brokerName: '' }));
+          setShowSecondaryFilters(true);
+          setHasProcessedInitialQuery(true);
+          setLastProcessedQuery(initialSearchQuery);
+        }
+      } else {
+        // Otherwise, use it for broker name search and clear region filter
+        setSecondaryFilters(prev => ({ ...prev, brokerName: initialSearchQuery.trim() }));
+        setBrokerFilters(prev => ({ ...prev, region: [] }));
+        setShowSecondaryFilters(true);
+        setHasProcessedInitialQuery(true);
+        setLastProcessedQuery(initialSearchQuery);
+      }
+    } else if (initialSearchQuery && initialSearchQuery.trim() && !hasProcessedInitialQuery) {
+      // If regions not loaded yet, wait for them to load before deciding
+      // Don't set broker name yet - will be re-evaluated when regions load
+    }
+  }, [initialSearchQuery, regionsData, urlRegionId, hasProcessedInitialQuery]);
 
   // Enable skeleton loader on Brokers page when switching tabs
   useEffect(() => {
@@ -73,9 +132,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
     const t = setTimeout(() => setIsLoading(false), 500);
     return () => clearTimeout(t);
   }, [activeTab]);
-
-  // Store regionId from URL to use for filtering
-  const [urlRegionId, setUrlRegionId] = useState(null);
 
   // Initialize regionId from URL query parameter on mount and remove it from URL
   useEffect(() => {
@@ -111,6 +167,11 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
             ...prev,
             region: [regionName]
           }));
+          // Clear broker name filter when regionId is set
+          setSecondaryFilters(prev => ({ ...prev, brokerName: '' }));
+          setShowSecondaryFilters(true);
+          setHasProcessedInitialQuery(true);
+          setLastProcessedQuery(''); // Mark as processed with regionId
         }
       }
     }
@@ -291,9 +352,9 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         baseQueryParams.append('maxExperience', String(brokerFilters.experienceRange[1]));
       }
 
-      // Add firm/company name search filter
-      if (secondaryFilters.companyName && secondaryFilters.companyName.trim()) {
-        baseQueryParams.append('search', secondaryFilters.companyName.trim());
+      // Add broker name search filter
+      if (secondaryFilters.brokerName && secondaryFilters.brokerName.trim()) {
+        baseQueryParams.append('search', secondaryFilters.brokerName.trim());
       }
 
       // Add status filter (if selected in secondary filters)
@@ -592,7 +653,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
     brokerFilters.ratingRange, 
     brokerFilters.experienceRange,
     brokerFilters.brokerType, 
-    secondaryFilters.companyName,
+    secondaryFilters.brokerName,
     secondaryFilters.brokerStatus,
     secondaryFilters.joinedDate,
     sortBy, 
@@ -665,7 +726,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
     // Reset secondary filters
     setSecondaryFilters({
-      companyName: '',
+      brokerName: '',
       language: '',
       brokerStatus: '', // Changed to empty string for single select
       responseRate: [],
@@ -891,11 +952,11 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
     // No client-side filtering needed since API already filters by experience
     // This prevents double-filtering which could remove valid results
 
-    // Firm/Company name filter (client-side backup - API handles it via search parameter)
-    if (secondaryFilters.companyName && secondaryFilters.companyName.trim()) {
-      const searchTerm = secondaryFilters.companyName.toLowerCase().trim();
-      const firmName = (broker.firmName || broker.agency || '').toLowerCase();
-      if (!firmName.includes(searchTerm)) {
+    // Broker name filter (client-side backup - API handles it via search parameter)
+    if (secondaryFilters.brokerName && secondaryFilters.brokerName.trim()) {
+      const searchTerm = secondaryFilters.brokerName.toLowerCase().trim();
+      const brokerName = (broker.name || '').toLowerCase();
+      if (!brokerName.includes(searchTerm)) {
         return false;
       }
     }
@@ -1247,15 +1308,15 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           {/* Secondary Filters */}
           {showSecondaryFilters && (
             <div className="space-y-5 pt-4">
-              {/* Firm/Company Name */}
+              {/* Broker Name */}
               <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Firm/Company Name</label>
+                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Broker Name</label>
                 <input
                   type="text"
-                  placeholder="e.g., ABC Realty"
-                  value={secondaryFilters.companyName}
-                  onChange={(e) => setSecondaryFilters(prev => ({ ...prev, companyName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                  placeholder="e.g., John Doe"
+                  value={secondaryFilters.brokerName}
+                  onChange={(e) => setSecondaryFilters(prev => ({ ...prev, brokerName: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent text-sm"
                 />
               </div>
 

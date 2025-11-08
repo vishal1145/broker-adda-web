@@ -4658,20 +4658,20 @@ export default function BrokerLeadsPage() {
                                 {/* Display All transfers */}
                                 {allTransfers.map((t, i) => {
                                   const fromB =
-                                    t && typeof t.fromBroker === "object"
+                                    t && typeof t.fromBroker === "object" && t.fromBroker !== null
                                       ? t.fromBroker
                                       : idToBroker.get(t?.fromBroker) || {};
                                   const fromName =
-                                    fromB.name ||
-                                    fromB.fullName ||
-                                    fromB.email ||
-                                    fromB._id ||
+                                    (fromB && fromB.name) ||
+                                    (fromB && fromB.fullName) ||
+                                    (fromB && fromB.email) ||
+                                    (fromB && fromB._id) ||
                                     t?.fromBroker ||
                                     "Unknown broker";
                                   const fromAvatar =
-                                    fromB.brokerImage ||
-                                    fromB.avatarUrl ||
-                                    fromB.imageUrl ||
+                                    (fromB && fromB.brokerImage) ||
+                                    (fromB && fromB.avatarUrl) ||
+                                    (fromB && fromB.imageUrl) ||
                                     "";
                                   const when = t?.createdAt
                                     ? new Date(t.createdAt).toLocaleString()
@@ -4708,20 +4708,20 @@ export default function BrokerLeadsPage() {
                                 {/* Display Region transfers */}
                                 {regionTransfers.map((t, i) => {
                                   const fromB =
-                                    t && typeof t.fromBroker === "object"
+                                    t && typeof t.fromBroker === "object" && t.fromBroker !== null
                                       ? t.fromBroker
                                       : idToBroker.get(t?.fromBroker) || {};
                                   const fromName =
-                                    fromB.name ||
-                                    fromB.fullName ||
-                                    fromB.email ||
-                                    fromB._id ||
+                                    (fromB && fromB.name) ||
+                                    (fromB && fromB.fullName) ||
+                                    (fromB && fromB.email) ||
+                                    (fromB && fromB._id) ||
                                     t?.fromBroker ||
                                     "Unknown broker";
                                   const fromAvatar =
-                                    fromB.brokerImage ||
-                                    fromB.avatarUrl ||
-                                    fromB.imageUrl ||
+                                    (fromB && fromB.brokerImage) ||
+                                    (fromB && fromB.avatarUrl) ||
+                                    (fromB && fromB.imageUrl) ||
                                     "";
                                   const regionId = t?.region;
                                   const regionName = getRegionName(regionId) || regionId || "Unknown Region";
@@ -4760,36 +4760,36 @@ export default function BrokerLeadsPage() {
                                 {/* Display Individual transfers */}
                                 {individualTransfers.map((t, i) => {
                                   const toB =
-                                    t && typeof t.toBroker === "object"
+                                    t && typeof t.toBroker === "object" && t.toBroker !== null
                                       ? t.toBroker
                                       : idToBroker.get(t?.toBroker) || {};
                                   const fromB =
-                                    t && typeof t.fromBroker === "object"
+                                    t && typeof t.fromBroker === "object" && t.fromBroker !== null
                                       ? t.fromBroker
                                       : idToBroker.get(t?.fromBroker) || {};
                                   const toName =
-                                    toB.name ||
-                                    toB.fullName ||
-                                    toB.email ||
-                                    toB._id ||
+                                    (toB && toB.name) ||
+                                    (toB && toB.fullName) ||
+                                    (toB && toB.email) ||
+                                    (toB && toB._id) ||
                                     t?.toBroker ||
                                     "Unknown broker";
                                   const fromName =
-                                    fromB.name ||
-                                    fromB.fullName ||
-                                    fromB.email ||
-                                    fromB._id ||
+                                    (fromB && fromB.name) ||
+                                    (fromB && fromB.fullName) ||
+                                    (fromB && fromB.email) ||
+                                    (fromB && fromB._id) ||
                                     t?.fromBroker ||
                                     "Unknown broker";
                                   const toAvatar =
-                                    toB.brokerImage ||
-                                    toB.avatarUrl ||
-                                    toB.imageUrl ||
+                                    (toB && toB.brokerImage) ||
+                                    (toB && toB.avatarUrl) ||
+                                    (toB && toB.imageUrl) ||
                                     "";
                                   const fromAvatar =
-                                    fromB.brokerImage ||
-                                    fromB.avatarUrl ||
-                                    fromB.imageUrl ||
+                                    (fromB && fromB.brokerImage) ||
+                                    (fromB && fromB.avatarUrl) ||
+                                    (fromB && fromB.imageUrl) ||
                                     "";
                                   const when = t?.createdAt
                                     ? new Date(t.createdAt).toLocaleString()

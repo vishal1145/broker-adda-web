@@ -19,9 +19,16 @@ const Search = () => {
       if (t === 'leads' || t === 'brokers' || t === 'properties') {
         setActiveTab(t);
       }
-      const q = sp.get('q');
-      if (q) {
-        setSearchQuery(q);
+      // Only set search query if regionId is not present (regionId takes precedence)
+      const regionId = sp.get('regionId');
+      if (!regionId) {
+        const q = sp.get('q');
+        if (q) {
+          setSearchQuery(q);
+        }
+      } else {
+        // Clear search query when regionId is present
+        setSearchQuery('');
       }
     } catch {}
   }, []);
@@ -36,9 +43,15 @@ const Search = () => {
         if (t === 'leads' || t === 'brokers' || t === 'properties') {
           setActiveTab(t);
         }
-        const q = sp.get('q');
-        if (q) {
-          setSearchQuery(q);
+        // Only set search query if regionId is not present (regionId takes precedence)
+        const regionId = sp.get('regionId');
+        if (!regionId) {
+          const q = sp.get('q');
+          if (q) {
+            setSearchQuery(q);
+          } else {
+            setSearchQuery('');
+          }
         } else {
           setSearchQuery('');
         }
