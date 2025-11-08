@@ -1531,6 +1531,7 @@ export default function BrokerLeadsPage() {
   });
   const [viewSaving, setViewSaving] = useState(false);
   const [pendingDeleteTransferId, setPendingDeleteTransferId] = useState(null);
+  const [pendingDeleteRegionTransferId, setPendingDeleteRegionTransferId] = useState(null);
 
   // Ensure nearest regions are loaded when the View Drawer opens as well
   useEffect(() => {
@@ -1591,6 +1592,58 @@ export default function BrokerLeadsPage() {
       toast.error("Error deleting transfer");
     }
   };
+
+  // Delete a region transfer
+  const deleteRegionTransfer = async (regionId) => {
+    try {
+      if (!selectedLead || !regionId) return;
+      const leadId = selectedLead._id || selectedLead.id;
+      setPendingDeleteRegionTransferId(regionId);
+      const res = await fetch(
+        `${apiUrl}/leads/${encodeURIComponent(
+          leadId
+        )}/region-transfers/${encodeURIComponent(regionId)}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            Accept: "application/json",
+          },
+        }
+      );
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          toast.error(
+            err?.message || err?.error || "Failed to delete region transfer"
+          );
+        } catch {
+          toast.error("Failed to delete region transfer");
+        }
+        setPendingDeleteRegionTransferId(null);
+        return;
+      }
+      toast.success("Region transfer removed");
+      await loadLeads();
+      // Optimistically remove from selectedLead in memory
+      setSelectedLead((prev) => {
+        if (!prev) return prev;
+        const filtered = Array.isArray(prev.transfers)
+          ? prev.transfers.filter((tr) => {
+              const trRegionId = tr?.region;
+              return String(trRegionId) !== String(regionId);
+            })
+          : [];
+        return { ...prev, transfers: filtered };
+      });
+      setPendingDeleteRegionTransferId(null);
+    } catch {
+      toast.error("Error deleting region transfer");
+      setPendingDeleteRegionTransferId(null);
+    }
+  };
+
   const saveViewEdits = async () => {
     if (!selectedLead) return;
     try {
@@ -4732,13 +4785,14 @@ export default function BrokerLeadsPage() {
                                     (typeof t?.fromBroker === "object"
                                       ? t?.fromBroker?._id
                                       : t?.fromBroker) || `region-from-${i}`;
+                                  const isPendingDelete = pendingDeleteRegionTransferId === regionId;
                                   
                                   return (
                                     <li
-                                      key={`region-${keyFrom}-${t?._id || i}`}
-                                      className="flex items-center gap-3"
+                                      key={`region-${keyFrom}-${regionId || i}`}
+                                      className="flex items-start gap-3"
                                     >
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 pt-0.5">
                                         <div className="w-7 h-7 rounded-full bg-green-100 overflow-hidden ring-2 ring-white flex items-center justify-center text-[10px] text-green-800 font-semibold">
                                           R
                                         </div>
@@ -4752,6 +4806,24 @@ export default function BrokerLeadsPage() {
                                             Shared on {when}
                                           </div>
                                         )}
+                                        <div className="flex items-center gap-2 mt-2">
+                                          <button
+                                            type="button"
+                                            disabled={isPendingDelete}
+                                            onClick={async () => {
+                                              if (!regionId) return;
+                                              await deleteRegionTransfer(regionId);
+                                            }}
+                                            className={`inline-flex items-center px-2 py-1 text-[12px] rounded border ${
+                                              isPendingDelete
+                                                ? "border-gray-200 text-gray-400"
+                                                : "border-rose-200 text-rose-700 hover:bg-rose-50"
+                                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                            title="Delete transfer"
+                                          >
+                                            {isPendingDelete ? "Removing…" : "Delete"}
+                                          </button>
+                                        </div>
                                       </div>
                                     </li>
                                   );
