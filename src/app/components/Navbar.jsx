@@ -198,6 +198,22 @@ const Navbar = ({ data }) => {
   const pathname = usePathname();
   const isCartPage = pathname === '/cart';
 
+  // Sync search query with URL when on search page
+  useEffect(() => {
+    if (pathname === '/search' && typeof window !== 'undefined') {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const q = sp.get('q');
+        if (q) {
+          setSearchQuery(q);
+        } else {
+          // Clear search if URL doesn't have query
+          setSearchQuery('');
+        }
+      } catch {}
+    }
+  }, [pathname]);
+
   // Load profile image from API (JS only)
   useEffect(() => {
     const loadProfileImage = async () => {
@@ -277,6 +293,10 @@ const Navbar = ({ data }) => {
   }, [searchQuery, allProducts]);
 
   const goPropertiesWithQuery = async (q) => {
+    if (!q || !q.trim()) return;
+    
+    const query = q.trim();
+    
     // Try to match query with region names from API
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
@@ -296,7 +316,7 @@ const Navbar = ({ data }) => {
         }
         
         // Check if query matches any region name (case-insensitive, exact or partial match)
-        const queryLower = q.toLowerCase().trim();
+        const queryLower = query.toLowerCase().trim();
         const matchedRegion = regionsData.find(region => {
           const regionName = typeof region === 'string' 
             ? region 
@@ -309,10 +329,10 @@ const Navbar = ({ data }) => {
         });
         
         if (matchedRegion) {
-          // If it's a region match, pass regionId
+          // If it's a region match, pass regionId and also keep the query for display
           const regionId = typeof matchedRegion === 'object' ? (matchedRegion._id || matchedRegion.id) : null;
           if (regionId) {
-            const params = new URLSearchParams({ tab: 'brokers', regionId: regionId });
+            const params = new URLSearchParams({ tab: 'brokers', regionId: regionId, q: query });
             router.push(`/search?${params.toString()}`);
             return;
           }
@@ -323,7 +343,7 @@ const Navbar = ({ data }) => {
     }
     
     // Default: pass as query parameter for company name search
-    const params = new URLSearchParams({ tab: 'brokers', q: q });
+    const params = new URLSearchParams({ tab: 'brokers', q: query });
     router.push(`/search?${params.toString()}`);
   };
 
@@ -423,7 +443,7 @@ const enableSuggestions = false;
               }
             }
           }}
-                placeholder="Search properties, brokers, locations…"
+                placeholder="Search brokers by region…"
                 className="w-full pl-10 pr-24 py-2.5 text-sm border border-gray-300/70 rounded-full focus:outline-none focus:ring-2 focus:ring-[#0d542b] focus:border-transparent"
           onFocus={() =>
             enableSuggestions ? setShowSuggestions(true) : setShowSuggestions(false)

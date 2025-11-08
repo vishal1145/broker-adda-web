@@ -66,6 +66,32 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   // Store regionId from URL to use for filtering (must be declared before useEffects that use it)
   const [urlRegionId, setUrlRegionId] = useState(null);
 
+  // Listen to URL changes for search query updates (when typing in navbar search)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkURL = () => {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const q = sp.get('q');
+        if (q && q !== lastProcessedQuery) {
+          // Reset processing flag when URL query changes
+          setHasProcessedInitialQuery(false);
+          setLastProcessedQuery('');
+        } else if (!q && lastProcessedQuery) {
+          // Clear filters if query is removed
+          setHasProcessedInitialQuery(false);
+          setLastProcessedQuery('');
+          setBrokerFilters(prev => ({ ...prev, region: [] }));
+          setSecondaryFilters(prev => ({ ...prev, brokerName: '' }));
+        }
+      } catch {}
+    };
+    checkURL();
+    // Check URL changes periodically (when navbar search updates)
+    const interval = setInterval(checkURL, 200);
+    return () => clearInterval(interval);
+  }, [lastProcessedQuery]);
+
   // Reset processing flag when search query changes
   useEffect(() => {
     if (initialSearchQuery !== lastProcessedQuery) {
@@ -83,8 +109,20 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
     // Skip if we've already processed this query or if urlRegionId is set (handled separately)
     if (urlRegionId || hasProcessedInitialQuery) return;
     
-    if (initialSearchQuery && initialSearchQuery.trim() && regionsData.length > 0) {
-      const queryLower = initialSearchQuery.toLowerCase().trim();
+    // Get current query from URL (in case it changed via navbar search)
+    let currentQuery = initialSearchQuery;
+    if (typeof window !== 'undefined') {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const q = sp.get('q');
+        if (q) {
+          currentQuery = q;
+        }
+      } catch {}
+    }
+    
+    if (currentQuery && currentQuery.trim() && regionsData.length > 0) {
+      const queryLower = currentQuery.toLowerCase().trim();
       
       // Check if query matches any region name (case-insensitive, exact or partial match)
       const matchedRegion = regionsData.find(region => {
@@ -92,7 +130,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           ? region 
           : (region.name || region.city || region.state || '');
         const regionNameLower = regionName.toLowerCase().trim();
-        // Exact match or if query is contained in region name
+        // Exact match or if query is contained in region name (case-insensitive)
         return regionNameLower === queryLower || regionNameLower.includes(queryLower) || queryLower.includes(regionNameLower);
       });
       
@@ -110,17 +148,17 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           setSecondaryFilters(prev => ({ ...prev, brokerName: '' }));
           setShowSecondaryFilters(true);
           setHasProcessedInitialQuery(true);
-          setLastProcessedQuery(initialSearchQuery);
+          setLastProcessedQuery(currentQuery);
         }
       } else {
         // Otherwise, use it for broker name search and clear region filter
-        setSecondaryFilters(prev => ({ ...prev, brokerName: initialSearchQuery.trim() }));
+        setSecondaryFilters(prev => ({ ...prev, brokerName: currentQuery.trim() }));
         setBrokerFilters(prev => ({ ...prev, region: [] }));
         setShowSecondaryFilters(true);
         setHasProcessedInitialQuery(true);
-        setLastProcessedQuery(initialSearchQuery);
+        setLastProcessedQuery(currentQuery);
       }
-    } else if (initialSearchQuery && initialSearchQuery.trim() && !hasProcessedInitialQuery) {
+    } else if (currentQuery && currentQuery.trim() && !hasProcessedInitialQuery) {
       // If regions not loaded yet, wait for them to load before deciding
       // Don't set broker name yet - will be re-evaluated when regions load
     }
@@ -1345,7 +1383,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
               
 
               {/* Joined Date */}
-              <div>
+              {/* <div>
                 <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Joined Date</label>
                 <Select
                   instanceId="joined-date-select"
@@ -1370,7 +1408,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
                   placeholder="Select Date"
                   isClearable
                 />
-              </div>
+              </div> */}
 
              
             </div>

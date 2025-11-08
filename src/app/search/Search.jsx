@@ -13,24 +13,26 @@ const Search = () => {
   // Read query param without useSearchParams to avoid Suspense requirement
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    try {
-      const sp = new URLSearchParams(window.location.search);
-      const t = sp.get('tab');
-      if (t === 'leads' || t === 'brokers' || t === 'properties') {
-        setActiveTab(t);
-      }
-      // Only set search query if regionId is not present (regionId takes precedence)
-      const regionId = sp.get('regionId');
-      if (!regionId) {
+    const updateFromURL = () => {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const t = sp.get('tab');
+        if (t === 'leads' || t === 'brokers' || t === 'properties') {
+          setActiveTab(t);
+        }
+        // Set search query from URL if present (works with both regionId and q)
         const q = sp.get('q');
         if (q) {
           setSearchQuery(q);
+        } else {
+          setSearchQuery('');
         }
-      } else {
-        // Clear search query when regionId is present
-        setSearchQuery('');
-      }
-    } catch {}
+      } catch {}
+    };
+    updateFromURL();
+    // Listen for URL changes (including when navbar search updates URL)
+    const interval = setInterval(updateFromURL, 100);
+    return () => clearInterval(interval);
   }, []);
 
   // Listen for URL changes (back/forward buttons)
@@ -43,15 +45,10 @@ const Search = () => {
         if (t === 'leads' || t === 'brokers' || t === 'properties') {
           setActiveTab(t);
         }
-        // Only set search query if regionId is not present (regionId takes precedence)
-        const regionId = sp.get('regionId');
-        if (!regionId) {
-          const q = sp.get('q');
-          if (q) {
-            setSearchQuery(q);
-          } else {
-            setSearchQuery('');
-          }
+        // Set search query from URL if present (works with both regionId and q)
+        const q = sp.get('q');
+        if (q) {
+          setSearchQuery(q);
         } else {
           setSearchQuery('');
         }
