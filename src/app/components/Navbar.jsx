@@ -764,6 +764,9 @@ const enableSuggestions = false;
                               <Link href="/properties-management" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Properties
                               </Link>
+                              <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Settings
+                              </Link>
                             </>
                           ) : (
                             <>
@@ -772,6 +775,9 @@ const enableSuggestions = false;
                               </Link>
                               <Link href="/saved-properties" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Saved Properties
+                              </Link>
+                              <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Settings
                               </Link>
                             </>
                           )}
@@ -892,6 +898,11 @@ const enableSuggestions = false;
                       </Link>
                     </li>
                   )}
+                  <li>
+                    <Link href="/settings" className="block px-1 py-1 rounded hover:bg-gray-50">
+                      Settings
+                    </Link>
+                  </li>
                   <li>
                     <button onClick={handleLogout} className="text-left px-1 py-1 text-red-600">
                       Logout
