@@ -11,6 +11,41 @@ import toast, { Toaster } from "react-hot-toast";
 
 const TABS = [{ label: "Description" }, { label: "Review" }];
 
+// Helper function to convert YouTube URL to embed URL
+const getEmbedUrl = (url) => {
+  if (!url || typeof url !== 'string') return null;
+  
+  const trimmedUrl = url.trim();
+  if (!trimmedUrl) return null;
+  
+  // If already an embed URL, return as is
+  if (trimmedUrl.includes('youtube.com/embed') || trimmedUrl.includes('youtu.be/embed')) {
+    return trimmedUrl;
+  }
+  
+  // Extract video ID from various YouTube URL formats
+  let videoId = null;
+  
+  // youtube.com/watch?v=VIDEO_ID
+  const watchMatch = trimmedUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+  if (watchMatch) {
+    videoId = watchMatch[1];
+  }
+  
+  // youtube.com/embed/VIDEO_ID
+  const embedMatch = trimmedUrl.match(/youtube\.com\/embed\/([^&\n?#]+)/);
+  if (embedMatch) {
+    videoId = embedMatch[1];
+  }
+  
+  if (videoId) {
+    return `https://www.youtube.com/embed/${videoId}?rel=0`;
+  }
+  
+  // If not a YouTube URL, return as is (for other video platforms)
+  return trimmedUrl;
+};
+
 function PropertyDetailsPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -57,6 +92,7 @@ function PropertyDetailsPageInner() {
   const [propertyRatings, setPropertyRatings] = useState([]);
   const [ratingsStats, setRatingsStats] = useState(null);
   const [ratingsLoading, setRatingsLoading] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
   // Fetch property details from API
   useEffect(() => {
@@ -155,10 +191,12 @@ function PropertyDetailsPageInner() {
               (propertyData.price && propertyData.areaSqft
                 ? Math.round(propertyData.price / propertyData.areaSqft)
                 : 0),
+            videos: Array.isArray(propertyData.videos) ? propertyData.videos : [],
             // capture possible agent identifiers for downstream fetch
             _raw: propertyData,
           };
           setProduct(mappedProperty);
+          setShowVideo(false); // Reset video state when product changes
 
           // If broker object is embedded on the property, use it directly
           if (propertyData?.broker && typeof propertyData.broker === "object") {
@@ -1046,61 +1084,6 @@ function PropertyDetailsPageInner() {
                   </ContentLoader>
                 </div>
 
-                {/* Inspection Times Skeleton */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                  <ContentLoader
-                    speed={2}
-                    width={400}
-                    height={220}
-                    viewBox="0 0 400 220"
-                    backgroundColor="#f3f3f3"
-                    foregroundColor="#ecebeb"
-                    style={{ width: "100%", height: "100%" }}
-                  >
-                    {/* Title */}
-                    <rect x="0" y="0" rx="4" ry="4" width="140" height="24" />
-
-                    {/* 3 inspection items */}
-                    {[0, 1, 2].map((i) => (
-                      <React.Fragment key={i}>
-                        <rect
-                          x="0"
-                          y={50 + i * 55}
-                          rx="4"
-                          ry="4"
-                          width="80"
-                          height="16"
-                        />
-                        <rect
-                          x="0"
-                          y={70 + i * 55}
-                          rx="4"
-                          ry="4"
-                          width="150"
-                          height="12"
-                        />
-                        <rect
-                          x="320"
-                          y={55 + i * 55}
-                          rx="12"
-                          ry="12"
-                          width="60"
-                          height="20"
-                        />
-                      </React.Fragment>
-                    ))}
-
-                    {/* Book Inspection button */}
-                    <rect
-                      x="0"
-                      y="180"
-                      rx="6"
-                      ry="6"
-                      width="100%"
-                      height="40"
-                    />
-                  </ContentLoader>
-                </div>
 
                 {/* Virtual Tour Skeleton */}
                 <div className="w-full h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
@@ -2250,101 +2233,94 @@ function PropertyDetailsPageInner() {
                 </button>
               </div>
 
-              {/* Inspection Times */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                {/* Header */}
-                <div className="mb-4">
-                  <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F]">
-                    Inspection Times
-                  </h3>
-                </div>
-
-                {/* List */}
-                <div className="divide-y divide-gray-200">
-                  {/* Saturday */}
-                  <div className="flex items-start justify-between py-3">
-                    <div>
-                      <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">
-                        Saturday
-                      </div>
-                      <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
-                        10:00 AM - 11:00 AM
-                      </div>
-                    </div>
-                    <div className="font-inter text-[12px] leading-[20px] font-normal opacity-100">
-                      Available
-                    </div>
-                  </div>
-
-                  {/* Sunday */}
-                  <div className="flex items-start justify-between py-3">
-                    <div>
-                      <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">
-                        Sunday
-                      </div>
-                      <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
-                        02:00 PM - 03:00 PM
-                      </div>
-                    </div>
-                    <div className="font-inter text-[12px] leading-[20px] font-normal opacity-100">
-                      Available
-                    </div>
-                  </div>
-
-                  {/* Monday (Past) */}
-                  <div className="flex items-start justify-between py-3">
-                    <div>
-                      <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">
-                        Monday
-                      </div>
-                      <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
-                        09:00 AM - 10:00 AM
-                      </div>
-                    </div>
-                    <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-500 text-[12px] font-medium px-2.5 py-1">
-                      Past
-                    </span>
-                  </div>
-                </div>
-
-                {/* CTA */}
-                <button className="w-full h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-white bg-[#0D542B] rounded-[6px] border-0 hover:bg-[#0B4624] active:bg-[#08321A] disabled:opacity-40">
-                  Book Inspection
-                </button>
-              </div>
-
               {/* Virtual Tour */}
-              <div className="w-full h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] flex flex-col items-center justify-center text-center">
-                {/* Video Icon */}
-                <svg
-                  className="w-[48px] h-[48px] text-[#0D542B] mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
+              {product?.videos && product.videos.length > 0 ? (
+                <div className="w-full bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] overflow-hidden">
+                  {showVideo ? (
+                    <div className="relative w-full bg-black rounded-[16px] overflow-hidden">
+                      <video
+                        src={product.videos[0]}
+                        controls
+                        className="w-full h-auto max-h-[400px]"
+                        style={{ minHeight: '232px' }}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                      <button
+                        onClick={() => setShowVideo(false)}
+                        className="absolute top-2 right-2 bg-black/70 text-white rounded-full p-2 hover:bg-black/90 transition z-10"
+                        aria-label="Close video"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="h-[232px] flex flex-col items-center justify-center text-center p-4">
+                      {/* Video Icon */}
+                      <svg
+                        className="w-[48px] h-[48px] text-[#0D542B] mb-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        />
+                      </svg>
 
-                {/* Title */}
-                <h3 className="text-[18px] leading-[28px] font-semibold text-[#19191F]">
-                  Property Video
-                </h3>
+                      {/* Title */}
+                      <h3 className="text-[18px] leading-[28px] font-semibold text-[#19191F]">
+                        Property Video
+                      </h3>
 
-                {/* Subtitle */}
-                <p className="mt-1 font-inter text-[12px] leading-[20px] font-normal text-[#19191F]">
-                  Experience every corner of the property
-                </p>
+                      {/* Subtitle */}
+                      <p className="mt-1 font-inter text-[12px] leading-[20px] font-normal text-[#19191F]">
+                        Experience every corner of the property
+                      </p>
 
-                {/* Button */}
-                <button className="mt-4 w-[107.13px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white rounded-[6px] border border-[#0D542B] hover:bg-white active:bg-white disabled:opacity-40">
-                  View Video
-                </button>
-              </div>
+                      {/* Button */}
+                      <button
+                        onClick={() => setShowVideo(true)}
+                        className="mt-4 w-[107.13px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white rounded-[6px] border border-[#0D542B] hover:bg-[#EDFDF4] active:bg-[#EDFDF4] disabled:opacity-40 transition-colors"
+                      >
+                        View Video
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="w-full h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] flex flex-col items-center justify-center text-center">
+                  {/* Video Icon */}
+                  <svg
+                    className="w-[48px] h-[48px] text-[#0D542B] mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  </svg>
+
+                  {/* Title */}
+                  <h3 className="text-[18px] leading-[28px] font-semibold text-[#19191F]">
+                    Property Video
+                  </h3>
+
+                  {/* Subtitle */}
+                  <p className="mt-1 font-inter text-[12px] leading-[20px] font-normal text-[#19191F]">
+                    No video available
+                  </p>
+                </div>
+              )}
             </aside>
           </div>
 
