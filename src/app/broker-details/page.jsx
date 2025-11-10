@@ -2,7 +2,8 @@ import React from 'react';
 import HeaderFile from '../components/Header';
 
 export const metadata = {
-  title: 'Broker Details',
+  title: 'Broker Details | Find Expert Real Estate Brokers | Broker Gully',
+  description: 'View detailed broker profiles, ratings, experience, specializations, and contact information. Connect with verified real estate brokers in your area through Broker Gully.',
 };
 
 const headerData = {

@@ -1,7 +1,8 @@
 import Cart from './Cart';
 
 export const metadata = {
-  title: 'Cart',
+  title: 'Shopping Cart | Review Your Items | Broker Gully',
+  description: 'Review items in your shopping cart. Complete your purchase for property services, subscriptions, or premium features on Broker Gully.',
 };
 
 export default function CartPage() {
