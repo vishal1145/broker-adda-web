@@ -403,13 +403,38 @@ const NotificationsPage = () => {
             </div>
           </div>
 
-          {/* Loading State */}
+          {/* Loading State - Content Loader */}
           {isLoading && (
-            <div className="bg-white border border-gray-200 rounded-xl shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] p-12">
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0d542b]"></div>
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+              <div className="divide-y divide-gray-100">
+                {[1, 2, 3, 4, 5].map((index) => (
+                  <div key={index} className="px-6 py-4 animate-pulse">
+                    <div className="flex items-start gap-4">
+                      {/* Icon Skeleton */}
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
+                      
+                      {/* Content Skeleton */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4 mb-1">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="h-4 bg-gray-200 rounded w-32"></div>
+                              <div className="w-2 h-2 bg-gray-200 rounded-full"></div>
+                            </div>
+                            <div className="h-3 bg-gray-200 rounded w-full max-w-md mt-2"></div>
+                            <div className="h-3 bg-gray-200 rounded w-3/4 max-w-sm mt-1"></div>
+                          </div>
+                          {/* Time Skeleton */}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                            <div className="h-3 bg-gray-200 rounded w-16"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-center text-gray-600 mt-4">Loading notifications...</p>
             </div>
           )}
 
