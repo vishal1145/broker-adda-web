@@ -10,6 +10,7 @@ const NotificationsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // SVG Icon Components
   const FilterIcons = {
@@ -337,43 +338,68 @@ const NotificationsPage = () => {
       <div className="min-h-screen bg-gray-50 py-8 w-screen relative left-1/2 -translate-x-1/2 overflow-x-hidden">
         <div className="w-full mx-auto px-[6rem] pt-4 ">
           {/* Header Section */}
-          <div className="mb-6">
-            <h1 className="text-[24px] font-bold text-gray-900 mb-2">
-              Notifications
-            </h1>
-            <p className="text-[14px] font-normal text-gray-600">
-              View and manage all your notifications
-            </p>
-          </div>
-
-          {/* Filter Section */}
-          <div className="mb-6 bg-blue-50/30 rounded-xl border border-gray-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[14px] font-semibold text-gray-700">Filter by</h2>
-              <span className="text-[12px] text-gray-500">
-                {notifications.length} {notifications.length === 1 ? 'notification' : 'notifications'}
-              </span>
+          <div className="mb-6 flex items-start justify-between">
+            <div>
+              <h1 className="text-[24px] font-bold text-gray-900 mb-2">
+                Notifications
+              </h1>
+              <p className="text-[14px] font-normal text-gray-600">
+                View and manage all your notifications
+              </p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {filterOptions.map((filter) => (
-                <button
-                  key={filter.id}
-                  onClick={() => setActiveFilter(filter.id)}
-                  className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 flex items-center gap-2 ${
-                    activeFilter === filter.id
-                      ? 'bg-[#0D542B] text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+            
+            {/* Filter Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors min-w-[150px] justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  {FilterIcons[filterOptions.find(f => f.id === activeFilter)?.iconKey || 'all']}
+                  <span>{filterOptions.find(f => f.id === activeFilter)?.label || 'All'}</span>
+                </div>
+                <svg 
+                  className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
                 >
-                  {FilterIcons[filter.iconKey]}
-                  <span>{filter.label}</span>
-                  {activeFilter === filter.id && (
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                    </svg>
-                  )}
-                </button>
-              ))}
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isDropdownOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setIsDropdownOpen(false)}
+                  ></div>
+                  <div className="absolute top-full right-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-20 overflow-hidden">
+                    {filterOptions.map((filter) => (
+                      <button
+                        key={filter.id}
+                        onClick={() => {
+                          setActiveFilter(filter.id);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-2 hover:bg-gray-50 transition-colors ${
+                          activeFilter === filter.id
+                            ? 'bg-green-50 text-[#0D542B] font-medium'
+                            : 'text-gray-700'
+                        }`}
+                      >
+                        {FilterIcons[filter.iconKey]}
+                        <span>{filter.label}</span>
+                        {activeFilter === filter.id && (
+                          <svg className="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                          </svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -501,14 +527,15 @@ const NotificationsPage = () => {
                                 </p>
                               )}
                             </div>
-                          </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p className="text-[12px] text-gray-500">
-                              {notification.time}
-                            </p>
+                            {/* Time - Right Side */}
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <p className="text-[12px] text-gray-500 whitespace-nowrap">
+                                {notification.time}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>

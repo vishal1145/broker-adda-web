@@ -618,18 +618,28 @@ const enableSuggestions = false;
                             key={n.id}
                             className={
                               'px-4 py-3 hover:bg-gray-50 ' +
-                              (n.unread)
+                              (n.unread ? 'bg-blue-50/30' : '')
                             }
                           >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h4 className={'text-[12px] font-medium ' + (n.unread ? 'text-gray-900' : 'text-gray-700')}>
-                                  {n.title}
-                                </h4>
-                                <p className="text-xs text-gray-400  mt-1">{n.time}</p>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className={'text-[12px] font-medium ' + (n.unread ? 'text-gray-900' : 'text-gray-700')}>
+                                    {n.title}
+                                  </h4>
+                                  {n.unread && (
+                                    <span className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></span>
+                                  )}
+                                </div>
+                                {n.message && (
+                                  <p className="text-[11px] text-gray-600 mt-1 truncate">
+                                    {n.message}
+                                  </p>
+                                )}
                               </div>
-                              {n.unread}
-                               {/* && <span className="w-2 h-2 bg-green-500 rounded-full mt-1 ml-2" /> */}
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <p className="text-[10px] text-gray-400 whitespace-nowrap">{n.time}</p>
+                              </div>
                             </div>
                           </div>
                         ))
@@ -764,9 +774,6 @@ const enableSuggestions = false;
                               <Link href="/properties-management" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Properties
                               </Link>
-                              <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Settings
-                              </Link>
                             </>
                           ) : (
                             <>
@@ -775,9 +782,6 @@ const enableSuggestions = false;
                               </Link>
                               <Link href="/saved-properties" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Saved Properties
-                              </Link>
-                              <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Settings
                               </Link>
                             </>
                           )}
@@ -898,11 +902,6 @@ const enableSuggestions = false;
                       </Link>
                     </li>
                   )}
-                  <li>
-                    <Link href="/settings" className="block px-1 py-1 rounded hover:bg-gray-50">
-                      Settings
-                    </Link>
-                  </li>
                   <li>
                     <button onClick={handleLogout} className="text-left px-1 py-1 text-red-600">
                       Logout
