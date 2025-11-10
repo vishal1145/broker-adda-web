@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ProtectedRoute from '../components/ProtectedRoute';
@@ -17,25 +17,200 @@ const Settings = () => {
   const [pushNotifications, setPushNotifications] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdatingEmailNotification, setIsUpdatingEmailNotification] = useState(false);
+  const [isUpdatingSmsNotification, setIsUpdatingSmsNotification] = useState(false);
+  const [isLoadingPreferences, setIsLoadingPreferences] = useState(true);
 
-  const handleEmailNotificationToggle = () => {
-    setEmailNotifications(!emailNotifications);
-    toast.success(
-      `Email notifications ${!emailNotifications ? 'enabled' : 'disabled'}`,
-      {
-        duration: 2000,
+  // Fetch current notification preferences on component mount
+  useEffect(() => {
+    const fetchNotificationPreferences = async () => {
+      try {
+        const token = typeof window !== 'undefined' 
+          ? localStorage.getItem('token') || localStorage.getItem('authToken')
+          : null;
+        
+        if (!token) {
+          setIsLoadingPreferences(false);
+          return;
+        }
+
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+        const headers = {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        };
+
+        const apiEndpoint = `${apiUrl}/notifications/preferences`;
+        console.log('Fetching notification preferences:', apiEndpoint);
+
+        const response = await fetch(apiEndpoint, {
+          method: 'GET',
+          headers
+        });
+
+        if (response.ok) {
+          const responseData = await response.json().catch(() => ({}));
+          console.log('Notification preferences fetched:', responseData);
+          
+          // Update state based on API response
+          if (responseData?.data?.emailNotification !== undefined) {
+            setEmailNotifications(responseData.data.emailNotification);
+          }
+          if (responseData?.data?.smsNotification !== undefined) {
+            setSmsNotifications(responseData.data.smsNotification);
+          }
+          if (responseData?.data?.pushNotification !== undefined) {
+            setPushNotifications(responseData.data.pushNotification);
+          }
+        } else {
+          console.log('Failed to fetch notification preferences:', response.status);
+          // Keep default values if fetch fails
+        }
+      } catch (err) {
+        console.error('Error fetching notification preferences:', err);
+        // Keep default values if fetch fails
+      } finally {
+        setIsLoadingPreferences(false);
       }
-    );
+    };
+
+    fetchNotificationPreferences();
+  }, []);
+
+  const handleEmailNotificationToggle = async () => {
+    const newValue = !emailNotifications;
+    
+    try {
+      setIsUpdatingEmailNotification(true);
+      
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : null;
+      
+      if (!token) {
+        toast.error('Authentication required. Please login again.');
+        setIsUpdatingEmailNotification(false);
+        return;
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      };
+
+      const apiEndpoint = `${apiUrl}/notifications/preferences`;
+      console.log('Calling update email notification API:', apiEndpoint);
+      console.log('Method: PATCH');
+      console.log('Body:', { emailNotification: newValue });
+
+      const response = await fetch(apiEndpoint, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({
+          emailNotification: newValue
+        })
+      });
+
+      console.log('Update email notification response status:', response.status);
+      console.log('Update email notification response ok:', response.ok);
+
+      if (response.ok) {
+        const responseData = await response.json().catch(() => ({}));
+        console.log('Email notification updated successfully:', responseData);
+        
+        setEmailNotifications(newValue);
+        toast.success(
+          `Email notifications ${newValue ? 'enabled' : 'disabled'}`,
+          {
+            duration: 2000,
+          }
+        );
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to update email notification:', response.status, errorData);
+        
+        const errorMessage = errorData?.message || errorData?.error || 'Failed to update email notification preferences. Please try again.';
+        toast.error(errorMessage, {
+          duration: 3000,
+        });
+      }
+    } catch (err) {
+      console.error('Error updating email notification:', err);
+      toast.error('An error occurred while updating email notification preferences. Please try again.', {
+        duration: 3000,
+      });
+    } finally {
+      setIsUpdatingEmailNotification(false);
+    }
   };
 
-  const handleSmsNotificationToggle = () => {
-    setSmsNotifications(!smsNotifications);
-    toast.success(
-      `SMS notifications ${!smsNotifications ? 'enabled' : 'disabled'}`,
-      {
-        duration: 2000,
+  const handleSmsNotificationToggle = async () => {
+    const newValue = !smsNotifications;
+    
+    try {
+      setIsUpdatingSmsNotification(true);
+      
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : null;
+      
+      if (!token) {
+        toast.error('Authentication required. Please login again.');
+        setIsUpdatingSmsNotification(false);
+        return;
       }
-    );
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      };
+
+      const apiEndpoint = `${apiUrl}/notifications/preferences`;
+      console.log('Calling update SMS notification API:', apiEndpoint);
+      console.log('Method: PATCH');
+      console.log('Body:', { smsNotification: newValue });
+
+      const response = await fetch(apiEndpoint, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({
+          smsNotification: newValue
+        })
+      });
+
+      console.log('Update SMS notification response status:', response.status);
+      console.log('Update SMS notification response ok:', response.ok);
+
+      if (response.ok) {
+        const responseData = await response.json().catch(() => ({}));
+        console.log('SMS notification updated successfully:', responseData);
+        
+        setSmsNotifications(newValue);
+        toast.success(
+          `SMS notifications ${newValue ? 'enabled' : 'disabled'}`,
+          {
+            duration: 2000,
+          }
+        );
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to update SMS notification:', response.status, errorData);
+        
+        const errorMessage = errorData?.message || errorData?.error || 'Failed to update SMS notification preferences. Please try again.';
+        toast.error(errorMessage, {
+          duration: 3000,
+        });
+      }
+    } catch (err) {
+      console.error('Error updating SMS notification:', err);
+      toast.error('An error occurred while updating SMS notification preferences. Please try again.', {
+        duration: 3000,
+      });
+    } finally {
+      setIsUpdatingSmsNotification(false);
+    }
   };
 
   const handlePushNotificationToggle = () => {
@@ -188,7 +363,8 @@ const Settings = () => {
                       <button
                         type="button"
                         onClick={handleEmailNotificationToggle}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                        disabled={isUpdatingEmailNotification}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                           emailNotifications
                             ? 'bg-green-600'
                             : 'bg-gray-300'
@@ -197,13 +373,22 @@ const Settings = () => {
                         aria-checked={emailNotifications}
                         aria-label="Toggle email notifications"
                       >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            emailNotifications
-                              ? 'translate-x-6'
-                              : 'translate-x-1'
-                          }`}
-                        />
+                        {isUpdatingEmailNotification ? (
+                          <span className="inline-block h-3 w-3 transform rounded-full bg-white translate-x-1">
+                            <svg className="animate-spin h-3 w-3 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          </span>
+                        ) : (
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              emailNotifications
+                                ? 'translate-x-6'
+                                : 'translate-x-1'
+                            }`}
+                          />
+                        )}
                       </button>
                     </div>
 
@@ -220,7 +405,8 @@ const Settings = () => {
                       <button
                         type="button"
                         onClick={handleSmsNotificationToggle}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                        disabled={isUpdatingSmsNotification}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                           smsNotifications
                             ? 'bg-green-600'
                             : 'bg-gray-300'
@@ -229,18 +415,27 @@ const Settings = () => {
                         aria-checked={smsNotifications}
                         aria-label="Toggle SMS notifications"
                       >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            smsNotifications
-                              ? 'translate-x-6'
-                              : 'translate-x-1'
-                          }`}
-                        />
+                        {isUpdatingSmsNotification ? (
+                          <span className="inline-block h-3 w-3 transform rounded-full bg-white translate-x-1">
+                            <svg className="animate-spin h-3 w-3 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          </span>
+                        ) : (
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              smsNotifications
+                                ? 'translate-x-6'
+                                : 'translate-x-1'
+                            }`}
+                          />
+                        )}
                       </button>
                     </div>
 
                     {/* Push Notifications */}
-                    <div className="flex items-center justify-between py-3">
+                    {/* <div className="flex items-center justify-between py-3">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">
                           Push Notifications
@@ -269,7 +464,7 @@ const Settings = () => {
                           }`}
                         />
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

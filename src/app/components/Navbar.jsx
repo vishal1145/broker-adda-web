@@ -96,12 +96,12 @@ const Navbar = ({ data }) => {
       };
 
       // Add brokerId to query params if available (try both brokerId and userId)
-      let queryParams = '';
-      if (brokerId) {
-        queryParams = `?brokerId=${encodeURIComponent(brokerId)}&userId=${encodeURIComponent(brokerId)}`;
-      }
-      const apiEndpoint = `${apiUrl}/notifications${queryParams}`;
-      console.log('Fetching notifications from:', apiEndpoint, 'with brokerId:', brokerId);
+      // let queryParams = '';
+      // if (brokerId) {
+      //   queryParams = `?brokerId=${encodeURIComponent(brokerId)}&userId=${encodeURIComponent(brokerId)}`;
+      // }
+      const apiEndpoint = `${apiUrl}/notifications`;
+      // console.log('Fetching notifications from:', apiEndpoint, 'with brokerId:', brokerId);
       
       const response = await fetch(apiEndpoint, {
         method: 'GET',
