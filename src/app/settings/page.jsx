@@ -16,6 +16,7 @@ const Settings = () => {
   const [smsNotifications, setSmsNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleEmailNotificationToggle = () => {
     setEmailNotifications(!emailNotifications);
@@ -47,14 +48,78 @@ const Settings = () => {
     );
   };
 
-  const handleDeleteAccount = () => {
-    // Hardcoded - no API call
-    toast.success('Account deletion request submitted', {
-      duration: 3000,
-    });
-    setShowDeleteConfirm(false);
-    // In a real implementation, you would make an API call here
-    // For now, just show a success message
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeleting(true);
+      
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : null;
+      
+      if (!token) {
+        toast.error('Authentication required. Please login again.');
+        setIsDeleting(false);
+        return;
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      };
+
+      const apiEndpoint = `${apiUrl}/auth/account`;
+      console.log('Calling delete account API:', apiEndpoint);
+      console.log('Method: DELETE');
+      console.log('Headers:', headers);
+
+      const response = await fetch(apiEndpoint, {
+        method: 'DELETE',
+        headers
+      });
+
+      console.log('Delete account response status:', response.status);
+      console.log('Delete account response ok:', response.ok);
+
+      if (response.ok) {
+        const responseData = await response.json().catch(() => ({}));
+        console.log('Account deleted successfully:', responseData);
+        
+        toast.success('Account deleted successfully', {
+          duration: 3000,
+        });
+        
+        setShowDeleteConfirm(false);
+        
+        // Clear local storage and redirect to home/login
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
+          
+          // Redirect to home page after a short delay
+          setTimeout(() => {
+            router.push('/');
+            window.location.reload();
+          }, 1500);
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to delete account:', response.status, errorData);
+        
+        const errorMessage = errorData?.message || errorData?.error || 'Failed to delete account. Please try again.';
+        toast.error(errorMessage, {
+          duration: 3000,
+        });
+        setIsDeleting(false);
+      }
+    } catch (err) {
+      console.error('Error deleting account:', err);
+      toast.error('An error occurred while deleting your account. Please try again.', {
+        duration: 3000,
+      });
+      setIsDeleting(false);
+    }
   };
 
   const headerData = {
@@ -313,17 +378,28 @@ const Settings = () => {
             <div className="flex gap-4 justify-end">
               <button
                 type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setIsDeleting(false);
+                }}
+                disabled={isDeleting}
+                className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDeleteAccount}
-                className="px-6 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                disabled={isDeleting}
+                className="px-6 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                Delete Account
+                {isDeleting && (
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                )}
+                {isDeleting ? 'Deleting...' : 'Delete Account'}
               </button>
             </div>
           </div>

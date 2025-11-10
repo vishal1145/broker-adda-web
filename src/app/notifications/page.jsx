@@ -352,11 +352,11 @@ const NotificationsPage = () => {
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors min-w-[150px] justify-between"
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors min-w-[160px] justify-between"
               >
                 <div className="flex items-center gap-2">
                   {FilterIcons[filterOptions.find(f => f.id === activeFilter)?.iconKey || 'all']}
-                  <span>{filterOptions.find(f => f.id === activeFilter)?.label || 'All'}</span>
+                  <span>{filterOptions.find(f => f.id === activeFilter)?.label || 'All Notification'}</span>
                 </div>
                 <svg 
                   className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
