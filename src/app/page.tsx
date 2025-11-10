@@ -5,6 +5,11 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+export const metadata = {
+  title: 'Broker Gully Real Estate | Coastal Homes & Luxury Apartments',
+  description: 'Search homes for sale and rent. Beachfront houses, luxury apartments, and family properties with expert local guidance. Find your dream property with Broker Gully.',
+};
+
 import Hero from './components/Home/Hero';
 import Features from './components/Features';
 // import Categories from './components/Home/Categories';

@@ -1,5 +1,10 @@
 'use client';
 
+export const metadata = {
+  title: 'Property Enquiry | Submit Your Property Requirements | Broker Gully',
+  description: 'Submit your property enquiry with detailed requirements. Get matched with verified brokers and find your perfect property on Broker Gully.',
+};
+
 import React, { useState, useEffect } from 'react';
 import HeaderFile from '../components/Header';
 import toast, { Toaster } from 'react-hot-toast';

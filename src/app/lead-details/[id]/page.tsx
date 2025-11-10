@@ -1,5 +1,10 @@
 "use client";
 
+export const metadata = {
+  title: 'Lead Details | View Lead Information | Broker Gully',
+  description: 'View detailed lead information including property requirements, budget, preferred locations, and broker details. Manage your real estate leads on Broker Gully.',
+};
+
 import React, { useEffect, useState } from "react";
 import HeaderFile from "../../components/Header";
 import { useParams, useRouter } from "next/navigation";

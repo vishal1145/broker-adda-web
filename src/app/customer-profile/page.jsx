@@ -1,4 +1,10 @@
 "use client";
+
+export const metadata = {
+  title: 'Customer Profile | Manage Your Profile | Broker Gully',
+  description: 'View and edit your customer profile on Broker Gully. Update your information, preferences, and saved properties.',
+};
+
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ProtectedRoute from "../components/ProtectedRoute";

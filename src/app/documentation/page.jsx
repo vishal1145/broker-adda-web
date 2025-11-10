@@ -1,4 +1,10 @@
 "use client";
+
+export const metadata = {
+  title: 'Documentation | Help & Documentation | Broker Gully',
+  description: 'Access comprehensive documentation and help guides for Broker Gully. Learn how to use all features and get the most out of the platform.',
+};
+
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

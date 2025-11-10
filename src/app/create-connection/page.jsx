@@ -1,5 +1,10 @@
 'use client';
 
+export const metadata = {
+  title: 'Connections | Manage Broker Connections | Broker Gully',
+  description: 'View and manage all your broker connections. Connect with other real estate professionals and expand your network on Broker Gully.',
+};
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import HeaderFile from '../components/Header';

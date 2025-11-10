@@ -1,4 +1,10 @@
 "use client";
+
+export const metadata = {
+  title: 'Add New Property | Create Property Listing | Broker Gully',
+  description: 'Create a new property listing on Broker Gully. Add detailed information, photos, amenities, and location to attract potential buyers.',
+};
+
 import React, { useState, useRef, useEffect } from "react";
 import Select from "react-select";
 import { toast, Toaster } from "react-hot-toast";

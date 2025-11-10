@@ -1,4 +1,10 @@
 "use client";
+
+export const metadata = {
+  title: 'Documentation | Help & Guides | Broker Gully',
+  description: 'Access comprehensive documentation for Broker Gully. Learn about account setup, leads management, privacy settings, and get support.',
+};
+
 import React from 'react';
 import documentationData from '../../data/documentation.json';
 import HeaderFile from '../../components/Header';

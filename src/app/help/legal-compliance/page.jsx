@@ -1,4 +1,10 @@
 "use client";
+
+export const metadata = {
+  title: 'Legal Compliance | Legal Guidelines & Regulations | Broker Gully',
+  description: 'Learn about legal compliance requirements for real estate brokers. Understand regulations, compliance checklists, and regulatory bodies on Broker Gully.',
+};
+
 import React from 'react';
 import Link from 'next/link';
 import legalComplianceData from '../../data/legalCompliance.json';

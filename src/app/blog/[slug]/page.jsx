@@ -1,7 +1,14 @@
 "use client";
+
+export const metadata = {
+  title: 'Blog | Real Estate News & Insights | Broker Gully',
+  description: 'Read the latest real estate blog articles, property market insights, buying guides, and expert advice from Broker Gully.',
+};
+
+export const dynamic = 'force-dynamic';
+
 import React from "react";
 import { useParams } from "next/navigation";
-export const dynamic = 'force-dynamic';
 import blogData from "../../data/blog.json";
 import furnitureData from "../../data/furnitureData.json";
 import HeaderFile from '../../components/Header';

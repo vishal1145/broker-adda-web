@@ -1,5 +1,10 @@
 'use client';
 
+export const metadata = {
+  title: 'Notifications | View All Notifications | Broker Gully',
+  description: 'View and manage all your notifications on Broker Gully. Stay updated with leads, properties, broker connections, and important updates.',
+};
+
 import React, { useState, useEffect } from 'react';
 import HeaderFile from '../components/Header';
 import ProtectedRoute from '../components/ProtectedRoute';

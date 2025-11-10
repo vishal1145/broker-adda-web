@@ -1,4 +1,10 @@
 "use client";
+
+export const metadata = {
+  title: 'Properties Management | Manage Your Property Listings | Broker Gully',
+  description: 'Manage all your property listings in one place. Add, edit, delete, and track your real estate properties on Broker Gully.',
+};
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import ContentLoader from "react-content-loader";
 import ProtectedRoute from "../components/ProtectedRoute";

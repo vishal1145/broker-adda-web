@@ -1,4 +1,10 @@
 "use client";
+
+export const metadata = {
+  title: 'Profile | Manage Your Broker Profile | Broker Gully',
+  description: 'View and edit your broker profile on Broker Gully. Update your information, specializations, regions, experience, and professional details to attract more clients.',
+};
+
 import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import Select from "react-select";
 import toast, { Toaster } from "react-hot-toast";
