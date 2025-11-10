@@ -470,6 +470,22 @@ const Settings = () => {
                           </div>
                         </div>
 
+                {/* Subscription Section */}
+                <div className="mb-8 pb-8 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Subscription & Plans
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Manage your subscription plan and view available plans
+                  </p>
+                  <Link
+                    href="/plans"
+                    className="inline-flex items-center justify-center px-6 py-3 bg-[#0D542B] text-white rounded-lg text-sm font-medium hover:bg-[#0B4624] transition-colors"
+                  >
+                    View Plans / Upgrade
+                  </Link>
+                </div>
+
                 {/* Privacy Section */}
                 <div className="mb-8 pb-8 border-b border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
