@@ -1,10 +1,5 @@
 "use client";
 
-export const metadata = {
-  title: 'Leads Management | Manage Your Real Estate Leads | Broker Gully',
-  description: 'Manage and track all your real estate leads in one place. View lead details, update status, add notes, and connect with potential clients through Broker Gully.',
-};
-
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";

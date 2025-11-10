@@ -1,10 +1,5 @@
 "use client";
 
-export const metadata = {
-  title: 'Legal Compliance | Legal Guidelines | Broker Gully',
-  description: 'Learn about legal compliance requirements and guidelines for real estate brokers. Stay informed about regulations and best practices on Broker Gully.',
-};
-
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

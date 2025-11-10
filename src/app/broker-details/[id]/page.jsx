@@ -1,10 +1,5 @@
 'use client';
 
-export const metadata = {
-  title: 'Broker Details | View Broker Profile | Broker Gully',
-  description: 'View detailed broker profile including ratings, experience, specializations, properties, and contact information. Connect with verified real estate brokers on Broker Gully.',
-};
-
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';

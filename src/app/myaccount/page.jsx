@@ -1,10 +1,5 @@
 "use client";
 
-export const metadata = {
-  title: 'My Account | Account Management | Broker Gully',
-  description: 'Manage your Broker Gully account settings, profile information, and preferences. Access all your account features.',
-};
-
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 

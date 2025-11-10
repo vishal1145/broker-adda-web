@@ -1,10 +1,5 @@
 "use client";
 
-export const metadata = {
-  title: 'Edit Property | Update Property Listing | Broker Gully',
-  description: 'Edit and update your property listing details on Broker Gully. Modify information, photos, amenities, and pricing.',
-};
-
 import React from "react";
 import NewPropertyPage from "../../new/page";
 import { useParams } from "next/navigation";
