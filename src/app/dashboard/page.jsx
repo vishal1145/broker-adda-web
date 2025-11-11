@@ -530,10 +530,10 @@ const Dashboard = () => {
           </div>
           </div>
 
-          {/* Lead Performance Overview Section */}
+          {/* Lead and Property Performance Overview Section */}
           <div className="mb-8 pb-16">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[18px] font-bold text-gray-900">Lead Performance Overview</h2>
+              <h2 className="text-[18px] font-bold text-gray-900">Lead and Property Performance Overview</h2>
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-500 text-black rounded-full text-xs font-medium">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
