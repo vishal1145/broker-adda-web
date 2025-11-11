@@ -167,6 +167,16 @@ const Profile = () => {
   const [budgetError, setBudgetError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  // Track original documents to detect removals
+  const [originalDocuments, setOriginalDocuments] = useState({
+    aadharFile: null,
+    panFile: null,
+    gstFile: null,
+    brokerLicenseFile: null,
+    companyIdFile: null,
+  });
+  // Track removed documents
+  const [removedDocuments, setRemovedDocuments] = useState(new Set());
   const [propertyTypeOptions] = useState([
     "apartment",
     "commercial",
@@ -797,6 +807,17 @@ const Profile = () => {
             // Extract location coordinates
             const location = brokerData.location || null;
 
+            // Track original documents for removal detection
+            setOriginalDocuments({
+              aadharFile: aadharFile,
+              panFile: panFile,
+              gstFile: gstFile,
+              brokerLicenseFile: brokerLicenseFile,
+              companyIdFile: companyIdFile,
+            });
+            // Reset removed documents when loading profile
+            setRemovedDocuments(new Set());
+
             // Update broker form data with extracted values
             setBrokerFormData((prev) => ({
               ...prev,
@@ -955,12 +976,31 @@ const Profile = () => {
       setCustomerFormData((prev) => ({ ...prev, [name]: files[0] || null }));
     } else {
       setBrokerFormData((prev) => ({ ...prev, [name]: files[0] || null }));
+      // If a new file is uploaded after removal, remove it from removedDocuments
+      if (files[0] && removedDocuments.has(name)) {
+        setRemovedDocuments((removed) => {
+          const newSet = new Set(removed);
+          newSet.delete(name);
+          return newSet;
+        });
+      }
     }
   };
 
   const handleFileRemove = (fileName) => {
     if (userRole === "broker") {
       setBrokerFormData((prev) => ({ ...prev, [fileName]: null }));
+      // Track removed document if it was originally present
+      setOriginalDocuments((prev) => {
+        if (prev[fileName]) {
+          setRemovedDocuments((removed) => {
+            const newSet = new Set(removed);
+            newSet.add(fileName);
+            return newSet;
+          });
+        }
+        return prev;
+      });
       // Reset the file input
       const fileInput = document.getElementById(fileName === 'aadharFile' ? 'aadhar-upload' :
                                                     fileName === 'panFile' ? 'pan-upload' :
@@ -3864,6 +3904,7 @@ const Profile = () => {
                               );
 
                               // Add file uploads - only append if they are File objects
+                              // Also handle document removal by sending empty string for removed documents
                               if (
                                 currentFormData.aadharFile &&
                                 currentFormData.aadharFile instanceof File
@@ -3872,6 +3913,9 @@ const Profile = () => {
                                   "aadhar",
                                   currentFormData.aadharFile
                                 );
+                              } else if (removedDocuments.has('aadharFile')) {
+                                // Send empty string to indicate removal
+                                formDataToSend.append("aadhar", "");
                               }
                               if (
                                 currentFormData.panFile &&
@@ -3881,6 +3925,9 @@ const Profile = () => {
                                   "pan",
                                   currentFormData.panFile
                                 );
+                              } else if (removedDocuments.has('panFile')) {
+                                // Send empty string to indicate removal
+                                formDataToSend.append("pan", "");
                               }
                               if (
                                 currentFormData.gstFile &&
@@ -3890,6 +3937,9 @@ const Profile = () => {
                                   "gst",
                                   currentFormData.gstFile
                                 );
+                              } else if (removedDocuments.has('gstFile')) {
+                                // Send empty string to indicate removal
+                                formDataToSend.append("gst", "");
                               }
                               if (
                                 currentFormData.brokerLicenseFile &&
@@ -3900,6 +3950,9 @@ const Profile = () => {
                                   "brokerLicense",
                                   currentFormData.brokerLicenseFile
                                 );
+                              } else if (removedDocuments.has('brokerLicenseFile')) {
+                                // Send empty string to indicate removal
+                                formDataToSend.append("brokerLicense", "");
                               }
                               if (
                                 currentFormData.companyIdFile &&
@@ -3909,6 +3962,9 @@ const Profile = () => {
                                   "companyId",
                                   currentFormData.companyIdFile
                                 );
+                              } else if (removedDocuments.has('companyIdFile')) {
+                                // Send empty string to indicate removal
+                                formDataToSend.append("companyId", "");
                               }
                               if (
                                 currentFormData.brokerImage &&

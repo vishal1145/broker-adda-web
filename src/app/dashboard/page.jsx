@@ -1126,77 +1126,7 @@ const Dashboard = () => {
             
           </div>
 {/* === Performance Summary (static, no functions) === */}
-<section className="mt-6">
-  <h3 className="mb-4 text-[18px] font-semibold text-gray-900">Performance Summary</h3>
 
-  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    {/* Card 1 */}
-    <div className="rounded-[10px] border border-gray-200 bg-white p-6 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
-      <div className="mb-4 text-center">
-        <div className="text-xs font-medium text-gray-700">Lead Conversion Rate</div>
-        <div className="text-[11px] text-gray-500">Target: 80%</div>
-      </div>
-      <div className="flex items-center justify-center">
-        {/* ring */}
-        <div
-          className="relative h-28 w-28 rounded-full"
-          style={{
-            background: "conic-gradient(#0B5C2A 0deg 270deg, #F1F2F4 270deg 360deg)", // ~75% fill with a small gap
-          }}
-        >
-          {/* inner cutout */}
-          <div className="absolute inset-[10px] rounded-full bg-white" />
-          {/* center text */}
-          <div className="absolute inset-0 grid place-items-center">
-            <span className="text-base font-semibold text-gray-900">75%</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Card 2 */}
-    <div className="rounded-[10px] border border-gray-200 bg-white p-6 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
-      <div className="mb-4 text-center">
-        <div className="text-xs font-medium text-gray-700">Average Response Time</div>
-        <div className="text-[11px] text-gray-500">Target: 4 hours</div>
-      </div>
-      <div className="flex items-center justify-center">
-        <div
-          className="relative h-28 w-28 rounded-full"
-          style={{
-            background: "conic-gradient(#111111 0deg 300deg, #F1F2F4 300deg 360deg)", // ~83% fill
-          }}
-        >
-          <div className="absolute inset-[10px] rounded-full bg-white" />
-          <div className="absolute inset-0 grid place-items-center">
-            <span className="text-base font-semibold text-gray-900">90 mins</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Card 3 */}
-    <div className="rounded-[10px] border border-gray-200 bg-white p-6 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F]">
-      <div className="mb-4 text-center">
-        <div className="text-xs font-medium text-gray-700">Property Approval Ratio</div>
-        <div className="text-[11px] text-gray-500">Target: 90%</div>
-      </div>
-      <div className="flex items-center justify-center">
-        <div
-          className="relative h-28 w-28 rounded-full"
-          style={{
-            background: "conic-gradient(#111111 0deg 290deg, #F1F2F4 290deg 360deg)", // ~80-85% fill
-          }}
-        >
-          <div className="absolute inset-[10px] rounded-full bg-white" />
-          <div className="absolute inset-0 grid place-items-center">
-            <span className="text-base font-semibold text-gray-900">85%</span>
-          </div>
-        </div>
-      </div>
-    </div>
-                </div>
-              </section>
 
           {/* Profile Section */}
           <section className="mt-8 pb-16 hidden">
