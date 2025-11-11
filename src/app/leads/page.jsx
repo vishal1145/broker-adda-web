@@ -4332,11 +4332,10 @@ export default function BrokerLeadsPage() {
                               {viewEditMode &&
                               ((selectedLead?.createdBy &&
                                 (selectedLead.createdBy._id ||
-                                  selectedLead.createdBy.id) ===
-                                  currentUserId) ||
+                                  selectedLead.createdBy.id) === brokerId) ||
                                 (selectedLead?.brokerId &&
                                   String(selectedLead.brokerId) ===
-                                    String(currentUserId))) ? (
+                                    String(brokerId))) ? (
                                 <Select
                                   name="requirement"
                                   options={(() => {
