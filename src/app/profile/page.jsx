@@ -177,6 +177,8 @@ const Profile = () => {
   });
   // Track removed documents
   const [removedDocuments, setRemovedDocuments] = useState(new Set());
+  // Track original specializations to detect if all were removed
+  const [originalSpecializations, setOriginalSpecializations] = useState([]);
   const [propertyTypeOptions] = useState([
     "apartment",
     "commercial",
@@ -775,6 +777,8 @@ const Profile = () => {
               brokerData.specializations ||
               brokerFormData.specializations ||
               [];
+            // Track original specializations
+            setOriginalSpecializations(Array.isArray(specializations) ? specializations : []);
             const state = brokerData.state || brokerFormData.state || "";
 
             // Extract social media fields
@@ -989,17 +993,25 @@ const Profile = () => {
 
   const handleFileRemove = (fileName) => {
     if (userRole === "broker") {
-      setBrokerFormData((prev) => ({ ...prev, [fileName]: null }));
-      // Track removed document if it was originally present
-      setOriginalDocuments((prev) => {
-        if (prev[fileName]) {
-          setRemovedDocuments((removed) => {
-            const newSet = new Set(removed);
-            newSet.add(fileName);
-            return newSet;
+      // Check if document exists before removing (could be File or string URL from API)
+      setBrokerFormData((prev) => {
+        const currentDoc = prev[fileName];
+        // If document exists (either File or string URL), mark it as removed
+        if (currentDoc) {
+          // Check if it was originally from API (string) or originalDocuments has it
+          setOriginalDocuments((origDocs) => {
+            const wasOriginallyPresent = origDocs[fileName] || (typeof currentDoc === 'string' && currentDoc.trim() !== '');
+            if (wasOriginallyPresent) {
+              setRemovedDocuments((removed) => {
+                const newSet = new Set(removed);
+                newSet.add(fileName);
+                return newSet;
+              });
+            }
+            return origDocs;
           });
         }
-        return prev;
+        return { ...prev, [fileName]: null };
       });
       // Reset the file input
       const fileInput = document.getElementById(fileName === 'aadharFile' ? 'aadhar-upload' :
@@ -3848,18 +3860,30 @@ const Profile = () => {
                                 );
                               }
 
-                              // Add specializations
+                              // Add specializations - send as array using [] format (matches curl example)
                               if (
                                 currentFormData.specializations &&
+                                Array.isArray(currentFormData.specializations) &&
                                 currentFormData.specializations.length > 0
                               ) {
+                                // Send each specialization using [] format (multiple appends with same key creates array)
                                 currentFormData.specializations.forEach(
-                                  (spec, index) => {
-                                    formDataToSend.append(
-                                      `brokerDetails[specializations][${index}]`,
-                                      spec
-                                    );
+                                  (spec) => {
+                                    // Ensure spec is a string value
+                                    const specValue = typeof spec === 'string' ? spec : String(spec);
+                                    if (specValue.trim() !== '') {
+                                      formDataToSend.append(
+                                        `brokerDetails[specializations][]`,
+                                        specValue
+                                      );
+                                    }
                                   }
+                                );
+                              } else if (originalSpecializations.length > 0) {
+                                // If specializations were originally present but now empty, send empty string to clear
+                                formDataToSend.append(
+                                  `brokerDetails[specializations][]`,
+                                  ""
                                 );
                               }
 
@@ -3889,34 +3913,44 @@ const Profile = () => {
                                 currentFormData.website || ""
                               );
 
-                              // Add regions
-                              currentFormData.regions.forEach(
-                                (region, index) => {
-                                  const regionId =
-                                    typeof region === "object"
-                                      ? region._id
-                                      : region;
-                                  formDataToSend.append(
-                                    `brokerDetails[region][${index}]`,
-                                    regionId
-                                  );
-                                }
-                              );
+                              // Add regions - use [] format to match API structure
+                              if (currentFormData.regions && currentFormData.regions.length > 0) {
+                                currentFormData.regions.forEach(
+                                  (region) => {
+                                    const regionId =
+                                      typeof region === "object"
+                                        ? region._id
+                                        : region;
+                                    formDataToSend.append(
+                                      `brokerDetails[region][]`,
+                                      regionId
+                                    );
+                                  }
+                                );
+                              }
 
-                              // Add file uploads - only append if they are File objects
-                              // Also handle document removal by sending empty string for removed documents
+                              // Add file uploads - only send if changed (new File) or removed
+                              // For removal: send empty string AND removal flag so backend can detect it
+                              const shouldRemoveAadhar = removedDocuments.has('aadharFile') || 
+                                (originalDocuments.aadharFile && !currentFormData.aadharFile);
                               if (
                                 currentFormData.aadharFile &&
                                 currentFormData.aadharFile instanceof File
                               ) {
+                                // New file uploaded - send it
                                 formDataToSend.append(
                                   "aadhar",
                                   currentFormData.aadharFile
                                 );
-                              } else if (removedDocuments.has('aadharFile')) {
-                                // Send empty string to indicate removal
+                              } else if (shouldRemoveAadhar) {
+                                // Document was removed - send empty string and removal flag
                                 formDataToSend.append("aadhar", "");
+                                formDataToSend.append("removeAadhar", "true");
                               }
+                              // If document exists as string (from API) and wasn't changed, don't send it
+                              
+                              const shouldRemovePan = removedDocuments.has('panFile') || 
+                                (originalDocuments.panFile && !currentFormData.panFile);
                               if (
                                 currentFormData.panFile &&
                                 currentFormData.panFile instanceof File
@@ -3925,10 +3959,13 @@ const Profile = () => {
                                   "pan",
                                   currentFormData.panFile
                                 );
-                              } else if (removedDocuments.has('panFile')) {
-                                // Send empty string to indicate removal
+                              } else if (shouldRemovePan) {
                                 formDataToSend.append("pan", "");
+                                formDataToSend.append("removePan", "true");
                               }
+                              
+                              const shouldRemoveGst = removedDocuments.has('gstFile') || 
+                                (originalDocuments.gstFile && !currentFormData.gstFile);
                               if (
                                 currentFormData.gstFile &&
                                 currentFormData.gstFile instanceof File
@@ -3937,23 +3974,28 @@ const Profile = () => {
                                   "gst",
                                   currentFormData.gstFile
                                 );
-                              } else if (removedDocuments.has('gstFile')) {
-                                // Send empty string to indicate removal
+                              } else if (shouldRemoveGst) {
                                 formDataToSend.append("gst", "");
+                                formDataToSend.append("removeGst", "true");
                               }
+                              
+                              const shouldRemoveBrokerLicense = removedDocuments.has('brokerLicenseFile') || 
+                                (originalDocuments.brokerLicenseFile && !currentFormData.brokerLicenseFile);
                               if (
                                 currentFormData.brokerLicenseFile &&
-                                currentFormData.brokerLicenseFile instanceof
-                                  File
+                                currentFormData.brokerLicenseFile instanceof File
                               ) {
                                 formDataToSend.append(
                                   "brokerLicense",
                                   currentFormData.brokerLicenseFile
                                 );
-                              } else if (removedDocuments.has('brokerLicenseFile')) {
-                                // Send empty string to indicate removal
+                              } else if (shouldRemoveBrokerLicense) {
                                 formDataToSend.append("brokerLicense", "");
+                                formDataToSend.append("removeBrokerLicense", "true");
                               }
+                              
+                              const shouldRemoveCompanyId = removedDocuments.has('companyIdFile') || 
+                                (originalDocuments.companyIdFile && !currentFormData.companyIdFile);
                               if (
                                 currentFormData.companyIdFile &&
                                 currentFormData.companyIdFile instanceof File
@@ -3962,9 +4004,9 @@ const Profile = () => {
                                   "companyId",
                                   currentFormData.companyIdFile
                                 );
-                              } else if (removedDocuments.has('companyIdFile')) {
-                                // Send empty string to indicate removal
+                              } else if (shouldRemoveCompanyId) {
                                 formDataToSend.append("companyId", "");
+                                formDataToSend.append("removeCompanyId", "true");
                               }
                               if (
                                 currentFormData.brokerImage &&
@@ -3976,6 +4018,37 @@ const Profile = () => {
                                 );
                               }
                             }
+
+                            // Debug: Log specializations and removals being sent
+                            console.log('=== Profile Update Debug ===');
+                            console.log('Specializations - Original:', originalSpecializations);
+                            console.log('Specializations - Current:', currentFormData.specializations);
+                            console.log('Specializations - Type:', typeof currentFormData.specializations, Array.isArray(currentFormData.specializations) ? '(Array)' : '(Not Array)');
+                            
+                            if (removedDocuments.size > 0) {
+                              console.log('Removed documents:', Array.from(removedDocuments));
+                              console.log('Original documents:', originalDocuments);
+                            }
+                            
+                            // Log all FormData entries for specializations and document removals
+                            console.log('FormData entries for specializations:');
+                            for (let pair of formDataToSend.entries()) {
+                                const key = pair[0];
+                                if (key.includes('specializations')) {
+                                  console.log(key, ':', pair[1] instanceof File ? `[File: ${pair[1].name}]` : pair[1]);
+                                }
+                            }
+                            
+                            console.log('FormData entries for document removals:');
+                            for (let pair of formDataToSend.entries()) {
+                                const key = pair[0];
+                                if (key.includes('remove') || 
+                                    (key === 'aadhar' || key === 'pan' || key === 'gst' || 
+                                     key === 'brokerLicense' || key === 'companyId')) {
+                                  console.log(key, ':', pair[1] instanceof File ? `[File: ${pair[1].name}]` : pair[1]);
+                                }
+                            }
+                            console.log('==========================================');
 
                             const res = await fetch(
                               `${process.env.NEXT_PUBLIC_API_URL}/auth/complete-profile`,
