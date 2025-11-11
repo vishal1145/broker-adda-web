@@ -2237,15 +2237,32 @@ function PropertyDetailsPageInner() {
               {product?.videos && product.videos.length > 0 ? (
                 <div className="w-full bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] overflow-hidden">
                   {showVideo ? (
-                    <div className="relative w-full bg-black rounded-[16px] overflow-hidden">
-                      <video
-                        src={product.videos[0]}
-                        controls
-                        className="w-full h-auto max-h-[400px]"
-                        style={{ minHeight: '232px' }}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
+                    <div className="relative w-full bg-black rounded-[16px] overflow-hidden" style={{ minHeight: '232px' }}>
+                      {(() => {
+                        const videoUrl = product.videos[0];
+                        const embedUrl = getEmbedUrl(videoUrl);
+                        const isYouTube = embedUrl && embedUrl.includes('youtube.com/embed');
+                        
+                        return isYouTube ? (
+                          <iframe
+                            src={embedUrl}
+                            className="w-full h-auto max-h-[400px]"
+                            style={{ minHeight: '232px', aspectRatio: '16/9' }}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            title="Property Video"
+                          />
+                        ) : (
+                          <video
+                            src={videoUrl}
+                            controls
+                            className="w-full h-auto max-h-[400px]"
+                            style={{ minHeight: '232px' }}
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                        );
+                      })()}
                       <button
                         onClick={() => setShowVideo(false)}
                         className="absolute top-2 right-2 bg-black/70 text-white rounded-full p-2 hover:bg-black/90 transition z-10"

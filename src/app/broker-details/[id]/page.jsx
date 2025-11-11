@@ -33,6 +33,8 @@ export default function BrokerDetailsPage() {
   const [ratingLoading, setRatingLoading] = useState(false);
   const [brokerRatingsStats, setBrokerRatingsStats] = useState(null);
   const [ratingsLoading, setRatingsLoading] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   useEffect(() => {
     const fetchBroker = async () => {
@@ -173,6 +175,28 @@ export default function BrokerDetailsPage() {
 
     fetchSimilar();
   }, [broker]);
+
+  // Update scroll button states when similar brokers change
+  useEffect(() => {
+    const carousel = document.getElementById('similar-brokers-carousel');
+    if (carousel) {
+      const updateScrollState = () => {
+        const { scrollLeft, scrollWidth, clientWidth } = carousel;
+        const maxScroll = scrollWidth - clientWidth;
+        setCanScrollLeft(scrollLeft > 10);
+        setCanScrollRight(scrollLeft < maxScroll - 10);
+      };
+      
+      // Small delay to ensure DOM is ready
+      setTimeout(updateScrollState, 100);
+      carousel.addEventListener('scroll', updateScrollState);
+      window.addEventListener('resize', updateScrollState);
+      return () => {
+        carousel.removeEventListener('scroll', updateScrollState);
+        window.removeEventListener('resize', updateScrollState);
+      };
+    }
+  }, [similar, similarLoading]);
 
   // Fetch broker leads using broker's _id from broker details
   useEffect(() => {
@@ -1305,7 +1329,18 @@ export default function BrokerDetailsPage() {
               </div>
               
               {/* Carousel with scrollable cards */}
-              <div id="similar-brokers-carousel" className="overflow-x-auto scroll-smooth" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div 
+                id="similar-brokers-carousel" 
+                className="overflow-x-auto scroll-smooth" 
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                onScroll={(e) => {
+                  const carousel = e.currentTarget;
+                  const { scrollLeft, scrollWidth, clientWidth } = carousel;
+                  const maxScroll = scrollWidth - clientWidth;
+                  setCanScrollLeft(scrollLeft > 10);
+                  setCanScrollRight(scrollLeft < maxScroll - 10);
+                }}
+              >
                 <div className="flex gap-6 min-w-0 pb-2">
                 {similarLoading ? (
                   // Loading state
@@ -1469,9 +1504,14 @@ export default function BrokerDetailsPage() {
                       type="button" 
                       onClick={() => {
                         const carousel = document.getElementById('similar-brokers-carousel');
-                        if (carousel) carousel.scrollBy({ left: -300, behavior: 'smooth' });
+                        if (carousel && canScrollLeft) carousel.scrollBy({ left: -300, behavior: 'smooth' });
                       }}
-                      className="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center hover:bg-yellow-600 transition-colors shadow-md cursor-pointer"
+                      disabled={!canScrollLeft}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${
+                        canScrollLeft
+                          ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      }`}
                       title="Previous"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1482,9 +1522,14 @@ export default function BrokerDetailsPage() {
                       type="button" 
                       onClick={() => {
                         const carousel = document.getElementById('similar-brokers-carousel');
-                        if (carousel) carousel.scrollBy({ left: 300, behavior: 'smooth' });
+                        if (carousel && canScrollRight) carousel.scrollBy({ left: 300, behavior: 'smooth' });
                       }}
-                      className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center hover:bg-gray-300 transition-colors shadow-md cursor-pointer"
+                      disabled={!canScrollRight}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${
+                        canScrollRight
+                          ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      }`}
                       title="Next"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
