@@ -11,6 +11,7 @@ const NotificationsPage = () => {
   const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // SVG Icon Components
   const FilterIcons = {
@@ -137,8 +138,19 @@ const NotificationsPage = () => {
     }
   };
 
+  // Map filter IDs to API type values
+  const getApiTypeFromFilter = (filterId) => {
+    const typeMap = {
+      'lead': 'lead',
+      'property': 'property',
+      'broker': 'broker',
+      'all': null // No type parameter for 'all'
+    };
+    return typeMap[filterId] || null;
+  };
+
   // Fetch notifications from API with pagination support
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (filterType = null) => {
     try {
       setIsLoading(true);
       setError('');
@@ -148,7 +160,6 @@ const NotificationsPage = () => {
         : null;
       
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      const brokerId = getBrokerIdFromToken();
       
       const headers = {
         'Content-Type': 'application/json',
@@ -162,10 +173,11 @@ const NotificationsPage = () => {
       const limit = 100; // Fetch 100 per page
 
       while (hasMorePages) {
-        // Add brokerId and pagination to query params
+        // Add type and pagination to query params
         let queryParams = `?page=${currentPage}&limit=${limit}`;
-        if (brokerId) {
-          queryParams += `&brokerId=${encodeURIComponent(brokerId)}&userId=${encodeURIComponent(brokerId)}`;
+        // Add type parameter if filter is selected
+        if (filterType) {
+          queryParams += `&type=${encodeURIComponent(filterType)}`;
         }
         
         const apiEndpoint = `${apiUrl}/notifications${queryParams}`;
@@ -234,7 +246,8 @@ const NotificationsPage = () => {
       console.log('Total transformed notifications:', transformedNotifications.length);
       // Use API data if available, even if empty (don't use fallback for empty API response)
       setAllNotifications(transformedNotifications);
-      // Filter will be applied via useEffect
+      // Directly set notifications since API already filtered them
+      setNotifications(transformedNotifications);
     } catch (err) {
       console.error('Error fetching notifications:', err);
       setError('Failed to load notifications. Please try again.');
@@ -299,29 +312,53 @@ const NotificationsPage = () => {
   useEffect(() => {
     const loadAndMarkRead = async () => {
       console.log('Notifications page loaded, fetching notifications and marking as read...');
-      await fetchNotifications();
+      const apiType = getApiTypeFromFilter(activeFilter);
+      await fetchNotifications(apiType);
       // Mark all as read after fetching notifications
       console.log('Calling markAllAsRead after notifications fetched...');
       await markAllAsRead();
+      setIsInitialLoad(false);
     };
     
     // Only run if we're in the browser
     if (typeof window !== 'undefined') {
       loadAndMarkRead();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update filtered notifications when filter changes
+  // Fetch notifications when filter changes (but not on initial load)
   useEffect(() => {
-    if (allNotifications.length === 0) {
-      setNotifications([]);
-      return;
+    if (isInitialLoad) {
+      return; // Skip on initial load, already handled above
     }
     
-    const filtered = getFilteredNotifications();
-    setNotifications(filtered);
+    const fetchFilteredNotifications = async () => {
+      const apiType = getApiTypeFromFilter(activeFilter);
+      console.log(`Filter changed to: ${activeFilter}, API type: ${apiType}`);
+      await fetchNotifications(apiType);
+    };
+    
+    // Only fetch if we're in the browser
+    if (typeof window !== 'undefined') {
+      fetchFilteredNotifications();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFilter, allNotifications]);
+  }, [activeFilter]);
+
+  // Update filtered notifications when allNotifications changes (as fallback)
+  useEffect(() => {
+    // Since we're now fetching filtered data from API, we can directly use allNotifications
+    // But keep client-side filtering as fallback for any edge cases
+    if (activeFilter === 'all') {
+      setNotifications(allNotifications);
+    } else {
+      // Apply client-side filtering as additional safety layer
+      const filtered = getFilteredNotifications();
+      setNotifications(filtered);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allNotifications]);
 
   const headerData = {
     title: 'Notifications',
