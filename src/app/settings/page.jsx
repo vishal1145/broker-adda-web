@@ -21,6 +21,7 @@ const Settings = () => {
   const [isUpdatingSmsNotification, setIsUpdatingSmsNotification] = useState(false);
   const [isLoadingPreferences, setIsLoadingPreferences] = useState(true);
   const [isSendingVerificationEmail, setIsSendingVerificationEmail] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   // Fetch profile data to get notification preferences on component mount
   useEffect(() => {
@@ -64,6 +65,16 @@ const Settings = () => {
           }
           if (userData?.pushNotification !== undefined) {
             setPushNotifications(userData.pushNotification);
+          }
+          // Check email verification status
+          if (userData?.isEmailVerified !== undefined) {
+            setIsEmailVerified(userData.isEmailVerified);
+          } else if (userData?.isEmailVerfied !== undefined) {
+            // Handle typo variation if API uses it
+            setIsEmailVerified(userData.isEmailVerfied);
+          } else if (userData?.emailVerified !== undefined) {
+            // Handle alternative naming
+            setIsEmailVerified(userData.emailVerified);
           }
         } else {
           console.log('Failed to fetch profile data:', response.status);
@@ -580,23 +591,35 @@ const Settings = () => {
                           Email Verification
                         </p>
                         <p className="text-xs text-gray-600 mt-1">
-                          Verify your email address to secure your account
+                          {isEmailVerified 
+                            ? 'Your email address has been verified' 
+                            : 'Verify your email address to secure your account'}
                                 </p>
                               </div>
-                              <button
-                                type="button"
-                                onClick={handleSendVerificationEmail}
-                                disabled={isSendingVerificationEmail}
-                                className="px-4 py-2 bg-[#0D542B] text-white rounded-lg text-sm font-medium hover:bg-[#0B4624] transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                              >
-                                {isSendingVerificationEmail && (
-                                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              {!isEmailVerified && (
+                                <button
+                                  type="button"
+                                  onClick={handleSendVerificationEmail}
+                                  disabled={isSendingVerificationEmail}
+                                  className="px-4 py-2 bg-[#0D542B] text-white rounded-lg text-sm font-medium hover:bg-[#0B4624] transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                >
+                                  {isSendingVerificationEmail && (
+                                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                  )}
+                                  {isSendingVerificationEmail ? 'Sending...' : 'Send Verification Email'}
+                                </button>
+                              )}
+                              {isEmailVerified && (
+                                <span className="px-4 py-2 bg-green-100 text-green-800 rounded-lg text-sm font-medium flex items-center gap-2">
+                                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                                   </svg>
-                                )}
-                                {isSendingVerificationEmail ? 'Sending...' : 'Send Verification Email'}
-                              </button>
+                                  Verified
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
