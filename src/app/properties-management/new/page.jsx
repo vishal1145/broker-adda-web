@@ -702,10 +702,24 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
       nearbyAmenities.forEach((a) => formData.append("nearbyAmenities[]", a));
       features.forEach((f) => formData.append("features[]", f));
       locationBenefits.forEach((b) => formData.append("locationBenefits[]", b));
-      videos.forEach((v) => formData.append("videos[]", v));
-      videoFiles.forEach((f) => formData.append("videos", f));
-      images.forEach((url) => formData.append("images[]", url));
-      imageFiles.forEach((f) => formData.append("images", f));
+      
+      // Handle videos - explicitly send empty array if all removed (for update mode)
+      if (isEditMode && videos.length === 0 && videoFiles.length === 0) {
+        // For updates, explicitly send empty array to clear videos
+        formData.append("videos", "");
+      } else {
+        videos.forEach((v) => formData.append("videos[]", v));
+        videoFiles.forEach((f) => formData.append("videos", f));
+      }
+      
+      // Handle images - explicitly send empty array if all removed (for update mode)
+      if (isEditMode && images.length === 0 && imageFiles.length === 0) {
+        // For updates, explicitly send empty array to clear images
+        formData.append("images", "");
+      } else {
+        images.forEach((url) => formData.append("images[]", url));
+        imageFiles.forEach((f) => formData.append("images", f));
+      }
 
       // Other fields
       formData.append("status", status);
