@@ -858,7 +858,7 @@ const Dashboard = () => {
           </div>
 
           {/* Details Section - Right */}
-          <div className="flex-1 p-6 flex flex-col">
+          <div className="flex-1 p-4 flex flex-col">
             {/* Title */}
             <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
               {propertyCards[0].title || 'Modern Family Home'}
