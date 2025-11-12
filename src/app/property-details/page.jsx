@@ -93,6 +93,7 @@ function PropertyDetailsPageInner() {
   const [ratingsStats, setRatingsStats] = useState(null);
   const [ratingsLoading, setRatingsLoading] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Fetch property details from API
   useEffect(() => {
@@ -197,6 +198,7 @@ function PropertyDetailsPageInner() {
           };
           setProduct(mappedProperty);
           setShowVideo(false); // Reset video state when product changes
+          setSelectedImageIndex(0); // Reset selected image index when product changes
 
           // If broker object is embedded on the property, use it directly
           if (propertyData?.broker && typeof propertyData.broker === "object") {
@@ -1361,7 +1363,7 @@ function PropertyDetailsPageInner() {
                   {/* Main Large Image */}
                   <div className="bg-gray-50 rounded-2xl overflow-hidden relative group">
                     <img
-                      src={gallery[0]}
+                      src={gallery[selectedImageIndex]}
                       alt="Property"
                       className="w-full h-[360px] md:h-[420px] object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -1453,20 +1455,32 @@ function PropertyDetailsPageInner() {
 
                   {/* Thumbnail Row */}
                   <div className="flex gap-3">
-                    {gallery.slice(1, 6).map((img, index) => (
-                      <div
-                        key={index}
-                        className="flex-1 bg-gray-50 overflow-hidden relative group cursor-pointer"
-                        style={{ borderRadius: "8px" }}
-                      >
-                        <img
-                          src={img}
-                          alt={`Thumbnail ${index + 1}`}
-                          className="w-full h-[120px] object-cover group-hover:scale-105 transition-transform duration-300"
+                    {gallery.slice(1, 6).map((img, index) => {
+                      const thumbnailIndex = index + 1; // +1 because we're slicing from index 1
+                      const isSelected = selectedImageIndex === thumbnailIndex;
+                      return (
+                        <div
+                          key={index}
+                          onClick={() => setSelectedImageIndex(thumbnailIndex)}
+                          className={`flex-1 bg-gray-50 overflow-hidden relative group cursor-pointer transition-all duration-300 ${
+                            isSelected ? 'ring-2 ring-[#0D542B] ring-offset-2' : ''
+                          }`}
                           style={{ borderRadius: "8px" }}
-                        />
-                      </div>
-                    ))}
+                        >
+                          <img
+                            src={img}
+                            alt={`Thumbnail ${index + 1}`}
+                            className={`w-full h-[120px] object-cover group-hover:scale-105 transition-transform duration-300 ${
+                              isSelected ? 'opacity-100' : 'opacity-90'
+                            }`}
+                            style={{ borderRadius: "8px" }}
+                          />
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-[#0D542B]/10 pointer-events-none" style={{ borderRadius: "8px" }}></div>
+                          )}
+                        </div>
+                      );
+                    })}
                     {/* If we have more than 5 images, show placeholder with count */}
                     {gallery.length > 6 && (
                       <div
