@@ -154,6 +154,41 @@ const Hero = ({ data = {
           ? localStorage.getItem('token') || localStorage.getItem('authToken')
           : null;
 
+        // Get current user ID from token
+        const getCurrentUserId = () => {
+          try {
+            if (!token) return '';
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.brokerId || payload.userId || payload.id || payload.sub || '';
+          } catch {
+            return '';
+          }
+        };
+
+        const currentUserId = getCurrentUserId();
+        let currentBrokerId = '';
+
+        // Fetch broker details to get the actual broker _id
+        if (currentUserId && token) {
+          try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+            const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            if (brokerRes.ok) {
+              const brokerData = await brokerRes.json();
+              const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
+              currentBrokerId = broker?._id || broker?.id || '';
+              console.log('Current broker ID for hero filter:', currentBrokerId);
+            }
+          } catch (err) {
+            console.error('Error fetching broker details:', err);
+          }
+        }
+
         // We always prefer API; token only affects headers
         setIntendApi(true);
 
@@ -194,7 +229,44 @@ const Hero = ({ data = {
           return;
         }
 
-         const mapped: HeroCard[] = brokers.slice(0, 6).map((b) => {
+        // Filter out the logged-in broker
+        const filteredBrokers = (currentBrokerId || currentUserId)
+          ? brokers.filter((b) => {
+              // Extract broker ID from various possible fields
+              let brokerId = '';
+              const userId = (b as unknown as { userId?: unknown }).userId;
+              
+              if (userId && typeof userId === 'object' && userId !== null) {
+                const userIdObj = userId as { _id?: string; id?: string };
+                brokerId = userIdObj._id || userIdObj.id || '';
+              } else if (userId && typeof userId === 'string') {
+                brokerId = userId;
+              }
+              
+              if (!brokerId) {
+                brokerId = (b as unknown as { _id?: string })._id || (b as unknown as { id?: string }).id || '';
+              }
+              
+              // Convert both to strings for comparison
+              const brokerIdStr = String(brokerId).trim();
+              const currentBrokerIdStr = String(currentBrokerId || '').trim();
+              const currentUserIdStr = String(currentUserId || '').trim();
+              
+              // Check if broker matches logged-in broker (by brokerId or userId)
+              const matchesBrokerId = currentBrokerIdStr !== '' && brokerIdStr === currentBrokerIdStr;
+              const matchesUserId = currentUserIdStr !== '' && brokerIdStr === currentUserIdStr;
+              const shouldFilter = matchesBrokerId || matchesUserId;
+              
+              if (shouldFilter) {
+                console.log('Filtering out broker from hero:', brokerIdStr, 'Current Broker ID:', currentBrokerIdStr, 'Current User ID:', currentUserIdStr);
+              }
+              
+              // Only show brokers that don't match the logged-in broker
+              return !shouldFilter;
+            })
+          : brokers;
+
+         const mapped: HeroCard[] = filteredBrokers.slice(0, 6).map((b) => {
            const img: string = b?.brokerImage || b?.image || b?.profileImage || b?.avatar || '';
           // Resolve region/city text
           let regionName = '';

@@ -57,6 +57,41 @@ const Brokers = () => {
         ? localStorage.getItem('token') || localStorage.getItem('authToken')
         : null;
       
+      // Get current user ID from token
+      const getCurrentUserId = () => {
+        try {
+          if (!token) return '';
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.brokerId || payload.userId || payload.id || payload.sub || '';
+        } catch {
+          return '';
+        }
+      };
+
+      const currentUserId = getCurrentUserId();
+      let currentBrokerId = '';
+
+      // Fetch broker details to get the actual broker _id
+      if (currentUserId && token) {
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+          const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (brokerRes.ok) {
+            const brokerData = await brokerRes.json();
+            const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
+            currentBrokerId = broker?._id || broker?.id || '';
+            console.log('Current broker ID for brokers filter:', currentBrokerId);
+          }
+        } catch (err) {
+          console.error('Error fetching broker details:', err);
+        }
+      }
+      
       // Use environment variable for API URL following app pattern
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       
@@ -106,10 +141,47 @@ const Brokers = () => {
           console.log('No valid broker data found in response');
           console.log('Available keys in response:', Object.keys(data || {}));
         }
+
+        // Filter out the logged-in broker
+        const filteredBrokers = (currentBrokerId || currentUserId)
+          ? brokersData.filter((b: Broker) => {
+              // Extract broker ID from various possible fields
+              let brokerId = '';
+              const userId = b.userId;
+              
+              if (userId && typeof userId === 'object' && userId !== null) {
+                const userIdObj = userId as { _id?: string; id?: string };
+                brokerId = userIdObj._id || userIdObj.id || '';
+              } else if (userId && typeof userId === 'string') {
+                brokerId = userId;
+              }
+              
+              if (!brokerId) {
+                brokerId = b._id || b.id || '';
+              }
+              
+              // Convert both to strings for comparison
+              const brokerIdStr = String(brokerId).trim();
+              const currentBrokerIdStr = String(currentBrokerId || '').trim();
+              const currentUserIdStr = String(currentUserId || '').trim();
+              
+              // Check if broker matches logged-in broker (by brokerId or userId)
+              const matchesBrokerId = currentBrokerIdStr !== '' && brokerIdStr === currentBrokerIdStr;
+              const matchesUserId = currentUserIdStr !== '' && brokerIdStr === currentUserIdStr;
+              const shouldFilter = matchesBrokerId || matchesUserId;
+              
+              if (shouldFilter) {
+                console.log('Filtering out broker from brokers list:', brokerIdStr, 'Current Broker ID:', currentBrokerIdStr, 'Current User ID:', currentUserIdStr);
+              }
+              
+              // Only show brokers that don't match the logged-in broker
+              return !shouldFilter;
+            })
+          : brokersData;
         
-        console.log('Final brokers data:', brokersData);
-        console.log('Setting brokers state with', brokersData.length, 'items');
-        setBrokers(brokersData);
+        console.log('Final brokers data (after filter):', filteredBrokers);
+        console.log('Setting brokers state with', filteredBrokers.length, 'items');
+        setBrokers(filteredBrokers);
       } else {
         const errorText = await response.text();
         console.error('Failed to fetch brokers:', response.status, errorText);
