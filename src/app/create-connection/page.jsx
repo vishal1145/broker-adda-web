@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import HeaderFile from '../components/Header';
 import ProtectedRoute from '../components/ProtectedRoute';
 
 const Connections = () => {
+  const router = useRouter();
   const [connections, setConnections] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -217,10 +219,19 @@ const Connections = () => {
                 const connectionId = connection?._id || connection?.id || connection?.chatId || index;
                 const avatarColor = getAvatarColor(broker.name);
                 
+                // const handleCardClick = () => {
+                //   if (broker.brokerId) {
+                //     router.push(`/broker-details/${broker.brokerId}`);
+                //   }
+                // };
+                
                 return (
                   <div
                     key={connectionId}
-                    className="group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-200"
+                    // onClick={handleCardClick}
+                    className={`group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-200 ${
+                      broker.brokerId ? 'cursor-pointer' : 'cursor-default'
+                    }`}
                   >
                     {/* Full Image Section at Top */}
                     <div className="relative w-full h-64 bg-gray-100">
@@ -253,17 +264,9 @@ const Connections = () => {
                       {/* Name */}
                       <div className="flex items-center gap-0 mb-2">
                         <h3 className="text-[16px] font-semibold text-[#171A1F]">{broker.name}</h3>
-                        {broker.brokerId ? (
-                          <Link href={`/broker-details/${broker.brokerId}`}>
-                            <svg className="w-4 h-4 text-green-600 rotate-45 ml-2 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                            </svg>
-                          </Link>
-                        ) : (
-                          <svg className="w-4 h-4 text-green-600 rotate-45 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                          </svg>
-                        )}
+                        <svg className="w-4 h-4 text-green-600 rotate-45 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                        </svg>
                       </div>
 
                       {/* Specialization / Firm Name */}
