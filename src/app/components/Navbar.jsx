@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,6 +17,7 @@ const Navbar = ({ data }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const isTypingRef = useRef(false);
   const { user, logout } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
@@ -25,6 +26,7 @@ const Navbar = ({ data }) => {
   const [showAllNotifications, setShowAllNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [googleLoaded, setGoogleLoaded] = useState(false);
 
   // Fallback hardcoded notifications
   const fallbackNotifications = [
@@ -38,6 +40,45 @@ const Navbar = ({ data }) => {
   ];
 
   useEffect(() => setIsMounted(true), []);
+
+  // Load Google Maps API for geocoding
+  useEffect(() => {
+    const loadGoogleMaps = () => {
+      try {
+        if (window.google && window.google.maps && window.google.maps.Geocoder) {
+          setGoogleLoaded(true);
+          return;
+        }
+      } catch {}
+
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+      if (existingScript) {
+        existingScript.onload = () => setGoogleLoaded(true);
+        if (window.google && window.google.maps) {
+          setGoogleLoaded(true);
+        }
+        return;
+      }
+
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
+      if (!apiKey) {
+        console.warn('Google Maps API key not found');
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => setGoogleLoaded(true);
+      script.onerror = () => {
+        console.error('Google Maps API failed to load');
+      };
+      document.head.appendChild(script);
+    };
+
+    loadGoogleMaps();
+  }, []);
 
   // Get broker ID from token
   const getBrokerIdFromToken = () => {
@@ -198,21 +239,40 @@ const Navbar = ({ data }) => {
   const pathname = usePathname();
   const isCartPage = pathname === '/cart';
 
-  // Sync search query with URL when on search page
+  // Sync search query with URL when on search page (only on mount or URL change, not while typing)
   useEffect(() => {
     if (pathname === '/search' && typeof window !== 'undefined') {
-      try {
-        const sp = new URLSearchParams(window.location.search);
-        const q = sp.get('q');
-        if (q) {
-          setSearchQuery(q);
-        } else {
-          // Clear search if URL doesn't have query
-          setSearchQuery('');
-        }
-      } catch {}
+      const checkURL = () => {
+        try {
+          const sp = new URLSearchParams(window.location.search);
+          const q = sp.get('q');
+          
+          // Only sync from URL if it's different from current searchQuery
+          // This prevents clearing while user is typing
+          if (q && q !== searchQuery) {
+            setSearchQuery(q);
+          } else if (!q && searchQuery && document.activeElement?.tagName !== 'INPUT') {
+            // Only clear if URL doesn't have query AND user is not actively typing
+            // Check if input is not focused to avoid clearing while typing
+            setSearchQuery('');
+          }
+        } catch {}
+      };
+      
+      // Check URL on mount and when pathname changes
+      checkURL();
+      
+      // Listen for popstate (browser back/forward) and custom clear event
+      const handlePopState = () => {
+        setTimeout(checkURL, 100);
+      };
+      
+      window.addEventListener('popstate', handlePopState);
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
     }
-  }, [pathname]);
+  }, [pathname]); // Removed searchQuery from dependencies to prevent interference
 
   // Load profile image from API (JS only)
   useEffect(() => {
@@ -292,12 +352,80 @@ const Navbar = ({ data }) => {
       setSuggestions(filtered.slice(0, 5));
   }, [searchQuery, allProducts]);
 
+  // Listen for clear navbar search event (from reset filters)
+  useEffect(() => {
+    const handleClearSearch = () => {
+      // Only clear if user is not actively typing
+      if (!isTypingRef.current) {
+        setSearchQuery('');
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    };
+
+    window.addEventListener('clearNavbarSearch', handleClearSearch);
+    return () => {
+      window.removeEventListener('clearNavbarSearch', handleClearSearch);
+    };
+  }, []);
+
   const goPropertiesWithQuery = async (q) => {
     if (!q || !q.trim()) return;
     
     const query = q.trim();
     
-    // Try to match query with region names from API
+    // First, try to geocode the search text to get latitude and longitude
+    let latitude = null;
+    let longitude = null;
+    
+    try {
+      // Wait for Google Maps to load if not already loaded
+      if (!googleLoaded) {
+        // Wait up to 5 seconds for Google Maps to load
+        let attempts = 0;
+        while (!googleLoaded && attempts < 50) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+          if (window.google && window.google.maps && window.google.maps.Geocoder) {
+            setGoogleLoaded(true);
+            break;
+          }
+        }
+      }
+      
+      // Use Google Geocoder to convert text to coordinates
+      if (window.google && window.google.maps && window.google.maps.Geocoder) {
+        const geocoder = new window.google.maps.Geocoder();
+        
+        await new Promise((resolve) => {
+          geocoder.geocode({ address: query }, (results, status) => {
+            if (status === 'OK' && results && results[0] && results[0].geometry && results[0].geometry.location) {
+              latitude = results[0].geometry.location.lat();
+              longitude = results[0].geometry.location.lng();
+              console.log('📍 Geocoded:', query, '→', latitude, longitude);
+            } else {
+              console.log('⚠️ Geocoding failed for:', query, 'Status:', status);
+            }
+            resolve();
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error geocoding address:', error);
+    }
+    
+    // If we have coordinates, navigate with lat/lng (priority)
+    if (latitude !== null && longitude !== null) {
+      const params = new URLSearchParams({ 
+        tab: 'brokers', 
+        latitude: latitude.toString(), 
+        longitude: longitude.toString()
+      });
+      router.push(`/search?${params.toString()}`);
+      return;
+    }
+    
+    // Fallback: Try to match query with region names from API
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       const response = await fetch(`${apiUrl}/regions`);
@@ -434,20 +562,37 @@ const enableSuggestions = false;
             }} className="relative" role="search">
         <input
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            isTypingRef.current = true;
+            setSearchQuery(e.target.value);
+            // Reset typing flag after a delay
+            setTimeout(() => {
+              isTypingRef.current = false;
+            }, 1000);
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
+              isTypingRef.current = false;
               if (searchQuery && searchQuery.trim()) {
                 goPropertiesWithQuery(searchQuery.trim());
               }
+            } else {
+              isTypingRef.current = true;
             }
+          }}
+          onBlur={() => {
+            // Reset typing flag when input loses focus
+            setTimeout(() => {
+              isTypingRef.current = false;
+            }, 200);
           }}
                 placeholder="Search brokers by region…"
                 className="w-full pl-10 pr-24 py-2.5 text-sm border border-gray-300/70 rounded-full focus:outline-none focus:ring-2 focus:ring-[#0d542b] focus:border-transparent"
-          onFocus={() =>
-            enableSuggestions ? setShowSuggestions(true) : setShowSuggestions(false)
-          }
+          onFocus={() => {
+            isTypingRef.current = true;
+            enableSuggestions ? setShowSuggestions(true) : setShowSuggestions(false);
+          }}
         />
         <FaSearch
           className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
