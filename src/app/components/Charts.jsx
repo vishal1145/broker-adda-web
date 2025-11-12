@@ -30,6 +30,7 @@ const defaultPropertyData   = [15, 18, 22, 20, 25, 28, 30, 27, 32, 35, 30, 28];
 export default function DashboardCharts() {
   const [leadsLabels, setLeadsLabels] = useState(defaultLeadsLabels);
   const [leadsData, setLeadsData] = useState(defaultLeadsData);
+  const [closedLeadsData, setClosedLeadsData] = useState([80, 95, 110, 120, 105, 140, 125, 135, 150, 130, 115, 160]);
   const [leadsLoading, setLeadsLoading] = useState(true);
 
   const [propertyLabels, setPropertyLabels] = useState(defaultPropertyLabels);
@@ -105,23 +106,30 @@ export default function DashboardCharts() {
           
           // Use count field directly
           const transformedData = sorted.map(item => item.count || 0);
+          
+          // Extract closedCount from API response
+          const transformedClosedData = sorted.map(item => item.closedCount || 0);
 
           console.log('Transformed labels:', transformedLabels);
           console.log('Transformed data:', transformedData);
+          console.log('Transformed closed leads data:', transformedClosedData);
 
           setLeadsLabels(transformedLabels);
           setLeadsData(transformedData);
+          setClosedLeadsData(transformedClosedData);
         } else {
           console.warn('No valid leads data found, using defaults');
           // If no valid data, keep defaults
           setLeadsLabels(defaultLeadsLabels);
           setLeadsData(defaultLeadsData);
+          setClosedLeadsData([80, 95, 110, 120, 105, 140, 125, 135, 150, 130, 115, 160]);
         }
       } catch (err) {
         console.error('Error fetching leads by month:', err);
         // Keep default data on error
         setLeadsLabels(defaultLeadsLabels);
         setLeadsData(defaultLeadsData);
+        setClosedLeadsData([80, 95, 110, 120, 105, 140, 125, 135, 150, 130, 115, 160]);
       } finally {
         setLeadsLoading(false);
       }
@@ -234,16 +242,28 @@ export default function DashboardCharts() {
                 key={`leads-chart-${leadsData.join('-')}`}
                 data={{
                   labels: leadsLabels,
-                  datasets: [{
-                    label: 'Leads',
-                    data: leadsData,
-                    backgroundColor: primary,
-                    borderRadius: 2,                // rounded tops
-                    borderSkipped: false,
-                    barPercentage: 0.6,             // thicker bars
-                    categoryPercentage: 0.8,
-                    maxBarThickness: 20,
-                  }],
+                  datasets: [
+                    {
+                      label: 'Leads',
+                      data: leadsData,
+                      backgroundColor: primary,
+                      borderRadius: 2,                // rounded tops
+                      borderSkipped: false,
+                      barPercentage: 0.6,             // thicker bars
+                      categoryPercentage: 0.8,
+                      maxBarThickness: 20,
+                    },
+                    {
+                      label: 'Closed Leads',
+                      data: closedLeadsData,
+                      backgroundColor: '#ef4444',     // red color
+                      borderRadius: 2,                // rounded tops
+                      borderSkipped: false,
+                      barPercentage: 0.6,             // thicker bars
+                      categoryPercentage: 0.8,
+                      maxBarThickness: 20,
+                    },
+                  ],
                 }}
                 options={{
                   maintainAspectRatio: false,
@@ -266,7 +286,9 @@ export default function DashboardCharts() {
                         color: '#9ca3af', 
                         font: { size: 12 },
                         stepSize: (() => {
-                          const maxValue = leadsData.length > 0 ? Math.max(...leadsData) : 0;
+                          const maxLeads = leadsData.length > 0 ? Math.max(...leadsData) : 0;
+                          const maxClosed = closedLeadsData.length > 0 ? Math.max(...closedLeadsData) : 0;
+                          const maxValue = Math.max(maxLeads, maxClosed);
                           if (maxValue === 0) return 1;
                           if (maxValue <= 5) return 1;
                           if (maxValue <= 20) return 5;
@@ -275,7 +297,9 @@ export default function DashboardCharts() {
                         })(),
                       },
                       suggestedMax: (() => {
-                        const maxValue = leadsData.length > 0 ? Math.max(...leadsData) : 0;
+                        const maxLeads = leadsData.length > 0 ? Math.max(...leadsData) : 0;
+                        const maxClosed = closedLeadsData.length > 0 ? Math.max(...closedLeadsData) : 0;
+                        const maxValue = Math.max(maxLeads, maxClosed);
                         if (maxValue === 0) return 5;
                         if (maxValue <= 5) return Math.max(maxValue + 2, 5);
                         if (maxValue <= 20) return Math.max(maxValue + 5, 10);

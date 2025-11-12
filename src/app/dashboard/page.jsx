@@ -21,6 +21,8 @@ const Dashboard = () => {
   const [metrics, setMetrics] = useState({
     totalLeads: null,
     totalLeadsPercentage: null,
+    closedLeads: null,
+    closedLeadsPercentage: null,
     propertiesListed: null,
     propertiesListedPercentage: null,
     inquiriesReceived: 743,
@@ -146,10 +148,19 @@ const Dashboard = () => {
             payload?.stats?.connectionsGrowth ??
             null;
           
+          const closedLeadsPercentage = 
+            payload?.closedLeadsPercentageChange ?? 
+            payload?.closedLeadsPercentage ?? 
+            payload?.totalClosedLeadsPercentageChange ?? 
+            payload?.totalClosedLeadsPercentage ??
+            null;
+          
           setMetrics(prev => ({
             ...prev,
             totalLeads: payload?.totalLeads ?? 0,
             totalLeadsPercentage: totalLeadsPercentage,
+            closedLeads: payload?.closedLeads ?? payload?.totalClosedLeads ?? 0,
+            closedLeadsPercentage: closedLeadsPercentage,
             propertiesListed: payload?.totalProperties ?? 0,
             propertiesListedPercentage: propertiesListedPercentage,
             inquiriesReceived: payload?.inquiriesReceived ?? 743,
@@ -161,6 +172,8 @@ const Dashboard = () => {
             ...prev, 
             totalLeads: prev.totalLeads ?? 0,
             totalLeadsPercentage: prev.totalLeadsPercentage ?? null,
+            closedLeads: prev.closedLeads ?? 0,
+            closedLeadsPercentage: prev.closedLeadsPercentage ?? null,
             propertiesListed: prev.propertiesListed ?? 0,
             propertiesListedPercentage: prev.propertiesListedPercentage ?? null,
             connections: prev.connections ?? 0,
@@ -376,7 +389,7 @@ const Dashboard = () => {
           {/* Overview Section */}
           <div className="mb-8 pb-16">
             <h2 className="text-[18px] font-bold text-gray-900 mb-6">Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Leads */}
             <div 
               onClick={() => router.push('/leads')}
@@ -420,6 +433,50 @@ const Dashboard = () => {
                 )}
               </div>
           </div>
+
+            {/* Total Closed Leads */}
+            <div 
+              onClick={() => router.push('/leads')}
+              className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
+              style={{ width: '100%', height: '140px' }}
+            >
+              <div className="px-6 pt-6 pb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-[14px] leading-[20px] font-medium" style={{ fontFamily: 'Inter', color: '#565D6DFF' }}>Total Closed Leads</div>
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#565D6DFF' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+                {metricsLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded w-16 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-12"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-[20px] font-semibold text-black leading-[24px] mb-0">
+                      {fmt(metrics.closedLeads)}
+                    </div>
+                    {metrics.closedLeadsPercentage !== null && metrics.closedLeadsPercentage !== undefined && (
+                      <div className={`text-[12px] flex items-center gap-1 mt-1 ${metrics.closedLeadsPercentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          {metrics.closedLeadsPercentage >= 0 ? (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                          ) : (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                          )}
+                        </svg>
+                        {typeof metrics.closedLeadsPercentage === 'number' 
+                          ? `${metrics.closedLeadsPercentage > 0 ? '+' : ''}${metrics.closedLeadsPercentage}%`
+                          : metrics.closedLeadsPercentage}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
 
             {/* Properties Listed */}
             <div 
@@ -974,7 +1031,7 @@ const Dashboard = () => {
   )}
 
   {/* bottom CTA */}
-<div className="flex justify-center mt-22 text-[14px]">
+<div className="flex justify-center mt-16 text-[14px]">
   <button 
     onClick={async () => {
       try {
@@ -1367,9 +1424,18 @@ const Dashboard = () => {
               payload?.stats?.connectionsGrowth ??
               null;
             
+            const closedLeadsPercentage = 
+              payload?.closedLeadsPercentageChange ?? 
+              payload?.closedLeadsPercentage ?? 
+              payload?.totalClosedLeadsPercentageChange ?? 
+              payload?.totalClosedLeadsPercentage ??
+              null;
+            
             setMetrics({
               totalLeads: payload?.totalLeads ?? 0,
               totalLeadsPercentage: totalLeadsPercentage,
+              closedLeads: payload?.closedLeads ?? payload?.totalClosedLeads ?? 0,
+              closedLeadsPercentage: closedLeadsPercentage,
               propertiesListed: payload?.totalProperties ?? 0,
               propertiesListedPercentage: propertiesListedPercentage,
               inquiriesReceived: payload?.inquiriesReceived ?? 743,

@@ -70,6 +70,9 @@ interface ApiProperty {
   images?: string[];
   image?: string;
   price?: number;
+  createdBy?: string | { _id?: string };
+  brokerId?: string;
+  broker?: string | { _id?: string };
 }
 
 const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hours: 0, minutes: 0, seconds: 0 }, images: [] } }: { data: FlashSaleData }) => {
@@ -93,6 +96,40 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
         const token = typeof window !== 'undefined' 
           ? localStorage.getItem('token') || localStorage.getItem('authToken')
           : null;
+
+        // Get current user ID from token
+        const getCurrentUserId = () => {
+          try {
+            if (!token) return '';
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.brokerId || payload.userId || payload.id || payload.sub || '';
+          } catch {
+            return '';
+          }
+        };
+
+        const currentUserId = getCurrentUserId();
+        let currentBrokerId = '';
+
+        // Fetch broker details to get the actual broker _id
+        if (currentUserId && token) {
+          try {
+            const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            if (brokerRes.ok) {
+              const brokerData = await brokerRes.json();
+              const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
+              currentBrokerId = broker?._id || broker?.id || '';
+              console.log('Current broker ID:', currentBrokerId);
+            }
+          } catch (err) {
+            console.error('Error fetching broker details:', err);
+          }
+        }
 
         const headers = {
           'Content-Type': 'application/json',
@@ -121,8 +158,36 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
             propertiesList = responseData;
           }
 
+          // Filter out properties belonging to the logged-in broker
+          const filteredProperties = currentBrokerId 
+            ? propertiesList.filter((property: ApiProperty) => {
+                // Extract broker ID from various possible fields
+                let propertyBrokerId = '';
+                if (property.createdBy) {
+                  propertyBrokerId = typeof property.createdBy === 'object' 
+                    ? property.createdBy._id || '' 
+                    : property.createdBy;
+                } else if (property.brokerId) {
+                  propertyBrokerId = property.brokerId;
+                } else if (property.broker) {
+                  propertyBrokerId = typeof property.broker === 'object' 
+                    ? property.broker._id || '' 
+                    : property.broker;
+                }
+                // Convert both to strings for comparison
+                const brokerIdStr = String(currentBrokerId).trim();
+                const propertyBrokerIdStr = String(propertyBrokerId).trim();
+                const shouldShow = propertyBrokerIdStr !== brokerIdStr && propertyBrokerIdStr !== '';
+                if (!shouldShow) {
+                  console.log('Filtering out property:', property.title || property.name, 'Broker ID:', propertyBrokerIdStr, 'Current Broker ID:', brokerIdStr);
+                }
+                // Only show properties that don't belong to the logged-in broker
+                return shouldShow;
+              })
+            : propertiesList;
+
           // Map properties and get first 3
-          const mappedProperties: Property[] = propertiesList
+          const mappedProperties: Property[] = filteredProperties
             .slice(0, 3)
             .map((property: ApiProperty) => ({
               id: property._id || property.id || '',

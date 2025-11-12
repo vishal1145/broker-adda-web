@@ -86,6 +86,41 @@ const LatestLeads: React.FC = () => {
             : null;
         // Use environment variable for API URL (same pattern as other components)
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+        
+        // Get current user ID from token
+        const getCurrentUserId = () => {
+          try {
+            if (!token) return '';
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.brokerId || payload.userId || payload.id || payload.sub || '';
+          } catch {
+            return '';
+          }
+        };
+
+        const currentUserId = getCurrentUserId();
+        let currentBrokerId = '';
+
+        // Fetch broker details to get the actual broker _id
+        if (currentUserId && token) {
+          try {
+            const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            if (brokerRes.ok) {
+              const brokerData = await brokerRes.json();
+              const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
+              currentBrokerId = broker?._id || broker?.id || '';
+              console.log('Current broker ID for leads filter:', currentBrokerId);
+            }
+          } catch (err) {
+            console.error('Error fetching broker details:', err);
+          }
+        }
+        
         // Prepare headers
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
@@ -108,8 +143,94 @@ const LatestLeads: React.FC = () => {
         } else if (Array.isArray(res.data)) {
           items = res.data;
         }
+
+        // Debug: Log all leads and current broker/user IDs
+        console.log('🔍 Filtering leads - Total leads:', items.length, {
+          currentBrokerId,
+          currentUserId
+        });
+
+        // Filter out leads belonging to the logged-in broker
+        const filteredItems = (currentBrokerId || currentUserId)
+          ? items.filter((lead: ApiLead & { createdBy?: unknown }) => {
+              // Extract broker ID from createdBy field
+              let leadBrokerId = '';
+              let leadUserId = '';
+              const createdBy = lead.createdBy;
+              
+              if (createdBy) {
+                if (typeof createdBy === 'string') {
+                  leadBrokerId = createdBy;
+                  leadUserId = createdBy;
+                } else if (typeof createdBy === 'object' && createdBy !== null) {
+                  const obj = createdBy as { [key: string]: unknown };
+                  const userId = obj['userId'];
+                  
+                  if (userId && typeof userId === 'object' && userId !== null) {
+                    const userIdObj = userId as { [key: string]: unknown };
+                    const uid = userIdObj['_id'] || userIdObj['id'];
+                    if (uid) {
+                      leadBrokerId = String(uid);
+                      leadUserId = String(uid);
+                    }
+                  }
+                  if (!leadBrokerId && userId && typeof userId === 'string') {
+                    leadBrokerId = userId;
+                    leadUserId = userId;
+                  }
+                  if (!leadBrokerId) {
+                    const candidates = [
+                      obj['_id'],
+                      obj['id'],
+                      obj['brokerId'],
+                      obj['brokerDetailId'],
+                      obj['brokerDetailsId']
+                    ];
+                    for (const candidate of candidates) {
+                      if (candidate) {
+                        leadBrokerId = String(candidate);
+                        leadUserId = String(candidate);
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+              
+              // Convert all to strings for comparison
+              const brokerIdStr = String(currentBrokerId || '').trim();
+              const userIdStr = String(currentUserId || '').trim();
+              const leadBrokerIdStr = String(leadBrokerId).trim();
+              const leadUserIdStr = String(leadUserId).trim();
+              
+              // Check if lead belongs to logged-in broker (match either brokerId or userId)
+              const matchesBrokerId = brokerIdStr !== '' && leadBrokerIdStr === brokerIdStr;
+              const matchesUserId = userIdStr !== '' && (leadBrokerIdStr === userIdStr || leadUserIdStr === userIdStr);
+              const shouldFilter = matchesBrokerId || matchesUserId;
+              
+              // Only show leads that don't belong to the logged-in broker
+              // Also show if leadBrokerId is empty (might be admin-created)
+              const shouldShow = !shouldFilter;
+              
+              if (shouldFilter) {
+                console.log('❌ Filtering out lead:', lead._id, {
+                  leadBrokerId: leadBrokerIdStr,
+                  leadUserId: leadUserIdStr,
+                  currentBrokerId: brokerIdStr,
+                  currentUserId: userIdStr,
+                  matchesBrokerId,
+                  matchesUserId
+                });
+              }
+              
+              return shouldShow;
+            })
+          : items;
+
+        console.log('✅ Filtered leads - Remaining:', filteredItems.length, 'out of', items.length);
+
         // Sort by createdAt descending
-        const sorted = [...items].sort(
+        const sorted = [...filteredItems].sort(
           (a, b) =>
             new Date(b.createdAt || 0).getTime() -
             new Date(a.createdAt || 0).getTime()
