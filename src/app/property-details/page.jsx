@@ -2724,7 +2724,7 @@ function PropertyDetailsPageInner() {
           <div className="flex gap-6 min-w-0 pb-2">
             {similarLoading ? (
               // Loading state
-              Array.from({ length: 4 }).map((_, index) => (
+              Array.from({ length: 6 }).map((_, index) => (
                 <div
                   key={index}
                   className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
@@ -2752,7 +2752,7 @@ function PropertyDetailsPageInner() {
               ))
             ) : similarProperties.length > 0 ? (
               // Property cards
-              similarProperties.slice(0, 4).map((p) => (
+              similarProperties.map((p) => (
                 <div
                   key={p.id}
                   className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow"
