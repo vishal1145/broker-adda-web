@@ -494,23 +494,36 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         
         return properties.filter((property) => {
           let propertyBrokerId = '';
-          const createdBy = property.createdBy || property.postedBy || property.broker;
           
-          if (createdBy) {
-            if (typeof createdBy === 'string') {
-              propertyBrokerId = createdBy;
-            } else if (typeof createdBy === 'object' && createdBy !== null) {
-              const obj = createdBy;
-              const userId = obj.userId;
-              
-              if (userId && typeof userId === 'object' && userId !== null) {
-                propertyBrokerId = userId._id || userId.id || '';
-              } else if (userId && typeof userId === 'string') {
-                propertyBrokerId = userId;
-              }
-              
-              if (!propertyBrokerId) {
-                propertyBrokerId = obj._id || obj.id || obj.brokerId || '';
+          // Check broker field first (most common in API response)
+          if (property.broker) {
+            if (typeof property.broker === 'string') {
+              propertyBrokerId = property.broker;
+            } else if (typeof property.broker === 'object' && property.broker !== null) {
+              propertyBrokerId = property.broker._id || property.broker.id || '';
+            }
+          }
+          
+          // If not found, check createdBy, postedBy
+          if (!propertyBrokerId) {
+            const createdBy = property.createdBy || property.postedBy;
+            
+            if (createdBy) {
+              if (typeof createdBy === 'string') {
+                propertyBrokerId = createdBy;
+              } else if (typeof createdBy === 'object' && createdBy !== null) {
+                const obj = createdBy;
+                const userId = obj.userId;
+                
+                if (userId && typeof userId === 'object' && userId !== null) {
+                  propertyBrokerId = userId._id || userId.id || '';
+                } else if (userId && typeof userId === 'string') {
+                  propertyBrokerId = userId;
+                }
+                
+                if (!propertyBrokerId) {
+                  propertyBrokerId = obj._id || obj.id || obj.brokerId || '';
+                }
               }
             }
           }
@@ -521,6 +534,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           
           const matchesBrokerId = brokerIdStr !== '' && propertyBrokerIdStr === brokerIdStr;
           const matchesUserId = userIdStr !== '' && propertyBrokerIdStr === userIdStr;
+          
+          if (matchesBrokerId || matchesUserId) {
+            console.log('🔍 PropertiesComponent: Filtering out own property:', property._id || property.id, 'Broker ID:', propertyBrokerIdStr);
+          }
           
           return !matchesBrokerId && !matchesUserId; // Exclude if matches
         });

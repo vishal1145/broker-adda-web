@@ -655,23 +655,36 @@ function PropertyDetailsPageInner() {
             // Filter out properties belonging to the logged-in broker
             if (currentBrokerId || currentUserId) {
               let propertyBrokerId = '';
-              const createdBy = p.createdBy || p.postedBy || p.broker;
               
-              if (createdBy) {
-                if (typeof createdBy === 'string') {
-                  propertyBrokerId = createdBy;
-                } else if (typeof createdBy === 'object' && createdBy !== null) {
-                  const obj = createdBy;
-                  const userId = obj.userId;
-                  
-                  if (userId && typeof userId === 'object' && userId !== null) {
-                    propertyBrokerId = userId._id || userId.id || '';
-                  } else if (userId && typeof userId === 'string') {
-                    propertyBrokerId = userId;
-                  }
-                  
-                  if (!propertyBrokerId) {
-                    propertyBrokerId = obj._id || obj.id || obj.brokerId || '';
+              // Check broker field first (most common in API response)
+              if (p.broker) {
+                if (typeof p.broker === 'string') {
+                  propertyBrokerId = p.broker;
+                } else if (typeof p.broker === 'object' && p.broker !== null) {
+                  propertyBrokerId = p.broker._id || p.broker.id || '';
+                }
+              }
+              
+              // If not found, check createdBy, postedBy
+              if (!propertyBrokerId) {
+                const createdBy = p.createdBy || p.postedBy;
+                
+                if (createdBy) {
+                  if (typeof createdBy === 'string') {
+                    propertyBrokerId = createdBy;
+                  } else if (typeof createdBy === 'object' && createdBy !== null) {
+                    const obj = createdBy;
+                    const userId = obj.userId;
+                    
+                    if (userId && typeof userId === 'object' && userId !== null) {
+                      propertyBrokerId = userId._id || userId.id || '';
+                    } else if (userId && typeof userId === 'string') {
+                      propertyBrokerId = userId;
+                    }
+                    
+                    if (!propertyBrokerId) {
+                      propertyBrokerId = obj._id || obj.id || obj.brokerId || '';
+                    }
                   }
                 }
               }
@@ -685,6 +698,7 @@ function PropertyDetailsPageInner() {
               
               // Exclude if matches logged-in broker
               if (matchesBrokerId || matchesUserId) {
+                console.log('🔍 SimilarProperties: Filtering out own property:', propertyId, 'Broker ID:', propertyBrokerIdStr);
                 return false;
               }
             }

@@ -65,6 +65,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
   const [furnishing, setFurnishing] = useState("Furnished");
   const [status, setStatus] = useState("Pending Approval");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isHotProperty, setIsHotProperty] = useState(false);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   // Wizard steps (match profile page flow style)
@@ -367,6 +368,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
     setFurnishing(property.furnishing || "Furnished");
     setStatus(property.status || "Pending Approval");
     setIsFeatured(property.isFeatured || false);
+    setIsHotProperty(property.isHotProperty || false);
     setNotes(property.notes || "");
     setFacingDirection(property.facingDirection || "");
     setPossessionStatus(property.possessionStatus || "");
@@ -724,6 +726,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
       // Other fields
       formData.append("status", status);
       formData.append("isFeatured", isFeatured.toString());
+      formData.append("isHotProperty", isHotProperty.toString());
       formData.append("notes", notes || "");
       if (facingDirection) formData.append("facingDirection", facingDirection);
       if (possessionStatus) formData.append("possessionStatus", possessionStatus);
@@ -1587,6 +1590,20 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
                       className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none" 
                       placeholder="Internal notes (optional)" 
                     />
+                  </div>
+
+                  {/* Hot Property Toggle */}
+                  <div className="space-y-2 mt-4">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isHotProperty}
+                        onChange={(e) => setIsHotProperty(e.target.checked)}
+                        className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Hot Property</span>
+                    </label>
+                    <p className="text-xs text-gray-500 ml-8">Mark this property as a hot/urgent listing</p>
                   </div>
                 </div>
 
