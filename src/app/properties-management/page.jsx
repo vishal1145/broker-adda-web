@@ -1105,7 +1105,23 @@ const PropertiesManagement = () => {
                           </span>
                         </div>
                         {/* Share icon bottom-right */}
-                        <button aria-label="Share" className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer">
+                        <button
+                          aria-label="Share on Facebook"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const propertyId = property.id || property._id;
+                            const propertyUrl = propertyId 
+                              ? `${typeof window !== 'undefined' ? window.location.origin : ''}/property-details/${propertyId}`
+                              : typeof window !== 'undefined' ? window.location.href : '';
+                            const propertyTitle = property.title || 'Property';
+                            const propertyDescription = property.description || '';
+                            const shareText = `${propertyTitle}${propertyDescription ? ` - ${propertyDescription}` : ''}`;
+                            const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(propertyUrl)}&quote=${encodeURIComponent(shareText)}`;
+                            window.open(facebookShareUrl, '_blank', 'width=600,height=400');
+                          }}
+                          className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer"
+                        >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                           </svg>

@@ -905,7 +905,19 @@ const Dashboard = () => {
             </div>
             {/* Share icon bottom-right */}
             <button
-              aria-label="Share"
+              aria-label="Share on Facebook"
+              onClick={(e) => {
+                e.stopPropagation();
+                const propertyId = propertyCards[0]?._id || propertyCards[0]?.id;
+                const propertyUrl = propertyId 
+                  ? `${typeof window !== 'undefined' ? window.location.origin : ''}/property-details/${propertyId}`
+                  : typeof window !== 'undefined' ? window.location.href : '';
+                const propertyTitle = propertyCards[0]?.title || 'Property';
+                const propertyDescription = propertyCards[0]?.description || '';
+                const shareText = `${propertyTitle}${propertyDescription ? ` - ${propertyDescription}` : ''}`;
+                const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(propertyUrl)}&quote=${encodeURIComponent(shareText)}`;
+                window.open(facebookShareUrl, '_blank', 'width=600,height=400');
+              }}
               className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -915,7 +927,7 @@ const Dashboard = () => {
           </div>
 
           {/* Details Section - Right */}
-          <div className="flex-1 p-4 flex flex-col">
+          <div className="flex-1 p-4 flex flex-col min-w-0">
             {/* Title */}
             <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
               {propertyCards[0].title || 'Modern Family Home'}
@@ -936,7 +948,7 @@ const Dashboard = () => {
             </h3>
 
             {/* Description */}
-            <p className="mb-4" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF' }}>
+            <p className="mb-4" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF', overflow: 'hidden',textOverflow: 'ellipsis',   whiteSpace: 'nowrap', paddingRight: '8px',}}>
               {propertyCards[0].description || 'A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.'}
             </p>
 
