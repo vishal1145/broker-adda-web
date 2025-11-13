@@ -4784,7 +4784,13 @@ export default function BrokerLeadsPage() {
                                     (typeof t?.fromBroker === "object"
                                       ? t?.fromBroker?._id
                                       : t?.fromBroker) || `region-from-${i}`;
+                                  const fromId =
+                                    t && typeof t.fromBroker === "object"
+                                      ? t.fromBroker?._id || t.fromBroker?.id
+                                      : t?.fromBroker;
                                   const isPendingDelete = pendingDeleteRegionTransferId === regionId;
+                                  // Only show delete button if current broker is the one who created the transfer (fromBroker)
+                                  const canDelete = brokerId && fromId && String(fromId) === String(brokerId);
                                   
                                   return (
                                     <li
@@ -4805,6 +4811,7 @@ export default function BrokerLeadsPage() {
                                             Shared on {when}
                                           </div>
                                         )}
+                                        {canDelete && (
                                         <div className="flex items-center gap-2 mt-2">
                                           <button
                                             type="button"
@@ -4823,6 +4830,7 @@ export default function BrokerLeadsPage() {
                                             {isPendingDelete ? "Removing…" : "Delete"}
                                           </button>
                                         </div>
+                                        )}
                                       </div>
                                     </li>
                                   );
@@ -4885,8 +4893,14 @@ export default function BrokerLeadsPage() {
                                     t && typeof t.toBroker === "object"
                                       ? t.toBroker?._id || t.toBroker?.id
                                       : t?.toBroker;
+                                  const fromId =
+                                    t && typeof t.fromBroker === "object"
+                                      ? t.fromBroker?._id || t.fromBroker?.id
+                                      : t?.fromBroker;
                                   const isPending =
                                     pendingDeleteTransferId === String(toId);
+                                  // Only show delete button if current broker is the one who created the transfer (fromBroker)
+                                  const canDelete = brokerId && fromId && String(fromId) === String(brokerId);
                                   return (
                                     <li
                                       key={`${keyFrom}-${keyTo}-${t?._id || i}`}
@@ -4940,25 +4954,27 @@ export default function BrokerLeadsPage() {
                                           </div>
                                         )}
                                       </div>
-                                      <button
-                                        type="button"
-                                        disabled={isPending}
-                                        onClick={async () => {
-                                          if (!toId) return;
-                                          setPendingDeleteTransferId(
-                                            String(toId)
-                                          );
-                                          await deleteTransfer(toId);
-                                        }}
-                                        className={`ml-2 inline-flex items-center px-2 py-1 text-[12px] rounded border ${
-                                          isPending
-                                            ? "border-gray-200 text-gray-400"
-                                            : "border-rose-200 text-rose-700 hover:bg-rose-50"
-                                        }`}
-                                        title="Delete transfer"
-                                      >
-                                        {isPending ? "Removing…" : "Delete"}
-                                      </button>
+                                      {canDelete && (
+                                        <button
+                                          type="button"
+                                          disabled={isPending}
+                                          onClick={async () => {
+                                            if (!toId) return;
+                                            setPendingDeleteTransferId(
+                                              String(toId)
+                                            );
+                                            await deleteTransfer(toId);
+                                          }}
+                                          className={`ml-2 inline-flex items-center px-2 py-1 text-[12px] rounded border ${
+                                            isPending
+                                              ? "border-gray-200 text-gray-400"
+                                              : "border-rose-200 text-rose-700 hover:bg-rose-50"
+                                          }`}
+                                          title="Delete transfer"
+                                        >
+                                          {isPending ? "Removing…" : "Delete"}
+                                        </button>
+                                      )}
                                     </li>
                                   );
                                 })}
