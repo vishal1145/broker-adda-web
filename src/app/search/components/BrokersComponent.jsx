@@ -194,9 +194,10 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   }, []);
 
   // Listen for latitude and longitude from URL (for geocoding-based search)
+  // Read immediately on mount to ensure coordinates are available before API calls
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const checkURL = () => {
+    const updateFromURL = () => {
       try {
         const sp = new URLSearchParams(window.location.search);
         const latitudeParam = sp.get('latitude');
@@ -206,25 +207,30 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           const lat = parseFloat(latitudeParam);
           const lng = parseFloat(longitudeParam);
           if (!isNaN(lat) && !isNaN(lng)) {
-            // Only update if values changed
-            setUrlLatitude(prev => prev !== lat ? lat : prev);
-            setUrlLongitude(prev => prev !== lng ? lng : prev);
-            console.log('📍 URL lat/lng detected:', lat, lng);
+            setUrlLatitude(lat);
+            setUrlLongitude(lng);
+            console.log('📍 Loaded coordinates from URL on page load:', lat, lng);
           }
         } else {
-          // Clear lat/lng if not in URL
-          setUrlLatitude(prev => prev !== null ? null : prev);
-          setUrlLongitude(prev => prev !== null ? null : prev);
+          setUrlLatitude(null);
+          setUrlLongitude(null);
         }
       } catch (error) {
-        console.error('Error reading lat/lng from URL:', error);
+        console.error('Error reading URL params:', error);
       }
     };
-    checkURL();
-    // Check URL changes periodically
-    const interval = setInterval(checkURL, 500);
-    return () => clearInterval(interval);
-  }, []); // Empty dependency array - we check URL periodically
+    // Read immediately on mount
+    updateFromURL();
+    // Also listen for URL changes (popstate, pushState, etc.)
+    const handlePopState = () => updateFromURL();
+    window.addEventListener('popstate', handlePopState);
+    // Check periodically for URL changes (in case of programmatic navigation)
+    const interval = setInterval(updateFromURL, 500);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   // Once regions data is loaded, try to find and set the region name from stored regionId
   useEffect(() => {
@@ -413,7 +419,8 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       if (urlLatitude !== null && urlLongitude !== null) {
         baseQueryParams.append('latitude', urlLatitude.toString());
         baseQueryParams.append('longitude', urlLongitude.toString());
-        console.log('📍 Using latitude/longitude for filtering:', urlLatitude, urlLongitude);
+        baseQueryParams.append('radius', '50'); // Add radius=50 for coordinate-based search
+        console.log('📍 Using latitude/longitude for filtering:', urlLatitude, urlLongitude, 'radius: 50');
       } else if (regionIds && regionIds.length > 0) {
         // Add region filter if provided (only if no lat/lng)
         console.log('Using region IDs for filtering:', regionIds);

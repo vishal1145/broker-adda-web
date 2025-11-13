@@ -54,6 +54,10 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [isEditingMin, setIsEditingMin] = useState(false);
   const [isEditingMax, setIsEditingMax] = useState(false);
 
+  // Store latitude and longitude from URL for geocoding-based search
+  const [urlLatitude, setUrlLatitude] = useState(null);
+  const [urlLongitude, setUrlLongitude] = useState(null);
+
   const searchParams = useSearchParams();
 
   // Trigger skeleton loader when switching between tabs from header
@@ -75,7 +79,46 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch leads from API
+  // Listen for latitude and longitude from URL (for geocoding-based search)
+  // Read immediately on mount to ensure coordinates are available before API calls
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const updateFromURL = () => {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const latitudeParam = sp.get('latitude');
+        const longitudeParam = sp.get('longitude');
+
+        if (latitudeParam && longitudeParam) {
+          const lat = parseFloat(latitudeParam);
+          const lng = parseFloat(longitudeParam);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            setUrlLatitude(lat);
+            setUrlLongitude(lng);
+            console.log('📍 Loaded coordinates from URL on page load:', lat, lng);
+          }
+        } else {
+          setUrlLatitude(null);
+          setUrlLongitude(null);
+        }
+      } catch (error) {
+        console.error('Error reading URL params:', error);
+      }
+    };
+    // Read immediately on mount
+    updateFromURL();
+    // Also listen for URL changes (popstate, pushState, etc.)
+    const handlePopState = () => updateFromURL();
+    window.addEventListener('popstate', handlePopState);
+    // Check periodically for URL changes (in case of programmatic navigation)
+    const interval = setInterval(updateFromURL, 500);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  // Fetch leads from API (following BrokersComponent pattern exactly)
   const fetchLeads = async () => {
     try {
       setIsLoading(true);
@@ -83,324 +126,367 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       
       // Use environment variable for API URL following app pattern
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-
-      // Build base query parameters; fetch large pages to aggregate client-side
-      const params = new URLSearchParams();
-      const aggLimit = 100;
-      params.set('limit', String(aggLimit));
-      params.set('page', '1');
       
-      // Add sorting parameters to API call (default: createdAt desc)
-      params.set('sortBy', sortBy || 'createdAt');
-      params.set('sortOrder', sortOrder || 'desc');
+      // Build base query parameters with all filters (like BrokersComponent)
+      const baseQueryParams = new URLSearchParams();
       
-      // Add status filters to API call
-      if (leadFilters.leadStatus.length > 0) {
-        leadFilters.leadStatus.forEach(status => {
-          // API expects exact UI status names (case-sensitive)
-          params.append('status', status);
-        });
+      // Add latitude and longitude if present (priority over region - like BrokersComponent)
+      if (urlLatitude !== null && urlLongitude !== null) {
+        baseQueryParams.append('latitude', urlLatitude.toString());
+        baseQueryParams.append('longitude', urlLongitude.toString());
+        baseQueryParams.append('radius', '50');
+        console.log('📍 Using latitude/longitude for filtering:', urlLatitude, urlLongitude, 'radius: 50');
+      } else if (leadFilters.location) {
+        // Add region filter if provided (only if no lat/lng - like BrokersComponent)
+        baseQueryParams.append('regionId', leadFilters.location);
+        console.log('Using region ID for filtering:', leadFilters.location);
       }
 
-      // Add property type (single-select) to API call
-      if (leadFilters.leadType.length === 1) {
-        params.set('propertyType', leadFilters.leadType[0]);
-      }
+      // Add other filters (only if NOT using coordinates - like BrokersComponent)
+      if (!urlLatitude || !urlLongitude) {
+        // Add status filters to API call
+        if (leadFilters.leadStatus.length > 0) {
+          leadFilters.leadStatus.forEach(status => {
+            baseQueryParams.append('status', status);
+          });
+        }
 
-      // Requirement (single-select) - ask backend to filter
-      if (leadFilters.requirement.length === 1) {
-        params.set('requirement', leadFilters.requirement[0]);
-      }
+        // Add property type (single-select) to API call
+        if (leadFilters.leadType.length === 1) {
+          baseQueryParams.append('propertyType', leadFilters.leadType[0]);
+        }
 
-      // Region/location - send region ID to API
-      if (leadFilters.location) params.set('regionId', leadFilters.location);
+        // Requirement (single-select)
+        if (leadFilters.requirement.length === 1) {
+          baseQueryParams.append('requirement', leadFilters.requirement[0]);
+        }
 
-      // Preferred Location Primary - send primary region ID to API
-      if (leadFilters.preferredLocationPrimary) {
-        params.set('primaryRegionId', leadFilters.preferredLocationPrimary);
-      }
+        // Preferred Location Primary
+        if (leadFilters.preferredLocationPrimary) {
+          baseQueryParams.append('primaryRegionId', leadFilters.preferredLocationPrimary);
+        }
 
-      // Preferred Location Secondary - send secondary region ID to API
-      if (leadFilters.preferredLocationSecondary) {
-        params.set('secondaryRegionId', leadFilters.preferredLocationSecondary);
-      }
+        // Preferred Location Secondary
+        if (leadFilters.preferredLocationSecondary) {
+          baseQueryParams.append('secondaryRegionId', leadFilters.preferredLocationSecondary);
+        }
 
-      // Budget Range Filter - send budgetMin and budgetMax to API
-      // Only send if user has changed from default values
-      if (leadFilters.budgetRange[0] > 5000) {
-        params.set('budgetMin', String(leadFilters.budgetRange[0]));
-      }
-      if (leadFilters.budgetRange[1] < 100000000) {
-        params.set('budgetMax', String(leadFilters.budgetRange[1]));
-      }
+        // Budget Range Filter
+        if (leadFilters.budgetRange[0] > 5000) {
+          baseQueryParams.append('budgetMin', String(leadFilters.budgetRange[0]));
+        }
+        if (leadFilters.budgetRange[1] < 100000000) {
+          baseQueryParams.append('budgetMax', String(leadFilters.budgetRange[1]));
+        }
 
-      // Date Range Filter - API uses dateRange for presets, fromDate/toDate for custom ranges
-      if (leadFilters.datePosted) {
-        if (leadFilters.datePosted === 'Today') {
-          params.set('dateRange', 'today');
-        } else if (leadFilters.datePosted === 'Last 7 Days') {
-          params.set('dateRange', 'last7days');
-        } else if (leadFilters.datePosted === 'Last 30 Days') {
-          // API might not have last30days, so use fromDate/toDate
-          const today = new Date();
-          const thirtyDaysAgo = new Date(today);
-          thirtyDaysAgo.setDate(today.getDate() - 30);
-          params.set('fromDate', thirtyDaysAgo.toISOString().split('T')[0]);
-          params.set('toDate', today.toISOString().split('T')[0]);
-        } else if (leadFilters.datePosted === 'Custom Range') {
-          // Use fromDate and toDate for custom range
+        // Date Range Filter
+        if (leadFilters.datePosted) {
+          if (leadFilters.datePosted === 'Today') {
+            baseQueryParams.append('dateRange', 'today');
+          } else if (leadFilters.datePosted === 'Last 7 Days') {
+            baseQueryParams.append('dateRange', 'last7days');
+          } else if (leadFilters.datePosted === 'Last 30 Days') {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            baseQueryParams.append('fromDate', thirtyDaysAgo.toISOString().split('T')[0]);
+            baseQueryParams.append('toDate', today.toISOString().split('T')[0]);
+          } else if (leadFilters.datePosted === 'Custom Range') {
+            if (leadFilters.dateAdded.start) {
+              baseQueryParams.append('fromDate', leadFilters.dateAdded.start);
+            }
+            if (leadFilters.dateAdded.end) {
+              baseQueryParams.append('toDate', leadFilters.dateAdded.end);
+            }
+          }
+        } else if (leadFilters.dateAdded.start || leadFilters.dateAdded.end) {
           if (leadFilters.dateAdded.start) {
-            params.set('fromDate', leadFilters.dateAdded.start);
+            baseQueryParams.append('fromDate', leadFilters.dateAdded.start);
           }
           if (leadFilters.dateAdded.end) {
-            params.set('toDate', leadFilters.dateAdded.end);
+            baseQueryParams.append('toDate', leadFilters.dateAdded.end);
           }
+        } else {
+          baseQueryParams.append('fromDate', '2024-06-01');
         }
-      } else if (leadFilters.dateAdded.start || leadFilters.dateAdded.end) {
-        // Also handle dateAdded directly if set (custom range without preset)
-        if (leadFilters.dateAdded.start) {
-          params.set('fromDate', leadFilters.dateAdded.start);
-        }
-        if (leadFilters.dateAdded.end) {
-          params.set('toDate', leadFilters.dateAdded.end);
+
+        // Add createdBy if a broker is selected
+        if ((leadFilters.brokerAgent || []).length > 0) {
+          baseQueryParams.append('createdBy', String((leadFilters.brokerAgent || [])[0]));
         }
       }
-
-      console.log('API URL:', `${apiUrl}/leads?${params.toString()}`);
-      console.log('Status filters:', leadFilters.leadStatus);
-      console.log('Property Type filters:', leadFilters.leadType);
-      console.log('Primary Region ID:', leadFilters.preferredLocationPrimary);
-      console.log('Secondary Region ID:', leadFilters.preferredLocationSecondary);
-      console.log('Date Posted:', leadFilters.datePosted);
-      console.log('Date Range:', { start: leadFilters.dateAdded.start, end: leadFilters.dateAdded.end });
-
-      // Add createdBy if a broker is selected (single-select)
-      if ((leadFilters.brokerAgent || []).length > 0) {
-        params.set('createdBy', String((leadFilters.brokerAgent || [])[0]));
-      }
+      
+      // Fetch leads with a single API call first, then paginate if needed (like BrokersComponent)
+      let allLeads = [];
+      const isLatLngSearch = urlLatitude !== null && urlLongitude !== null;
+      
+      // For lat/lng search, only use baseQueryParams (which already has lat/lng)
+      // For region search, use pagination
+      const limit = isLatLngSearch ? null : 100;
+      
+      console.log('Fetching leads with base query params:', baseQueryParams.toString());
+      console.log('Is lat/lng search:', isLatLngSearch);
+      
       // Prepare headers with Authorization if token exists
       const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || localStorage.getItem('authToken') || '') : '';
       const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
-      const response = await fetch(`${apiUrl}/leads?${params.toString()}`, { headers });
-
-      if (response.ok) {
+      
+      // For lat/lng search, make single API call without page/limit (like BrokersComponent)
+      if (isLatLngSearch) {
+        const queryParams = new URLSearchParams(baseQueryParams);
+        // Don't add page, limit for lat/lng searches
+        
+        // Add sorting (only if user has explicitly selected a sort option - like BrokersComponent)
+        if (sortBy && sortBy !== 'default' && sortBy !== null) {
+          queryParams.append('sortBy', sortBy);
+          if (sortOrder) {
+            queryParams.append('sortOrder', sortOrder);
+          }
+        }
+        
+        const queryString = queryParams.toString();
+        const apiUrlWithParams = queryString ? `${apiUrl}/leads?${queryString}` : `${apiUrl}/leads`;
+        
+        console.log('📍 Fetching leads with lat/lng, URL:', apiUrlWithParams);
+        
+        const response = await fetch(apiUrlWithParams, { method: 'GET', headers });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch leads: ${response.status}`);
+        }
+        
         const data = await response.json();
-        console.log('API Response:', data);
-        let items = [];
-        let totalCount = 0;
+        console.log('Leads response:', data);
         
-        // Handle different response structures
-        console.log('Raw API response:', data);
-        
-        const paginationTotal = data?.data?.pagination?.totalItems || data?.pagination?.totalItems || 0;
-
-        if (Array.isArray(data?.data?.items)) {
-          items = data.data.items;
-          totalCount = paginationTotal || data.data.total || data.total || items.length;
-          console.log('Using data.data.items structure');
+        // Extract leads data (like BrokersComponent)
+        let leadsData = [];
+        if (data?.data?.items && Array.isArray(data.data.items)) {
+          leadsData = data.data.items;
         } else if (Array.isArray(data?.data?.leads)) {
-          items = data.data.leads;
-          totalCount = paginationTotal || data.data.total || data.total || items.length;
-          console.log('Using data.data.leads structure');
-        } else if (Array.isArray(data?.data)) {
-          items = data.data;
-          totalCount = paginationTotal || data.total || items.length;
-          console.log('Using data.data structure');
+          leadsData = data.data.leads;
         } else if (Array.isArray(data?.leads)) {
-          items = data.leads;
-          totalCount = paginationTotal || data.total || items.length;
-          console.log('Using data.leads structure');
+          leadsData = data.leads;
+        } else if (Array.isArray(data?.data)) {
+          leadsData = data.data;
         } else if (Array.isArray(data)) {
-          items = data;
-          totalCount = paginationTotal || items.length;
-          console.log('Using direct data array structure');
-        } else {
-          console.log('No valid data structure found, checking for other possibilities...');
-          // Check for other possible structures
-          if (data?.data && typeof data.data === 'object') {
-            console.log('data.data is object:', data.data);
-            // Try to find array in the object
-            const possibleArrays = Object.values(data.data).filter(Array.isArray);
-            if (possibleArrays.length > 0) {
-              items = possibleArrays[0];
-              totalCount = items.length;
-              console.log('Found array in data.data object:', items);
-            }
-          }
+          leadsData = data;
         }
+        
+        if (leadsData.length > 0) {
+          allLeads = leadsData;
+        }
+      } else {
+        // For region-based search, use pagination (like BrokersComponent)
+        let pageToFetch = 1;
+        let hasMorePages = true;
+        
+        while (hasMorePages) {
+          const queryParams = new URLSearchParams(baseQueryParams);
+          queryParams.append('page', String(pageToFetch));
+          queryParams.append('limit', String(limit));
 
-        // Final fallback - if no items found, try to extract from any array in the response
-        if (items.length === 0) {
-          console.log('No items found, trying final fallback...');
-          const findArraysInObject = (obj) => {
-            const arrays = [];
-            for (const key in obj) {
-              if (Array.isArray(obj[key])) {
-                arrays.push(obj[key]);
-              } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-                arrays.push(...findArraysInObject(obj[key]));
-              }
+          // Add sorting (only if user has explicitly selected a sort option - like BrokersComponent)
+          if (sortBy && sortBy !== 'default' && sortBy !== null) {
+            queryParams.append('sortBy', sortBy);
+            if (sortOrder) {
+              queryParams.append('sortOrder', sortOrder);
             }
-            return arrays;
-          };
+          } else {
+            // Default sorting for non-coordinate searches
+            queryParams.append('sortBy', 'createdAt');
+            queryParams.append('sortOrder', 'desc');
+          }
+      
+          const queryString = queryParams.toString();
+          const apiUrlWithParams = queryString ? `${apiUrl}/leads?${queryString}` : `${apiUrl}/leads`;
           
-          const allArrays = findArraysInObject(data);
-          if (allArrays.length > 0) {
-            // Use the largest array found
-            const largestArray = allArrays.reduce((a, b) => a.length > b.length ? a : b);
-            items = largestArray;
-            totalCount = items.length;
-            console.log('Found array in fallback:', items);
+          console.log(`Fetching leads page ${pageToFetch}, URL:`, apiUrlWithParams);
+          
+          const response = await fetch(apiUrlWithParams, { method: 'GET', headers });
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch leads: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          console.log(`Leads response for page ${pageToFetch}:`, data);
+          
+          // Extract leads data (like BrokersComponent)
+          let leadsData = [];
+          if (data?.data?.items && Array.isArray(data.data.items)) {
+            leadsData = data.data.items;
+          } else if (Array.isArray(data?.data?.leads)) {
+            leadsData = data.data.leads;
+          } else if (Array.isArray(data?.leads)) {
+            leadsData = data.leads;
+          } else if (Array.isArray(data?.data)) {
+            leadsData = data.data;
+          } else if (Array.isArray(data)) {
+            leadsData = data;
+          }
+          
+          if (leadsData.length > 0) {
+            allLeads = allLeads.concat(leadsData);
+            console.log(`Total leads collected so far: ${allLeads.length}`);
+            
+            // Check pagination info from API response (like BrokersComponent)
+            const pagination = data?.data?.pagination || data?.pagination;
+            const totalPages = pagination?.totalPages;
+            const hasNextPage = pagination?.hasNextPage !== false;
+            
+            if (pagination && totalPages) {
+              if (pageToFetch >= totalPages || (hasNextPage === false)) {
+                hasMorePages = false;
+                console.log(`Reached last page ${pageToFetch} of ${totalPages}`);
+              } else {
+                pageToFetch++;
+                if (pageToFetch > 10) {
+                  hasMorePages = false;
+                }
+              }
+            } else {
+              // If no pagination info, stop after first page
+              hasMorePages = false;
+            }
+          } else {
+            hasMorePages = false;
           }
         }
-
-        // If API has more pages, aggregate them all so we can filter across the full dataset
-        try {
-          const grandTotal = totalCount || items.length;
-          const currentCount = items.length;
-          const totalPages = Math.max(1, Math.ceil(grandTotal / aggLimit));
-          const aggregated = [...items];
-          for (let p = 2; p <= totalPages; p++) {
-            const moreParams = new URLSearchParams(params);
-            moreParams.set('page', String(p));
-            const moreRes = await fetch(`${apiUrl}/leads?${moreParams.toString()}`, { headers });
-            if (!moreRes.ok) break;
-            const moreData = await moreRes.json();
-            let pageItems = [];
-            if (Array.isArray(moreData?.data?.items)) pageItems = moreData.data.items;
-            else if (Array.isArray(moreData?.data?.leads)) pageItems = moreData.data.leads;
-            else if (Array.isArray(moreData?.data)) pageItems = moreData.data;
-            else if (Array.isArray(moreData?.leads)) pageItems = moreData.leads;
-            else if (Array.isArray(moreData)) pageItems = moreData;
-            else if (moreData?.data && typeof moreData.data === 'object') {
-              const poss = Object.values(moreData.data).filter(Array.isArray);
-              if (poss.length > 0) pageItems = poss[0];
-            }
-            if (Array.isArray(pageItems) && pageItems.length > 0) aggregated.push(...pageItems);
-          }
-          items = aggregated;
-          totalCount = Math.max(grandTotal, items.length);
-        } catch {}
-
-        console.log('Final leads data (aggregated):', items.length);
-        console.log('Total count from API (reported):', totalCount);
-        console.log('Sample lead statuses:', items.map(lead => ({ id: lead._id || lead.id, status: lead.status })));
-        console.log('Sample lead types:', items.map(lead => ({ id: lead._id || lead.id, propertyType: lead.propertyType, requirement: lead.requirement, req: lead.req })));
-        console.log('Active filters:', leadFilters);
-        console.log('API Response structure:', data);
+      }
+      
+      // Process and set leads (like BrokersComponent)
+      if (allLeads.length > 0) {
+        // For coordinate searches: use API response directly
+        if (isLatLngSearch) {
+          const totalCount = allLeads.length; // API should return all matching leads
+          console.log('📍 LeadsComponent: Coordinate search - displaying', allLeads.length, 'items directly from API');
+          setAllLeads(allLeads);
+          setLeads(allLeads);
+          setTotalLeads(totalCount);
+          setLeadsError('');
+          setIsLoading(false);
+          return;
+        }
+        
+        // For non-coordinate searches: apply client-side filtering, sorting, pagination
+        let items = allLeads;
+        
         // Store full dataset for dependent dropdowns (city -> region)
         setAllLeads(items);
         
-        
-        // Apply client-side filtering
+        // Apply client-side filtering (only for non-coordinate searches)
         let filteredItems = items;
         
-        // Filter by Lead Status (client-side fallback if API filtering doesn't work properly)
-        if (leadFilters.leadStatus.length > 0) {
-          filteredItems = filteredItems.filter(lead => {
-            const leadStatus = lead.status || '';
-            return leadFilters.leadStatus.some(filterStatus => {
-              // Match exact status names (case-insensitive)
-              return leadStatus.toLowerCase() === filterStatus.toLowerCase();
+        // Only apply filtering for non-coordinate searches (coordinate searches already returned early)
+        if (!isLatLngSearch) {
+          // Filter by Lead Status (client-side fallback if API filtering doesn't work properly)
+          if (leadFilters.leadStatus.length > 0) {
+            filteredItems = filteredItems.filter(lead => {
+              const leadStatus = lead.status || '';
+              return leadFilters.leadStatus.some(filterStatus => {
+                // Match exact status names (case-insensitive)
+                return leadStatus.toLowerCase() === filterStatus.toLowerCase();
+              });
             });
-          });
-        }
-        
-        // Client-side backup: filter by property type (single-select)
-        if (leadFilters.leadType.length === 1) {
-          const selectedType = leadFilters.leadType[0].toLowerCase();
-          filteredItems = filteredItems.filter(lead => (lead.propertyType || '').toLowerCase() === selectedType);
-        }
+          }
+          
+          // Client-side backup: filter by property type (single-select)
+          if (leadFilters.leadType.length === 1) {
+            const selectedType = leadFilters.leadType[0].toLowerCase();
+            filteredItems = filteredItems.filter(lead => (lead.propertyType || '').toLowerCase() === selectedType);
+          }
 
-        // Client-side backup if backend didn't apply requirement
-        if (leadFilters.requirement.length === 1) {
-          const selectedReq = leadFilters.requirement[0].toLowerCase();
-          const beforeCount = filteredItems.length;
-          const filtered = filteredItems.filter(lead => (lead.requirement || lead.req || '').toLowerCase() === selectedReq);
-          // Only override if backend didn't filter (sizes equal)
-          if (beforeCount === filteredItems.length) {
-            filteredItems = filtered;
+          // Client-side backup if backend didn't apply requirement
+          if (leadFilters.requirement.length === 1) {
+            const selectedReq = leadFilters.requirement[0].toLowerCase();
+            const beforeCount = filteredItems.length;
+            const filtered = filteredItems.filter(lead => (lead.requirement || lead.req || '').toLowerCase() === selectedReq);
+            // Only override if backend didn't filter (sizes equal)
+            if (beforeCount === filteredItems.length) {
+              filteredItems = filtered;
+            }
+          }
+          
+          // Filter by Priority
+          if (leadFilters.priority.length > 0) {
+            filteredItems = filteredItems.filter(lead => {
+              const leadPriority = lead.priority || lead.priorityLevel || '';
+              const priorityLower = leadPriority.toLowerCase();
+              return leadFilters.priority.some(filterPriority => {
+                const filterPriorityLower = filterPriority.toLowerCase();
+                return priorityLower.includes(filterPriorityLower);
+              });
+            });
+          }
+          
+          // Skip client-side broker filtering if backend is already filtering via createdBy
+          
+          // Filter by City (robust matching across fields)
+          if (leadFilters.city) {
+            const cityLower = leadFilters.city.toLowerCase();
+            filteredItems = filteredItems.filter(lead => {
+              const city = (lead.city || '').toString().toLowerCase();
+              const location = (lead.location || '').toString().toLowerCase();
+              const primaryRegion = (typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion?.name || '').toString().toLowerCase();
+              const secondaryRegion = (typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion?.name || '').toString().toLowerCase();
+              const regionsArr = Array.isArray(lead.regions) ? lead.regions : [];
+
+              const match = (val) => !!val && (val === cityLower || val.includes(cityLower));
+              const regionsMatch = regionsArr.some(r => {
+                const name = (typeof r === 'string' ? r : r?.name || '').toString().toLowerCase();
+                return match(name);
+              });
+              return match(city) || match(location) || match(primaryRegion) || match(secondaryRegion) || regionsMatch;
+            });
+          }
+
+          // Filter by Region (robust matching by ID or name)
+          if (leadFilters.location) {
+            const regionFilterValue = leadFilters.location;
+            const isRegionID = typeof regionFilterValue === 'string' || typeof regionFilterValue === 'number';
+            
+            filteredItems = filteredItems.filter(lead => {
+              // Check if lead has matching region ID
+              const primaryRegionID = lead.primaryRegion?._id || lead.primaryRegion?.id || lead.primaryRegion;
+              const secondaryRegionID = lead.secondaryRegion?._id || lead.secondaryRegion?.id || lead.secondaryRegion;
+              
+              // Check if IDs match
+              if (isRegionID && String(regionFilterValue) === String(primaryRegionID) || String(regionFilterValue) === String(secondaryRegionID)) {
+                return true;
+              }
+              
+              // Fallback: check names (case-insensitive)
+              const regionLower = String(regionFilterValue).toLowerCase();
+              const primaryRegion = (typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion?.name || '').toString().toLowerCase();
+              const secondaryRegion = (typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion?.name || '').toString().toLowerCase();
+              const location = (lead.location || '').toString().toLowerCase();
+
+              return primaryRegion.includes(regionLower) || secondaryRegion.includes(regionLower) || location.includes(regionLower);
+            });
+          }
+
+          // Filter by Preferred Location Primary (client-side backup)
+          if (leadFilters.preferredLocationPrimary) {
+            filteredItems = filteredItems.filter(lead => {
+              const primaryRegionID = lead.primaryRegion?._id || lead.primaryRegion?.id || lead.primaryRegion;
+              return String(primaryRegionID) === String(leadFilters.preferredLocationPrimary);
+            });
+          }
+
+          // Filter by Preferred Location Secondary (client-side backup)
+          if (leadFilters.preferredLocationSecondary) {
+            filteredItems = filteredItems.filter(lead => {
+              const secondaryRegionID = lead.secondaryRegion?._id || lead.secondaryRegion?.id || lead.secondaryRegion;
+              return String(secondaryRegionID) === String(leadFilters.preferredLocationSecondary);
+            });
           }
         }
         
-        // Filter by Priority
-        if (leadFilters.priority.length > 0) {
-          filteredItems = filteredItems.filter(lead => {
-            const leadPriority = lead.priority || lead.priorityLevel || '';
-            const priorityLower = leadPriority.toLowerCase();
-            return leadFilters.priority.some(filterPriority => {
-              const filterPriorityLower = filterPriority.toLowerCase();
-              return priorityLower.includes(filterPriorityLower);
-            });
-          });
-        }
-        
-        // Skip client-side broker filtering if backend is already filtering via createdBy
-        
-        // Filter by City (robust matching across fields)
-        if (leadFilters.city) {
-          const cityLower = leadFilters.city.toLowerCase();
-          filteredItems = filteredItems.filter(lead => {
-            const city = (lead.city || '').toString().toLowerCase();
-            const location = (lead.location || '').toString().toLowerCase();
-            const primaryRegion = (typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion?.name || '').toString().toLowerCase();
-            const secondaryRegion = (typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion?.name || '').toString().toLowerCase();
-            const regionsArr = Array.isArray(lead.regions) ? lead.regions : [];
-
-            const match = (val) => !!val && (val === cityLower || val.includes(cityLower));
-            const regionsMatch = regionsArr.some(r => {
-              const name = (typeof r === 'string' ? r : r?.name || '').toString().toLowerCase();
-              return match(name);
-            });
-            return match(city) || match(location) || match(primaryRegion) || match(secondaryRegion) || regionsMatch;
-          });
-        }
-
-        // Filter by Region (robust matching by ID or name)
-        if (leadFilters.location) {
-          const regionFilterValue = leadFilters.location;
-          const isRegionID = typeof regionFilterValue === 'string' || typeof regionFilterValue === 'number';
-          
-          filteredItems = filteredItems.filter(lead => {
-            // Check if lead has matching region ID
-            const primaryRegionID = lead.primaryRegion?._id || lead.primaryRegion?.id || lead.primaryRegion;
-            const secondaryRegionID = lead.secondaryRegion?._id || lead.secondaryRegion?.id || lead.secondaryRegion;
-            
-            // Check if IDs match
-            if (isRegionID && String(regionFilterValue) === String(primaryRegionID) || String(regionFilterValue) === String(secondaryRegionID)) {
-              return true;
-            }
-            
-            // Fallback: check names (case-insensitive)
-            const regionLower = String(regionFilterValue).toLowerCase();
-            const primaryRegion = (typeof lead.primaryRegion === 'string' ? lead.primaryRegion : lead.primaryRegion?.name || '').toString().toLowerCase();
-            const secondaryRegion = (typeof lead.secondaryRegion === 'string' ? lead.secondaryRegion : lead.secondaryRegion?.name || '').toString().toLowerCase();
-            const location = (lead.location || '').toString().toLowerCase();
-
-            return primaryRegion.includes(regionLower) || secondaryRegion.includes(regionLower) || location.includes(regionLower);
-          });
-        }
-
-        // Filter by Preferred Location Primary (client-side backup)
-        if (leadFilters.preferredLocationPrimary) {
-          filteredItems = filteredItems.filter(lead => {
-            const primaryRegionID = lead.primaryRegion?._id || lead.primaryRegion?.id || lead.primaryRegion;
-            return String(primaryRegionID) === String(leadFilters.preferredLocationPrimary);
-          });
-        }
-
-        // Filter by Preferred Location Secondary (client-side backup)
-        if (leadFilters.preferredLocationSecondary) {
-          filteredItems = filteredItems.filter(lead => {
-            const secondaryRegionID = lead.secondaryRegion?._id || lead.secondaryRegion?.id || lead.secondaryRegion;
-            return String(secondaryRegionID) === String(leadFilters.preferredLocationSecondary);
-          });
-        }
-        
         console.log('=== LEAD FILTERING DEBUG ===');
-        console.log('Total items from API:', items.length);
-        console.log('Current filters:', leadFilters);
-        console.log('Filtered items count:', filteredItems.length);
+        console.log('📍 LeadsComponent: Total items from API:', items.length);
+        console.log('📍 LeadsComponent: Is coordinate search:', isLatLngSearch);
+        console.log('📍 LeadsComponent: Current filters:', leadFilters);
+        console.log('📍 LeadsComponent: Filtered items count:', filteredItems.length);
         console.log('Filter results - Status filter:', leadFilters.leadStatus.length > 0 ? `Applied (${leadFilters.leadStatus.join(', ')})` : 'Not applied');
         console.log('Filter results - Property Type filter:', leadFilters.leadType.length > 0 ? `Applied (${leadFilters.leadType.join(', ')})` : 'Not applied');
         console.log('Filter results - Requirement filter:', leadFilters.requirement.length > 0 ? `Applied (${leadFilters.requirement.join(', ')})` : 'Not applied');
@@ -454,21 +540,30 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           });
         }
         
-        // Client-side pagination after filtering and sorting
+        // Client-side pagination after filtering and sorting (only for non-coordinate searches)
+        // Coordinate searches already returned early, so this code only runs for non-coordinate searches
+        let finalTotal, itemsToDisplay;
+        finalTotal = sortedItems.length;
         const start = (currentPage - 1) * leadsPerPage;
-        const pagedItems = sortedItems.slice(start, start + leadsPerPage);
-        setLeads(pagedItems);
-        setTotalLeads(sortedItems.length);
+        itemsToDisplay = sortedItems.slice(start, start + leadsPerPage);
+        console.log('📍 LeadsComponent: Non-coordinate search - paginated items:', itemsToDisplay.length, 'of', finalTotal);
+        setLeads(itemsToDisplay);
+        setTotalLeads(finalTotal);
+        setLeadsError('');
       } else {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-        console.error('API Error:', response.status, errorData);
-        setLeadsError(`Failed to load leads: ${errorData.message || 'Server error'}`);
+        // No leads found
         setLeads([]);
         setTotalLeads(0);
+        setLeadsError('');
       }
     } catch (error) {
-      console.error('Error fetching leads:', error);
-      setLeadsError('Error loading leads');
+      console.error('📍 LeadsComponent: Error fetching leads:', error);
+      console.error('📍 LeadsComponent: Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      setLeadsError(`Error loading leads: ${error.message || 'Network error'}`);
       setLeads([]);
       setTotalLeads(0);
     } finally {
@@ -476,10 +571,24 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     }
   };
 
-  // Fetch leads when component mounts or filters change
+  // Fetch leads when any filter changes or on initial mount (like BrokersComponent)
   useEffect(() => {
-    fetchLeads();
-  }, [leadFilters, sortBy, currentPage]);
+    // Debounce the API call to prevent multiple rapid calls (like BrokersComponent)
+    const timeoutId = setTimeout(() => {
+      console.log('=== FETCHING LEADS ===');
+      console.log('URL Latitude:', urlLatitude, 'URL Longitude:', urlLongitude);
+      fetchLeads();
+    }, 300); // 300ms debounce delay
+
+    // Cleanup timeout on unmount or dependency change
+    return () => clearTimeout(timeoutId);
+  }, [
+    leadFilters,
+    sortBy,
+    currentPage,
+    urlLatitude,
+    urlLongitude
+  ]);
 
   // Reset UI loading when filters change (but don't show loading for filter changes)
   useEffect(() => {
@@ -631,6 +740,28 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     setBudgetMaxInputValue('');
     setIsEditingMin(false);
     setIsEditingMax(false);
+    
+    // Clear coordinate-based filters
+    setUrlLatitude(null);
+    setUrlLongitude(null);
+    
+    // Clear URL-based search parameters (latitude, longitude)
+    if (typeof window !== 'undefined') {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        sp.delete('latitude');
+        sp.delete('longitude');
+        const newUrl = window.location.pathname + (sp.toString() ? `?${sp.toString()}` : '');
+        window.history.replaceState({}, '', newUrl);
+      } catch (error) {
+        console.error('Error clearing URL parameters:', error);
+      }
+    }
+    
+    // Dispatch event to clear navbar search bar
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('clearNavbarSearch'));
+    }
   };
 
   // Pagination calculations

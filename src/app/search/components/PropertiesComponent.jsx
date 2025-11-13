@@ -40,6 +40,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const [ratingsLoading, setRatingsLoading] = useState(false);
   const timersRef = useRef({});
 
+  // Store latitude and longitude from URL for geocoding-based search
+  const [urlLatitude, setUrlLatitude] = useState(null);
+  const [urlLongitude, setUrlLongitude] = useState(null);
+
   // Initialize broker filter from URL params synchronously
   const getInitialBrokerFilter = () => {
     if (typeof window === 'undefined') return null;
@@ -87,6 +91,45 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       return () => clearTimeout(t);
     }
   }, [activeTab, hasLoaded]);
+
+  // Listen for latitude and longitude from URL (for geocoding-based search)
+  // Read immediately on mount to ensure coordinates are available before API calls
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const updateFromURL = () => {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const latitudeParam = sp.get('latitude');
+        const longitudeParam = sp.get('longitude');
+
+        if (latitudeParam && longitudeParam) {
+          const lat = parseFloat(latitudeParam);
+          const lng = parseFloat(longitudeParam);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            setUrlLatitude(lat);
+            setUrlLongitude(lng);
+            console.log('📍 Loaded coordinates from URL on page load:', lat, lng);
+          }
+        } else {
+          setUrlLatitude(null);
+          setUrlLongitude(null);
+        }
+      } catch (error) {
+        console.error('Error reading URL params:', error);
+      }
+    };
+    // Read immediately on mount
+    updateFromURL();
+    // Also listen for URL changes (popstate, pushState, etc.)
+    const handlePopState = () => updateFromURL();
+    window.addEventListener('popstate', handlePopState);
+    // Check periodically for URL changes (in case of programmatic navigation)
+    const interval = setInterval(updateFromURL, 500);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   // Fetch regions from API
   useEffect(() => {
@@ -178,189 +221,314 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     fetchRatings();
   }, []);
 
-  // Fetch properties from API with all filters
+
+  // Update property ratings when ratings data is loaded (without re-fetching properties)
   useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        setIsLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        
-        // Build query parameters with all filters
-        const queryParams = new URLSearchParams();
-        
+    if (Object.keys(propertyRatings).length > 0 && propertyItems.length > 0) {
+      setPropertyItems(prevItems => 
+        prevItems.map(item => ({
+          ...item,
+          rating: propertyRatings[item.id] || item.rating || '4.7'
+        }))
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyRatings]);
+
+  // Fetch properties from API (following BrokersComponent pattern exactly)
+  const fetchProperties = async () => {
+    try {
+      setIsLoading(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      
+      // Build base query parameters with all filters (like BrokersComponent)
+      const baseQueryParams = new URLSearchParams();
+      
+      // Add latitude and longitude if present (priority over region - like BrokersComponent)
+      if (urlLatitude !== null && urlLongitude !== null) {
+        baseQueryParams.append('latitude', urlLatitude.toString());
+        baseQueryParams.append('longitude', urlLongitude.toString());
+        baseQueryParams.append('radius', '50');
+        console.log('📍 Using latitude/longitude for filtering:', urlLatitude, urlLongitude, 'radius: 50');
+      } else if (selectedRegion?.regionId) {
+        // Add region filter if provided (only if no lat/lng - like BrokersComponent)
+        baseQueryParams.append('regionId', selectedRegion.regionId);
+        console.log('Using region ID for filtering:', selectedRegion.regionId);
+      }
+
+      // Add other filters (only if NOT using coordinates - like BrokersComponent)
+      if (!urlLatitude || !urlLongitude) {
         // Text search
         if (filters.search) {
-          queryParams.append('search', filters.search);
+          baseQueryParams.append('search', filters.search);
         }
         
         // City filter
         if (filters.city) {
-          queryParams.append('city', filters.city);
-        }
-        
-        // Region filter
-        if (selectedRegion?.regionId) {
-          queryParams.append('regionId', selectedRegion.regionId);
+          baseQueryParams.append('city', filters.city);
         }
         
         // Property type filters
         if (filters.categories.length > 0) {
           const category = filters.categories[0];
-          queryParams.append('propertyType', category);
+          baseQueryParams.append('propertyType', category);
         }
         
-        // Bedrooms filter (single select - convert "5+" to "5")
+        // Bedrooms filter
         if (filters.bedrooms) {
           const bedroomsValue = filters.bedrooms.replace('+', '');
-          queryParams.append('bedrooms', bedroomsValue);
+          baseQueryParams.append('bedrooms', bedroomsValue);
         }
         
         // Bathrooms filter
         if (secondaryFilters.bathrooms) {
           const bathroomsValue = secondaryFilters.bathrooms.replace('+', '');
-          queryParams.append('bathrooms', bathroomsValue);
+          baseQueryParams.append('bathrooms', bathroomsValue);
         }
         
-        // Price range (only add if > 0)
+        // Price range
         if (filters.priceRange[0] && filters.priceRange[0] > 0) {
-          queryParams.append('minPrice', String(filters.priceRange[0]));
+          baseQueryParams.append('minPrice', String(filters.priceRange[0]));
         }
         if (filters.priceRange[1] && filters.priceRange[1] > 0) {
-          queryParams.append('maxPrice', String(filters.priceRange[1]));
+          baseQueryParams.append('maxPrice', String(filters.priceRange[1]));
         }
         
         // Furnishing filter
         if (secondaryFilters.furnishingType) {
-          queryParams.append('furnishing', secondaryFilters.furnishingType);
+          baseQueryParams.append('furnishing', secondaryFilters.furnishingType);
         }
         
         // Facing direction
         if (secondaryFilters.facingDirection) {
-          queryParams.append('facingDirection', secondaryFilters.facingDirection);
+          baseQueryParams.append('facingDirection', secondaryFilters.facingDirection);
         }
         
         // Possession status
         if (secondaryFilters.possessionStatus) {
-          queryParams.append('possessionStatus', secondaryFilters.possessionStatus);
+          baseQueryParams.append('possessionStatus', secondaryFilters.possessionStatus);
         }
         
         // Posted by
         if (secondaryFilters.postedBy) {
-          queryParams.append('postedBy', secondaryFilters.postedBy);
+          baseQueryParams.append('postedBy', secondaryFilters.postedBy);
         }
         
-        // Broker filter (for filtering properties by specific broker)
+        // Broker filter
         if (secondaryFilters.broker) {
-          queryParams.append('broker', secondaryFilters.broker);
+          baseQueryParams.append('broker', secondaryFilters.broker);
         }
         
         // Verification status
         if (secondaryFilters.verificationStatus) {
-          queryParams.append('verificationStatus', secondaryFilters.verificationStatus);
+          baseQueryParams.append('verificationStatus', secondaryFilters.verificationStatus);
         }
+      }
+      
+      // Fetch properties with a single API call first, then paginate if needed (like BrokersComponent)
+      let allProperties = [];
+      const isLatLngSearch = urlLatitude !== null && urlLongitude !== null;
+      
+      // For lat/lng search, only use baseQueryParams (which already has lat/lng)
+      // For region search, use pagination
+      const limit = isLatLngSearch ? null : itemsPerPage;
+      
+      console.log('Fetching properties with base query params:', baseQueryParams.toString());
+      console.log('Is lat/lng search:', isLatLngSearch);
+      
+      // For lat/lng search, make single API call without page/limit (like BrokersComponent)
+      if (isLatLngSearch) {
+        const queryParams = new URLSearchParams(baseQueryParams);
+        // Don't add page, limit for lat/lng searches
         
-        // Sorting (set default if not selected)
-        if (sortBy && sortBy !== 'default') {
+        // Add sorting (only if user has explicitly selected a sort option - like BrokersComponent)
+        if (sortBy && sortBy !== 'default' && sortBy !== null) {
           queryParams.append('sortBy', sortBy);
           if (sortOrder) {
             queryParams.append('sortOrder', sortOrder);
-          } else {
-            queryParams.append('sortOrder', 'desc'); // default order
           }
-        } else {
-          // Default sort for properties (newest first)
-          queryParams.append('sortBy', 'createdAt');
-          queryParams.append('sortOrder', 'desc');
         }
         
-        // Pagination from API
-        queryParams.append('page', String(currentPage));
-        queryParams.append('limit', String(itemsPerPage));
+        const queryString = queryParams.toString();
+        const apiUrlWithParams = queryString ? `${apiUrl}/properties?${queryString}` : `${apiUrl}/properties`;
         
-        const url = `${apiUrl}/properties?${queryParams.toString()}`;
-        console.log('Fetching properties with filters:', url);
-        console.log('Query params:', Object.fromEntries(queryParams));
+        console.log('📍 Fetching properties with lat/lng, URL:', apiUrlWithParams);
         
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Failed to fetch properties');
-        const data = await res.json().catch(() => ({}));
+        const response = await fetch(apiUrlWithParams, { method: 'GET' });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch properties: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Properties response:', data);
+        
+        // Extract properties data (like BrokersComponent)
+        let propertiesData = [];
+        if (data?.data?.items && Array.isArray(data.data.items)) {
+          propertiesData = data.data.items;
+        } else if (Array.isArray(data?.data?.properties)) {
+          propertiesData = data.data.properties;
+        } else if (Array.isArray(data?.properties)) {
+          propertiesData = data.properties;
+        } else if (Array.isArray(data?.data)) {
+          propertiesData = data.data;
+        } else if (Array.isArray(data)) {
+          propertiesData = data;
+        }
+        
+        if (propertiesData.length > 0) {
+          allProperties = propertiesData;
+        }
+      } else {
+        // For region-based search, use pagination (like BrokersComponent)
+        let pageToFetch = 1;
+        let hasMorePages = true;
+        
+        while (hasMorePages) {
+          const queryParams = new URLSearchParams(baseQueryParams);
+          queryParams.append('page', String(pageToFetch));
+          queryParams.append('limit', String(limit));
 
-        let list = [];
-        if (Array.isArray(data?.data?.items)) list = data.data.items;
-        else if (Array.isArray(data?.data?.properties)) list = data.data.properties;
-        else if (Array.isArray(data?.data)) list = data.data;
-        else if (Array.isArray(data?.properties)) list = data.properties;
-        else if (Array.isArray(data)) list = data;
-
-        // Handle pagination from API response
-        if (data.pagination) {
-          const paginationData = {
-            total: data.pagination.total || 0,
-            page: data.pagination.page || currentPage,
-            limit: data.pagination.limit || itemsPerPage,
-            totalPages: data.pagination.totalPages || 0,
-            hasNextPage: data.pagination.hasNextPage || false,
-            hasPrevPage: data.pagination.hasPrevPage || false
-          };
-          setPagination(paginationData);
-        } else {
-          // Fallback: Fetch all properties to get accurate total count
-          // This is needed because list.length only contains current page items (e.g., 7 items)
-          // We need the total count to calculate pagination correctly
-          try {
-            const countQueryParams = new URLSearchParams(queryParams);
-            countQueryParams.set('page', '1');
-            countQueryParams.set('limit', '10000'); // Fetch all to get total count
-            
-            const countUrl = `${apiUrl}/properties?${countQueryParams.toString()}`;
-            const countRes = await fetch(countUrl);
-            
-            if (countRes.ok) {
-              const countData = await countRes.json().catch(() => ({}));
-              let allList = [];
-              if (Array.isArray(countData?.data?.items)) allList = countData.data.items;
-              else if (Array.isArray(countData?.data?.properties)) allList = countData.data.properties;
-              else if (Array.isArray(countData?.data)) allList = countData.data;
-              else if (Array.isArray(countData?.properties)) allList = countData.properties;
-              else if (Array.isArray(countData)) allList = countData;
-              
-              const totalProperties = allList.length;
-              const totalPages = Math.ceil(totalProperties / itemsPerPage);
-              setPagination({
-                total: totalProperties,
-                page: currentPage,
-                limit: itemsPerPage,
-                totalPages: totalPages,
-                hasNextPage: currentPage < totalPages,
-                hasPrevPage: currentPage > 1
-              });
-            } else {
-              // If count fetch fails, disable pagination
-              console.warn('Failed to fetch total count for pagination');
-              setPagination({
-                total: list.length,
-                page: currentPage,
-                limit: itemsPerPage,
-                totalPages: 1,
-                hasNextPage: false,
-                hasPrevPage: false
-              });
+          // Add sorting (only if user has explicitly selected a sort option - like BrokersComponent)
+          if (sortBy && sortBy !== 'default' && sortBy !== null) {
+            queryParams.append('sortBy', sortBy);
+            if (sortOrder) {
+              queryParams.append('sortOrder', sortOrder);
             }
-          } catch (countErr) {
-            console.error('Error fetching total count:', countErr);
-            // If count fetch fails, disable pagination
-            setPagination({
-              total: list.length,
-              page: currentPage,
-              limit: itemsPerPage,
-              totalPages: 1,
-              hasNextPage: false,
-              hasPrevPage: false
-            });
+          } else {
+            // Default sorting for non-coordinate searches
+            queryParams.append('sortBy', 'createdAt');
+            queryParams.append('sortOrder', 'desc');
+          }
+      
+          const queryString = queryParams.toString();
+          const apiUrlWithParams = queryString ? `${apiUrl}/properties?${queryString}` : `${apiUrl}/properties`;
+          
+          console.log(`Fetching properties page ${pageToFetch}, URL:`, apiUrlWithParams);
+          
+          const response = await fetch(apiUrlWithParams, { method: 'GET' });
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch properties: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          console.log(`Properties response for page ${pageToFetch}:`, data);
+          
+          // Extract properties data (like BrokersComponent)
+          let propertiesData = [];
+          if (data?.data?.items && Array.isArray(data.data.items)) {
+            propertiesData = data.data.items;
+          } else if (Array.isArray(data?.data?.properties)) {
+            propertiesData = data.data.properties;
+          } else if (Array.isArray(data?.properties)) {
+            propertiesData = data.properties;
+          } else if (Array.isArray(data?.data)) {
+            propertiesData = data.data;
+          } else if (Array.isArray(data)) {
+            propertiesData = data;
+          }
+          
+          if (propertiesData.length > 0) {
+            allProperties = allProperties.concat(propertiesData);
+            console.log(`Total properties collected so far: ${allProperties.length}`);
+            
+            // Check pagination info from API response (like BrokersComponent)
+            const pagination = data?.data?.pagination || data?.pagination;
+            const totalPages = pagination?.totalPages;
+            const hasNextPage = pagination?.hasNextPage !== false;
+            
+            if (pagination && totalPages) {
+              if (pageToFetch >= totalPages || (hasNextPage === false)) {
+                hasMorePages = false;
+                console.log(`Reached last page ${pageToFetch} of ${totalPages}`);
+              } else {
+                pageToFetch++;
+                if (pageToFetch > 10) {
+                  hasMorePages = false;
+                }
+              }
+            } else {
+              // If no pagination info, stop after first page
+              hasMorePages = false;
+            }
+          } else {
+            hasMorePages = false;
           }
         }
+      }
+      
+      // Process and set properties (like BrokersComponent)
+      if (allProperties.length > 0) {
+        // For coordinate searches: use API response directly
+        if (isLatLngSearch) {
+          // For coordinate searches: map and display data directly (like BrokersComponent) - no pagination, no filtering
+          const coordinateTotal = allProperties.length;
+          console.log('📍 PropertiesComponent: Coordinate search - displaying', allProperties.length, 'properties directly from API, total:', coordinateTotal);
+          
+          // Map properties (same transformation as non-coordinate searches)
+          const mapped = allProperties.map((p, idx) => {
+            const id = p._id || p.id || `${idx}`;
+            const title = p.title || p.name || 'Property';
+            const propertyType = p.propertyType || p.type || '';
+            const subType = p.subType || '';
+            const city = p.city || '';
+            const regionRaw = p.region;
+            const region = Array.isArray(regionRaw)
+              ? regionRaw.map(r => (typeof r === 'string' ? r : r?.name)).filter(Boolean)
+              : (typeof regionRaw === 'string' ? regionRaw : regionRaw?.name);
+            const bedrooms = typeof p.bedrooms === 'number' ? p.bedrooms : undefined;
+            const bathrooms = typeof p.bathrooms === 'number' ? p.bathrooms : undefined;
+            const areaSqft = p.propertySize || p.areaSqft || p.area || undefined;
+            const amenities = Array.isArray(p.amenities) ? p.amenities : [];
+            const images = Array.isArray(p.images) && p.images.length > 0 ? p.images : [];
+            const image = images[0] || '/images/pexels-binyaminmellish-106399.jpg';
+            const rating = propertyRatings[id] || p.rating || '4.7';
+            const price = typeof p.price === 'number' ? p.price : undefined;
+            const currentPrice = price ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price) : '-';
+            const status = p.status || '';
+            const address = p.address || '';
+            const description = p.description || p.propertyDescription || '';
 
-        const mapped = list.map((p, idx) => {
+            return {
+              id,
+              name: title,
+              type: propertyType || subType || 'Property',
+              details: subType || propertyType || '',
+              description,
+              bedrooms,
+              bathrooms,
+              areaSqft,
+              city,
+              region,
+              currentPrice,
+              originalPrice: undefined,
+              rating,
+              image,
+              images,
+              amenities,
+              status,
+              address,
+            };
+          });
+          
+          setPropertyItems(mapped); // Display all items directly
+          setPagination({
+            total: coordinateTotal,
+            page: 1,
+            limit: allProperties.length || itemsPerPage,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPrevPage: false
+          });
+          setHasLoaded(true);
+          setIsLoading(false);
+          return; // Exit early - no further processing needed for coordinate searches
+        }
+        
+        // For non-coordinate searches: map and paginate properties
+        const mapped = allProperties.map((p, idx) => {
           const id = p._id || p.id || `${idx}`;
           const title = p.title || p.name || 'Property';
           const propertyType = p.propertyType || p.type || '';
@@ -376,13 +544,11 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           const amenities = Array.isArray(p.amenities) ? p.amenities : [];
           const images = Array.isArray(p.images) && p.images.length > 0 ? p.images : [];
           const image = images[0] || '/images/pexels-binyaminmellish-106399.jpg';
-          // Use rating from API if available, otherwise fall back to property rating or default
           const rating = propertyRatings[id] || p.rating || '4.7';
           const price = typeof p.price === 'number' ? p.price : undefined;
           const currentPrice = price ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price) : '-';
           const status = p.status || '';
           const address = p.address || '';
-
           const description = p.description || p.propertyDescription || '';
 
           return {
@@ -407,32 +573,66 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           };
         });
 
-        // Set properties directly from API (already paginated)
-        setPropertyItems(mapped);
+        // Client-side pagination for non-coordinate searches
+        const totalProperties = mapped.length;
+        const start = (currentPage - 1) * itemsPerPage;
+        const paginatedProperties = mapped.slice(start, start + itemsPerPage);
+        const totalPages = Math.ceil(totalProperties / itemsPerPage);
+        
+        setPropertyItems(paginatedProperties);
+        setPagination({
+          total: totalProperties,
+          page: currentPage,
+          limit: itemsPerPage,
+          totalPages: totalPages,
+          hasNextPage: currentPage < totalPages,
+          hasPrevPage: currentPage > 1
+        });
         setHasLoaded(true);
-      } catch (err) {
-        console.error('Error fetching properties:', err);
+      } else {
+        // No properties found
         setPropertyItems([]);
+        setPagination({
+          total: 0,
+          page: 1,
+          limit: itemsPerPage,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false
+        });
         setHasLoaded(true);
-      } finally {
-        setIsLoading(false);
       }
-    };
-    fetchProperties();
-  }, [currentPage, itemsPerPage, filters, secondaryFilters, selectedRegion, sortBy, sortOrder]);
-
-  // Update property ratings when ratings data is loaded (without re-fetching properties)
-  useEffect(() => {
-    if (Object.keys(propertyRatings).length > 0 && propertyItems.length > 0) {
-      setPropertyItems(prevItems => 
-        prevItems.map(item => ({
-          ...item,
-          rating: propertyRatings[item.id] || item.rating || '4.7'
-        }))
-      );
+    } catch (err) {
+      console.error('Error fetching properties:', err);
+      setPropertyItems([]);
+      setHasLoaded(true);
+    } finally {
+      setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propertyRatings]);
+  };
+
+  // Fetch properties when any filter changes or on initial mount (like BrokersComponent)
+  useEffect(() => {
+    // Debounce the API call to prevent multiple rapid calls (like BrokersComponent)
+    const timeoutId = setTimeout(() => {
+      console.log('=== FETCHING PROPERTIES ===');
+      console.log('URL Latitude:', urlLatitude, 'URL Longitude:', urlLongitude);
+      fetchProperties();
+    }, 300); // 300ms debounce delay
+
+    // Cleanup timeout on unmount or dependency change
+    return () => clearTimeout(timeoutId);
+  }, [
+    currentPage,
+    itemsPerPage,
+    filters,
+    secondaryFilters,
+    selectedRegion,
+    sortBy,
+    sortOrder,
+    urlLatitude,
+    urlLongitude
+  ]);
 
   // Handle sort change from TabsBar
   const handleSortChange = (newSortBy, newSortOrder) => {
@@ -530,15 +730,14 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       amenities: [],
       city: '' // Reset city filter if it exists
     });
-    // Reset secondary filters (but preserve broker from URL if present)
-    const currentBroker = secondaryFilters.broker;
+    // Reset secondary filters (clear broker filter on reset)
     setSecondaryFilters({
       bathrooms: null,
       furnishingType: null,
       facingDirection: null,
       possessionStatus: null,
       postedBy: null,
-      broker: currentBroker,
+      broker: null, // Clear broker filter on reset
       verificationStatus: null
     });
     // Reset region selection
@@ -550,6 +749,28 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     setCurrentPage(1);
     // Reset secondary filters visibility
     setShowSecondaryFilters(false);
+    
+    // Clear coordinate-based filters
+    setUrlLatitude(null);
+    setUrlLongitude(null);
+    
+    // Clear URL-based search parameters (latitude, longitude)
+    if (typeof window !== 'undefined') {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        sp.delete('latitude');
+        sp.delete('longitude');
+        const newUrl = window.location.pathname + (sp.toString() ? `?${sp.toString()}` : '');
+        window.history.replaceState({}, '', newUrl);
+      } catch (error) {
+        console.error('Error clearing URL parameters:', error);
+      }
+    }
+    
+    // Dispatch event to clear navbar search bar
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('clearNavbarSearch'));
+    }
   };
 
   const handlePriceChange = (index, value) => {
