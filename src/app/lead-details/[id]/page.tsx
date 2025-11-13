@@ -18,7 +18,14 @@ const headerData = {
 type LeadItem = {
   _id: string;
   customerName?: string;
-  primaryRegion?: { _id?: string; name?: string; state?: string; city?: string; description?: string };
+  primaryRegion?: { 
+    _id?: string; 
+    name?: string; 
+    state?: string; 
+    city?: string; 
+    description?: string;
+    centerCoordinates?: number[]; // [latitude, longitude]
+  };
   secondaryRegion?: { _id?: string; name?: string; state?: string; city?: string; description?: string };
   budget?: number | string;
   brokerImage?: string;
@@ -42,6 +49,8 @@ type LeadItem = {
     city?: string;
     state?: string;
   };
+  distanceKm?: number;
+  distance?: number;
 };
 
 export default function LeadDetails() {
@@ -93,7 +102,11 @@ export default function LeadDetails() {
   }, [id]);
 
   const similarLeads = async () => {
-    setLoading(true);
+    if (!lead || !lead.primaryRegion) {
+      setSameLeads([]);
+      return;
+    }
+
     try {
       const token =
         typeof window !== "undefined"
@@ -107,7 +120,55 @@ export default function LeadDetails() {
       };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const res = await axios.get(`${apiUrl}/leads`, { headers });
+      // Get current broker ID to filter out own leads
+      let currentBrokerId = '';
+      let currentUserId = '';
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          currentUserId = payload.brokerId || payload.userId || payload.id || payload.sub || '';
+          
+          // Fetch broker details to get the actual broker _id
+          if (currentUserId) {
+            try {
+              const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+                headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+              });
+              if (brokerRes.ok) {
+                const brokerData = await brokerRes.json();
+                const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
+                currentBrokerId = broker?._id || broker?.id || '';
+              }
+            } catch (err) {
+              console.error('Error fetching broker details:', err);
+            }
+          }
+        } catch (err) {
+          console.error('Error parsing token:', err);
+        }
+      }
+
+      // Get coordinates from primary region
+      let latitude: number | null = null;
+      let longitude: number | null = null;
+      
+      if (lead.primaryRegion.centerCoordinates && Array.isArray(lead.primaryRegion.centerCoordinates) && lead.primaryRegion.centerCoordinates.length >= 2) {
+        // API format: [latitude, longitude]
+        latitude = lead.primaryRegion.centerCoordinates[0];
+        longitude = lead.primaryRegion.centerCoordinates[1];
+        console.log('📍 SimilarLeads: Using primary region coordinates:', latitude, longitude);
+      }
+
+      // Build API URL with coordinates if available
+      let apiUrlWithParams = `${apiUrl}/leads?verificationStatus=Verified`;
+      if (latitude && longitude) {
+        apiUrlWithParams += `&latitude=${latitude}&longitude=${longitude}`;
+        console.log('📍 SimilarLeads: Fetching similar leads with distance filter:', apiUrlWithParams);
+      } else {
+        console.log('📍 SimilarLeads: No coordinates available, fetching all verified leads');
+      }
+
+      const res = await axios.get(apiUrlWithParams, { headers });
 
       // Handle different response structures
       let items: LeadItem[] = [];
@@ -123,19 +184,84 @@ export default function LeadDetails() {
         items = res.data as LeadItem[];
       }
 
-      // Set state without sorting
-      setSameLeads(items);
+      // Filter out the current lead and logged-in broker's own leads
+      const filteredItems = items.filter((item) => {
+        // Exclude the current lead
+        if (item._id === lead._id) {
+          return false;
+        }
+
+        // Filter out leads belonging to the logged-in broker
+        if (currentBrokerId || currentUserId) {
+          let leadBrokerId = '';
+          const createdBy = item.createdBy;
+          
+          if (createdBy) {
+            if (typeof createdBy === 'string') {
+              leadBrokerId = createdBy;
+            } else if (typeof createdBy === 'object' && createdBy !== null) {
+              const obj = createdBy as Record<string, unknown>;
+              const userId = obj.userId;
+              
+              if (userId && typeof userId === 'object' && userId !== null) {
+                const userIdObj = userId as Record<string, unknown>;
+                leadBrokerId = (userIdObj._id || userIdObj.id || '') as string;
+              } else if (userId && typeof userId === 'string') {
+                leadBrokerId = userId;
+              }
+              
+              if (!leadBrokerId) {
+                leadBrokerId = (obj._id || obj.id || obj.brokerId || '') as string;
+              }
+            }
+          }
+          
+          const brokerIdStr = String(currentBrokerId || '').trim();
+          const userIdStr = String(currentUserId || '').trim();
+          const leadBrokerIdStr = String(leadBrokerId).trim();
+          
+          const matchesBrokerId = brokerIdStr !== '' && leadBrokerIdStr === brokerIdStr;
+          const matchesUserId = userIdStr !== '' && leadBrokerIdStr === userIdStr;
+          
+          // Exclude if matches logged-in broker
+          if (matchesBrokerId || matchesUserId) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      // Helper function to extract distance (in km)
+      const getDistance = (item: LeadItem): number => {
+        const distance = item.distanceKm ?? item.distance;
+        return Number.isFinite(Number(distance)) ? Number(distance) : Infinity;
+      };
+
+      // Sort by distance (closest first)
+      const sorted = filteredItems.sort((a, b) => {
+        const distanceA = getDistance(a);
+        const distanceB = getDistance(b);
+        return distanceA - distanceB; // Ascending order (closest first)
+      });
+
+      // Limit to 4-5 leads
+      const limited = sorted.slice(0, 5);
+      console.log('📍 SimilarLeads: Showing', limited.length, 'similar leads sorted by distance (excluding own leads)');
+      
+      setSameLeads(limited);
     } catch (error) {
       console.error("Error fetching similar leads:", error);
       setSameLeads([]); // fallback
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    similarLeads();
-  }, []);
+    if (lead && lead.primaryRegion) {
+      similarLeads();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lead]);
 
   // Update scroll button states when same leads change
   useEffect(() => {

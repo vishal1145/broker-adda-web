@@ -498,8 +498,12 @@ function PropertyDetailsPageInner() {
   // Fetch similar properties from API
   useEffect(() => {
     const fetchSimilarProperties = async () => {
-      if (!product) return;
+      if (!product) {
+        console.log('📍 SimilarProperties: No product, skipping API call');
+        return;
+      }
 
+      console.log('📍 SimilarProperties: Starting fetch, product:', product?.id || product?._id);
       setSimilarLoading(true);
       try {
         const token =
@@ -512,19 +516,110 @@ function PropertyDetailsPageInner() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         };
 
-        // Fetch properties - get all properties to have better selection
-        const params = new URLSearchParams();
-        // Remove city and propertyType filters to get more diverse properties
-        params.append("limit", "20"); // Get more properties to have better selection
+        // Get current broker ID to filter out own properties
+        let currentBrokerId = '';
+        let currentUserId = '';
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            currentUserId = payload.brokerId || payload.userId || payload.id || payload.sub || '';
+            
+            // Fetch broker details to get the actual broker _id
+            if (currentUserId) {
+              try {
+                const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+                  headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+                });
+                if (brokerRes.ok) {
+                  const brokerData = await brokerRes.json();
+                  const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
+                  currentBrokerId = broker?._id || broker?.id || '';
+                }
+              } catch (err) {
+                console.error('Error fetching broker details:', err);
+              }
+            }
+          } catch (err) {
+            console.error('Error parsing token:', err);
+          }
+        }
 
-        console.log(
-          "Fetching similar properties with params:",
-          params.toString()
-        );
+        // Get coordinates from the opened property
+        let latitude = null;
+        let longitude = null;
+        const propertyData = product._raw || product;
+        
+        console.log('📍 SimilarProperties: Property data:', propertyData);
+        
+        // First, check for direct latitude/longitude fields (most common in API response)
+        if (propertyData?.latitude !== undefined && propertyData?.longitude !== undefined) {
+          latitude = Number(propertyData.latitude);
+          longitude = Number(propertyData.longitude);
+          if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+            console.log('📍 SimilarProperties: Using direct latitude/longitude fields:', latitude, longitude);
+          } else {
+            latitude = null;
+            longitude = null;
+          }
+        }
+        
+        // If not found, check for location coordinates in property data
+        if (!latitude || !longitude) {
+          if (propertyData?.location?.coordinates && Array.isArray(propertyData.location.coordinates) && propertyData.location.coordinates.length >= 2) {
+            // GeoJSON Point format: [longitude, latitude] OR API format: [latitude, longitude]
+            // Try both formats
+            const coords = propertyData.location.coordinates;
+            // Check if it's likely [latitude, longitude] (latitude is usually -90 to 90)
+            if (Math.abs(coords[0]) <= 90 && Math.abs(coords[1]) <= 180) {
+              latitude = coords[0];
+              longitude = coords[1];
+            } else {
+              // GeoJSON format: [longitude, latitude]
+              longitude = coords[0];
+              latitude = coords[1];
+            }
+            console.log('📍 SimilarProperties: Using property location coordinates:', latitude, longitude);
+          } else if (propertyData?.region && Array.isArray(propertyData.region) && propertyData.region.length > 0) {
+            // Check if region has centerCoordinates
+            const firstRegion = propertyData.region[0];
+            if (firstRegion?.centerCoordinates && Array.isArray(firstRegion.centerCoordinates) && firstRegion.centerCoordinates.length >= 2) {
+              // API format: [latitude, longitude]
+              latitude = firstRegion.centerCoordinates[0];
+              longitude = firstRegion.centerCoordinates[1];
+              console.log('📍 SimilarProperties: Using region centerCoordinates:', latitude, longitude);
+            }
+          } else if (propertyData?.region && typeof propertyData.region === 'object' && !Array.isArray(propertyData.region)) {
+            // Check if region is a single object with centerCoordinates
+            if (propertyData.region?.centerCoordinates && Array.isArray(propertyData.region.centerCoordinates) && propertyData.region.centerCoordinates.length >= 2) {
+              latitude = propertyData.region.centerCoordinates[0];
+              longitude = propertyData.region.centerCoordinates[1];
+              console.log('📍 SimilarProperties: Using single region centerCoordinates:', latitude, longitude);
+            }
+          }
+        }
+        
+        if (!latitude || !longitude) {
+          console.log('📍 SimilarProperties: No coordinates found in property data');
+        }
+
+        // Build API URL with coordinates if available
+        const params = new URLSearchParams();
+        if (latitude && longitude) {
+          params.append("latitude", latitude.toString());
+          params.append("longitude", longitude.toString());
+          // Removed verificationStatus filter - fetch all properties
+          console.log('📍 SimilarProperties: Fetching similar properties with distance filter:', `${apiUrl}/properties?${params.toString()}`);
+        } else {
+          params.append("limit", "20");
+          // Removed verificationStatus filter - fetch all properties
+          console.log('📍 SimilarProperties: No coordinates available, fetching all properties:', `${apiUrl}/properties?${params.toString()}`);
+        }
+
+        console.log('📍 SimilarProperties: Making API call...');
         const res = await fetch(`${apiUrl}/properties?${params.toString()}`, {
           headers,
         });
-        console.log("API Response status:", res.status);
+        console.log("📍 SimilarProperties: API Response status:", res.status);
 
         if (res.ok) {
           const responseData = await res.json();
@@ -545,43 +640,93 @@ function PropertyDetailsPageInner() {
           }
 
           console.log("Properties found:", properties.length);
-          console.log("Current property ID:", product.id || product._id);
-          console.log("Product object:", product);
-
-          // Filter out current property and map to expected format
           const currentPropertyId = product.id || product._id;
-          console.log("Filtering with current ID:", currentPropertyId);
+          console.log("Current property ID:", currentPropertyId);
 
-          const similar = properties
-            .filter((p) => {
-              const propertyId = p._id || p.id;
-              const isDifferent = propertyId !== currentPropertyId;
-              console.log(
-                `Property ${propertyId} vs current ${currentPropertyId}: ${
-                  isDifferent ? "SHOW" : "HIDE"
-                }`
-              );
-              return isDifferent;
-            })
-            .slice(0, 4)
-            .map((p) => ({
-              id: p._id || p.id,
-              name: p.title || p.name || "Property",
-              category: p.propertyType || p.type || p.category || "Property",
-              price: p.price || 0,
-              originalPrice: p.originalPrice || p.oldPrice || 0,
-              image:
-                p.images?.[0] ||
-                p.image ||
-                "/images/pexels-binyaminmellish-106399.jpg",
-              areaSqft: p.propertySize || p.areaSqft || p.area || 0,
-              bedrooms: p.bedrooms || 0,
-              bathrooms: p.bathrooms || 0,
-              city: p.city || "",
-              region: p.region || "",
-            }));
+          // Filter out current property and logged-in broker's own properties
+          const filteredProperties = properties.filter((p) => {
+            const propertyId = p._id || p.id;
+            
+            // Exclude the current property
+            if (propertyId === currentPropertyId) {
+              return false;
+            }
 
-          console.log("Similar properties after filtering:", similar.length);
+            // Filter out properties belonging to the logged-in broker
+            if (currentBrokerId || currentUserId) {
+              let propertyBrokerId = '';
+              const createdBy = p.createdBy || p.postedBy || p.broker;
+              
+              if (createdBy) {
+                if (typeof createdBy === 'string') {
+                  propertyBrokerId = createdBy;
+                } else if (typeof createdBy === 'object' && createdBy !== null) {
+                  const obj = createdBy;
+                  const userId = obj.userId;
+                  
+                  if (userId && typeof userId === 'object' && userId !== null) {
+                    propertyBrokerId = userId._id || userId.id || '';
+                  } else if (userId && typeof userId === 'string') {
+                    propertyBrokerId = userId;
+                  }
+                  
+                  if (!propertyBrokerId) {
+                    propertyBrokerId = obj._id || obj.id || obj.brokerId || '';
+                  }
+                }
+              }
+              
+              const brokerIdStr = String(currentBrokerId || '').trim();
+              const userIdStr = String(currentUserId || '').trim();
+              const propertyBrokerIdStr = String(propertyBrokerId).trim();
+              
+              const matchesBrokerId = brokerIdStr !== '' && propertyBrokerIdStr === brokerIdStr;
+              const matchesUserId = userIdStr !== '' && propertyBrokerIdStr === userIdStr;
+              
+              // Exclude if matches logged-in broker
+              if (matchesBrokerId || matchesUserId) {
+                return false;
+              }
+            }
+
+            return true;
+          });
+
+          // Helper function to extract distance (in km)
+          const getDistance = (p) => {
+            const distance = p.distanceKm ?? p.distance;
+            return Number.isFinite(Number(distance)) ? Number(distance) : Infinity;
+          };
+
+          // Sort by distance (closest first)
+          const sorted = filteredProperties.sort((a, b) => {
+            const distanceA = getDistance(a);
+            const distanceB = getDistance(b);
+            return distanceA - distanceB; // Ascending order (closest first)
+          });
+
+          // Limit to 4-5 properties
+          const limited = sorted.slice(0, 5);
+
+          // Map to expected format
+          const similar = limited.map((p) => ({
+            id: p._id || p.id,
+            name: p.title || p.name || "Property",
+            category: p.propertyType || p.type || p.category || "Property",
+            price: p.price || 0,
+            originalPrice: p.originalPrice || p.oldPrice || 0,
+            image:
+              p.images?.[0] ||
+              p.image ||
+              "/images/pexels-binyaminmellish-106399.jpg",
+            areaSqft: p.propertySize || p.areaSqft || p.area || 0,
+            bedrooms: p.bedrooms || 0,
+            bathrooms: p.bathrooms || 0,
+            city: p.city || "",
+            region: p.region || "",
+          }));
+
+          console.log('📍 SimilarProperties: Showing', similar.length, 'similar properties sorted by distance (excluding own properties)');
           setSimilarProperties(similar);
         }
       } catch (error) {
