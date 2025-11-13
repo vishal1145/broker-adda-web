@@ -70,8 +70,10 @@ const Brokers = () => {
 
       const currentUserId = getCurrentUserId();
       let currentBrokerId = '';
+      let latitude: number | null = null;
+      let longitude: number | null = null;
 
-      // Fetch broker details to get the actual broker _id
+      // Fetch broker details to get the actual broker _id and location coordinates
       if (currentUserId && token) {
         try {
           const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
@@ -85,25 +87,59 @@ const Brokers = () => {
             const brokerData = await brokerRes.json();
             const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
             currentBrokerId = broker?._id || broker?.id || '';
+            
+            // Get broker's location coordinates if available
+            if (broker?.location?.coordinates && Array.isArray(broker.location.coordinates) && broker.location.coordinates.length >= 2) {
+              latitude = broker.location.coordinates[0];
+              longitude = broker.location.coordinates[1];
+              console.log('📍 Brokers: Using broker location coordinates:', latitude, longitude);
+            }
+            
             console.log('Current broker ID for brokers filter:', currentBrokerId);
           }
         } catch (err) {
           console.error('Error fetching broker details:', err);
         }
       }
+
+      // If no broker coordinates, try to get current location
+      if (!latitude || !longitude) {
+        if (navigator.geolocation) {
+          try {
+            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 60000
+              });
+            });
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+            console.log('📍 Brokers: Using current location coordinates:', latitude, longitude);
+          } catch (err) {
+            console.log('📍 Brokers: Could not get current location, will fetch all verified brokers');
+          }
+        }
+      }
       
       // Use environment variable for API URL following app pattern
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       
-      // Proceed even without token; add Authorization only if available
-      console.log('Fetching brokers from:', `${apiUrl}/brokers?verificationStatus=Verified`, 'with token:', !!token);
-
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       };
 
-      const response = await fetch(`${apiUrl}/brokers?verificationStatus=Verified`, {
+      // Build API URL with location filter if coordinates are available
+      let apiUrlWithParams = `${apiUrl}/brokers?verificationStatus=Verified`;
+      if (latitude && longitude) {
+        apiUrlWithParams += `&latitude=${latitude}&longitude=${longitude}`;
+        console.log('📍 Brokers: Fetching brokers with location filter:', apiUrlWithParams);
+      } else {
+        console.log('📍 Brokers: Fetching all verified brokers (no location filter)');
+      }
+
+      const response = await fetch(apiUrlWithParams, {
         method: 'GET',
         headers
       });
@@ -142,9 +178,44 @@ const Brokers = () => {
           console.log('Available keys in response:', Object.keys(data || {}));
         }
 
+        // Keep all brokers (including logged-in broker if they appear in filtered results)
+        // The API already filters by location, so we just need to ensure verified brokers are shown
+        
+        // Helper function to extract distance (in km)
+        const getDistance = (b: Broker): number => {
+          const distance = (b as unknown as { distanceKm?: number })?.distanceKm 
+            ?? (b as unknown as { distance?: number })?.distance;
+          return Number.isFinite(Number(distance)) ? Number(distance) : Infinity; // Use Infinity if no distance (will sort last)
+        };
+
+        // Helper function to extract lead count
+        const getLeadCount = (b: Broker): number => {
+          const rawLeads = (typeof b?.leadsCreated?.count === 'number' ? b.leadsCreated.count : undefined)
+            ?? (typeof b?.leadCount === 'number' ? b.leadCount : undefined)
+            ?? (typeof b?.totalLeads === 'number' ? b.totalLeads : undefined)
+            ?? (typeof b?.leads === 'number' ? b.leads : undefined);
+          return Number.isFinite(Number(rawLeads)) ? Number(rawLeads) : 0;
+        };
+
+        // Sort brokers: first by distance (ascending - closest first), then by lead count (descending - highest first)
+        const sortedBrokers = [...brokersData].sort((a, b) => {
+          const distanceA = getDistance(a);
+          const distanceB = getDistance(b);
+          const leadCountA = getLeadCount(a);
+          const leadCountB = getLeadCount(b);
+          
+          // First priority: sort by distance (closest first)
+          if (distanceA !== distanceB) {
+            return distanceA - distanceB; // Ascending order (closest first)
+          }
+          
+          // Second priority: if distance is same, sort by lead count (highest first)
+          return leadCountB - leadCountA; // Descending order (highest first)
+        });
+
         // Filter out the logged-in broker
         const filteredBrokers = (currentBrokerId || currentUserId)
-          ? brokersData.filter((b: Broker) => {
+          ? sortedBrokers.filter((b: Broker) => {
               // Extract broker ID from various possible fields
               let brokerId = '';
               const userId = b.userId;
@@ -177,9 +248,9 @@ const Brokers = () => {
               // Only show brokers that don't match the logged-in broker
               return !shouldFilter;
             })
-          : brokersData;
+          : sortedBrokers;
         
-        console.log('Final brokers data (after filter):', filteredBrokers);
+        console.log('Final brokers data (after filter and sort):', filteredBrokers);
         console.log('Setting brokers state with', filteredBrokers.length, 'items');
         setBrokers(filteredBrokers);
       } else {

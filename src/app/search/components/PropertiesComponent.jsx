@@ -459,8 +459,79 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         }
       }
       
+      // Get current broker ID to filter out own properties
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || localStorage.getItem('authToken') || '') : '';
+      let currentBrokerId = '';
+      let currentUserId = '';
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          currentUserId = payload.brokerId || payload.userId || payload.id || payload.sub || '';
+          
+          // Fetch broker details to get the actual broker _id
+          if (currentUserId) {
+            try {
+              const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+                headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+              });
+              if (brokerRes.ok) {
+                const brokerData = await brokerRes.json();
+                const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
+                currentBrokerId = broker?._id || broker?.id || '';
+              }
+            } catch (err) {
+              console.error('Error fetching broker details:', err);
+            }
+          }
+        } catch (err) {
+          console.error('Error parsing token:', err);
+        }
+      }
+
+      // Filter out properties belonging to the logged-in broker
+      const filterOwnProperties = (properties) => {
+        if (!currentBrokerId && !currentUserId) return properties;
+        
+        return properties.filter((property) => {
+          let propertyBrokerId = '';
+          const createdBy = property.createdBy || property.postedBy || property.broker;
+          
+          if (createdBy) {
+            if (typeof createdBy === 'string') {
+              propertyBrokerId = createdBy;
+            } else if (typeof createdBy === 'object' && createdBy !== null) {
+              const obj = createdBy;
+              const userId = obj.userId;
+              
+              if (userId && typeof userId === 'object' && userId !== null) {
+                propertyBrokerId = userId._id || userId.id || '';
+              } else if (userId && typeof userId === 'string') {
+                propertyBrokerId = userId;
+              }
+              
+              if (!propertyBrokerId) {
+                propertyBrokerId = obj._id || obj.id || obj.brokerId || '';
+              }
+            }
+          }
+          
+          const brokerIdStr = String(currentBrokerId || '').trim();
+          const userIdStr = String(currentUserId || '').trim();
+          const propertyBrokerIdStr = String(propertyBrokerId).trim();
+          
+          const matchesBrokerId = brokerIdStr !== '' && propertyBrokerIdStr === brokerIdStr;
+          const matchesUserId = userIdStr !== '' && propertyBrokerIdStr === userIdStr;
+          
+          return !matchesBrokerId && !matchesUserId; // Exclude if matches
+        });
+      };
+
       // Process and set properties (like BrokersComponent)
       if (allProperties.length > 0) {
+        // Filter out own properties
+        allProperties = filterOwnProperties(allProperties);
+        console.log('🔍 PropertiesComponent: Filtered out own properties, remaining:', allProperties.length);
+        
         // For coordinate searches: use API response directly
         if (isLatLngSearch) {
           // For coordinate searches: map and display data directly (like BrokersComponent) - no pagination, no filtering

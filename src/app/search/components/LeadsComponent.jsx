@@ -354,8 +354,78 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         }
       }
       
+      // Get current broker ID to filter out own leads
+      let currentBrokerId = '';
+      let currentUserId = '';
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          currentUserId = payload.brokerId || payload.userId || payload.id || payload.sub || '';
+          
+          // Fetch broker details to get the actual broker _id
+          if (currentUserId) {
+            try {
+              const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
+                headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+              });
+              if (brokerRes.ok) {
+                const brokerData = await brokerRes.json();
+                const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
+                currentBrokerId = broker?._id || broker?.id || '';
+              }
+            } catch (err) {
+              console.error('Error fetching broker details:', err);
+            }
+          }
+        } catch (err) {
+          console.error('Error parsing token:', err);
+        }
+      }
+
+      // Filter out leads belonging to the logged-in broker
+      const filterOwnLeads = (leads) => {
+        if (!currentBrokerId && !currentUserId) return leads;
+        
+        return leads.filter((lead) => {
+          let leadBrokerId = '';
+          const createdBy = lead.createdBy;
+          
+          if (createdBy) {
+            if (typeof createdBy === 'string') {
+              leadBrokerId = createdBy;
+            } else if (typeof createdBy === 'object' && createdBy !== null) {
+              const obj = createdBy;
+              const userId = obj.userId;
+              
+              if (userId && typeof userId === 'object' && userId !== null) {
+                leadBrokerId = userId._id || userId.id || '';
+              } else if (userId && typeof userId === 'string') {
+                leadBrokerId = userId;
+              }
+              
+              if (!leadBrokerId) {
+                leadBrokerId = obj._id || obj.id || obj.brokerId || '';
+              }
+            }
+          }
+          
+          const brokerIdStr = String(currentBrokerId || '').trim();
+          const userIdStr = String(currentUserId || '').trim();
+          const leadBrokerIdStr = String(leadBrokerId).trim();
+          
+          const matchesBrokerId = brokerIdStr !== '' && leadBrokerIdStr === brokerIdStr;
+          const matchesUserId = userIdStr !== '' && leadBrokerIdStr === userIdStr;
+          
+          return !matchesBrokerId && !matchesUserId; // Exclude if matches
+        });
+      };
+
       // Process and set leads (like BrokersComponent)
       if (allLeads.length > 0) {
+        // Filter out own leads
+        allLeads = filterOwnLeads(allLeads);
+        console.log('🔍 LeadsComponent: Filtered out own leads, remaining:', allLeads.length);
+        
         // For coordinate searches: use API response directly
         if (isLatLngSearch) {
           const totalCount = allLeads.length; // API should return all matching leads

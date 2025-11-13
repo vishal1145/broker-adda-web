@@ -100,8 +100,10 @@ const LatestLeads: React.FC = () => {
 
         const currentUserId = getCurrentUserId();
         let currentBrokerId = '';
+        let latitude: number | null = null;
+        let longitude: number | null = null;
 
-        // Fetch broker details to get the actual broker _id
+        // Fetch broker details to get the actual broker _id and location coordinates
         if (currentUserId && token) {
           try {
             const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
@@ -114,10 +116,40 @@ const LatestLeads: React.FC = () => {
               const brokerData = await brokerRes.json();
               const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
               currentBrokerId = broker?._id || broker?.id || '';
+              
+              // Get broker's location coordinates if available
+              // API format: [latitude, longitude] (based on example: [27.1798258, 78.0208223])
+              if (broker?.location?.coordinates && Array.isArray(broker.location.coordinates) && broker.location.coordinates.length >= 2) {
+                // API stores as [latitude, longitude]
+                latitude = broker.location.coordinates[0];
+                longitude = broker.location.coordinates[1];
+                console.log('📍 LatestLeads: Using broker location coordinates (from profile):', latitude, longitude);
+              }
+              
               console.log('Current broker ID for leads filter:', currentBrokerId);
             }
           } catch (err) {
             console.error('Error fetching broker details:', err);
+          }
+        }
+
+        // If no broker coordinates, try to get current location (only if broker is NOT logged in)
+        if ((!latitude || !longitude) && !currentBrokerId) {
+          if (navigator.geolocation) {
+            try {
+              const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                  enableHighAccuracy: true,
+                  timeout: 5000,
+                  maximumAge: 60000
+                });
+              });
+              latitude = position.coords.latitude;
+              longitude = position.coords.longitude;
+              console.log('📍 LatestLeads: Using current location coordinates (geolocation):', latitude, longitude);
+            } catch (err) {
+              console.log('📍 LatestLeads: Could not get current location, will fetch all verified leads');
+            }
           }
         }
         
@@ -129,7 +161,21 @@ const LatestLeads: React.FC = () => {
         if (token) {
           headers.Authorization = `Bearer ${token}`;
         }
-        const res = await axios.get(`${apiUrl}/leads?verificationStatus=Verified`, { headers });
+
+        // Build API URL with location filter if coordinates are available
+        let apiUrlWithParams = `${apiUrl}/leads?verificationStatus=Verified`;
+        if (latitude && longitude) {
+          apiUrlWithParams += `&latitude=${latitude}&longitude=${longitude}`;
+          console.log('📍 LatestLeads: Fetching leads with location filter:', apiUrlWithParams);
+        } else {
+          console.log('📍 LatestLeads: Fetching all verified leads (no location filter)');
+        }
+        
+        // Add limit to fetch more leads (increase from default 9)
+        apiUrlWithParams += `&limit=100`;
+        console.log('📊 LatestLeads: Fetching with limit=100 to get all available leads');
+
+        const res = await axios.get(apiUrlWithParams, { headers });
         // Handle different response structures
         let items = [];
         if (Array.isArray(res.data?.data?.items)) {
@@ -229,12 +275,19 @@ const LatestLeads: React.FC = () => {
 
         console.log('✅ Filtered leads - Remaining:', filteredItems.length, 'out of', items.length);
 
-        // Sort by createdAt descending
-        const sorted = [...filteredItems].sort(
-          (a, b) =>
-            new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
-        );
+        // Helper function to extract distance (in km)
+        const getDistance = (lead: ApiLead & { distanceKm?: number; distance?: number }): number => {
+          const distance = lead.distanceKm ?? lead.distance;
+          return Number.isFinite(Number(distance)) ? Number(distance) : Infinity; // Use Infinity if no distance (will sort last)
+        };
+
+        // Sort leads by distance only (ascending - closest first)
+        const sorted = [...filteredItems].sort((a, b) => {
+          const distanceA = getDistance(a);
+          const distanceB = getDistance(b);
+          return distanceA - distanceB; // Ascending order (closest first)
+        });
+        console.log('📍 LatestLeads: Sorted leads by distance (closest first), showing', sorted.length, 'leads');
         setLeads(sorted);
       } catch (error) {
         console.error("Error fetching leads:", error);
