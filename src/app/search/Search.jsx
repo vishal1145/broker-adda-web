@@ -40,6 +40,7 @@ const Search = () => {
   // Listen for URL changes (back/forward buttons and navigation)
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    
     const handlePopState = () => {
       try {
         const sp = new URLSearchParams(window.location.search);
@@ -66,8 +67,15 @@ const Search = () => {
       } catch {}
     };
     
+    // Listen for manual tab changes from TabsBar component
+    const handleTabChanged = (event) => {
+      lastManualTabChangeRef.current = Date.now();
+      // State is already updated by TabsBar, just mark the timestamp
+    };
+    
     // Listen for popstate (browser back/forward)
     window.addEventListener('popstate', handlePopState);
+    window.addEventListener('tabChanged', handleTabChanged);
     
     // Check URL changes periodically but less frequently (every 1000ms)
     // Only to catch external navigation changes (like from navbar)
@@ -84,6 +92,7 @@ const Search = () => {
     
     return () => {
       window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('tabChanged', handleTabChanged);
       clearInterval(urlCheckInterval);
     };
   }, []);
