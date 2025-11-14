@@ -35,6 +35,8 @@ export default function BrokerDetailsPage() {
   const [ratingsLoading, setRatingsLoading] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [brokerProperties, setBrokerProperties] = useState([]);
+  const [propertiesLoading, setPropertiesLoading] = useState(false);
 
   useEffect(() => {
     const fetchBroker = async () => {
@@ -312,6 +314,34 @@ export default function BrokerDetailsPage() {
       fetchBrokerRatings();
     }
   }, [broker, brokerId]);
+
+  // Get broker properties from broker API response
+  useEffect(() => {
+    if (broker) {
+      // Use properties from broker API response (broker.properties or broker.propertiesListed.items)
+      let propertiesList = [];
+      if (Array.isArray(broker?.propertiesListed?.items)) {
+        propertiesList = broker.propertiesListed.items;
+      } else if (Array.isArray(broker?.properties)) {
+        propertiesList = broker.properties;
+      }
+      
+      // Filter to show properties that are not closed/sold
+      const availableProperties = propertiesList.filter((property) => {
+        const status = property?.status || property?.availabilityStatus || '';
+        const statusLower = status?.toLowerCase() || '';
+        // Exclude closed, sold, inactive properties
+        const excludedStatuses = ['closed', 'sold', 'inactive', 'deleted', 'cancelled'];
+        // Include if status is empty, or if it's not in excluded list
+        return !status || !excludedStatuses.includes(statusLower);
+      });
+      
+      setBrokerProperties(availableProperties);
+    } else {
+      setBrokerProperties([]);
+    }
+  }, [broker]);
+
   if (loading) {
     return (
       <div className="min-h-screen">
@@ -1187,10 +1217,84 @@ export default function BrokerDetailsPage() {
             {/* Right Sidebar - 4 columns */}
             <div className="lg:col-span-4 space-y-8">
 
-
-
-              {/* Performance Metrics Grid */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Properties Section - Show 2 property cards with View All - Moved to Top */}
+              {brokerProperties.length > 0 ? (
+                <div className="">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-[18px] leading-[30px] font-semibold text-[#565D6D]">Properties</h3>
+                    <Link
+                      href={`/search?tab=properties&createdBy=${encodeURIComponent(String(broker?._id))}`}
+                      className="text-[12px] font-medium text-[#0D542B] hover:underline"
+                    >
+                      View All
+                    </Link>
+                  </div>
+                  <div className="space-y-4">
+                    {brokerProperties.slice(0, 2).map((property, index) => {
+                      // Use property's _id from API response
+                      const propertyId = property?._id || property?.id || index;
+                      const propertyImage = property?.images?.[0] || property?.image || '/images/property-placeholder.jpg';
+                      const propertyTitle = property?.title || property?.name || 'Property';
+                      const propertyPrice = property?.price || 0;
+                      const propertyLocation = property?.city || property?.region?.name || property?.location || '';
+                      const propertyType = property?.propertyType || property?.type || 'Property';
+                      const propertyStatus = property?.status || property?.availabilityStatus || 'available';
+                      const isOpen = propertyStatus?.toLowerCase() === 'open' || 
+                                   propertyStatus?.toLowerCase() === 'available' || 
+                                   propertyStatus?.toLowerCase() === 'active' ||
+                                   !propertyStatus || propertyStatus === '';
+                      
+                      // Use broker's _id from the API response
+                      const brokerMongoId = broker?._id;
+                      
+                      return (
+                        <Link
+                          key={propertyId}
+                          href={`/property-details?id=${encodeURIComponent(String(propertyId))}${brokerMongoId ? `&brokerId=${encodeURIComponent(String(brokerMongoId))}` : ''}`}
+                          className="block border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex gap-3">
+                            <div className="relative">
+                              <img
+                                src={propertyImage}
+                                alt={propertyTitle}
+                                className="w-24 h-24 object-cover flex-shrink-0"
+                                onError={(e) => {
+                                  e.currentTarget.src = '/images/property-placeholder.jpg';
+                                }}
+                              />
+                              {isOpen && (
+                                <span className="absolute top-1 right-1 bg-green-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+                                  Open
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1 p-2 min-w-0">
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <h4 className="text-[14px] font-semibold text-gray-900 truncate flex-1">
+                                  {propertyTitle}
+                                </h4>
+                                {isOpen && (
+                                  <span className="flex items-center gap-1 text-[10px] text-green-600 font-medium flex-shrink-0">
+                                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                                    Open
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[12px] text-gray-600 truncate mb-1">{propertyLocation}</p>
+                              <p className="text-[12px] text-gray-500 mb-1">{propertyType}</p>
+                              <p className="text-[14px] font-bold text-[#0D542B]">
+                                ₹{propertyPrice.toLocaleString('en-IN')}
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                // Show properties count card if no properties to display
                 <div 
                   onClick={() => {
                     const brokerMongoId = broker?._id || brokerId;
@@ -1204,19 +1308,19 @@ export default function BrokerDetailsPage() {
                   <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{propertiesCount}</div>
                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Properties</div>
                 </div>
+              )}
+
+              {/* Performance Metrics Grid - Only Rating and Experience */}
+              <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[#FFF9E6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
                   <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">
                     {typeof rating === 'number' ? rating.toFixed(1) : rating}
                   </div>
                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Client Rating</div>
                 </div>
-                 <div className="bg-[#FAFAFB] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                   <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{years === '' ? '0' : (typeof years === 'number' ? `${years}+` : years)}</div>
-                   <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Years Experience</div>
-                 </div>
-                <div className="bg-[#F3F4F6] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                  <div className="text-[20px] leading-[36px] font-bold text-[#19191F]">98%</div>
-                  <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Satisfaction</div>
+                <div className="bg-[#FAFAFB] rounded-[10px] p-4 text-center" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
+                  <div className=" text-[20px] leading-[36px] font-bold text-[#19191F]">{years === '' ? '0' : (typeof years === 'number' ? `${years}+` : years)}</div>
+                  <div className="font-[Inter] text-[12px] leading-[24px] font-normal text-[#19191F] mt-1">Years Experience</div>
                 </div>
               </div>
 
@@ -1310,6 +1414,7 @@ export default function BrokerDetailsPage() {
                   Rate This Broker
                 </button>
               </div>
+
             </div>
 
           {/* Brokers in this Region - Full Width Carousel (12 columns) */}

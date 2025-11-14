@@ -559,33 +559,10 @@ const Settings = () => {
 
                 {/* Privacy Section */}
                 <div className="mb-8 pb-8 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Privacy & Security
-                                </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          Profile Visibility
-                        </p>
-                              <p className="text-xs text-gray-600 mt-1">
-                          Control who can see your profile
-                              </p>
-                            </div>
-                      <span className="text-sm text-gray-500">Public</span>
-                          </div>
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">
-                          Data Sharing
-                        </p>
-                        <p className="text-xs text-gray-600 mt-1">
-                          Allow sharing of your data with partners
-                                </p>
-                              </div>
-                      <span className="text-sm text-gray-500">Enabled</span>
-                            </div>
-                            <div className="flex items-center justify-between py-3 border-t border-gray-200">
+                 
+                   
+                  
+                            <div className="flex items-center justify-between py-3">
                               <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">
                           Email Verification
@@ -621,7 +598,7 @@ const Settings = () => {
                                 </span>
                               )}
                             </div>
-                          </div>
+                        
                         </div>
 
                 {/* Account Information */}

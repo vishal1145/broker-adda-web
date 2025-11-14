@@ -769,7 +769,7 @@ const PropertiesManagement = () => {
 
   return (
     <ProtectedRoute>
-            <HeaderFile data={{ title: 'Dashboard', breadcrumb: [{ label: 'Home', href: '/' }, { label: 'Property', href: '/properties-management' }] }} />
+            <HeaderFile data={{ title: 'My Properties', breadcrumb: [{ label: 'Home', href: '/' }, { label: 'Property', href: '/properties-management' }] }} />
       
       <div className=" mx-auto  py-8">
         <div className="flex items-center justify-between mb-6">
@@ -1203,11 +1203,11 @@ const PropertiesManagement = () => {
                         <hr className="my-3 border-gray-200" />
 
                         {/* Edit and Delete Buttons */}
-                        <div className="flex items-center justify-center gap-3">
+                        <div className="flex items-center justify-between gap-3 mt-4">
                           <Link
                             href={`/properties-management/edit/${property.id}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors text-sm font-medium relative group"
+                            className="inline-flex items-center gap-1  text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors text-sm font-medium relative group underline"
                             title="Edit Property"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -1225,7 +1225,7 @@ const PropertiesManagement = () => {
                               e.stopPropagation();
                               handleDeleteProperty(property.id);
                             }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors text-sm font-medium relative group"
+                            className="inline-flex items-center gap-1 underline text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors text-sm font-medium relative group"
                             title="Delete Property"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
