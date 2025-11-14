@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropertiesComponent from './components/PropertiesComponent';
 import LeadsComponent from './components/LeadsComponent';
 import BrokersComponent from './components/BrokersComponent';
@@ -9,6 +9,7 @@ import HeaderFile from '../components/Header';
 const Search = () => {
   const [activeTab, setActiveTab] = useState('brokers');
   const [searchQuery, setSearchQuery] = useState('');
+  const lastManualTabChangeRef = useRef(null);
 
   // Read query param without useSearchParams to avoid Suspense requirement
   useEffect(() => {
@@ -19,6 +20,9 @@ const Search = () => {
         const t = sp.get('tab');
         if (t === 'leads' || t === 'brokers' || t === 'properties') {
           setActiveTab(t);
+        } else if (!t) {
+          // If no tab in URL, default to brokers
+          setActiveTab('brokers');
         }
         // Set search query from URL if present (works with both regionId and q)
         const q = sp.get('q');
@@ -29,21 +33,28 @@ const Search = () => {
         }
       } catch {}
     };
+    // Only read from URL on initial mount
     updateFromURL();
-    // Listen for URL changes (including when navbar search updates URL)
-    const interval = setInterval(updateFromURL, 100);
-    return () => clearInterval(interval);
   }, []);
 
-  // Listen for URL changes (back/forward buttons)
+  // Listen for URL changes (back/forward buttons and navigation)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handlePopState = () => {
       try {
         const sp = new URLSearchParams(window.location.search);
         const t = sp.get('tab');
+        // Only update if it's been more than 1 second since last manual change
+        // This prevents the interval from overriding manual tab clicks
+        const now = Date.now();
+        if (lastManualTabChangeRef.current && (now - lastManualTabChangeRef.current) < 1000) {
+          return; // Ignore URL changes if manual change was recent
+        }
+        
         if (t === 'leads' || t === 'brokers' || t === 'properties') {
           setActiveTab(t);
+        } else if (!t) {
+          setActiveTab('brokers');
         }
         // Set search query from URL if present (works with both regionId and q)
         const q = sp.get('q');
@@ -54,8 +65,27 @@ const Search = () => {
         }
       } catch {}
     };
+    
+    // Listen for popstate (browser back/forward)
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    
+    // Check URL changes periodically but less frequently (every 1000ms)
+    // Only to catch external navigation changes (like from navbar)
+    let lastUrl = window.location.href;
+    const checkUrlChange = () => {
+      const currentUrl = window.location.href;
+      if (currentUrl !== lastUrl) {
+        lastUrl = currentUrl;
+        handlePopState();
+      }
+    };
+    
+    const urlCheckInterval = setInterval(checkUrlChange, 1000);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      clearInterval(urlCheckInterval);
+    };
   }, []);
 
   // Update URL when tab changes

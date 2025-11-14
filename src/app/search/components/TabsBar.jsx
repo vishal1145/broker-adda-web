@@ -25,13 +25,19 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
   }, [isSortDropdownOpen])
 
   const handleTabClick = (tabId) => {
+    // Update state immediately to prevent flicker
     setActiveTab(tabId)
     
-    // Update URL with tab query parameter
+    // Update URL with tab query parameter (use replaceState to avoid history entry)
     if (typeof window !== 'undefined') {
       const url = new URL(window.location)
       url.searchParams.set('tab', tabId)
-      router.push(url.toString(), { scroll: false })
+      // Use replaceState instead of push to avoid creating history entries and prevent flicker
+      window.history.replaceState({}, '', url.toString())
+      
+      // Dispatch custom event to notify parent component of manual tab change
+      // This helps prevent URL polling from overriding the manual change
+      window.dispatchEvent(new CustomEvent('tabChanged', { detail: { tab: tabId } }));
     }
   }
 
