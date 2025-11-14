@@ -73,6 +73,9 @@ interface ApiProperty {
   createdBy?: string | { _id?: string };
   brokerId?: string;
   broker?: string | { _id?: string };
+  isHotProperty?: boolean;
+  distanceKm?: number;
+  distance?: number;
 }
 
 const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hours: 0, minutes: 0, seconds: 0 }, images: [] } }: { data: FlashSaleData }) => {
@@ -110,8 +113,10 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
 
         const currentUserId = getCurrentUserId();
         let currentBrokerId = '';
+        let latitude: number | null = null;
+        let longitude: number | null = null;
 
-        // Fetch broker details to get the actual broker _id
+        // Fetch broker details to get the actual broker _id and location coordinates
         if (currentUserId && token) {
           try {
             const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
@@ -125,9 +130,48 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
               const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
               currentBrokerId = broker?._id || broker?.id || '';
               console.log('Current broker ID:', currentBrokerId);
+              
+              // Get coordinates from broker's location
+              if (broker?.location?.coordinates && Array.isArray(broker.location.coordinates) && broker.location.coordinates.length >= 2) {
+                // API format: [latitude, longitude] OR GeoJSON: [longitude, latitude]
+                const coords = broker.location.coordinates;
+                if (Math.abs(coords[0]) <= 90 && Math.abs(coords[1]) <= 180) {
+                  latitude = coords[0];
+                  longitude = coords[1];
+                } else {
+                  longitude = coords[0];
+                  latitude = coords[1];
+                }
+                console.log('📍 FlashSale: Using broker location coordinates:', latitude, longitude);
+              }
             }
           } catch (err) {
             console.error('Error fetching broker details:', err);
+          }
+        }
+
+        // If no broker coordinates, try to get current location
+        if (!latitude || !longitude) {
+          if (navigator.geolocation) {
+            try {
+              await new Promise<void>((resolve) => {
+                navigator.geolocation.getCurrentPosition(
+                  (position) => {
+                    latitude = position.coords.latitude;
+                    longitude = position.coords.longitude;
+                    console.log('📍 FlashSale: Using geolocation coordinates:', latitude, longitude);
+                    resolve();
+                  },
+                  (error) => {
+                    console.log('📍 FlashSale: Geolocation error:', error.message);
+                    resolve(); // Continue without coordinates
+                  },
+                  { timeout: 5000 }
+                );
+              });
+            } catch (err) {
+              console.error('Error getting geolocation:', err);
+            }
           }
         }
 
@@ -136,7 +180,16 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         };
 
-        const response = await fetch(`${apiUrl}/properties`, {
+        // Build API URL with coordinates if available
+        let apiUrlWithParams = `${apiUrl}/properties`;
+        if (latitude && longitude) {
+          apiUrlWithParams += `?latitude=${latitude}&longitude=${longitude}`;
+          console.log('📍 FlashSale: Fetching properties with location filter:', apiUrlWithParams);
+        } else {
+          console.log('📍 FlashSale: Fetching all properties (no location filter)');
+        }
+
+        const response = await fetch(apiUrlWithParams, {
           method: 'GET',
           headers
         });
@@ -163,31 +216,86 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
             ? propertiesList.filter((property: ApiProperty) => {
                 // Extract broker ID from various possible fields
                 let propertyBrokerId = '';
-                if (property.createdBy) {
-                  propertyBrokerId = typeof property.createdBy === 'object' 
-                    ? property.createdBy._id || '' 
-                    : property.createdBy;
-                } else if (property.brokerId) {
-                  propertyBrokerId = property.brokerId;
-                } else if (property.broker) {
-                  propertyBrokerId = typeof property.broker === 'object' 
-                    ? property.broker._id || '' 
-                    : property.broker;
+                
+                // Check broker field first (most common in API response)
+                if (property.broker) {
+                  if (typeof property.broker === 'string') {
+                    propertyBrokerId = property.broker;
+                  } else if (typeof property.broker === 'object' && property.broker !== null) {
+                    propertyBrokerId = property.broker._id || '';
+                  }
                 }
+                
+                // If not found, check createdBy, brokerId
+                if (!propertyBrokerId) {
+                  if (property.createdBy) {
+                    propertyBrokerId = typeof property.createdBy === 'object' 
+                      ? property.createdBy._id || '' 
+                      : property.createdBy;
+                  } else if (property.brokerId) {
+                    propertyBrokerId = property.brokerId;
+                  }
+                }
+                
                 // Convert both to strings for comparison
                 const brokerIdStr = String(currentBrokerId).trim();
                 const propertyBrokerIdStr = String(propertyBrokerId).trim();
                 const shouldShow = propertyBrokerIdStr !== brokerIdStr && propertyBrokerIdStr !== '';
                 if (!shouldShow) {
-                  console.log('Filtering out property:', property.title || property.name, 'Broker ID:', propertyBrokerIdStr, 'Current Broker ID:', brokerIdStr);
+                  console.log('🔍 FlashSale: Filtering out own property:', property.title || property.name, 'Broker ID:', propertyBrokerIdStr);
                 }
                 // Only show properties that don't belong to the logged-in broker
                 return shouldShow;
               })
             : propertiesList;
 
+          // Filter for hot properties only (isHotProperty === true)
+          const hotProperties = filteredProperties.filter((property: ApiProperty) => {
+            return property.isHotProperty === true;
+          });
+          
+          console.log('🔥 FlashSale: Hot properties found:', hotProperties.length, 'out of', filteredProperties.length);
+
+          // Helper function to extract distance (in km)
+          const getDistance = (property: ApiProperty): number => {
+            const distance = property.distanceKm ?? property.distance;
+            return Number.isFinite(Number(distance)) ? Number(distance) : Infinity;
+          };
+
+          // Helper function to check if property is hot
+          const isHot = (property: ApiProperty): boolean => {
+            return property.isHotProperty === true;
+          };
+
+          // Helper function to get price
+          const getPrice = (property: ApiProperty): number => {
+            return Number.isFinite(Number(property.price)) ? Number(property.price) : Infinity;
+          };
+
+          // Sort hot properties by: 1. Distance (closest first), 2. Price (lowest first)
+          const sortedProperties = (latitude && longitude)
+            ? [...hotProperties].sort((a, b) => {
+                // First: Sort by distance (closest first)
+                const distanceA = getDistance(a);
+                const distanceB = getDistance(b);
+                if (distanceA !== distanceB) {
+                  return distanceA - distanceB;
+                }
+                
+                // Second: Sort by price (lowest first)
+                const priceA = getPrice(a);
+                const priceB = getPrice(b);
+                return priceA - priceB;
+              })
+            : [...hotProperties].sort((a, b) => {
+                // If no coordinates, sort by price (lowest first)
+                const priceA = getPrice(a);
+                const priceB = getPrice(b);
+                return priceA - priceB;
+              });
+
           // Map properties and get first 3
-          const mappedProperties: Property[] = filteredProperties
+          const mappedProperties: Property[] = sortedProperties
             .slice(0, 3)
             .map((property: ApiProperty) => ({
               id: property._id || property.id || '',
