@@ -398,41 +398,41 @@ const Hero = ({ data = {
   }, []);
 
   return (
-    <section className=" py-24">
+    <section className="py-12 md:py-24 px-4 md:px-0">
       <div className="w-full mx-auto relative">
-        <div className="absolute left-72 top-96 z-10">
+        <div className="absolute left-72 top-96 z-10 hidden md:block">
           <Dots />
         </div>
 
-        <div className="absolute right-[550px] bottom-96 z-10">
+        <div className="absolute right-[550px] bottom-96 z-10 hidden md:block">
           <Dots />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-24 items-center justify-between relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-24 items-center justify-between relative z-10">
           {/* Text Content */}
-          <div className="space-y-4 text-left">
-            <div className="inline-flex bg-white text-black px-4 py-2 rounded-full text-sm items-center gap-2">
-              <img src="/images/start.png" className="w-6 h-6" alt="star" />
+          <div className="space-y-3 md:space-y-4 text-left">
+            <div className="inline-flex bg-white text-black px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm items-center gap-1.5 md:gap-2">
+              <img src="/images/start.png" className="w-4 h-4 md:w-6 md:h-6" alt="star" />
               {badge.text}
             </div>
 
-            <h1 className="text-5xl font-medium text-gray-900 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-medium text-gray-900 leading-tight">
               {title.main}{' '}
               <span className="text-green-900">{title.accent}</span>
               <br />
               <span className="text-green-900">{title.subtitle}</span>
             </h1>
 
-            <p className="text-gray-500 text-sm max-w-md">{description}</p>
+            <p className="text-gray-500 text-xs md:text-sm max-w-md">{description}</p>
 
-            <div className="flex gap-6 flex-wrap items-center">
+            <div className="flex gap-4 md:gap-6 flex-wrap items-center">
               <button
 onClick={() => {
     window.location.href = '/signup';
-  }}                className="bg-green-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 cursor-pointer"
+  }}                className="bg-green-900 text-white px-5 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold flex items-center gap-2 cursor-pointer"
               >
                 {(buttons as { primary?: string; secondary?: string })?.primary || 'Brokers'}
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-3 h-3 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fillRule="evenodd"
                     d="M10.293 3.293a1 1 0 011.414 0l5.3 5.3a1 1 0 010 1.414l-5.3 5.3a1 1 0 01-1.414-1.414L13.586 11H3a1 1 0 110-2h10.586l-3.293-3.293a1 1 0 010-1.414z"
@@ -444,64 +444,64 @@ onClick={() => {
               {/* Use Next Link instead of <a href> for client navigation */}
               <Link
                 href="/search?tab=brokers"
-                className="text-green-900 text-sm mt-2 font-semibold hover:opacity-80"
+                className="text-green-900 text-xs md:text-sm mt-2 font-semibold hover:opacity-80"
               >
                 {(buttons as { primary?: string; secondary?: string })?.secondary ?? 'Explore'}
               </Link>
             </div>
 
             {/* Rating */}
-            <div className="flex items-center gap-4 mt-6">
-              <div className="flex -space-x-2 overflow-hidden">
+            <div className="flex items-center gap-3 md:gap-4 mt-4 md:mt-6">
+              <div className="flex -space-x-2 overflow-hidden flex-shrink-0">
                 {(rating.users || []).map((user, index) => (
                   <img
                     key={index}
-                    className="w-8 h-8 rounded-full border-2 border-white"
+                    className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-white"
                     src={user}
                     alt={`User ${index + 1}`}
                   />
                 ))}
-                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-yellow-300 border-2 border-white text-black text-lg font-bold">
+                <div className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-yellow-300 border-2 border-white text-black text-sm md:text-lg font-bold">
                   +
                 </div>
               </div>
-              <div className="text-sm">
+              <div className="text-xs md:text-sm ml-2 md:ml-0">
                 <p className="font-semibold text-gray-700">
                   {rating.score} {rating.text}
                 </p>
-                <p className="text-gray-500 text-xs">{rating.subtext}</p>
+                <p className="text-gray-500 text-[10px] md:text-xs">{rating.subtext}</p>
               </div>
             </div>
           </div>
 
           {/* Cards Section */}
-          <div className="flex flex-col items-center w-full">
+          <div className="flex flex-col items-center w-full mt-8 md:mt-0">
             <div className="relative w-full flex flex-col md:flex-row justify-center items-center gap-4 py-2">
               {intendApi && isLoading && (
                 <>
-                  <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:min-w-[260px] h-60 animate-pulse" />
-                  <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:min-w-[260px] h-60 animate-pulse" />
+                  <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:min-w-[260px] h-[220px] md:h-60 animate-pulse" />
+                  <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:min-w-[260px] h-[220px] md:h-60 animate-pulse hidden md:block" />
                 </>
               )}
               {!isLoading && displayCards.slice(startIdx, startIdx + CARDS_VISIBLE).map((card, index) => (
                 <div
                   key={index}
                   onClick={() => openProductDetails(card.id)}
-                  className="hero-card bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition relative group w-full max-w-xs md:min-w-[260px] mx-auto md:mx-2 cursor-pointer min-h-[260px]"
+                  className="hero-card bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition relative group w-full max-w-xs md:min-w-[260px] mx-auto md:mx-2 cursor-pointer min-h-[220px] md:min-h-[260px]"
                 >
                   {card.image && card.image.trim().length > 0 ? (
                     <img
                       src={card.image}
-                      className="rounded-lg object-cover h-48 w-full"
+                      className="rounded-lg object-cover h-40 md:h-48 w-full"
                       alt={card.title}
                     />
                   ) : (
-                    <div className="rounded-lg h-48 w-full bg-gray-200 animate-pulse" />
+                    <div className="rounded-lg h-40 md:h-48 w-full bg-gray-200 animate-pulse" />
                   )}
 
-                  <div className="absolute" style={{ top: '18px', left: '60px' }}>
-                    <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center bg-transparent shadow-lg">
-                      <div className="w-2 h-2 rounded-full bg-white"></div>
+                  <div className="absolute" style={{ top: '14px', left: '50px' }}>
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-white flex items-center justify-center bg-transparent shadow-lg">
+                      <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white"></div>
                     </div>
                   </div>
 {/* 
@@ -509,16 +509,16 @@ onClick={() => {
                     {card.price}
                   </div> */}
 
-                  <h3 className="font-semibold text-gray-800 mt-3 text-left">
+                  <h3 className="font-semibold text-gray-800 mt-2 md:mt-3 text-left text-sm md:text-base">
                     {card.title}
                   </h3>
-                  <p className="text-gray-500 text-xs text-left">{card.items}</p>
+                  <p className="text-gray-500 text-[10px] md:text-xs text-left">{card.items}</p>
 
                   <div
-                    className={`absolute bottom-3 right-3 bg-green-900 hover:bg-green-800  text-white p-2 rounded-full shadow-lg pointer-events-none`}
+                    className={`absolute bottom-2 md:bottom-3 right-2 md:right-3 bg-green-900 hover:bg-green-800 text-white p-1.5 md:p-2 rounded-full shadow-lg pointer-events-none`}
                   >
                     <svg
-                      className="w-4 h-4 -rotate-45"
+                      className="w-3 h-3 md:w-4 md:h-4 -rotate-45"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
@@ -529,16 +529,16 @@ onClick={() => {
                   </div>
 
                   {index === 0 && (
-                    <div className="absolute left-8 -bottom-16 flex gap-3">
+                    <div className="absolute left-4 md:left-8 -bottom-12 md:-bottom-16 flex gap-2 md:gap-3">
                       <button
                         onClick={(e)=>{ e.stopPropagation(); handlePrev(); }}
                         disabled={!canPrev}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-green-900 hover:bg-green-800 transition ${
+                        className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-white bg-green-900 hover:bg-green-800 transition ${
                           !canPrev ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                       >
                         <svg
-                          className="w-5 h-5 rotate-180 transition-colors hover:text-gray-900"
+                          className="w-4 h-4 md:w-5 md:h-5 rotate-180 transition-colors hover:text-gray-900"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"
@@ -550,12 +550,12 @@ onClick={() => {
                       <button
                         onClick={(e)=>{ e.stopPropagation(); handleNext(); }}
                         disabled={!canNext}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-yellow-500 hover:bg-yellow-600 transition ${
+                        className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-white bg-yellow-500 hover:bg-yellow-600 transition ${
                           !canNext ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                       >
                         <svg
-                          className="w-5 h-5 transition-colors hover:text-gray-900"
+                          className="w-4 h-4 md:w-5 md:h-5 transition-colors hover:text-gray-900"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"

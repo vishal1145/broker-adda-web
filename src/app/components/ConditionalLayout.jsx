@@ -15,7 +15,7 @@ export default function ConditionalLayout({ children, navbarData, footerData }) 
   return (
     <>
       {!shouldHideNavbarFooter && <Navbar data={navbarData} />}
-      <main className="min-h-screen pt-20 px-[6rem] py-8">{children}</main>
+      <main className="min-h-screen pt-20 px-1 md:px-[6rem] py-8">{children}</main>
       {!shouldHideNavbarFooter && <Footer data={footerData} />}
       <BrokersChatList />
     </>

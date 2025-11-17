@@ -347,7 +347,7 @@ export default function BrokerDetailsPage() {
       <div className="min-h-screen">
         <HeaderFile data={headerData} />
         <div className="py-8">
-          <div className="w-full mx-auto">
+          <div className="w-full mx-auto px-4 md:px-0">
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Left Content - 8 columns */}
@@ -571,7 +571,7 @@ export default function BrokerDetailsPage() {
       <div className="min-h-screen">
         <HeaderFile data={headerData} />
         <div className="py-10">
-          <div className="w-full mx-auto">
+          <div className="w-full mx-auto px-4 md:px-0">
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8 p-6">
               <p className="text-sm text-gray-600">{error || 'No broker details found.'}</p>
             </div>
@@ -586,7 +586,7 @@ export default function BrokerDetailsPage() {
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <HeaderFile data={headerData} />
       <div className="py-8">
-        <div className="w-full mx-auto">
+        <div className="w-full mx-auto px-4 md:px-0">
       
 
           {/* Main Content Grid */}

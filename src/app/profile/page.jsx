@@ -1563,7 +1563,7 @@ const Profile = () => {
             ],
           }}
         />
-        <div className="min-h-screen bg-white py-12">
+        <div className="min-h-screen bg-white py-12 px-4 md:px-0">
           <ViewModeProfile />
         </div>
       </ProtectedRoute>
@@ -1608,7 +1608,7 @@ const Profile = () => {
               ],
             }}
           />
-      <div className="min-h-screen bg-white py-12">
+      <div className="min-h-screen bg-white py-12 px-4 md:px-0">
         <div className="w-full">
          
           {/* Header Section */}
@@ -2680,12 +2680,12 @@ const Profile = () => {
                         <button
                           type="button"
                           onClick={() => setNearestMode((v) => !v)}
-                          className="w-[149.48px] h-[40px] px-3 
-         flex items-center justify-center font-[Inter] text-[14px] leading-[22px] font-medium
+                          className="w-auto min-w-[149.48px] h-[40px] px-3 
+         flex items-center justify-center font-[Inter] text-[12px] md:text-[14px] leading-[22px] font-medium
          text-[#0D542B] bg-white border border-[#DEE1E6] rounded-md opacity-100
          hover:text-[#0D542B] hover:bg-white
          active:text-[#0D542B] active:bg-white
-         disabled:opacity-40"
+         disabled:opacity-40 whitespace-nowrap"
                         >
                           {nearestMode ? "Choose manually" : "Use nearest"}
                         </button>

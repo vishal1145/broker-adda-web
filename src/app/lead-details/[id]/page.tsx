@@ -466,7 +466,7 @@ export default function LeadDetails() {
       <div className="min-h-screen">
         <HeaderFile data={headerData} />
         <div className="py-8">
-          <div className="w-full mx-auto">
+          <div className="w-full mx-auto px-4 md:px-0">
             {/* Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-16">
               {/* Left Content - 8 columns */}
@@ -733,7 +733,7 @@ export default function LeadDetails() {
       <HeaderFile data={headerData} />
     
       <div className="py-8">
-        <div className="w-full mx-auto">
+        <div className="w-full mx-auto px-4 md:px-0">
          
        
 

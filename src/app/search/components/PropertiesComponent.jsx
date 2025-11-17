@@ -881,9 +881,9 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
   return (
     <>
-    <div className="grid grid-cols-12 gap-8">
+    <div className="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-8">
       {/* Filter Sidebar - 3 columns */}
-      <div className="col-span-3">
+      <div className="w-full md:col-span-3">
         {isLoading ? (
           <div className="bg-white rounded-lg p-6">
             <div className="space-y-6">
@@ -941,14 +941,14 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 space-y-5">
+          <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm border border-gray-200 space-y-4 md:space-y-5">
 
           {/* Filter Results Heading */}
-          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-200">
-            <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center gap-2 mb-3 md:mb-4 pb-3 md:pb-4 border-b border-gray-200">
+            <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-            <h2 style={{ fontSize: '20px', lineHeight: '28px', fontWeight: '600', color: '#171A1FFF' }}>Filter Results</h2>
+            <h2 className="text-[18px] md:text-[20px] leading-[24px] md:leading-[28px] font-semibold" style={{ fontWeight: '600', color: '#171A1FFF' }}>Filter Results</h2>
           </div>
 
 
@@ -1368,7 +1368,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       </div>
 
       {/* Properties Grid - 9 columns */}
-      <div className="col-span-9">
+      <div className="w-full md:col-span-9">
         {/* Tabs Bar */}
         <TabsBar 
           activeTab={activeTab} 
@@ -1380,12 +1380,12 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
         {/* Properties Grid */}
         {isLoading ? (
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {[1,2,3,4,5,6].map((i) => (
               <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
-                <div className="flex">
+                <div className="flex flex-col md:flex-row">
                   {/* Image Section Skeleton - Left */}
-                  <div className="relative w-[400px] h-[260px] flex-shrink-0">
+                  <div className="relative w-full md:w-[400px] h-[200px] md:h-[260px] flex-shrink-0">
                     <ContentLoader
                       speed={2}
                       width={400}
@@ -1410,7 +1410,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   </div>
                   
                   {/* Details Section Skeleton - Right */}
-                  <div className="flex-1 p-5 h-[260px] flex flex-col">
+                  <div className="flex-1 p-4 md:p-5 min-h-[200px] md:h-[260px] flex flex-col">
                     <ContentLoader
                       speed={2}
                       width={500}
@@ -1459,8 +1459,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         ) : (
           <>
           {/* Results Heading */}
-          <div className="mb-6">
-            <h2 className="text-[18px] font-semibold text-gray-900">
+          <div className="mb-4 md:mb-6">
+            <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
               Property Search Results ({propertyItems.length} Found)
             </h2>
           </div>
@@ -1526,16 +1526,16 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             </div>
           ) : (
           <>
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {/* Property cards - horizontal layout */}
             {propertyItems.map((property) => (
             <Link key={property.id} href={`/property-details/${property.id}`} className="block">
               <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex">
+                <div className="flex flex-col md:flex-row">
                   {/* Image Section - Left */}
-                  <div className="relative w-[400px] h-[260px] flex-shrink-0">
+                  <div className="relative w-full md:w-[400px] h-[200px] md:h-[260px] flex-shrink-0">
                 {/* Image carousel */}
-                    <div className="relative w-full h-full overflow-hidden rounded-l-xl">
+                    <div className="relative w-full h-full overflow-hidden rounded-t-xl md:rounded-l-xl md:rounded-t-none">
                   {(() => {
                     const imgs = Array.isArray(property.images) ? property.images : [property.image];
                     const idx = imageIndexById[property.id] ?? 0;
@@ -1551,25 +1551,25 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   })()}
                 </div>
                     {/* Tag overlay - top-left */}
-                    <div className="absolute top-4 left-4">
+                    <div className="absolute top-2 md:top-4 left-2 md:left-4">
                   <span 
-                    className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap"
-                    style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}
+                    className="inline-flex items-center justify-center rounded-full h-[18px] md:h-[22px] px-2 md:p-[10px] whitespace-nowrap"
+                    style={{ fontFamily: 'Inter', fontSize: '10px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}
                   >
                     {property.type}
                   </span>
                 </div>
                     {/* Rating - top-right */}
-                    <div className="absolute top-4 right-4 flex items-center bg-white/90 backdrop-blur rounded-full px-2 py-1 shadow-sm">
-                  <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="absolute top-2 md:top-4 right-2 md:right-4 flex items-center bg-white/90 backdrop-blur rounded-full px-1.5 md:px-2 py-0.5 md:py-1 shadow-sm">
+                  <svg className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 mr-0.5 md:mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
-                  <span className="text-xs font-medium text-gray-700">{property.rating}</span>
+                  <span className="text-[10px] md:text-xs font-medium text-gray-700">{property.rating}</span>
                 </div>
                 {/* Price pill bottom-left */}
-                    <div className="absolute bottom-4 left-4 z-10">
-                      <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap"
-                    style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}
+                    <div className="absolute bottom-2 md:bottom-4 left-2 md:left-4 z-10">
+                      <span className="inline-flex items-center justify-center rounded-full h-[18px] md:h-[22px] px-2 md:p-[10px] whitespace-nowrap"
+                    style={{ fontFamily: 'Inter', fontSize: '10px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}
                   >
                     {property.currentPrice}
                   </span>
@@ -1584,66 +1584,66 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                         const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(propertyUrl)}`;
                         window.open(facebookShareUrl, '_blank', 'width=600,height=400');
                       }}
-                      className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer"
+                      className="absolute bottom-2 md:bottom-4 right-2 md:right-4 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-700 z-10 cursor-pointer"
                     >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                   </svg>
                 </button>
               </div>
               
                   {/* Details Section - Right */}
-                  <div className="flex-1 p-5 h-[260px] flex flex-col">
+                  <div className="flex-1 p-4 md:p-5 min-h-[200px] md:h-[260px] flex flex-col">
                     {/* Title */}
-                    <h3 className="mb-2 flex items-center gap-2" style={{  fontSize: '16px', lineHeight: '22px', fontWeight: '600', color: '#171A1FFF' }}>
+                    <h3 className="mb-2 flex items-center gap-2 text-[14px] md:text-[16px] leading-[20px] md:leading-[22px] font-semibold" style={{ fontWeight: '600', color: '#171A1FFF' }}>
                       {property.name}
-                      <svg className="w-3.5 h-3.5 text-[#0A421E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
+                      <svg className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#0A421E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
                         <path d="M7 17l10-10M7 7h10v10" />
                       </svg>
                     </h3>
                     
                     {/* Description */}
-                    <p className="mb-3" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF', width: '418px' }}>
+                    <p className="mb-2 md:mb-3 text-[11px] md:text-[12px] leading-[15px] md:leading-[16px] md:w-[418px]" style={{ fontFamily: 'Inter', fontWeight: '400', color: '#565D6DFF' }}>
                       {property.description || `A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.`}
                     </p>
                     
                     {/* Location Details */}
-                    <div className="flex flex-col gap-2 mb-3">
+                    <div className="flex flex-col gap-1.5 md:gap-2 mb-2 md:mb-3">
                       {/* <div className="flex items-center text-[12px] text-gray-600">
                         <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                         {property.city || 'Agra'}
                 </div> */}
-                      <div className="flex items-center text-[12px] text-gray-600">
-                        <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center text-[11px] md:text-[12px] text-gray-600">
+                        <svg className="w-3 h-3 md:w-4 md:h-4 mr-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
                     <circle cx="12" cy="10" r="3" strokeWidth="2" />
                   </svg>
-                  {Array.isArray(property.region)
+                  <span className="truncate">{Array.isArray(property.region)
                     ? property.region.map(r => (typeof r === 'string' ? r : r?.name)).filter(Boolean).join(', ')
-                          : (typeof property.region === 'string' ? property.region : property.region?.name) || 'Electronic City, Noida, Uttar Pradesh, India'}
+                          : (typeof property.region === 'string' ? property.region : property.region?.name) || 'Electronic City, Noida, Uttar Pradesh, India'}</span>
                 </div>
                 </div>
 
                     {/* Features */}
-                    <div className="mb-2">
-                      <div className="text-[12px] font-semibold text-gray-900 mb-2">Features</div>
-                      <div className="flex flex-wrap gap-2">
+                    <div className="mb-1.5 md:mb-2">
+                      <div className="text-[11px] md:text-[12px] font-semibold text-gray-900 mb-1.5 md:mb-2">Features</div>
+                      <div className="flex flex-wrap gap-1.5 md:gap-2">
                         {property.bedrooms && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
-                            <svg className="w-4 h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <span className="inline-flex items-center gap-0.5 md:gap-1 px-2 md:px-2.5 py-0.5 md:py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
+                            <svg className="w-3 h-3 md:w-4 md:h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M3 12l-1 8a2 2 0 002 2h16a2 2 0 002-2l-1-8M3 12V9a2 2 0 012-2h5m0 0h6a2 2 0 012 2v3m0 0v3a2 2 0 01-2 2h-6v0M9 21h6" />
                     </svg>
-                            <span style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '600', color: '#19191FFF' }}>{property.bedrooms} bd</span>
+                            <span className="text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-semibold" style={{ fontFamily: 'Inter', fontWeight: '600', color: '#19191FFF' }}>{property.bedrooms} bd</span>
                   </span>
                         )}
                         {property.bathrooms && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
-                            <svg className="w-4 h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <span className="inline-flex items-center gap-0.5 md:gap-1 px-2 md:px-2.5 py-0.5 md:py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
+                            <svg className="w-3 h-3 md:w-4 md:h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2m0 0h4a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h8zm0 0v4" />
                     </svg>
-                            <span style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '600', color: '#19191FFF' }}>{property.bathrooms} bt</span>
+                            <span className="text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-semibold" style={{ fontFamily: 'Inter', fontWeight: '600', color: '#19191FFF' }}>{property.bathrooms} bt</span>
                     </span>
                   )}
                       </div>
@@ -1651,8 +1651,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
                     {/* Amenities */}
                     <div className="mt-auto">
-                      <div className="text-[12px] font-semibold text-gray-900 mb-2">Amenities</div>
-                  <div className="flex flex-wrap gap-2 text-[11px]">
+                      <div className="text-[11px] md:text-[12px] font-semibold text-gray-900 mb-1.5 md:mb-2">Amenities</div>
+                  <div className="flex flex-wrap gap-1.5 md:gap-2 text-[10px] md:text-[11px]">
                         {(() => {
                           const amenitiesList = Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities : ['Gym', 'Parking', 'Security', 'Swimming Pool', 'Clubhouse'];
                           const displayCount = amenitiesList.length > 2 ? 2 : amenitiesList.length;
@@ -1663,13 +1663,13 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                               {amenitiesList.slice(0, displayCount).map((amenity, idx) => (
                                 <span
                                   key={idx}
-                                  className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+                                  className="inline-flex items-center px-2 md:px-2.5 py-0.5 md:py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
                                 >
                                   {amenity}
                                 </span>
                               ))}
                               {remainingCount > 0 && (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                <span className="inline-flex items-center px-2 md:px-2.5 py-0.5 md:py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
                                   +{remainingCount}
                                 </span>
                               )}
@@ -1687,8 +1687,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
           {/* Pagination */}
           {pagination.total > 0 && (
-            <div className="flex items-center justify-between mt-6">
-              <p className="text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4 md:mt-6">
+              <p className="text-xs md:text-sm text-gray-600">
                 Showing {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} results
               </p>
               {pagination.totalPages > 1 && (

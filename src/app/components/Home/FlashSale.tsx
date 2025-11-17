@@ -353,71 +353,71 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
   }, []);
 
   return (
-    <section className="bg-white py-12 md:py-16 lg:py-20" >
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    <section className="bg-white py-8 md:py-16 lg:py-20" >
+      <div className="w-full mx-auto px-4 md:px-[6rem]">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
         {/* LEFT: Countdown Card */}
-        <div className=" relative rounded-2xl p-6 w-full h-auto md:h-[460px] shadow flex flex-col justify-center items-center text-center ">
-          <div className="absolute left-20 bottom-0  ">
+        <div className="relative rounded-2xl p-4 md:p-6 w-full h-auto md:h-[460px] shadow flex flex-col justify-center items-center text-center">
+          <div className="absolute left-20 bottom-0 hidden md:block">
             <Dots />
           </div>
           {/* Dots - top right */}
-          <div className="absolute right-20 top-0 ">
+          <div className="absolute right-20 top-0 hidden md:block">
             <Dots />
           </div>
-          <h3 className="text-5xl font-medium text-gray-900">
+          <h3 className="text-3xl md:text-5xl font-medium text-gray-900">
             {(data.title || '').split(" ")[0]}{" "}
             <span className="text-green-900">{(data.title || '').split(" ")[1] || ''}</span>
           </h3>
-          <p className="text-gray-600 text-xl mt-2 mb-4">{data.subtitle}</p>
+          <p className="text-gray-600 text-base md:text-xl mt-2 mb-3 md:mb-4">{data.subtitle}</p>
 
           {/* Countdown */}
-          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-sm text-gray-700 font-semibold mb-6">
-            <div className="text-center w-20 sm:w-auto">
-              <div className="text-5xl sm:text-6xl font-medium text-gray-900">
+          <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 lg:gap-4 text-xs md:text-sm text-gray-700 font-semibold mb-4 md:mb-6">
+            <div className="text-center w-16 md:w-20 lg:w-auto">
+              <div className="text-3xl md:text-5xl lg:text-6xl font-medium text-gray-900">
                 {String(countdown.days).padStart(2, "0")}
               </div>
-              <div className="font-medium">Days</div>
+              <div className="font-medium text-[10px] md:text-sm">Days</div>
             </div>
 
-            <div className="text-4xl sm:text-5xl font-medium text-gray-900">
+            <div className="text-2xl md:text-4xl lg:text-5xl font-medium text-gray-900">
               :
             </div>
 
-            <div className="text-center w-20 sm:w-auto">
-              <div className="text-5xl sm:text-6xl font-medium text-gray-900">
+            <div className="text-center w-16 md:w-20 lg:w-auto">
+              <div className="text-3xl md:text-5xl lg:text-6xl font-medium text-gray-900">
                 {String(countdown.hours).padStart(2, "0")}
               </div>
-              <div className="font-medium">Hours</div>
+              <div className="font-medium text-[10px] md:text-sm">Hours</div>
             </div>
 
-            <div className="text-4xl sm:text-5xl font-medium text-gray-900">
+            <div className="text-2xl md:text-4xl lg:text-5xl font-medium text-gray-900">
               :
             </div>
 
-            <div className="text-center w-20 sm:w-auto">
-              <div className="text-5xl sm:text-6xl font-medium text-gray-900">
+            <div className="text-center w-16 md:w-20 lg:w-auto">
+              <div className="text-3xl md:text-5xl lg:text-6xl font-medium text-gray-900">
                 {String(countdown.minutes).padStart(2, "0")}
               </div>
-              <div className="font-medium">Minutes</div>
+              <div className="font-medium text-[10px] md:text-sm">Minutes</div>
             </div>
 
-            <div className="text-4xl sm:text-5xl font-medium text-gray-900">
+            <div className="text-2xl md:text-4xl lg:text-5xl font-medium text-gray-900">
               :
             </div>
 
-            <div className="text-center w-20 sm:w-auto">
-              <div className="text-5xl sm:text-6xl font-medium text-gray-900">
+            <div className="text-center w-16 md:w-20 lg:w-auto">
+              <div className="text-3xl md:text-5xl lg:text-6xl font-medium text-gray-900">
                 {String(countdown.seconds).padStart(2, "0")}
               </div>
-              <div className="font-medium">Seconds</div>
+              <div className="font-medium text-[10px] md:text-sm">Seconds</div>
             </div>
           </div>
 
           {/* Button */}
           <button
             onClick={openPropertiesPage}
-            className="bg-green-900 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-green-800"
+            className="bg-green-900 text-white px-4 md:px-6 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium hover:bg-green-800"
           >
             {/* {data.button} */}
             Properties
@@ -425,13 +425,13 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
         </div>
 
         {/* RIGHT: Three Side-by-Side Property Cards */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {loading ? (
             // Loading skeleton
             Array.from({ length: 3 }).map((_, index) => (
               <div
                 key={`loading-${index}`}
-                className="relative h-[460px] w-full rounded-2xl overflow-hidden shadow bg-gray-200 animate-pulse"
+                className={`relative h-[200px] md:h-[460px] w-full rounded-2xl overflow-hidden shadow bg-gray-200 animate-pulse ${index > 0 ? 'hidden md:block' : ''}`}
               >
                 <div className="absolute inset-0 m-2 border border-white rounded-[22px] pointer-events-none"></div>
               </div>
@@ -442,7 +442,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
               <Link
                 key={property.id}
                 href={`/property-details/${property.id}`}
-                className="relative h-[460px] w-full rounded-2xl overflow-hidden shadow cursor-pointer group hover:shadow-xl transition-shadow duration-300"
+                className={`relative h-[200px] md:h-[460px] w-full rounded-2xl overflow-hidden shadow cursor-pointer group hover:shadow-xl transition-shadow duration-300 ${index > 0 ? 'hidden md:block' : ''}`}
               >
                 {/* Image */}
                 <img
@@ -459,10 +459,10 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-2xl"></div>
 
                 {/* Property Info Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h4 className="text-sm font-semibold mb-1 line-clamp-2">{property.title}</h4>
+                <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 text-white">
+                  <h4 className="text-xs md:text-sm font-semibold mb-1 line-clamp-2">{property.title}</h4>
                   {property.price > 0 && (
-                    <p className="text-xs font-medium">₹{Math.round(property.price).toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] md:text-xs font-medium">₹{Math.round(property.price).toLocaleString('en-IN')}</p>
                   )}
                 </div>
 
@@ -475,7 +475,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
             (data.images || []).map((image, index) => (
               <div
                 key={`fallback-${index}`}
-                className="relative h-[460px] w-full rounded-2xl overflow-hidden shadow"
+                className={`relative h-[200px] md:h-[460px] w-full rounded-2xl overflow-hidden shadow ${index > 0 ? 'hidden md:block' : ''}`}
               >
                 {/* Image */}
                 <img

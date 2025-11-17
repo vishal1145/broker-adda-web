@@ -35,7 +35,7 @@ const Blog = () => {
       <HeaderFile data={blogData} />
 
       <section className="py-16 bg-white">
-        <div className="mx-auto ">
+        <div className="mx-auto px-4 md:px-0">
           {/* Blog Cards */}
           <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-10">
             {selectedBlogs.map((blog, index) => (

@@ -18,7 +18,7 @@ const GettingStartedPage = () => {
 
       {/* Main Content */}
       <div className="py-14">
-        <div className="w-full mx-auto">
+        <div className="w-full mx-auto px-4 md:px-0">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left: 9 columns content including video aligned left */}
             <div className="lg:col-span-9">
@@ -225,7 +225,7 @@ const GettingStartedPage = () => {
           </div> */}
 
           {/* Contact Section (restyled only; content unchanged) */}
-          <div className="rounded-xl bg-yellow-50  p-6 md:p-8 shadow-sm">
+          <div className="rounded-xl bg-yellow-50  p-6 md:p-8 shadow-sm mt-6 md:mt-0">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="max-w-3xl">
                 <div className="text-[12px] leading-[18px] text-amber-800/80 mb-1">&nbsp;</div>

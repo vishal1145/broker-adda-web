@@ -771,7 +771,7 @@ const PropertiesManagement = () => {
     <ProtectedRoute>
             <HeaderFile data={{ title: 'My Properties', breadcrumb: [{ label: 'Home', href: '/' }, { label: 'Property', href: '/properties-management' }] }} />
       
-      <div className=" mx-auto  py-8">
+      <div className=" mx-auto px-4 md:px-0 py-8">
         <div className="flex items-center justify-between mb-6">
         
           <div>
@@ -792,9 +792,9 @@ const PropertiesManagement = () => {
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
-                    <div className="flex">
+                    <div className="flex flex-col md:flex-row">
                       {/* Image Section - Left */}
-                      <div className="relative w-[400px] flex-shrink-0 self-stretch">
+                      <div className="relative w-full md:w-[400px] flex-shrink-0 self-stretch">
                         <ContentLoader
                           speed={2}
                           width={400}
@@ -944,9 +944,9 @@ const PropertiesManagement = () => {
               <div className="space-y-6">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
-                    <div className="flex">
+                    <div className="flex flex-col md:flex-row">
                       {/* Image Section - Left */}
-                      <div className="relative w-[400px] flex-shrink-0 self-stretch">
+                      <div className="relative w-full md:w-[400px] flex-shrink-0 self-stretch">
                         <ContentLoader
                           speed={2}
                           width={400}
@@ -1064,12 +1064,12 @@ const PropertiesManagement = () => {
                 {items.map((property) => (
                 <Link key={property.id} href={`/property-details/${property.id}`} className="block">
                   <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-                    <div className="flex min-w-0">
+                    <div className="flex flex-col md:flex-row min-w-0">
                       {/* Image Section - Left */}
-                      <div className="relative w-[400px] h-[235px] flex-shrink-0 self-stretch">
+                      <div className="relative w-full md:w-[400px] h-[200px] md:h-[235px] flex-shrink-0 self-stretch">
                         {/* Image carousel */}
-                        <div className="relative w-full h-full overflow-hidden rounded-l-xl">
-                          <img src={property.coverImage || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover rounded-l-xl" style={{ minHeight: '100%' }} />
+                        <div className="relative w-full h-full overflow-hidden rounded-t-xl md:rounded-l-xl md:rounded-t-none">
+                          <img src={property.coverImage || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-t-none" style={{ minHeight: '100%' }} />
                         </div>
                         {/* Tag overlay - top-left */}
                         <div className="absolute top-4 left-4">
@@ -1129,18 +1129,18 @@ const PropertiesManagement = () => {
                       </div>
                       
                       {/* Details Section - Right */}
-                      <div className="flex-1 px-6 py-3 flex flex-col min-w-0 relative">
+                      <div className="flex-1 px-4 md:px-6 py-3 flex flex-col min-w-0 relative">
                         {/* Title */}
-                        <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          <span className="truncate">{property.title}</span>
+                        <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
+                          <span className="truncate md:whitespace-nowrap">{property.title}</span>
                           <svg className="w-3.5 h-3.5 text-[#0A421E] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
                             <path d="M7 17l10-10M7 7h10v10" />
                           </svg>
                         </h3>
                         
                         {/* Description */}
-                        <p className="mb-4 max-w-full" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {property.description || `A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.`}
+                        <p className="mb-4 max-w-full" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '16px', fontWeight: '400', color: '#565D6DFF' }}>
+                          <span className="block md:whitespace-nowrap md:overflow-hidden md:text-ellipsis">{property.description || `A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.`}</span>
                         </p>
                         
                         {/* Location Details */}

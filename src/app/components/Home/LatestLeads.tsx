@@ -348,7 +348,7 @@ const LatestLeads: React.FC = () => {
 
   return (
     <section id="latest-leads" className="relative py-16 ">
-      <div className="w-full mx-auto ">
+      <div className="w-full mx-auto px-4 ">
         {/* Header removed; moved into left column */}
 
         {/* Left intro + Right cards (follow reference design) */}
@@ -391,34 +391,34 @@ const LatestLeads: React.FC = () => {
         ) : (
           <div
             id="latest-leads-grid"
-            className="grid gap-6 md:grid-cols-12 items-center"
+            className="grid gap-4 md:gap-6 md:grid-cols-12 items-start"
           >
             {/* Left 6-col content */}
-            <div className="md:col-span-6 space-y-6 bg-gray-50 p-8 rounded-2xl relative overflow-hidden">
-              {/* Dots - top right */}
-              <div className="absolute right-20 top-0">
+            <div className="md:col-span-6 space-y-4 md:space-y-6 bg-gray-50 p-4 md:p-8 rounded-2xl relative overflow-hidden w-full">
+              {/* Dots - top right - hidden on mobile */}
+              <div className="hidden md:block absolute right-20 top-0">
                 <Dots />
               </div>
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span>
+              <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700">
+                <span className="inline-block h-0.5 w-4 md:w-6 rounded bg-yellow-400"></span>
                 <span>Recent</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold leading-tight text-gray-900">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-gray-900">
                 <span className="">Latest</span>
                 <span className="pl-2 text-green-900">Leads</span>
               </h2>
-              <p className="text-sm sm:text-base text-gray-600">
+              <p className="text-xs md:text-sm lg:text-base text-gray-600">
                 Explore the latest property requirements posted by verified
                 brokers to stay ahead, connect instantly, and turn new
                 opportunities into closed deals.
               </p>
               <Link
                 href="/search?tab=leads"
-                className="inline-flex items-center gap-2 rounded-full bg-green-900 px-5 py-2 text-white text-sm font-semibold shadow-sm w-max"
+                className="inline-flex items-center gap-2 rounded-full bg-green-900 px-4 md:px-5 py-1.5 md:py-2 text-white text-xs md:text-sm font-semibold shadow-sm w-max"
               >
                 View All Leads
                 <svg
-                  className="h-4 w-4"
+                  className="h-3 w-3 md:h-4 md:w-4"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -429,7 +429,7 @@ const LatestLeads: React.FC = () => {
                 </svg>
               </Link>
             </div>
-            <div className="md:col-span-6 grid gap-6 h-full md:grid-cols-2 self-center cursor-pointer">
+            <div className="md:col-span-6 grid gap-4 md:gap-6 h-full md:grid-cols-2 self-start cursor-pointer w-full">
               {leads.slice(0, 2).map((lead) => {
                 // Extract broker ID and broker object from lead.createdBy
                 let brokerId: string | null = null;
@@ -514,27 +514,27 @@ const LatestLeads: React.FC = () => {
                 <Link
                   key={lead._id}
                   href={`/lead-details/${lead._id}`}
-                  className="cursor-pointer ml-2 align-middle"
+                  className="cursor-pointer align-middle w-full"
                   aria-label="Open lead details"
                 >
 
                   <article
-                    className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg"
+                    className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg w-full"
                   >
-                    <div className="p-6">
+                    <div className="p-4 md:p-6">
                       {/* Top Section - Main Title */}
-                      <div className="mb-4">
-                        <h3 className="text-[18px] leading-[20px] font-semibold mb-2" style={{ color: '#323743' }}>
+                      <div className="mb-3 md:mb-4">
+                        <h3 className="text-base md:text-[18px] leading-[20px] font-semibold mb-2" style={{ color: '#323743' }}>
                           {lead.propertyType || "Property"} for {lead.requirement || "inquiry"}
                         </h3>
                         
                         {/* Tags and Time */}
-                        <div className="flex items-center justify-between gap-2 flex-nowrap">
-                          <div className="flex items-center gap-2 flex-nowrap">
-                            <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
+                            <span className="inline-flex items-center justify-center rounded-full h-[20px] md:h-[22px] px-2 md:p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '20px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
                               {lead.requirement || ""}
                             </span>
-                            <span className="inline-flex items-center justify-center rounded-full h-[22px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '12px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                            <span className="inline-flex items-center justify-center rounded-full h-[20px] md:h-[22px] px-2 md:p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '20px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
                               {lead.propertyType || ""}
                             </span>
                           </div>
@@ -555,10 +555,10 @@ const LatestLeads: React.FC = () => {
                       </div>
 
                       {/* Horizontal Divider */}
-                      <div className="border-t border-gray-200 my-4"></div>
+                      <div className="border-t border-gray-200 my-3 md:my-4"></div>
 
                       {/* Middle Section - Property Details */}
-                      <div className="space-y-3 mb-4">
+                      <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
                         {/* Preferred Location */}
                         <div className="flex items-center gap-2">
   <svg
@@ -630,7 +630,7 @@ const LatestLeads: React.FC = () => {
                       </div>
 
                       {/* Bottom Section - Broker Profile and Actions */}
-                  <div className="pt-4">
+                  <div className="pt-3 md:pt-4">
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-3">
       {/* Avatar - Show logo if admin, otherwise show broker image */}

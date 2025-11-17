@@ -15,7 +15,7 @@ const AboutUs = () => {
    
       <HeaderFile data={aboutData} />
       <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto px-4 md:px-0 text-center">
           {/* Main Heading */}
           <p className="text-[16px] text-gray-900  text-center mb-2">
             <span className="text-yellow-500">—</span> Our Story
@@ -107,7 +107,7 @@ const AboutUs = () => {
           </div>
 
           {/* --- Our Product Quality Section --- */}
-          <div className="flex flex-col md:flex-row items-center justify-between mt-12 gap-12  max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between mt-12 gap-12 max-w-7xl mx-auto px-4 md:px-0">
             {/* Left: Image with double border and rounded corners */}
             <div className="relative flex-shrink-0">
               <div
@@ -126,7 +126,7 @@ const AboutUs = () => {
             </div>
 
             {/* Right: Text Card */}
-            <div className="relative bg-gray-50 shadow-lg rounded-2xl px-8 py-16 text-left w-full max-w-2xl h-[600px] overflow-hidden">
+            <div className="relative bg-gray-50 shadow-lg rounded-2xl px-4 md:px-8 py-8 md:py-16 text-left w-full max-w-2xl min-h-[600px] md:h-[600px] overflow-hidden">
               {/* Decorative dots - Top */}
               <div className="absolute top-0 right-24 opacity-60 pointer-events-none">
                 <svg
@@ -194,16 +194,16 @@ const AboutUs = () => {
                   <circle cx="100" cy="55" r="5" fill="#D1D5DB" />
                 </svg>
               </div>
-              <p className="text-[16px] text-gray-900 mt-4 text-left px-8">
+              <p className="text-[16px] text-gray-900 mt-4 text-left px-0 md:px-8">
                 <span className="text-yellow-500">—</span> Our Product Quality
               </p>
-              <h3 className="text-[16px] font-medium px-8 mt-1 ">
+              <h3 className="text-[16px] font-medium px-0 md:px-8 mt-1">
                 Setting the{" "}
                 <span className="text-green-800">
                   Standard for Premium Real Estate
                 </span>
               </h3>
-              <p className="text-gray-600 mb-8 px-8 mt-1 text-[12px]">
+              <p className="text-gray-600 mb-8 px-0 md:px-8 mt-1 text-[12px]">
                 Every Broker Gully property is carefully selected from prime locations with modern amenities and 
                 superior construction quality. Our expert team conducts thorough due diligence on every property, 
                 from legal verification to quality inspection, so you invest in real estate that's not only 
@@ -211,7 +211,7 @@ const AboutUs = () => {
               </p>
 
               {/* Features */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-left px-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 text-left px-0 md:px-8">
                 {/* Feature 1 */}
                 <div className="flex flex-col items-left gap-2 ">
                   <img

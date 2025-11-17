@@ -383,7 +383,7 @@ const Dashboard = () => {
       <HeaderFile data={{ title: 'Dashboard', breadcrumb: [{ label: 'Home', href: '/' }, { label: 'Dashboard', href: '/dashboard' }] }} />
       
       <div className="min-h-screen bg-white py-8">
-        <div className="w-full mx-auto ">
+        <div className="w-full mx-auto px-4 md:px-0">
           
 
           {/* Overview Section */}

@@ -79,7 +79,7 @@ const DocumentationPage = () => {
     <>
       <HeaderFile data={documentationData} />
       <div className="py-14">
-        <div className="w-full mx-auto ">
+        <div className="w-full mx-auto px-4 md:px-0">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left: 9 columns content */}
             <div className="lg:col-span-9">

@@ -25,7 +25,7 @@ const Faq = () => {
     <>
       <HeaderFile data={faqData} />
       <div className="py-16    ">
-        <div className=' mx-auto'>
+        <div className=' mx-auto px-4 md:px-0'>
         {/* Breadcrumb Section */}
         {/* <div className="text-sm text-gray-500 mb-4">
           {faqData.breadcrumb.map((crumb, index) => (

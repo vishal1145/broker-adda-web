@@ -115,9 +115,9 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
 
   return (
     <div className=" bg-white mb-4">
-      <div className="flex items-center justify-between px-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0 px-2 md:px-0">
         {/* ==== Left Tabs ==== */}
-      <div className="flex items-center bg-[#F3F4F6FF]  overflow-hidden">
+      <div className="flex items-center bg-[#F3F4F6FF] overflow-hidden w-full sm:w-auto">
   {[
     { id: 'brokers', label: 'Broker' },
     { id: 'leads', label: 'Lead Enquiry' },
@@ -126,7 +126,7 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
     <button
       key={tab.id}
       onClick={() => handleTabClick(tab.id)}
-      className={`px-4 py-2 font-inter text-sm font-medium leading-[22px] transition-colors
+      className={`px-3 md:px-4 py-2 font-inter text-xs md:text-sm font-medium leading-[20px] md:leading-[22px] transition-colors
         ${
           activeTab === tab.id
             ? 'bg-[#0A421E] text-white'
@@ -139,12 +139,12 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
 </div>
 
         {/* ==== Right Controls ==== */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           {/* Sort By Dropdown */}
-          <div className="relative" ref={sortDropdownRef}>
+          <div className="relative flex-1 sm:flex-initial" ref={sortDropdownRef}>
             <button
               onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-              className="flex items-center justify-center gap-2 w-[183.3px] h-10 px-3 rounded-md border border-[#DEE1E6FF] bg-white
+              className="flex items-center justify-center gap-2 w-full sm:w-[183.3px] h-10 px-3 rounded-md border border-[#DEE1E6FF] bg-white
                          font-inter text-sm leading-[22px] font-medium text-[#171A1FFF]
                          hover:bg-white hover:text-[#171A1FFF]
                          active:bg-white active:text-[#171A1FFF]

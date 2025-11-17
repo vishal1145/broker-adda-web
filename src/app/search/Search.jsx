@@ -143,7 +143,7 @@ const Search = () => {
         ]
       }} />
 
-      <div className="w-full mx-auto  py-8">
+      <div className="w-full mx-auto px-4 md:px-0 py-8">
         {/* Render Active Component */}
         {renderContent()}
       </div>

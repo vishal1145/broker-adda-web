@@ -196,25 +196,27 @@ export default function ViewModeProfile() {
         ) : (
           <>
             {/* Top row with action */}
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-4">
-                <img src={profile.image} alt="Profile" className="w-14 h-14 rounded-full object-cover" />
-                <div>
-                  <div className="text-[16px] font-semibold text-gray-900">{profile.name}</div>
-                  <div className="text-[12px] text-gray-500">{profile.firm || '-'}</div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+              <div className="flex items-center gap-4 min-w-0 flex-1">
+                <img src={profile.image} alt="Profile" className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[16px] font-semibold text-gray-900 truncate">{profile.name}</div>
+                  <div className="text-[12px] text-gray-500 truncate">{profile.firm || '-'}</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <button type="button" onClick={() => router.push('/profile?mode=edit')} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-white bg-green-900 hover:bg-green-900 text-[14px] font-medium">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                  Edit Profile
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <button type="button" onClick={() => router.push('/profile?mode=edit')} className="inline-flex items-center gap-2 px-3 md:px-3.5 py-1.5 rounded-md text-white bg-green-900 hover:bg-green-900 text-[12px] md:text-[14px] font-medium whitespace-nowrap">
+                  <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  <span className="hidden sm:inline">Edit Profile</span>
+                  <span className="sm:hidden">Edit</span>
                 </button>
-                <button type="button" onClick={() => router.push('/settings')} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 text-[14px] font-medium">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <button type="button" onClick={() => router.push('/settings')} className="inline-flex items-center gap-2 px-3 md:px-3.5 py-1.5 rounded-md text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 text-[12px] md:text-[14px] font-medium whitespace-nowrap">
+                  <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  Settings
+                  <span className="hidden sm:inline">Settings</span>
+                  <span className="sm:hidden">Settings</span>
                 </button>
               </div>
             </div>

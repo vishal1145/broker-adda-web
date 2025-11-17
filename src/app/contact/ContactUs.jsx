@@ -97,7 +97,7 @@ const ContactUs = () => {
     <>
       <HeaderFile data={contactData} />
 <div className="py-14">
-      <div className=" mx-auto ">
+      <div className=" mx-auto px-4 md:px-0">
         {/* Contact Section with Map Background */}
         <div className="mb-16 relative">
           {/* World Map Background */}

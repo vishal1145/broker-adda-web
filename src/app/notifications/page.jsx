@@ -373,7 +373,7 @@ const NotificationsPage = () => {
       <HeaderFile data={headerData} />
       
       <div className="min-h-screen  py-8 w-screen relative left-1/2 -translate-x-1/2 overflow-x-hidden">
-        <div className="w-full mx-auto px-[6rem] pt-4 ">
+        <div className="w-full mx-auto px-4 md:px-[6rem] pt-4 ">
           {/* Header Section */}
           <div className="mb-6 flex items-start justify-between">
             <div>

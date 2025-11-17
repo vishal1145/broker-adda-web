@@ -409,8 +409,8 @@ const Settings = () => {
 
             {/* Main Content */}
             <div className="flex-1">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-8">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-8">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">
                   Account Settings
                         </h2>
 
@@ -562,8 +562,8 @@ const Settings = () => {
                  
                    
                   
-                            <div className="flex items-center justify-between py-3">
-                              <div className="flex-1">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 py-3">
+                              <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium text-gray-900">
                           Email Verification
                         </p>
@@ -573,30 +573,33 @@ const Settings = () => {
                             : 'Verify your email address to secure your account'}
                                 </p>
                               </div>
+                              <div className="flex-shrink-0">
                               {!isEmailVerified && (
                                 <button
                                   type="button"
                                   onClick={handleSendVerificationEmail}
                                   disabled={isSendingVerificationEmail}
-                                  className="px-4 py-2 bg-[#0D542B] text-white rounded-lg text-sm font-medium hover:bg-[#0B4624] transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                  className="w-full sm:w-auto px-3 md:px-4 py-2 bg-[#0D542B] text-white rounded-lg text-xs md:text-sm font-medium hover:bg-[#0B4624] transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                                 >
                                   {isSendingVerificationEmail && (
-                                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg className="animate-spin h-3 w-3 md:h-4 md:w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                   )}
-                                  {isSendingVerificationEmail ? 'Sending...' : 'Send Verification Email'}
+                                  <span className="hidden sm:inline">{isSendingVerificationEmail ? 'Sending...' : 'Send Verification Email'}</span>
+                                  <span className="sm:hidden">{isSendingVerificationEmail ? 'Sending...' : 'Send Email'}</span>
                                 </button>
                               )}
                               {isEmailVerified && (
-                                <span className="px-4 py-2 bg-green-100 text-green-800 rounded-lg text-sm font-medium flex items-center gap-2">
-                                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <span className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-green-100 text-green-800 rounded-lg text-xs md:text-sm font-medium">
+                                  <svg className="h-3 w-3 md:h-4 md:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                                   </svg>
                                   Verified
                                 </span>
                               )}
+                              </div>
                             </div>
                         
                         </div>
@@ -633,21 +636,21 @@ const Settings = () => {
 
                 {/* Delete Account Section */}
                 <div className="mb-8">
-                          <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-red-600 mb-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                      <h3 className="text-base md:text-lg font-semibold text-red-600 mb-2">
                                 Delete Account
                               </h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs md:text-sm text-gray-600">
                         Permanently delete your account and all associated data.
                         This action cannot be undone.
                               </p>
                             </div>
-                    <div className="ml-6">
+                    <div className="flex-shrink-0 sm:ml-6">
                           <button
                             type="button"
                             onClick={() => setShowDeleteConfirm(true)}
-                        className="px-6 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                        className="w-full sm:w-auto px-4 md:px-6 py-2 md:py-2.5 bg-red-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 whitespace-nowrap"
                           >
                             Delete Account
                           </button>

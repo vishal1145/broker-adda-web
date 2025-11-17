@@ -22,7 +22,7 @@ const Privacy = () => {
     <>
      
       <HeaderFile data={privacyData} />
-       <div className="px-2 py-12">
+       <div className="px-4 md:px-0 py-12">
 
       <div className=" mx-auto ">
       

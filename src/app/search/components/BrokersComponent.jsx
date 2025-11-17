@@ -1302,9 +1302,9 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   console.log('Pagination - Current page:', currentPage, 'Total pages:', totalPages, 'Items per page:', itemsPerPage);
 
   return (
-    <div className="grid grid-cols-12 gap-8">
+    <div className="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-8">
       {/* Filter Sidebar - 3 columns */}
-      <div className="col-span-3">
+      <div className="w-full md:col-span-3">
         {isLoading ? (
           <div className="bg-white rounded-lg p-6">
             <div className="space-y-6">
@@ -1354,7 +1354,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 space-y-5">
+          <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm border border-gray-200 space-y-4 md:space-y-5">
           
           {/* Filter Results Heading */}
           <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-200">
@@ -1608,7 +1608,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       </div>
 
       {/* Brokers Grid - 9 columns */}
-      <div className="col-span-9">
+      <div className="w-full md:col-span-9">
         {/* Tabs Bar */}
         <TabsBar 
           activeTab={activeTab} 
@@ -1619,8 +1619,8 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         />
 
         {/* Header with heading */}
-        <div className="mb-6">
-          <h2 className="text-[18px] font-semibold text-gray-900">
+        <div className="mb-4 md:mb-6">
+          <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
             Broker Search Results ({totalItems} Found)
           </h2>
         </div>
@@ -1780,7 +1780,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
               return (
            <div
   key={broker.id}
-  className="relative bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 cursor-pointer"
+  className="relative bg-white rounded-2xl p-4 md:p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 cursor-pointer"
   onClick={() => {
     const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id;
     router.push(`/broker-details/${brokerId}`);
@@ -1789,37 +1789,37 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   aria-label={`Open details for ${broker.name || 'broker'}`}
 >
   {/* Header */}
-  <div className="flex items-start gap-4 mb-5">
+  <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-5">
     {/* Avatar + Rating */}
-    <div className="relative flex flex-col items-center">
+    <div className="relative flex flex-col items-center flex-shrink-0">
       <img
         src={broker.profileImage}
         alt={broker.name}
-        className="w-18 h-18 rounded-full object-cover"
+        className="w-14 h-14 md:w-18 md:h-18 rounded-full object-cover"
       />
 
       {/* Rating chip - positioned above image */}
       <span
-        className={`mt-[-20] inline-flex items-center gap-1 px-1 text-[6px]  rounded-lg bg-gray-100 border border-gray-200`}
+        className={`mt-[-16px] md:mt-[-20px] inline-flex items-center gap-0.5 md:gap-1 px-1 md:px-1.5 text-[10px] md:text-[12px] rounded-lg bg-gray-100 border border-gray-200`}
       >
         <svg
-          className="w-3 h-3 text-yellow-500"
+          className="w-2.5 h-2.5 md:w-3 md:h-3 text-yellow-500"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
-        <span className="text-[12px] font-semibold text-gray-800">
+        <span className="text-[10px] md:text-[12px] font-semibold text-gray-800">
           {typeof broker.rating === 'number' ? broker.rating.toFixed(1) : (broker.rating || '3.0')}
         </span>
       </span>
     </div>
 
     {/* Name + Details */}
-    <div className="flex-1">
+    <div className="flex-1 min-w-0">
       {/* Name + verified */}
       <div className="flex items-center gap-2 mb-1">
-        <h3 className="font-inter text-[16px] leading-[22px] font-semibold text-[#171A1FFF]">
+        <h3 className="font-inter text-[14px] md:text-[16px] leading-[20px] md:leading-[22px] font-semibold text-[#171A1FFF] truncate">
           {broker.name}
         </h3>
          {broker.approvedByAdmin === 'unblocked' && (
@@ -1842,7 +1842,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       </div>
 
       {/* Specialization */}
-      <div className="font-inter text-[12px] leading-[16px] font-normal text-[#565D6DFF] mb-1">
+      <div className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#565D6DFF] mb-1">
         {actualSpecializations.length > 0 ? (
           <>
             {actualSpecializations.slice(0, 1).map((type, i) => (
@@ -1859,13 +1859,13 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
       {/* Firm name */}
       {/* Firm name + Experience (same row) */}
-<div className="flex items-center gap-4 mb-3">
+<div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-3">
   {/* Firm */}
   <span className="inline-flex items-center gap-1.5">
-    <svg className="w-4 h-4 text-[#565D6DFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+    <svg className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#565D6DFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
     </svg>
-    <span className="font-inter text-[12px] leading-[16px] font-normal text-[#565D6DFF]">
+    <span className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#565D6DFF] truncate">
       {actualFirmName || 'Independent Broker'}
     </span>
   </span>
@@ -1873,7 +1873,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   {/* Experience */}
   <span className="inline-flex items-center gap-1.5">
    
-    <span className="font-inter text-[12px] leading-[16px] font-normal text-[#565D6DFF]">
+    <span className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#565D6DFF]">
       {`${Math.max(0, parseInt(broker.experience ?? 0))} years experience`}
     </span>
   </span>
@@ -1886,10 +1886,10 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
   {/* Address Chip */}
   {broker.address && (
-    <div className="mb-3 px-4 py-2 rounded-md border border-yellow-300 bg-yellow-50">
+    <div className="mb-3 px-3 md:px-4 py-1.5 md:py-2 rounded-md border border-yellow-300 bg-yellow-50">
       <div className="flex items-center gap-2">
         <svg
-          className="w-4 h-4 text-[#171A1FFF]"
+          className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#171A1FFF] flex-shrink-0"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -1902,7 +1902,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        <div className="font-inter text-[12px] leading-[16px] font-normal text-[#19191FFF]">
+        <div className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#19191FFF] truncate">
           {broker.address}
         </div>
       </div>
@@ -1910,14 +1910,14 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   )}
 
   {/* Location + Leads */}
-  <div className="flex flex-wrap gap-2 mb-4">
+  <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3 md:mb-4">
     {actualLocations.slice(0, 1).map((location, i) => (
       <span
         key={i}
-        className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md flex items-center gap-2 border border-gray-200"
+        className="px-2 md:px-3 py-1 md:py-1.5 bg-gray-100 text-gray-700 text-[10px] md:text-xs font-medium rounded-md flex items-center gap-1.5 md:gap-2 border border-gray-200"
       >
         <svg
-          className="w-4 h-4 text-gray-800"
+          className="w-3 h-3 md:w-4 md:h-4 text-gray-800 flex-shrink-0"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -1935,13 +1935,13 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
           />
         </svg>
-        <span>{location}</span>
+        <span className="truncate">{location}</span>
       </span>
     ))}
 
-    <span className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md flex items-center gap-2 border border-gray-200">
+    <span className="px-2 md:px-3 py-1 md:py-1.5 bg-gray-100 text-gray-700 text-[10px] md:text-xs font-medium rounded-md flex items-center gap-1.5 md:gap-2 border border-gray-200">
       <svg
-        className="w-4 h-4 text-gray-800"
+        className="w-3 h-3 md:w-4 md:h-4 text-gray-800 flex-shrink-0"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -1959,19 +1959,19 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   </div>
 
   {/* Top-right Actions */}
-  <div className="absolute top-6 right-6 flex items-center gap-2">
+  <div className="absolute top-3 right-3 md:top-6 md:right-6 flex items-center gap-1 md:gap-2">
     <button
       onClick={(e) => {
         e.stopPropagation();
         const brokerId = broker.userIdRaw || broker.userId || broker._id || broker.id;
         router.push(`/broker-details/${brokerId}`);
       }}
-      className="p-2"
+      className="p-1.5 md:p-2"
       title="View Details"
       aria-label="View Details"
     >
       <svg
-        className="w-5 h-5 text-green-900"
+        className="w-4 h-4 md:w-5 md:h-5 text-green-900"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -2004,12 +2004,12 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           window.openChatWithBroker({ broker: chatBroker });
         }
       }}
-      className="p-2"
+      className="p-1.5 md:p-2"
       title="Chat"
       aria-label="Chat"
     >
       <svg
-        className="w-5 h-5 text-gray-600"
+        className="w-4 h-4 md:w-5 md:h-5 text-gray-600"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

@@ -9,7 +9,7 @@ export default function ReturnPolicy() {
   return (
     <div>
       <HeaderFile data={refundData.header} />
-      <div className=" py-12">
+      <div className=" py-12 px-4 md:px-0">
         <div className=" mx-auto">
           <div className="flex flex-col gap-10">
             {refundData.sections.map((section, index) => (

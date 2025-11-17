@@ -1922,7 +1922,7 @@ export default function BrokerLeadsPage() {
       <HeaderFile data={headerData} />
       <div className="min-h-screen bg-white py-16">
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-        <div className="w-full mx-auto  ">
+        <div className="w-full mx-auto px-4 md:px-0">
           {/* 9 / 3 layout */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Header */}
@@ -2031,9 +2031,9 @@ export default function BrokerLeadsPage() {
                 <div className="h-px bg-gray-100" />
               </div>
               {/* Search + status + buttons - Flexible layout */}
-              <div className="mt-6 flex items-center gap-3">
+              <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 {/* Search - Fixed width to match status dropdown */}
-                <div className="w-80 relative">
+                <div className="w-full sm:w-80 relative">
                   <input
                     type="text"
                     placeholder="Search leads..."
@@ -2066,7 +2066,7 @@ export default function BrokerLeadsPage() {
                 </div>
 
                 {/* Status Filter - Same width as search */}
-                <div className="w-52">
+                <div className="w-full sm:w-52">
                   <Select
                     value={filters.status}
                     onChange={(opt) => {
@@ -2083,11 +2083,11 @@ export default function BrokerLeadsPage() {
                 </div>
 
                 {/* Advanced Filters - Gray color with icon */}
-                <div>
+                <div className="w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={() => setShowAdvanced(true)}
-                    className="px-3 py-2.5 rounded-xl text-[12px] font-body border border-gray-200 bg-white text-gray-500 hover:text-gray-600 hover:bg-white hover:border-gray-300 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center gap-2"
+                    className="w-full sm:w-auto px-3 py-2.5 rounded-xl text-[12px] font-body border border-gray-200 bg-white text-gray-500 hover:text-gray-600 hover:bg-white hover:border-gray-300 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center justify-center gap-2"
                     style={{ minHeight: "40px", fontSize: "12px" }}
                   >
                     <svg
@@ -2108,11 +2108,11 @@ export default function BrokerLeadsPage() {
                 </div>
 
                 {/* Add New Lead - Outline style */}
-                <div>
+                <div className="w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={() => setShowAddLead(true)}
-                    className="px-3 py-2.5 rounded-xl text-[12px] border border-green-600 text-white bg-[#0D542B]  hover:bg-[#0B4624]  hover:border-green-700 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center gap-2"
+                    className="w-full sm:w-auto px-3 py-2.5 rounded-xl text-[12px] border border-green-600 text-white bg-[#0D542B]  hover:bg-[#0B4624]  hover:border-green-700 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer whitespace-nowrap flex items-center justify-center gap-2"
                     style={{ minHeight: "40px", fontSize: "12px" }}
                   >
                     <svg
@@ -2134,11 +2134,11 @@ export default function BrokerLeadsPage() {
 
                 {/* Clear Filters - Fixed width, only when needed */}
                 {isAdvancedFiltersApplied && (
-                  <div>
+                  <div className="w-full sm:w-auto">
                     <button
                       type="button"
                       onClick={clearAdvancedFilters}
-                      className="px-3 py-2.5 rounded-xl text-[12px] font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer whitespace-nowrap"
+                      className="w-full sm:w-auto px-3 py-2.5 rounded-xl text-[12px] font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer whitespace-nowrap"
                       title="Clear advanced filters"
                     >
                       Clear Filters

@@ -14,7 +14,7 @@ const Terms = () => {
   return (
      <>
       <HeaderFile data={termsData} />
-      <div className="py-12">
+      <div className="py-12 px-4 md:px-0">
     <div className=" mx-auto ">
       {/* <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-800">Terms & Conditions</h1> */}
       <div className="space-y-10">

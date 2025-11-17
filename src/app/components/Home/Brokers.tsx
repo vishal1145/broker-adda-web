@@ -327,13 +327,13 @@ const Brokers = () => {
 
 <section id="popular-brokers" className="relative py-8 ">
   <div className="w-full mx-auto ">
-    <div className="mb-10 text-center">
+    <div className="mb-8 md:mb-10 text-center">
       <div className="flex items-center justify-center gap-2 text-sm ">
-        <p className="text-xl text-gray-900">
+        <p className="text-base md:text-xl text-gray-900">
             <span className="text-yellow-500">—</span> Our Brokers
           </p>
         </div>
-      <h2 className="mt-2 text-4xl font-medium text-gray-900">
+      <h2 className="mt-2 text-2xl md:text-4xl font-medium text-gray-900">
         Our <span className="text-green-900">Popular Brokers</span>
         </h2>
       {/* CTA: View All Brokers under header */}
@@ -346,7 +346,7 @@ const Brokers = () => {
     </div>
 
     {loading ? (
-      <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4 md:px-0">
         {[...Array(4)].map((_, index) => (
           <div key={index} className="group relative rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden animate-pulse">
             <div className="aspect-[4/3] w-full bg-gray-200"></div>
@@ -372,7 +372,7 @@ const Brokers = () => {
         </button>
       </div>
     ) : (
-      <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4 md:px-0">
         {displayBrokers.map((broker, index) => {
           console.log('Rendering broker:', broker);
           console.log('Broker image fields:', {
@@ -531,30 +531,30 @@ const Brokers = () => {
 </section>
 
 {/* Advisory CTA */}
-<section className="pb-12">
-  <div className="max-w-5xl mx-auto text-center  p-8 ">
-    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 ">Join India&apos;s Premier Broker Network</h3>
-    <div className="my-10 grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm text-gray-700">
-      <div className="flex flex-col items-center gap-3">
-        <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-14 w-14">
-          <svg className="h-10 w-10 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+<section className="pb-8 md:pb-12">
+  <div className="max-w-5xl mx-auto text-center p-4 md:p-8">
+    <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">Join India&apos;s Premier Broker Network</h3>
+    <div className="my-6 md:my-10 grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 text-xs md:text-sm text-gray-700">
+      <div className="flex flex-col items-center gap-2 md:gap-3">
+        <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-10 w-10 md:h-14 md:w-14">
+          <svg className="h-6 w-6 md:h-10 md:w-10 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 10l9-6 9 6-9 6-9-6z"/>
             <path d="M3 14l9 6 9-6"/>
           </svg>
         </span>
         <span>Lead generation support</span>
       </div>
-      <div className="flex flex-col items-center gap-3">
-        <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-14 w-14">
-          <svg className="h-8 w-8 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <div className="flex flex-col items-center gap-2 md:gap-3">
+        <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-10 w-10 md:h-14 md:w-14">
+          <svg className="h-5 w-5 md:h-8 md:w-8 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M20 6L9 17l-5-5"/>
           </svg>
         </span>
         <span>Verified leads</span>
       </div>
-      <div className="flex flex-col items-center gap-3">
-        <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-14 w-14">
-          <svg className="h-10 w-10 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <div className="flex flex-col items-center gap-2 md:gap-3">
+        <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-10 w-10 md:h-14 md:w-14">
+          <svg className="h-6 w-6 md:h-10 md:w-10 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 14l9-5-9-5-9 5 9 5z"/>
             <path d="M12 14v7"/>
             <path d="M5 10.5v7"/>
@@ -563,9 +563,9 @@ const Brokers = () => {
         </span>
         <span>Exclusive training</span>
       </div>
-      <div className="flex flex-col items-center gap-3">
-        <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-14 w-14">
-          <svg className="h-10 w-10 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <div className="flex flex-col items-center gap-2 md:gap-3">
+        <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-10 w-10 md:h-14 md:w-14">
+          <svg className="h-6 w-6 md:h-10 md:w-10 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 17l6-6 4 4 7-7"/>
             <path d="M14 7h7v7"/>
           </svg>
@@ -573,12 +573,12 @@ const Brokers = () => {
         <span>Higher commissions</span>
       </div>
     </div>
-    <div className=" flex items-center justify-center gap-3">
-      <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-green-900 px-6 py-2 text-white text-sm font-semibold shadow-sm">Become a Broker
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+      <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-green-900 px-4 md:px-6 py-1.5 md:py-2 text-white text-xs md:text-sm font-semibold shadow-sm w-full sm:w-auto justify-center">Become a Broker
+        <svg className="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
       </Link>
-      <Link href="/search?tab=brokers" className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">View All Brokers
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      <Link href="/search?tab=brokers" className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 md:px-6 py-1.5 md:py-2 text-xs md:text-sm font-semibold text-gray-800 hover:bg-gray-50 w-full sm:w-auto justify-center">View All Brokers
+        <svg className="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
       </Link>
     </div>
   </div>

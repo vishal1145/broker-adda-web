@@ -65,7 +65,7 @@ const LegalCompliancePage = () => {
     <>
       <HeaderFile data={legalComplianceData} />
       <div className="py-14">
-        <div className="w-full mx-auto">
+        <div className="w-full mx-auto px-4 md:px-0">
           <div className="space-y-10">
             {/* Main Sections */}
             {sections.map((section, index) => (

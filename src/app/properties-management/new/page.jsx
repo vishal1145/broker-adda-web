@@ -848,7 +848,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
         }}
       />
       <div className="min-h-screen bg-white">
-        <div className="w-full px-0 sm:px-0 lg:px-0 py-8 max-w-none">
+        <div className="w-full px-4 md:px-0 py-8 max-w-none">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">

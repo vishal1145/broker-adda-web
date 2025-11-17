@@ -491,10 +491,13 @@ const Navbar = ({ data }) => {
     const handleClickOutside = (e) => {
       if (!e.target.closest('.search-container')) setShowSuggestions(false);
       if (!e.target.closest('.notification-container')) setShowNotifications(false);
+      if (!e.target.closest('nav') && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [mobileMenuOpen]);
 
   // Counts from localStorage
   useEffect(() => {
@@ -532,22 +535,22 @@ const enableSuggestions = false;
 
   return (
     <nav className="bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-gray-100 shadow-sm fixed top-0 left-0 right-0 z-80">
-      <div className=" mx-auto px-[6rem] ">
-        <div className="flex items-center justify-between py-4 gap-4">
+      <div className=" mx-auto px-4 md:px-[6rem] ">
+        <div className="flex items-center justify-between py-3 md:py-4 gap-2 md:gap-4">
           {/* Logo */}
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 group"
+            className="flex items-center gap-1.5 md:gap-2 group min-w-0"
             aria-label="Broker Gully Home"
           >
-            <span className="rounded-full overflow-hidden">
+            <span className="rounded-full overflow-hidden flex-shrink-0">
               <img
                 src="/BROKER_GULLY_FINAL_LOGO_ICON_JPG__1_-removebg-preview.png"
                 alt="Broker Gully"
-                className="w-10 h-10 object-contain transition-transform group-hover:scale-[1.03]"
+                className="w-8 h-8 md:w-10 md:h-10 object-contain transition-transform group-hover:scale-[1.03]"
               />
             </span>
-            <span className="text-xl font-semibold text-gray-800 cursor-pointer">
+            <span className="text-base md:text-xl font-semibold text-gray-800 cursor-pointer truncate">
               {data?.logo?.text || 'Broker Gully'}
             </span>
           </button>
@@ -659,17 +662,17 @@ const enableSuggestions = false;
            </div>
 
           {/* Right cluster */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
             {/* Conditional CTA based on user role - only show when logged in */}
             {isMounted && user && (
               <>
                 {user.role === 'broker' ? (
                   <Link
                     href="/properties-management/new"
-                    className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
+                    className="hidden sm:inline-flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-full border border-gray-300 text-xs md:text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
                   >
                     <svg
-                      className="w-4 h-4"
+                      className="w-3.5 h-3.5 md:w-4 md:h-4"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -682,15 +685,16 @@ const enableSuggestions = false;
                       <path d="M5 10v9h14v-9" />
                       <path d="M9 19v-6h6v6" />
                     </svg>
-                    <span>List Property</span>
+                    <span className="hidden md:inline">List Property</span>
+                  
                   </Link>
                 ) : (
                   <Link
                     href="/property-enquiry"
-                    className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
+                    className="hidden sm:inline-flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-full border border-gray-300 text-xs md:text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
                   >
                     <svg
-                      className="w-4 h-4"
+                      className="w-3.5 h-3.5 md:w-4 md:h-4"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -703,7 +707,8 @@ const enableSuggestions = false;
                       <line x1="9" y1="10" x2="15" y2="10" />
                       <line x1="9" y1="14" x2="13" y2="14" />
                     </svg>
-                    <span>Post Enquiry</span>
+                    <span className="hidden md:inline">Post Enquiry</span>
+                  
                   </Link>
                 )}
               </>
@@ -718,13 +723,13 @@ const enableSuggestions = false;
                     setShowNotifications(!showNotifications);
                     setShowAllNotifications(false);
                   }}
-                  className="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
+                  className="relative inline-flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full border border-gray-300 text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
                   aria-label="Notifications"
                 >
-                  <FaBell className="w-4 h-4" />
+                  <FaBell className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   {/* Notification badge */}
                   {notifications.filter(n => n.unread).length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 w-4 h-4 md:w-5 md:h-5 bg-red-500 text-white text-[9px] md:text-[10px] font-semibold rounded-full flex items-center justify-center">
                       {notifications.filter(n => n.unread).length}
                     </span>
                   )}
@@ -732,7 +737,7 @@ const enableSuggestions = false;
 
                 {/* Notification Dropdown */}
                 {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                  <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] md:w-80 max-w-sm bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
                     <div className="p-4 border-b border-gray-200">
                       <div className="flex items-center justify-between">
                         <h3 className="text-base font-semibold text-gray-900">Notifications</h3>
@@ -884,8 +889,8 @@ const enableSuggestions = false;
               <>
                 {user ? (
                     <div className="relative group">
-                    <button className="flex items-center gap-2 text-gray-700 hover:text-[#0d542b] transition">
-                      <span className="w-9 h-9 rounded-full overflow-hidden border-2 border-[#0d542b]/80 group-hover:border-[#0d542b] transition">
+                    <button className="flex items-center gap-1 md:gap-2 text-gray-700 hover:text-[#0d542b] transition">
+                      <span className="w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-[#0d542b]/80 group-hover:border-[#0d542b] transition flex-shrink-0">
                           {profileImageLoading ? (
                           <span className="w-full h-full bg-gray-200 animate-pulse block" />
                           ) : (
@@ -899,7 +904,7 @@ const enableSuggestions = false;
                             />
                           )}
                       </span>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="hidden md:block w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
                       </button>
@@ -943,7 +948,7 @@ const enableSuggestions = false;
                 ) : (
                     <Link
                       href="/signup"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#0d542b] text-white text-sm font-medium hover:shadow-md hover:brightness-110 active:brightness-95 transition"
+                    className="inline-flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-[#0d542b] text-white text-xs md:text-sm font-medium hover:shadow-md hover:brightness-110 active:brightness-95 transition"
                   >
                   
                     <span>Join</span>
@@ -955,10 +960,10 @@ const enableSuggestions = false;
             {/* Mobile menu */}
               <button
                 onClick={toggleMobileMenu}
-              className="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-full border border-gray-300 hover:border-[#0d542b] hover:text-[#0d542b] transition"
+              className="md:hidden inline-flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full border border-gray-300 hover:border-[#0d542b] hover:text-[#0d542b] transition flex-shrink-0"
               aria-label="Open menu"
               >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
@@ -966,7 +971,7 @@ const enableSuggestions = false;
         </div>
 
         {/* Mobile Nav */}
-        <ul className={`md:hidden ${mobileMenuOpen ? 'flex' : 'hidden'} flex-col gap-4 pb-4 text-sm font-medium text-gray-700`}>
+        <ul className={`md:hidden ${mobileMenuOpen ? 'flex' : 'hidden'} flex-col gap-3 md:gap-4 pb-4 text-sm font-medium text-gray-700 px-4`}>
           {(data?.menuItems || []).map((item, i) => (
             <li key={i}>
               <Link href={item.href} className="block px-1 py-1 rounded hover:bg-gray-50">

@@ -1268,7 +1268,7 @@ const MyAccountCustomer = () => {
         }}
       />
       <HeaderFile data={data} />
-      <div className="px-6 sm:px-12 lg:px-32 py-12">
+      <div className="px-4 md:px-0 py-12">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}

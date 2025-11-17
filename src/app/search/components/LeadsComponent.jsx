@@ -1060,9 +1060,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   };
 
   return (
-    <div className="grid grid-cols-12 gap-8">
+    <div className="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-8">
       {/* Filter Sidebar - 3 columns */}
-      <div className="col-span-3">
+      <div className="w-full md:col-span-3">
         {false ? (
           <div className="bg-white rounded-lg p-6">
             <div className="space-y-6">
@@ -1141,14 +1141,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 space-y-5">
+          <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm border border-gray-200 space-y-4 md:space-y-5">
 
           {/* Filter Results Heading */}
-          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-200">
-            <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center gap-2 mb-3 md:mb-4 pb-3 md:pb-4 border-b border-gray-200">
+            <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-            <h2 style={{ fontSize: '20px', lineHeight: '28px', fontWeight: '600', color: '#171A1FFF' }}>Filter Results</h2>
+            <h2 style={{ fontSize: '18px', lineHeight: '24px', fontWeight: '600', color: '#171A1FFF' }} className="md:text-[20px] md:leading-[28px]">Filter Results</h2>
           </div>
 
           {/* Requirement Filter */}
@@ -1693,7 +1693,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       </div>
 
       {/* Leads Grid - 9 columns */}
-      <div className="col-span-9">
+      <div className="w-full md:col-span-9">
         {/* Tabs Bar */}
         <TabsBar 
           activeTab={activeTab} 
@@ -1708,8 +1708,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         />
 
         {/* Header with heading */}
-        <div className="mb-6">
-            <h2 className="text-[18px] font-semibold text-gray-900">
+        <div className="mb-4 md:mb-6">
+            <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
             Lead Search Results ({totalLeads} Found)
           </h2>
         </div>
@@ -1859,7 +1859,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {leads.map((lead, index) => {
               const { primary, secondary } = getRegionNames(lead);
               const brokerImage = lead.createdBy?.brokerImage || lead.createdBy?.profileImage || lead.createdBy?.image;
@@ -1959,27 +1959,27 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   <article
                     className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer"
                   >
-                    <div className="p-6">
+                    <div className="p-4 md:p-6">
                     {/* Top Section - Main Title */}
-                    <div className="mb-4">
-                      <h3 className="text-[16px] leading-[22px] font-bold mb-2" style={{  color: '#323743' }}>
+                    <div className="mb-3 md:mb-4">
+                      <h3 className="text-[14px] md:text-[16px] leading-[20px] md:leading-[22px] font-bold mb-2" style={{  color: '#323743' }}>
                         {lead.propertyType || "Property"} for {lead.requirement || lead.req || "inquiry"}
                       </h3>
                       
                       {/* Tags and Time */}
-                      <div className="flex items-center justify-between gap-2 flex-nowrap">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
+                          <span className="inline-flex items-center justify-center rounded-full h-[16px] md:h-[18px] px-2 md:p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '10px', lineHeight: '14px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
                             {lead.requirement || lead.req || ""}
                           </span>
-                          <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                          <span className="inline-flex items-center justify-center rounded-full h-[16px] md:h-[18px] px-2 md:p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '10px', lineHeight: '14px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
                             {lead.propertyType || ""}
                           </span>
                       </div>
                         {lead.createdAt && (
-                          <div className="flex items-center gap-1.5 text-[12px] leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
+                          <div className="flex items-center gap-1 text-[10px] md:text-[12px] leading-4 md:leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
                             <svg
-                              className="h-4 w-4"
+                              className="h-3 w-3 md:h-4 md:w-4"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
@@ -1995,14 +1995,14 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     </div>
 
                     {/* Horizontal Divider */}
-                    <div className="border-t border-gray-200 my-4"></div>
+                    <div className="border-t border-gray-200 my-3 md:my-4"></div>
 
                     {/* Middle Section - Property Details */}
-                    <div className="space-y-3 mb-4">
+                    <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
                       {/* Preferred Location */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 md:gap-2">
                         <svg
-                          className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
+                          className="h-2.5 w-2.5 md:h-3 md:w-3 flex-shrink-0 text-[#565D6D]"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -2011,9 +2011,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
                           <circle cx="12" cy="10" r="3" />
                         </svg>
-                        <div className="flex items-center flex-wrap gap-1">
-                          <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Preferred:</span>
-                          <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
+                        <div className="flex items-center flex-wrap gap-1 min-w-0">
+                          <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF]">Preferred:</span>
+                          <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-normal capitalize text-[#565D6DFF] truncate">
                             {regionName(lead.primaryRegion) || primary || "—"}
                   </span>
                 </div>
@@ -2021,9 +2021,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
                       {/* Secondary Location */}
                       {(lead.secondaryRegion || secondary) && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 md:gap-2">
                           <svg
-                            className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
+                            className="h-2.5 w-2.5 md:h-3 md:w-3 flex-shrink-0 text-[#565D6D]"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -2032,9 +2032,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                             <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
                             <circle cx="12" cy="10" r="3" />
                           </svg>
-                          <div className="flex items-center flex-wrap gap-1">
-                            <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Secondary:</span>
-                            <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
+                          <div className="flex items-center flex-wrap gap-1 min-w-0">
+                            <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF]">Secondary:</span>
+                            <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-normal capitalize text-[#565D6DFF] truncate">
                               {regionName(lead.secondaryRegion) || secondary || "—"}
                             </span>
                 </div>
@@ -2042,9 +2042,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       )}
 
                       {/* Budget */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 md:gap-2">
                         <svg
-                          className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
+                          className="h-2.5 w-2.5 md:h-3 md:w-3 flex-shrink-0 text-[#565D6D]"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -2053,9 +2053,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           <rect x="3" y="8" width="18" height="12" rx="2" />
                           <path d="M3 12h18M9 8v8" />
                         </svg>
-                        <div className="flex items-center flex-wrap gap-1">
-                          <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>
-                          <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
+                        <div className="flex items-center flex-wrap gap-1 min-w-0">
+                          <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF]">Budget:</span>
+                          <span className="text-[11px] md:text-[12px] leading-4 md:leading-5 font-normal truncate" style={{ color: '#565D6D' }}>
                             {typeof lead.budget === "number"
                               ? "₹" + INR.format(lead.budget).replace("₹", "")
                               : lead.budget || "—"}
@@ -2065,13 +2065,13 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 </div>
 
                     {/* Bottom Section - Broker Profile and Actions */}
-                    <div className="pt-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                    <div className="pt-3 md:pt-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 md:gap-3 min-w-0">
                           {/* Avatar - Show logo if admin, otherwise show broker image */}
-                          <div className="relative w-10 h-10 text-sm font-semibold" style={{ color: '#323743' }}>
+                          <div className="relative w-8 h-8 md:w-10 md:h-10 text-sm font-semibold flex-shrink-0" style={{ color: '#323743' }}>
                             {isAdmin ? (
-                              <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200 relative p-1.5">
+                              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200 relative p-1 md:p-1.5">
                                 <img
                                   src="/BROKER_GULLY_FINAL_LOGO_ICON_JPG__1_-removebg-preview.png"
                                   alt="Broker Gully"
@@ -2080,11 +2080,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                     e.currentTarget.style.display = 'none';
                                   }}
                                 />
-                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+                                <div className="absolute bottom-0 right-0 w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
                               </div>
                             ) : brokerImage ? (
                               <>
-                                <div className="w-10 h-10 rounded-full bg-[#E5FCE4FF] overflow-hidden">
+                                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#E5FCE4FF] overflow-hidden">
                                   <img
                                     src={brokerImage}
                                     alt={brokerName}
@@ -2094,11 +2094,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                     }}
                                   />
                                 </div>
-                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
+                                <div className="absolute bottom-0 right-0 w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/4 translate-y-1/8"></div>
                               </>
                             ) : (
                               <>
-                                <div className="w-10 h-10 rounded-full bg-[#E5FCE4FF] flex items-center justify-center">
+                                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#E5FCE4FF] flex items-center justify-center text-xs md:text-sm">
                                   {brokerName
                                     .split(' ')
                                     .map((n) => n[0])
@@ -2106,7 +2106,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                     .join('')
                                     .toUpperCase()}
                                 </div>
-                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
+                                <div className="absolute bottom-0 right-0 w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-[#1DD75BFF] border-[1.5px] border-white translate-x-1/2 translate-y-1/2"></div>
                               </>
                             )}
                           </div>
@@ -2115,20 +2115,20 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           <div className="flex-1 min-w-0">
                             {/* If admin, only show chip, no name or chat */}
                             {isAdmin ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200">
-                                <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <span className="inline-flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-0.5 rounded-full bg-green-50 border border-green-200">
+                                <svg className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="font-inter text-[10px] leading-4 font-medium text-green-700">Verified by Broker Gully</span>
+                                <span className="font-inter text-[9px] md:text-[10px] leading-3 md:leading-4 font-medium text-green-700">Verified by Broker Gully</span>
                               </span>
                             ) : (
                               <>
-                                <p className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF] truncate">
+                                <p className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF] truncate">
                                   {brokerName}
                                 </p>
 
                                 {/* Chat */}
-                                <div className="flex items-center gap-3 mt-1">
+                                <div className="flex items-center gap-2 md:gap-3 mt-0.5 md:mt-1">
                                   <button
                                     type="button"
                                     onClick={(e) => {
@@ -2160,12 +2160,12 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                         }
                                       }
                                     }}
-                                    className="flex items-center gap-2 cursor-pointer"
+                                    className="flex items-center gap-1 md:gap-2 cursor-pointer"
                                   >
-                                    <svg className="w-3 h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
+                                    <svg className="w-2.5 h-2.5 md:w-3 md:h-3 fill-none stroke-[#171A1FFF]" viewBox="0 0 24 24" strokeWidth="2">
                                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                     </svg>
-                                    <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">Chat</span>
+                                    <span className="font-inter text-[10px] md:text-xs leading-4 md:leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">Chat</span>
                                   </button>
                                 </div>
                               </>
@@ -2183,12 +2183,12 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                   e.preventDefault();
                                   router.push(`/broker-details/${brokerId}`);
                                 }}
-                                className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+                                className="text-[10px] md:text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
                               >
                                 View
                               </span>
                             ) : (
-                              <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+                              <p className="text-[10px] md:text-[12px] font-normal text-[#565D6DFF]">View</p>
                             )}
                           </div>
                         )}
