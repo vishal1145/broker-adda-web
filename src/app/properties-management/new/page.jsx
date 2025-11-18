@@ -635,6 +635,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
 
       // ✅ Fetch broker details using userId
       let brokerId = null;
+      let userRole = null;
       try {
         const brokerRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.algofolks.com/api"}/brokers/${userId}`,
@@ -653,6 +654,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
             brokerData?.data?._id ||
             brokerData?.data?.broker?._id ||
             null;
+            userRole = brokerData?.data?.broker?.role;
         }
       } catch (err) {
         console.warn("Broker fetch failed:", err);
