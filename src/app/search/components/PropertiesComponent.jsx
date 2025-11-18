@@ -881,7 +881,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
   return (
     <>
-    <div className="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-8">
+    <div className="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-4 lg:gap-8">
       {/* Filter Sidebar - 3 columns */}
       <div className="w-full md:col-span-3">
         {isLoading ? (
@@ -1382,10 +1382,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         {isLoading ? (
           <div className="space-y-4 md:space-y-6">
             {[1,2,3,4,5,6].map((i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm">
+              <div key={i} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div className="flex flex-col md:flex-row">
                   {/* Image Section Skeleton - Left */}
-                  <div className="relative w-full md:w-[400px] h-[200px] md:h-[260px] flex-shrink-0">
+                  <div className="relative w-full md:w-[300px] lg:w-[400px] h-[200px] md:h-[260px] flex-shrink-0">
                     <ContentLoader
                       speed={2}
                       width={400}
@@ -1410,7 +1410,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   </div>
                   
                   {/* Details Section Skeleton - Right */}
-                  <div className="flex-1 p-4 md:p-5 min-h-[200px] md:h-[260px] flex flex-col">
+                  <div className="flex-1 p-4 md:p-4 lg:p-5 min-h-[200px] md:h-[260px] flex flex-col md:min-w-0">
                     <ContentLoader
                       speed={2}
                       width={500}
@@ -1530,10 +1530,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             {/* Property cards - horizontal layout */}
             {propertyItems.map((property) => (
             <Link key={property.id} href={`/property-details/${property.id}`} className="block">
-              <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                 <div className="flex flex-col md:flex-row">
                   {/* Image Section - Left */}
-                  <div className="relative w-full md:w-[400px] h-[200px] md:h-[260px] flex-shrink-0">
+                  <div className="relative w-full md:w-[300px] lg:w-[400px] h-[200px] md:h-[260px] flex-shrink-0">
                 {/* Image carousel */}
                     <div className="relative w-full h-full overflow-hidden rounded-t-xl md:rounded-l-xl md:rounded-t-none">
                   {(() => {
@@ -1593,57 +1593,57 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               </div>
               
                   {/* Details Section - Right */}
-                  <div className="flex-1 p-4 md:p-5 min-h-[200px] md:h-[260px] flex flex-col">
+                  <div className="flex-1 p-4 md:p-4 lg:p-5 min-h-[200px] md:h-[260px] flex flex-col md:min-w-0">
                     {/* Title */}
-                    <h3 className="mb-2 flex items-center gap-2 text-[14px] md:text-[16px] leading-[20px] md:leading-[22px] font-semibold" style={{ fontWeight: '600', color: '#171A1FFF' }}>
-                      {property.name}
-                      <svg className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#0A421E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
+                    <h3 className="mb-2 flex items-center gap-2 text-[14px] md:text-[14px] lg:text-[16px] leading-[20px] md:leading-[20px] lg:leading-[22px] font-semibold" style={{ fontWeight: '600', color: '#171A1FFF' }}>
+                      <span className="truncate">{property.name}</span>
+                      <svg className="w-3 h-3 md:w-3 md:h-3 lg:w-3.5 lg:h-3.5 text-[#0A421E] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
                         <path d="M7 17l10-10M7 7h10v10" />
                       </svg>
                     </h3>
                     
                     {/* Description */}
-                    <p className="mb-2 md:mb-3 text-[11px] md:text-[12px] leading-[15px] md:leading-[16px] md:w-[418px]" style={{ fontFamily: 'Inter', fontWeight: '400', color: '#565D6DFF' }}>
+                    <p className="mb-2 md:mb-2 lg:mb-3 text-[11px] md:text-[11px] lg:text-[12px] leading-[15px] md:leading-[15px] lg:leading-[16px] line-clamp-2 md:line-clamp-2 lg:line-clamp-3" style={{ fontFamily: 'Inter', fontWeight: '400', color: '#565D6DFF' }}>
                       {property.description || `A spacious and well-lit property in a prime location, perfect for families. Enjoy modern amenities and easy access to city facilities.`}
                     </p>
                     
                     {/* Location Details */}
-                    <div className="flex flex-col gap-1.5 md:gap-2 mb-2 md:mb-3">
+                    <div className="flex flex-col gap-1.5 md:gap-1.5 lg:gap-2 mb-2 md:mb-2 lg:mb-3">
                       {/* <div className="flex items-center text-[12px] text-gray-600">
                         <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                         {property.city || 'Agra'}
                 </div> */}
-                      <div className="flex items-center text-[11px] md:text-[12px] text-gray-600">
-                        <svg className="w-3 h-3 md:w-4 md:h-4 mr-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center text-[11px] md:text-[11px] lg:text-[12px] text-gray-600 min-w-0">
+                        <svg className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4 mr-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
                     <circle cx="12" cy="10" r="3" strokeWidth="2" />
                   </svg>
-                  <span className="truncate">{Array.isArray(property.region)
+                  <span className="truncate min-w-0">{Array.isArray(property.region)
                     ? property.region.map(r => (typeof r === 'string' ? r : r?.name)).filter(Boolean).join(', ')
                           : (typeof property.region === 'string' ? property.region : property.region?.name) || 'Electronic City, Noida, Uttar Pradesh, India'}</span>
                 </div>
                 </div>
 
                     {/* Features */}
-                    <div className="mb-1.5 md:mb-2">
-                      <div className="text-[11px] md:text-[12px] font-semibold text-gray-900 mb-1.5 md:mb-2">Features</div>
-                      <div className="flex flex-wrap gap-1.5 md:gap-2">
+                    <div className="mb-1.5 md:mb-1.5 lg:mb-2">
+                      <div className="text-[11px] md:text-[11px] lg:text-[12px] font-semibold text-gray-900 mb-1.5 md:mb-1.5 lg:mb-2">Features</div>
+                      <div className="flex flex-wrap gap-1.5 md:gap-1.5 lg:gap-2">
                         {property.bedrooms && (
-                          <span className="inline-flex items-center gap-0.5 md:gap-1 px-2 md:px-2.5 py-0.5 md:py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
-                            <svg className="w-3 h-3 md:w-4 md:h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <span className="inline-flex items-center gap-0.5 md:gap-0.5 lg:gap-1 px-2 md:px-2 lg:px-2.5 py-0.5 md:py-0.5 lg:py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
+                            <svg className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M3 12l-1 8a2 2 0 002 2h16a2 2 0 002-2l-1-8M3 12V9a2 2 0 012-2h5m0 0h6a2 2 0 012 2v3m0 0v3a2 2 0 01-2 2h-6v0M9 21h6" />
                     </svg>
-                            <span className="text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-semibold" style={{ fontFamily: 'Inter', fontWeight: '600', color: '#19191FFF' }}>{property.bedrooms} bd</span>
+                            <span className="text-[11px] md:text-[11px] lg:text-[12px] leading-[14px] md:leading-[14px] lg:leading-[16px] font-semibold" style={{ fontFamily: 'Inter', fontWeight: '600', color: '#19191FFF' }}>{property.bedrooms} bd</span>
                   </span>
                         )}
                         {property.bathrooms && (
-                          <span className="inline-flex items-center gap-0.5 md:gap-1 px-2 md:px-2.5 py-0.5 md:py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
-                            <svg className="w-3 h-3 md:w-4 md:h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <span className="inline-flex items-center gap-0.5 md:gap-0.5 lg:gap-1 px-2 md:px-2 lg:px-2.5 py-0.5 md:py-0.5 lg:py-1" style={{ background: '#EDFDF4FF', borderRadius: '9999px', borderWidth: '1px', borderColor: '#00000000', borderStyle: 'solid' }}>
+                            <svg className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4" style={{ color: '#19191FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2m0 0h4a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h8zm0 0v4" />
                     </svg>
-                            <span className="text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-semibold" style={{ fontFamily: 'Inter', fontWeight: '600', color: '#19191FFF' }}>{property.bathrooms} bt</span>
+                            <span className="text-[11px] md:text-[11px] lg:text-[12px] leading-[14px] md:leading-[14px] lg:leading-[16px] font-semibold" style={{ fontFamily: 'Inter', fontWeight: '600', color: '#19191FFF' }}>{property.bathrooms} bt</span>
                     </span>
                   )}
                       </div>
@@ -1651,8 +1651,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
                     {/* Amenities */}
                     <div className="mt-auto">
-                      <div className="text-[11px] md:text-[12px] font-semibold text-gray-900 mb-1.5 md:mb-2">Amenities</div>
-                  <div className="flex flex-wrap gap-1.5 md:gap-2 text-[10px] md:text-[11px]">
+                      <div className="text-[11px] md:text-[11px] lg:text-[12px] font-semibold text-gray-900 mb-1.5 md:mb-1.5 lg:mb-2">Amenities</div>
+                  <div className="flex flex-wrap gap-1.5 md:gap-1.5 lg:gap-2 text-[10px] md:text-[10px] lg:text-[11px]">
                         {(() => {
                           const amenitiesList = Array.isArray(property.amenities) && property.amenities.length > 0 ? property.amenities : ['Gym', 'Parking', 'Security', 'Swimming Pool', 'Clubhouse'];
                           const displayCount = amenitiesList.length > 2 ? 2 : amenitiesList.length;
@@ -1663,13 +1663,13 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                               {amenitiesList.slice(0, displayCount).map((amenity, idx) => (
                                 <span
                                   key={idx}
-                                  className="inline-flex items-center px-2 md:px-2.5 py-0.5 md:py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+                                  className="inline-flex items-center px-2 md:px-2 lg:px-2.5 py-0.5 md:py-0.5 lg:py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200"
                                 >
                                   {amenity}
                                 </span>
                               ))}
                               {remainingCount > 0 && (
-                                <span className="inline-flex items-center px-2 md:px-2.5 py-0.5 md:py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                <span className="inline-flex items-center px-2 md:px-2 lg:px-2.5 py-0.5 md:py-0.5 lg:py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
                                   +{remainingCount}
                                 </span>
                               )}

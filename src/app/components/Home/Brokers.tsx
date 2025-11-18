@@ -346,7 +346,7 @@ const Brokers = () => {
     </div>
 
     {loading ? (
-      <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4 md:px-0">
+      <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4 md:px-6 lg:px-0">
         {[...Array(4)].map((_, index) => (
           <div key={index} className="group relative rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden animate-pulse">
             <div className="aspect-[4/3] w-full bg-gray-200"></div>
@@ -372,7 +372,7 @@ const Brokers = () => {
         </button>
       </div>
     ) : (
-      <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4 md:px-0">
+      <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4 md:px-6 lg:px-0">
         {displayBrokers.map((broker, index) => {
           console.log('Rendering broker:', broker);
           console.log('Broker image fields:', {

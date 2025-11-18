@@ -354,7 +354,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
 
   return (
     <section className="bg-white py-8 md:py-16 lg:py-20" >
-      <div className="w-full mx-auto px-4 md:px-[6rem]">
+      <div className="w-full mx-auto px-4 ">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
         {/* LEFT: Countdown Card */}
         <div className="relative rounded-2xl p-4 md:p-6 w-full h-auto md:h-[460px] shadow flex flex-col justify-center items-center text-center">
