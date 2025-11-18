@@ -737,8 +737,8 @@ const enableSuggestions = false;
 
                 {/* Notification Dropdown */}
                 {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] md:w-80 max-w-sm bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
-                    <div className="p-4 border-b border-gray-200">
+                  <div className="fixed md:absolute right-2 md:right-0 top-[4.5rem] md:top-auto md:mt-2 w-[calc(100vw-1rem)] sm:w-80 max-w-[calc(100vw-1rem)] sm:max-w-sm bg-white rounded-lg shadow-xl border border-gray-200 z-[100] max-h-[calc(100vh-6rem)] md:max-h-[calc(100vh-5rem)] overflow-y-auto">
+                    <div className="p-3 md:p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
                       <div className="flex items-center justify-between">
                         <h3 className="text-base font-semibold text-gray-900">Notifications</h3>
                         {!showAllNotifications && notifications.length > 3 && (
