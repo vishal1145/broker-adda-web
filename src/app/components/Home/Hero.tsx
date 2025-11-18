@@ -398,8 +398,8 @@ const Hero = ({ data = {
   }, []);
 
   return (
-    <section className="py-12 md:py-24 px-4 md:px-4 lg:px-0">
-      <div className="w-full mx-auto relative max-w-7xl">
+    <section className="py-12 md:py-24 px-4 md:px-8 lg:px-4">
+      <div className="w-full mx-auto relative ">
         <div className="absolute left-72 top-96 z-10 hidden lg:block">
           <Dots />
         </div>

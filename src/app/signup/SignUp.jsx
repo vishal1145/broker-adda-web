@@ -295,19 +295,19 @@ const SignUp = () => {
         </div>
 
         {/* Right Section - Sign Up Form */}
-        <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div className="flex-1 lg:w-1/2 flex items-center justify-center p-4 md:p-6 lg:p-8 bg-white">
           <div className="w-full max-w-xl">
             {/* Card Container */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-12">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8 lg:p-12">
               {!showNumberForm ? (
                 <>
                   {/* Header */}
-                  <div className="text-left mb-14">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3 flex items-left justify-left gap-3 font-[Inter]" >
+                  <div className="text-left mb-8 md:mb-10 lg:mb-14">
+                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 md:mb-3 flex items-left justify-left gap-2 md:gap-3 font-[Inter]" >
                       Let's Get Started
-                      <span className="text-3xl">🚀</span>
+                      <span className="text-xl md:text-2xl lg:text-3xl">🚀</span>
                     </h1>
-                    <p className="text-lg text-gray-600 font-[Inter]" >Sign up your account</p>
+                    <p className="text-base md:text-lg text-gray-600 font-[Inter]" >Sign up your account</p>
                   </div>
 
                   {/* Social Login Buttons */}
@@ -354,7 +354,7 @@ const SignUp = () => {
                   </div>
 
                   {/* Terms and Privacy */}
-                  <div className="mt-6 mb-16 text-center text-sm" >
+                  <div className="mt-4 md:mt-6 mb-8 md:mb-12 lg:mb-16 text-center text-xs md:text-sm" >
                     <span className="text-gray-500">By continuing you agree to our</span>
                     <br />
                     <span className="text-gray-900 font-bold">
@@ -369,8 +369,8 @@ const SignUp = () => {
                   </div>
 
                   {/* Login Link */}
-                  <div className="mt-6 text-center">
-                    <p className="text-base text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                  <div className="mt-4 md:mt-6 text-center">
+                    <p className="text-sm md:text-base text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
                       Already have an account?{" "}
                       <Link href="/login" className="text-green-700 hover:text-green-900 font-bold" >
                         Log in
@@ -381,30 +381,30 @@ const SignUp = () => {
               ) : (
                 <>
                   {/* Number Form Header */}
-                  <div className="text-left mb-14">
+                  <div className="text-left mb-8 md:mb-10 lg:mb-14">
                     <button
                       onClick={handleBackToSocial}
-                      className="mb-2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                      className="mb-2 text-sm md:text-base text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                     >
                       ← Back
                     </button>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-left justify-left gap-2 font-[Inter]" >
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 flex items-left justify-left gap-2 font-[Inter]" >
                       Let's Get Started
-                      <span className="text-2xl">🚀</span>
+                      <span className="text-xl md:text-2xl">🚀</span>
                     </h1>
-                    <p className="text-gray-600 font-[Inter]"   >Sign up your account</p>
+                    <p className="text-sm md:text-base text-gray-600 font-[Inter]"   >Sign up your account</p>
                   </div>
 
                   {/* Number Form */}
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             {/* Phone Field */}
             <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="phone" className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                         What is your phone number?
               </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                          <svg className="h-4 w-4 md:h-5 md:w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                           </svg>
                         </div>
@@ -415,7 +415,7 @@ const SignUp = () => {
                 value={formData.phone}
                 onChange={handleChange}
                 maxLength={10}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-gray-50"
+                className="w-full pl-9 md:pl-10 pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-gray-50"
                 placeholder="Enter your 10-digit phone number"
               />
                       </div>
@@ -431,7 +431,7 @@ const SignUp = () => {
                 onChange={handleCheckboxChange}
                         className="h-4 w-4 text-green-900 focus:ring-green-500 border-gray-300 rounded"
               />
-                      <label htmlFor="isCustomer" className="ml-2 block text-sm text-gray-700">
+                      <label htmlFor="isCustomer" className="ml-2 block text-xs md:text-sm text-gray-700">
                         I am a broker
               </label>
             </div>
@@ -440,14 +440,14 @@ const SignUp = () => {
             <button
               type="submit"
               disabled={isLoading}
-                      className="w-full bg-green-900 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-green-900 text-white py-2.5 md:py-3 px-4 rounded-lg text-sm md:text-base font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
                       {isLoading ? "Signing up..." : "Continue"}
             </button>
                   </form>
 
                   {/* Terms and Privacy */}
-                  <div className="mt-6 mb-16 text-center text-sm" >
+                  <div className="mt-4 md:mt-6 mb-8 md:mb-12 lg:mb-16 text-center text-xs md:text-sm" >
                     <span className="text-gray-500">By continuing you agree to our</span>
                     <br />
                     <span className="text-gray-900 font-bold">
@@ -462,8 +462,8 @@ const SignUp = () => {
               </div>
 
             {/* Login Link */}
-                  <div className="mt-6 text-center">
-                    <p className="text-base text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                  <div className="mt-4 md:mt-6 text-center">
+                    <p className="text-sm md:text-base text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
                 Already have an account?{" "}
                       <Link href="/login" className="text-green-700 hover:text-green-900 font-bold" >
                         Log in

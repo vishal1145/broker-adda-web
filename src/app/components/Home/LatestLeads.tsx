@@ -347,7 +347,7 @@ const LatestLeads: React.FC = () => {
   };
 
   return (
-    <section id="latest-leads" className="relative py-16 ">
+    <section id="latest-leads" className="relative py-4 md:py-16 ">
       <div className="w-full mx-auto px-4 ">
         {/* Header removed; moved into left column */}
 

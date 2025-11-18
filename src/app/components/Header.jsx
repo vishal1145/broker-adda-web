@@ -36,7 +36,7 @@ const Dots = ({ className, style }) => (
 );
 
 const HeaderFile = ({ data }) => (
-  <div className="bg-gray-50 py-10 w-screen relative left-1/2 -translate-x-1/2 overflow-x-hidden -mt-2">
+  <div className="bg-gray-50 py-10 w-screen relative left-1/2 -translate-x-1/2 overflow-x-hidden -mt-5 md:-mt-2">
     <div className="relative  mx-auto flex flex-col items-center text-center">
       {/* Dots - top left */}
       <div className="absolute left-30 top-12">

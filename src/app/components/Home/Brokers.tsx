@@ -325,7 +325,7 @@ const Brokers = () => {
     <>
   
 
-<section id="popular-brokers" className="relative py-8 ">
+<section id="popular-brokers" className="relative py-4 md:py-8 ">
   <div className="w-full mx-auto ">
     <div className="mb-8 md:mb-10 text-center">
       <div className="flex items-center justify-center gap-2 text-sm ">
@@ -531,7 +531,7 @@ const Brokers = () => {
 </section>
 
 {/* Advisory CTA */}
-<section className="pb-8 md:pb-12">
+<section className="pb-4 md:pb-8 lg:pb-12">
   <div className="max-w-5xl mx-auto text-center p-4 md:p-8">
     <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">Join India&apos;s Premier Broker Network</h3>
     <div className="my-6 md:my-10 grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 text-xs md:text-sm text-gray-700">

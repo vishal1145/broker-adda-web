@@ -347,30 +347,30 @@ const Login = () => {
         </div>
 
         {/* Right Section - Login Form */}
-        <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div className="flex-1 lg:w-1/2 flex items-center justify-center p-4 md:p-6 lg:p-8 bg-white">
           <div className="w-full max-w-xl">
             {/* Card Container */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-12">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8 lg:p-12">
               {!showNumberForm ? (
                 <>
                   {/* Header */}
-                  <div className="text-left mb-14">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3 flex items-left justify-left gap-3 font-[Inter]" >
+                  <div className="text-left mb-8 md:mb-10 lg:mb-14">
+                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 md:mb-3 flex items-left justify-left gap-2 md:gap-3 font-[Inter]" >
                       Welcome back
-                      <span className="text-3xl">👋</span>
+                      <span className="text-xl md:text-2xl lg:text-3xl">👋</span>
                     </h1>
-                    <p className="text-lg text-gray-600 font-[Inter]" >Log in your account</p>
+                    <p className="text-base md:text-lg text-gray-600 font-[Inter]" >Log in your account</p>
                   </div>
 
                   {/* Social Login Buttons */}
-                  <div className="space-y-4 mb-6">
+                  <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
                     {/* Number Login Button */}
                     <button
                       onClick={() => handleSocialLogin('Number')}
-                      className="w-full flex items-center justify-center px-4 py-3 bg-green-900 text-white rounded-lg font-medium text-base hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-md cursor-pointer"
+                      className="w-full flex items-center justify-center px-4 py-2.5 md:py-3 bg-green-900 text-white rounded-lg font-medium text-sm md:text-base hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-md cursor-pointer"
                       style={{ fontFamily: 'Open Sans, sans-serif' }}
                     >
-                      <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                       </svg>
                       Log in with Number
@@ -379,36 +379,36 @@ const Login = () => {
                     {/* Google Login Button */}
                     <button
                       onClick={() => handleSocialLogin('Google')}
-                      className="w-full flex items-center justify-center px-4 py-3 border rounded-lg font-medium text-base hover:bg-gray-50 focus:outline-none transition-all duration-200 cursor-pointer"
+                      className="w-full flex items-center justify-center px-4 py-2.5 md:py-3 border rounded-lg font-medium text-sm md:text-base hover:bg-gray-50 focus:outline-none transition-all duration-200 cursor-pointer"
                       style={{ 
                        
                         borderColor: '#ea4335',
                         color: '#ea4335'
                       }}
                     >
-                      <div className="w-5 h-5 mr-3 flex items-center justify-center text-xl font-bold" style={{ color: '#ea4335' }}>G</div>
+                      <div className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 flex items-center justify-center text-lg md:text-xl font-bold" style={{ color: '#ea4335' }}>G</div>
                       Log in with Google
                     </button>
 
                     {/* Facebook Login Button */}
                     <button
                       onClick={() => handleSocialLogin('Facebook')}
-                      className="w-full flex items-center justify-center px-4 py-3 border rounded-lg font-medium text-base hover:bg-gray-50 focus:outline-none transition-all duration-200 cursor-pointer"
+                      className="w-full flex items-center justify-center px-4 py-2.5 md:py-3 border rounded-lg font-medium text-sm md:text-base hover:bg-gray-50 focus:outline-none transition-all duration-200 cursor-pointer"
                       style={{ 
                         fontFamily: 'Open Sans, sans-serif',
                         borderColor: '#1877f2',
                         color: '#1877f2'
                       }}
                     >
-                      <div className="w-5 h-5 mr-3 flex items-center justify-center text-xl font-bold" style={{ color: '#1877f2' }}>f</div>
+                      <div className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 flex items-center justify-center text-lg md:text-xl font-bold" style={{ color: '#1877f2' }}>f</div>
                       Log in with Facebook
                     </button>
 
                   </div>
 
                   {/* Sign Up Link */}
-                  <div className="mt-12 text-center">
-                    <p className="text-base text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                  <div className="mt-6 md:mt-8 lg:mt-12 text-center">
+                    <p className="text-sm md:text-base text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
                       Don't have an account?{" "}
                       <Link href="/signup" className="text-green-700 hover:text-green-900 font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
                         Sign up
@@ -419,30 +419,30 @@ const Login = () => {
               ) : (
                 <>
                   {/* Number Form Header */}
-                  <div className="text-left mb-14">
+                  <div className="text-left mb-8 md:mb-10 lg:mb-14">
                     <button
                       onClick={handleBackToSocial}
-                      className="mb-2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                      className="mb-2 text-sm md:text-base text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                     >
                       ← Back
                     </button>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-left justify-left gap-2 font-[Inter]">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 flex items-left justify-left gap-2 font-[Inter]">
                       Welcome back
-                      <span className="text-2xl">👋</span>
+                      <span className="text-xl md:text-2xl">👋</span>
                     </h1>
-                    <p className="text-gray-600 font-[Inter]" >Log in your account</p>
+                    <p className="text-sm md:text-base text-gray-600 font-[Inter]" >Log in your account</p>
             </div>
 
                   {/* Number Form */}
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                     {/* Phone Field */}
               <div>
-                      <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="phoneNumber" className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                         What is your phone number?
                 </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                          <svg className="h-4 w-4 md:h-5 md:w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                           </svg>
                         </div>
@@ -457,7 +457,7 @@ const Login = () => {
                   autoCorrect="off"
                   autoCapitalize="none"
                   spellCheck={false}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-gray-50"
+                          className="w-full pl-9 md:pl-10 pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-gray-50"
                           placeholder="Enter your 10-digit phone number"
                 />
                       </div>
@@ -469,15 +469,15 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                      className="w-full bg-green-900 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-green-900 text-white py-2.5 md:py-3 px-4 rounded-lg text-sm md:text-base font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                       {isLoading ? "Signing in..." : "Sign In"}
               </button>
                   </form>
 
               {/* Sign Up Link */}
-                  <div className="mt-6 text-center">
-                <p className="text-gray-600">
+                  <div className="mt-4 md:mt-6 text-center">
+                <p className="text-sm md:text-base text-gray-600">
                   Don't have an account?{" "}
                       <Link href="/signup" className="text-green-900 hover:text-green-800 font-medium">
                         Sign up

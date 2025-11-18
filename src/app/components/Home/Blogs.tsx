@@ -33,7 +33,7 @@ const Blogs = ({ data = { subtitle: "", title: "", button: "", items: [] } }: { 
 
   return (
     <section className="bg-white py-8 md:py-16">
-      <div className="w-full mx-auto px-4 md:px-6 lg:px-0 max-w-7xl">
+      <div className="w-full mx-auto px-4 md:px-6 lg:px-0 ">
         {/* Header Row */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 md:mb-8 lg:mb-12 gap-4">
         <div>

@@ -102,31 +102,31 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
   if (!isOpen) return null;
 
   return (
-<div className="fixed inset-0 z-50 bg-black/50  flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 relative border border-gray-100">
+<div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 md:p-6">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-2 md:mx-4 relative border border-gray-100">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-3 right-3 md:top-4 md:right-4 text-gray-400 hover:text-gray-600 transition-colors"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <div className="p-8">
+        <div className="p-5 md:p-6 lg:p-8">
           {/* Title */}
-          <h2 className="text-2xl font-bold text-center text-gray-900 mb-2 font-[Inter]" >
+          <h2 className="text-xl md:text-2xl font-bold text-center text-gray-900 mb-2 font-[Inter]" >
             Almost done
           </h2>
 
           {/* Instruction */}
-          <p className="text-gray-600 text-center mb-8 font-[Inter]" >
+          <p className="text-sm md:text-base text-gray-600 text-center mb-6 md:mb-8 font-[Inter]" >
             Please type the code we sent you in your email
           </p>
 
           {/* OTP Input Fields */}
-          <div className="flex justify-center gap-3 mb-6">
+          <div className="flex justify-center gap-2 md:gap-3 mb-5 md:mb-6">
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -137,7 +137,7 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
                 value={digit}
                 onChange={(e) => handleInputChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className={`w-12 h-12 text-center text-xl font-bold border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors ${
+                className={`w-10 h-10 md:w-12 md:h-12 text-center text-lg md:text-xl font-bold border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors ${
                   error ? 'border-red-500' : 'border-gray-300 focus:border-green-500'
                 }`}
                 style={{ fontFamily: 'Open Sans, sans-serif' }}
@@ -147,13 +147,13 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
 
           {/* Success Message */}
           {isSuccess && (
-            <div className="text-center mb-4">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-2">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center mb-3 md:mb-4">
+              <div className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-full mb-2">
+                <svg className="w-5 h-5 md:w-6 md:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <p className="text-green-600 text-sm font-medium" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+              <p className="text-green-600 text-xs md:text-sm font-medium" style={{ fontFamily: 'Open Sans, sans-serif' }}>
                 Verification successful! Redirecting...
               </p>
             </div>
@@ -161,7 +161,7 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
 
           {/* Error Message */}
           {error && (
-            <p className="text-red-500 text-sm text-center mb-4" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <p className="text-red-500 text-xs md:text-sm text-center mb-3 md:mb-4" style={{ fontFamily: 'Open Sans, sans-serif' }}>
               {error}
             </p>
           )}
@@ -170,7 +170,7 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
           <button
             onClick={() => handleVerify()}
             disabled={isVerifying || isLoading || otp.some(digit => !digit) || isSuccess}
-            className={`w-full py-3 px-4 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+            className={`w-full py-2.5 md:py-3 px-4 rounded-lg text-sm md:text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
               isSuccess 
                 ? 'bg-green-600 text-white cursor-default' 
                 : 'bg-green-900 text-white hover:bg-green-800 focus:ring-green-500'
@@ -193,24 +193,24 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
           </button>
 
           {/* Timer */}
-          <div className="text-center mt-4">
-            <p className="text-gray-500 text-sm" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+          <div className="text-center mt-3 md:mt-4">
+            <p className="text-gray-500 text-xs md:text-sm" style={{ fontFamily: 'Open Sans, sans-serif' }}>
               {formatTime(timeLeft)}
             </p>
           </div>
 
           {/* Resend OTP */}
-          <div className="text-center mt-4">
+          <div className="text-center mt-3 md:mt-4">
             {timeLeft === 0 ? (
               <button
                 onClick={handleResend}
-                className="text-green-600 hover:text-green-700 font-medium text-sm underline transition-colors"
+                className="text-green-600 hover:text-green-700 font-medium text-xs md:text-sm underline transition-colors"
                 style={{ fontFamily: 'Open Sans, sans-serif' }}
               >
                 Resend OTP
               </button>
             ) : (
-              <p className="text-gray-400 text-sm" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+              <p className="text-gray-400 text-xs md:text-sm" style={{ fontFamily: 'Open Sans, sans-serif' }}>
                 Resend OTP in {formatTime(timeLeft)}
               </p>
             )}
@@ -218,8 +218,8 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
 
 
           {/* Support Link */}
-          <div className="text-center mt-6">
-            <p className="text-gray-500 text-sm" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+          <div className="text-center mt-4 md:mt-6">
+            <p className="text-gray-500 text-xs md:text-sm" style={{ fontFamily: 'Open Sans, sans-serif' }}>
               Can't access to your email?{' '}
               <Link 
                 href="/contact"

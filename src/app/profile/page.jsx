@@ -1658,7 +1658,7 @@ const Profile = () => {
             
            
           {/* Form Card - 9 columns */}
-          <div className="lg:col-span-9 bg-white rounded-2xl shadow-xs overflow-hidden order-1 lg:order-1">
+          <div className="lg:col-span-9 md:bg-white rounded-2xl md:shadow-xs overflow-hidden order-1 lg:order-1">
             {/* Step Content */}
             {profileLoading ? (
               <div className="flex items-center justify-center py-20">
@@ -2028,7 +2028,7 @@ const Profile = () => {
                     {userRole === "broker" ? (
                       <>
                         {/* Professional Information Card */}
-                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="md:bg-white border border-gray-200 rounded-xl p-6 md:shadow-sm">
                           <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-6 flex items-center">
                             <svg
                               className="w-5 h-5 text-[#171A1F] mr-2"
@@ -2239,7 +2239,7 @@ const Profile = () => {
                         </div>
 
                         {/* Specializations Card */}
-                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="md:bg-white border border-gray-200 rounded-xl p-6 md:shadow-sm">
                           <h3 className="font-[Inter] text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-6 flex items-center">
                             <svg
                               className="w-5 h-5 mr-2"
@@ -2353,7 +2353,7 @@ const Profile = () => {
                         </div>
 
                         {/* Social Media Card */}
-                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="md:bg-white border border-gray-200 rounded-xl p-6 md:shadow-sm">
                           <h3 className="font-[Inter] text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-6 flex items-center">
                             <svg
                               className="w-5 h-5 mr-2"
@@ -2502,7 +2502,7 @@ const Profile = () => {
                     ) : (
                       /* Customer Preferences */
                       <>
-                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="md:bg-white border border-gray-200 rounded-xl p-6 md:shadow-sm">
                           <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
                             <svg
                               className="w-5 h-5 text-blue-600 mr-2"
@@ -2690,7 +2690,7 @@ const Profile = () => {
                           {nearestMode ? "Choose manually" : "Use nearest"}
                         </button>
                       </div>
-                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                    <div className="md:bg-white border border-gray-200 rounded-xl p-6 md:shadow-sm">
                     
 
                       {!nearestMode && (
@@ -3119,7 +3119,7 @@ const Profile = () => {
                       </h3>
                     </div>
 
-                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                    <div className="md:bg-white border border-gray-200 rounded-xl p-6 md:shadow-sm">
                       <p className="text-gray-600 text-center py-8">
                         No documents required for customer accounts.
                       </p>
@@ -4172,7 +4172,7 @@ const Profile = () => {
 
             {/* Combined Tips & Support Card */}
               {/* Tips for Profile Completion */}
-              <div className="  rounded-[10px] F] border border-gray-200 bg-white p-4 shadow-xs">
+              <div className="  rounded-[10px] F] border border-gray-200 md:bg-white p-4 md:shadow-xs">
                 <h3 className="font-inter text-[14px] leading-[28px] font-semibold text-[#171A1F] mb-3">Tips for Profile Completion</h3>
                 <ul className="text-sm text-gray-600 space-y-2">
                   <li className="flex items-start">
@@ -4199,7 +4199,7 @@ const Profile = () => {
               </div>
 
               {/* Support & Documentation */}
-              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="rounded-lg border border-gray-200 md:bg-white p-4 md:shadow-sm">
               <h3 className="font-inter text-[14px] leading-[28px] font-semibold text-[#171A1F] mb-3"> Documentation</h3>
               <p className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D] mb-4">Need help or looking for more details? Our comprehensive resources and support team are here for you.</p>
               

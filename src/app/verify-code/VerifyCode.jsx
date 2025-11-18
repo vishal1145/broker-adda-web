@@ -251,9 +251,9 @@ const VerifyCode = () => {
           },
         }}
       />
-    <div className="min-h-screen py-12 flex">
+    <div className="min-h-screen py-6 md:py-8 lg:py-12 flex">
       {/* Left Column - Verify Code Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
+      <div className="flex-1 flex items-center justify-center px-4 md:px-6 py-6 md:py-8 lg:py-12 bg-white">
         <div className="w-full max-w-md">
           {/* Logo */}
           {/* <div className="flex items-center mb-8">
@@ -265,15 +265,16 @@ const VerifyCode = () => {
           </div> */}
 
           {/* Title */}
-    <div className="mb-8 ">
-  <div className="text-left mb-4 ">
+    <div className="mb-6 md:mb-8">
+  <div className="text-left mb-3 md:mb-4">
     <Link 
       href="/login" 
-      className="flex items-center gap-2 text-gray-600 hover:text-green-900 font-medium"
+      className="flex items-center gap-2 text-sm md:text-base text-gray-600 hover:text-green-900 font-medium"
     >
       <svg
-        width="24"
-        height="24"
+        width="20"
+        height="20"
+        className="md:w-6 md:h-6"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -288,22 +289,22 @@ const VerifyCode = () => {
     </Link>
   </div>
 
-  <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Code</h1>
-  <p className="text-gray-600">
+  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Verify Code</h1>
+  <p className="text-sm md:text-base text-gray-600">
     Please enter the code we just sent to your phone number
   </p>
-  <p className="text-green-900 font-medium mt-2">{phoneNumber}</p>
+  <p className="text-sm md:text-base text-green-900 font-medium mt-2">{phoneNumber}</p>
 </div>
 
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
 
             {/* Code Input Fields */}
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-4">
+              <label className="block text-xs md:text-sm font-medium text-gray-900 mb-3 md:mb-4">
                 Code *
               </label>
-              <div className="flex  space-x-3">
+              <div className="flex space-x-2 md:space-x-3">
                 {code.map((digit, index) => (
                   <input
                     key={index}
@@ -315,7 +316,7 @@ const VerifyCode = () => {
                     onChange={(e) => handleChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     onPaste={handlePaste}
-                    className="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300  focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                    className="w-10 h-10 md:w-12 md:h-12 text-center text-lg md:text-xl font-bold border-2 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                   />
                 ))}
               </div>
@@ -325,14 +326,14 @@ const VerifyCode = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-green-900 text-white py-3 px-4 rounded-full font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-green-900 text-white py-2.5 md:py-3 px-4 rounded-full text-sm md:text-base font-medium hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Verifying..." : "Verify"}
             </button>
 
             {/* Resend Code */}
             <div className="text-center">
-              <p className="text-gray-600">
+              <p className="text-sm md:text-base text-gray-600">
                 Didn't receive code?{" "}
                 {resendTimer > 0 ? (
                   <span className="text-gray-400">
