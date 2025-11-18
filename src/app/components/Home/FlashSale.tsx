@@ -425,13 +425,13 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
         </div>
 
         {/* RIGHT: Three Side-by-Side Property Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {loading ? (
             // Loading skeleton
             Array.from({ length: 3 }).map((_, index) => (
               <div
                 key={`loading-${index}`}
-                className={`relative h-[200px] md:h-[460px] w-full rounded-2xl overflow-hidden shadow bg-gray-200 animate-pulse ${index > 0 ? 'hidden md:block' : ''}`}
+                className={`relative h-[200px] md:h-[460px] w-full rounded-2xl overflow-hidden shadow bg-gray-200 animate-pulse ${index > 1 ? 'hidden md:block' : ''}`}
               >
                 <div className="absolute inset-0 m-2 border border-white rounded-[22px] pointer-events-none"></div>
               </div>
@@ -442,7 +442,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
               <Link
                 key={property.id}
                 href={`/property-details/${property.id}`}
-                className={`relative h-[200px] md:h-[460px] w-full rounded-2xl overflow-hidden shadow cursor-pointer group hover:shadow-xl transition-shadow duration-300 ${index > 0 ? 'hidden md:block' : ''}`}
+                className={`relative h-[200px] md:h-[460px] w-full rounded-2xl overflow-hidden shadow cursor-pointer group hover:shadow-xl transition-shadow duration-300 ${index > 1 ? 'hidden md:block' : ''}`}
               >
                 {/* Image */}
                 <img
@@ -475,7 +475,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
             (data.images || []).map((image, index) => (
               <div
                 key={`fallback-${index}`}
-                className={`relative h-[200px] md:h-[460px] w-full rounded-2xl overflow-hidden shadow ${index > 0 ? 'hidden md:block' : ''}`}
+                className={`relative h-[200px] md:h-[460px] w-full rounded-2xl overflow-hidden shadow ${index > 1 ? 'hidden md:block' : ''}`}
               >
                 {/* Image */}
                 <img
