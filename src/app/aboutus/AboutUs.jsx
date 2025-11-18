@@ -107,9 +107,9 @@ const AboutUs = () => {
           </div>
 
           {/* --- Our Product Quality Section --- */}
-          <div className="flex flex-col md:flex-row items-center justify-between mt-12 gap-12 max-w-7xl mx-auto px-4 md:px-0">
+          <div className="flex flex-col md:flex-row items-center justify-between mt-12 gap-6 md:gap-6 lg:gap-12 max-w-7xl mx-auto px-4 md:px-6 lg:px-0">
             {/* Left: Image with double border and rounded corners */}
-            <div className="relative flex-shrink-0">
+            <div className="relative flex-shrink-0 w-full md:w-auto">
               <div
                 className="rounded-2xl border-4 border-white shadow-lg"
                 style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
@@ -118,17 +118,17 @@ const AboutUs = () => {
                   <img
                     src={aboutData.images[0]}
                     alt="Quality Craftsperson"
-                    className="w-[600px] h-[600px] object-cover"
+                    className="w-full md:w-[400px] lg:w-[600px] h-auto md:h-[400px] lg:h-[600px] object-cover"
                   />
-                  <div className="absolute inset-0 m-8 border border-white rounded-[22px] pointer-events-none"></div>
+                  <div className="absolute inset-0 m-4 md:m-6 lg:m-8 border border-white rounded-[22px] pointer-events-none"></div>
                 </div>
               </div>
             </div>
 
             {/* Right: Text Card */}
-            <div className="relative bg-gray-50 shadow-lg rounded-2xl px-4 md:px-8 py-8 md:py-16 text-left w-full max-w-2xl min-h-[600px] md:h-[600px] overflow-hidden">
+            <div className="relative bg-gray-50 shadow-lg rounded-2xl px-4 md:px-6 lg:px-8 py-8 md:py-10 lg:py-16 text-left w-full md:flex-1 max-w-2xl min-h-[400px] md:min-h-[400px] lg:h-[600px] overflow-hidden">
               {/* Decorative dots - Top */}
-              <div className="absolute top-0 right-24 opacity-60 pointer-events-none">
+              <div className="absolute top-0 right-8 md:right-12 lg:right-24 opacity-60 pointer-events-none hidden md:block">
                 <svg
                   width="120"
                   height="60"
@@ -162,7 +162,7 @@ const AboutUs = () => {
               </div>
 
               {/* Decorative dots - Bottom */}
-              <div className="absolute bottom-0 left-16 opacity-60 pointer-events-none">
+              <div className="absolute bottom-0 left-4 md:left-8 lg:left-16 opacity-60 pointer-events-none hidden md:block">
                 <svg
                   width="120"
                   height="60"
@@ -194,16 +194,16 @@ const AboutUs = () => {
                   <circle cx="100" cy="55" r="5" fill="#D1D5DB" />
                 </svg>
               </div>
-              <p className="text-[16px] text-gray-900 mt-4 text-left px-0 md:px-8">
+              <p className="text-[16px] text-gray-900 mt-4 text-left px-0 md:px-0 lg:px-8">
                 <span className="text-yellow-500">—</span> Our Product Quality
               </p>
-              <h3 className="text-[16px] font-medium px-0 md:px-8 mt-1">
+              <h3 className="text-[16px] font-medium px-0 md:px-0 lg:px-8 mt-1">
                 Setting the{" "}
                 <span className="text-green-800">
                   Standard for Premium Real Estate
                 </span>
               </h3>
-              <p className="text-gray-600 mb-8 px-0 md:px-8 mt-1 text-[12px]">
+              <p className="text-gray-600 mb-6 md:mb-6 lg:mb-8 px-0 md:px-0 lg:px-8 mt-1 text-[12px]">
                 Every Broker Gully property is carefully selected from prime locations with modern amenities and 
                 superior construction quality. Our expert team conducts thorough due diligence on every property, 
                 from legal verification to quality inspection, so you invest in real estate that's not only 
@@ -211,18 +211,18 @@ const AboutUs = () => {
               </p>
 
               {/* Features */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 text-left px-0 md:px-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-4 lg:gap-8 text-left px-0 md:px-0 lg:px-8">
                 {/* Feature 1 */}
-                <div className="flex flex-col items-left gap-2 ">
+                <div className="flex flex-col items-left gap-2">
                   <img
                     src="/images/logo.png"
                     alt="Prime Location Properties"
-                    className="w-20 h-20"
+                    className="w-16 h-16 md:w-[72px] md:h-[72px] lg:w-20 lg:h-20"
                   />
-                  <div className="font-semibold text-[16px] text-gray-900">
+                  <div className="font-semibold text-[14px] md:text-[14px] lg:text-[16px] text-gray-900">
                     Prime Location Properties
                   </div>
-                  <div className="text-gray-500 text-[12px] max-w-xs">
+                  <div className="text-gray-500 text-[11px] md:text-[11px] lg:text-[12px] max-w-xs">
                     We offer only strategically located properties with excellent connectivity, modern infrastructure, and high appreciation potential.
                   </div>
                 </div>
@@ -232,12 +232,12 @@ const AboutUs = () => {
                   <img
                     src="/images/logo1.png"
                     alt="Expert Guidance"
-                    className="w-20 h-20"
+                    className="w-16 h-16 md:w-[72px] md:h-[72px] lg:w-20 lg:h-20"
                   />
-                  <div className="font-semibold text-[16px] text-gray-900">
+                  <div className="font-semibold text-[14px] md:text-[14px] lg:text-[16px] text-gray-900">
                     Expert Guidance
                   </div>
-                  <div className="text-gray-500 text-[12px] max-w-xs">
+                  <div className="text-gray-500 text-[11px] md:text-[11px] lg:text-[12px] max-w-xs">
                     Our experienced brokers provide personalized assistance throughout your property journey, ensuring you make informed investment decisions.
                   </div>
                 </div>
