@@ -542,7 +542,7 @@ export default function ViewModeProfile() {
                             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span className="text-[12px] text-blue-700 font-medium">Days Remaining</span>
+                            <span className="text-[12px] text-blue-700 font-medium">Your {subscription?.planType} Plan Will Expire In</span>
                           </div>
                           <span className="text-[14px] font-bold text-blue-900">
                             {Math.max(0, Math.ceil((new Date(subscription.endDate) - new Date()) / (1000 * 60 * 60 * 24)))} days

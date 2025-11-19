@@ -27,6 +27,7 @@ const Navbar = ({ data }) => {
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [googleLoaded, setGoogleLoaded] = useState(false);
+  const [subscription, setSubscription] = useState(null);
 
   // Fallback hardcoded notifications
   const fallbackNotifications = [
@@ -314,6 +315,7 @@ const Navbar = ({ data }) => {
           } else {
             const b = payload.data?.broker || payload.data || payload;
             setProfileImage(b.brokerImage || b.profileImage || null);
+            setSubscription(b.subscription || null);
           }
         }
       } catch (err) {
@@ -660,6 +662,42 @@ const enableSuggestions = false;
         </div>
       )}
            </div>
+
+           {subscription ? (
+            <Link 
+              href="/plans"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-all group"
+            >
+              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-xs font-medium text-blue-700">
+                <span className="font-semibold">{subscription?.planType || 'Premium'}</span> plan expires in{' '}
+                <span className="font-bold text-blue-800">
+                  {Math.max(0, Math.ceil((new Date(subscription.endDate) - new Date()) / (1000 * 60 * 60 * 24)))}
+                </span>{' '}
+                days
+              </span>
+              <svg className="w-3 h-3 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+           ) : (
+            <Link 
+              href="/plans"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-all group animate-pulse"
+            >
+              <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span className="text-xs font-semibold text-amber-700">
+                Upgrade your plan to unlock all features
+              </span>
+              <svg className="w-3 h-3 text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+           )}
 
           {/* Right cluster */}
           <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
