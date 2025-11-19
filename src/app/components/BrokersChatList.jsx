@@ -331,11 +331,11 @@ const BrokersChatList = () => {
 
       {user && (
         <div
-          className="fixed justify-between bottom-0 w-60 right-0 z-50 bg-white shadow-lg rounded-lg border border-gray-200 flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 cursor-pointer hover:shadow-xl transition-all duration-200"
+          className="fixed bottom-4 right-4 md:bottom-0 md:right-0 w-14 h-14 md:w-60 md:h-auto z-50 bg-white shadow-lg rounded-full md:rounded-lg border border-gray-200 flex items-center justify-center md:justify-between gap-0 md:gap-2 lg:gap-3 p-0 md:px-3 md:py-2 lg:px-4 lg:py-3 cursor-pointer hover:shadow-xl transition-all duration-200"
           onClick={toggleExpand}
         >
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex-shrink-0 flex items-center justify-center">
+          <div className="flex items-center gap-2 md:gap-2 lg:gap-3">
+            <div className="w-14 h-14 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex-shrink-0 flex items-center justify-center">
               {currentUser?.additionalDetails?.brokerImage ? (
                 <img className='rounded-full object-cover h-full w-full' src={currentUser?.additionalDetails?.brokerImage} alt="Logo" />
               ) : (
@@ -343,10 +343,10 @@ const BrokersChatList = () => {
               )}
 
             </div>
-            <span className="text-sm font-medium text-gray-900 hidden sm:inline">Messaging</span>
+            <span className="text-sm font-medium text-gray-900 hidden md:inline">Messaging</span>
           </div>
           <svg
-            className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            className={`w-5 h-5 text-gray-600 transition-transform duration-200 hidden md:block ${isExpanded ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
