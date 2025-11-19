@@ -1881,7 +1881,7 @@ export default function BrokerLeadsPage() {
         </svg>
       </div>
       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        No leads found
+        No queries found
       </h3>
       <p className="text-sm text-gray-500 text-center max-w-sm">
         {filters.query ||
@@ -1890,8 +1890,8 @@ export default function BrokerLeadsPage() {
         filters.propertyType?.value !== "all" ||
         filters.requirement?.value !== "all" ||
         filters.budgetMax !== 500000
-          ? "No leads match your current filters. Try adjusting your search criteria."
-          : "You don't have any leads yet. Click 'Add New Lead' to get started."}
+          ? "No queries match your current filters. Try adjusting your search criteria."
+          : "You don't have any leads yet. Click 'Add New Query' to get started."}
       </p>
       {!filters.query &&
         filters.status?.value === "all" &&
@@ -1903,17 +1903,17 @@ export default function BrokerLeadsPage() {
             onClick={() => setShowAddLead(true)}
             className="mt-4 px-4 py-2 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
           >
-            Add Your First Lead
+            Add Your First Query
           </button>
         )}
     </div>
   );
 
   const headerData = {
-    title: "My Leads",
+    title: "My Queries",
     breadcrumb: [
       { label: "Home", href: "/" },
-      { label: "Leads", href: "/leads" },
+      { label: "Queries", href: "/leads" },
     ],
   };
 
@@ -1932,10 +1932,10 @@ export default function BrokerLeadsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h1 className=" font-archivo text-[18px] leading-[36px] font-bold text-[#171A1FFF]">
-                      Lead Management
+                      Query Management
                     </h1>
                     <p className="text-[12px] leading-[20px] font-normal text-[#565D6DFF]">
-                      Capture leads, share with brokers, and track progress —
+                      Capture queries, share with brokers, and track progress —
                       all in one place.
                     </p>
                   </div>
@@ -1972,7 +1972,7 @@ export default function BrokerLeadsPage() {
                     <span className="text-[12px] leading-5 font-normal text-[#565D6D]">
                       {leadViewMode === "transferred"
                         ? "Transferred to Me"
-                        : "My Leads"}
+                        : "My Queries"}
                     </span>
                   </div>
                 </div>
@@ -1983,7 +1983,7 @@ export default function BrokerLeadsPage() {
                 {/* Total Leads (Active Card with Purple Border) */}
                 <div className="border border-gray-200 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white rounded-lg p-4">
                   <p className="text-[12px] text-[#565D6DFF] font-medium">
-                    Total Leads
+                    Total Queries
                   </p>
                   <p className="text-[18px] font-semibold text-gray-900 mt-1">
                     {metricsLoading ? "—" : metrics.totalLeads.toLocaleString()}
@@ -2036,7 +2036,7 @@ export default function BrokerLeadsPage() {
                 <div className="w-full sm:w-80 relative">
                   <input
                     type="text"
-                    placeholder="Search leads..."
+                    placeholder="Search queries..."
                     value={filters.query}
                     onChange={(e) =>
                       setFilters({ ...filters, query: e.target.value })
@@ -2128,7 +2128,7 @@ export default function BrokerLeadsPage() {
                         d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                       />
                     </svg>
-                    Add New Lead
+                    Add New Query
                   </button>
                 </div>
 
@@ -2888,7 +2888,7 @@ export default function BrokerLeadsPage() {
                   >
                     <summary className="list-none cursor-pointer flex items-center justify-between">
                       <span className="text-[12px] leading-5 font-normal text-[#171A1F]">
-                        How do I add a new lead quickly?
+                        How do I add a new query quickly?
                       </span>
                       <svg
                         className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
@@ -2903,8 +2903,8 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[10px] leading-4 text-gray-600 border-l-2 border-gray-300">
-                      Use the Add Lead button, fill name, phone, requirement and
-                      region. You can edit details later in Lead Details.
+                      Use the Add Query button, fill name, phone, requirement and
+                      region. You can edit details later in Query Details.
                     </p>
                   </details>
 
@@ -2912,7 +2912,7 @@ export default function BrokerLeadsPage() {
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
                       <span className="text-[12px] leading-5 font-normal text-[#171A1F]">
-                        How do I change a lead status?
+                        How do I change a query status?
                       </span>
                       <svg
                         className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
@@ -2927,7 +2927,7 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[10px] leading-4 text-slate-600 border-l-2 border-gray-300">
-                      Open a lead, click Edit Status in the drawer header, pick
+                      Open a query, click Edit Status in the drawer header, pick
                       the status and save.
                     </p>
                   </details>
@@ -2936,7 +2936,7 @@ export default function BrokerLeadsPage() {
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
                       <span className="text-[12px] leading-5 font-normal text-[#171A1F]">
-                        How do I share a lead with another broker?
+                        How do I share a query with another broker?
                       </span>
                       <svg
                         className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
@@ -2952,7 +2952,7 @@ export default function BrokerLeadsPage() {
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[10px] leading-4 text-slate-600 border-l-2 border-gray-300">
                       Use Share/Transfer, choose brokers, add notes and confirm.
-                      The transfer history appears in Lead Details.
+                      The transfer history appears in Query Details.
                     </p>
                   </details>
                 </div>
@@ -3324,7 +3324,7 @@ export default function BrokerLeadsPage() {
             <div className="relative w-full max-w-xl mx-4 bg-white rounded-2xl shadow-xl">
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                 <h4 className="text-lg font-semibold text-slate-900">
-                  Add New Lead
+                  Add New Query
                 </h4>
                 <button
                   onClick={() => {
@@ -3960,7 +3960,7 @@ export default function BrokerLeadsPage() {
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  Lead Details
+                  Query Details
                 </h4>
                 <button
                   onClick={() => {

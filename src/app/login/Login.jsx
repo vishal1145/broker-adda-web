@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import OTPModal from '../components/OTPModal';
 import { useAuth } from '../contexts/AuthContext';
 import toast, { Toaster } from "react-hot-toast";
@@ -17,7 +17,8 @@ const Login = () => {
   const [showNumberForm, setShowNumberForm] = useState(false);
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
-
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect');
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -232,7 +233,7 @@ const Login = () => {
               console.log('Login redirect - Final role:', finalRole);
               
               if (finalRole === 'broker') {
-                router.push('/dashboard');
+                router.push(redirect || '/dashboard');
               } else if (finalRole === 'customer') {
                 router.push('/customer-profile?mode=view');
               } else {
@@ -243,7 +244,7 @@ const Login = () => {
                   if (tokenRole === 'customer') {
                     router.push('/customer-profile?mode=view');
                   } else if (tokenRole === 'broker') {
-                    router.push('/dashboard');
+                    router.push(redirect || '/dashboard');
                   } else {
                     // Last resort: default to customer profile
                     router.push('/customer-profile?mode=view');

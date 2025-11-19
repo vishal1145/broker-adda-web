@@ -37,8 +37,10 @@ export default function BrokerDetailsPage() {
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [brokerProperties, setBrokerProperties] = useState([]);
   const [propertiesLoading, setPropertiesLoading] = useState(false);
+  const [path, setPath] = useState(null);
 
   useEffect(() => {
+    setPath(window.location.pathname);
     const fetchBroker = async () => {
       setLoading(true);
       setError('');
@@ -811,7 +813,7 @@ export default function BrokerDetailsPage() {
               <div className="">
                 <div className="flex items-center justify-between mb-6">
                   {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
-                  <h3 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">Leads posted by this broker</h3>
+                  <h3 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">Queries posted by this broker</h3>
                   {broker?._id && (
                     <p 
                       onClick={() => {
@@ -1055,6 +1057,17 @@ export default function BrokerDetailsPage() {
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           e.preventDefault();
+
+                                          const token = typeof window !== 'undefined'
+                    ? localStorage.getItem('token') || localStorage.getItem('authToken')
+                    : null;
+                  
+                  if (!token) {
+                    // User not logged in, redirect to login page
+                    router.push(`/login?redirect=${path}`);
+                    return;
+                  }
+
                                           if (window.openChatWithBroker && viewBroker) {
                                             window.openChatWithBroker({ broker: viewBroker });
                                           }
@@ -1330,12 +1343,25 @@ export default function BrokerDetailsPage() {
                 <h3 className=" text-[18px] leading-[30px] font-semibold text-[#565D6D] mb-4">Quick Contact</h3>
                 <button type="button" 
                 onClick={() => {
+
+                  const token =
+                            typeof window !== "undefined"
+                              ? localStorage.getItem("token") ||
+                                localStorage.getItem("authToken")
+                              : null;
+
+                          if (!token) {
+                            // User not logged in, redirect to login page
+                            router.push(`/login?redirect=${path}`);
+                            return;
+                          }
+
                   if (window.openChatWithBroker) {
                     window.openChatWithBroker({broker});
                   }
                 }}
                 className="w-full px-6 py-3 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-medium">
-                  Send Message
+                  Send Message 
                 </button>
                <a
   href="/signup"
@@ -1352,7 +1378,7 @@ export default function BrokerDetailsPage() {
              
               {/* Lead Generation Support */}
               <div className="bg-[#EDFDF4] rounded-[10px] p-6 shadow-sm" style={{ boxShadow: '0px 0px 1px rgba(23, 26, 31, 0.07), 0px 0px 2px rgba(23, 26, 31, 0.12)' }}>
-                <h3 className=" text-[18px] leading-[36px] font-bold text-[#19191F] mb-3">Lead Generation Support</h3>
+                <h3 className=" text-[18px] leading-[36px] font-bold text-[#19191F] mb-3">Query Generation Support</h3>
                 <p className="font-[Inter] text-[12px] leading-[26px] font-normal text-[#19191F] mb-4">
                   Join our exclusive broker network and get access to premium lead generation tools and support.
                 </p>
@@ -1362,7 +1388,7 @@ export default function BrokerDetailsPage() {
                       <img src="/images/lucide-CircleCheckBig-Outlined.svg" alt="Verified" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
-                      <div className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#19191F]">Verified Leads</div>
+                      <div className="font-[Inter] text-[14px] leading-[24px] font-medium text-[#19191F]">Verified Queries</div>
                       <div className="font-[Inter] text-[12px] leading-[19px] font-normal text-[#19191FCC]">Pre-qualified properties ready to buy</div>
                     </div>
                   </div>
@@ -1584,7 +1610,7 @@ export default function BrokerDetailsPage() {
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                               </svg>
-                              <p className="text-[12px] leading-5 font-normal text-gray-600">{leadsCompleted} Leads Completed</p>
+                              <p className="text-[12px] leading-5 font-normal text-gray-600">{leadsCompleted} Queries Completed</p>
                             </div>
                           </div>
                         </article>
@@ -1680,7 +1706,7 @@ export default function BrokerDetailsPage() {
                   
                   if (!token) {
                     // User not logged in, redirect to login page
-                    router.push('/login');
+                    router.push(`/login?redirect=${path}`);
                     return;
                   }
                   

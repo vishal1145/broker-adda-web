@@ -53,7 +53,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [budgetMaxInputValue, setBudgetMaxInputValue] = useState('');
   const [isEditingMin, setIsEditingMin] = useState(false);
   const [isEditingMax, setIsEditingMax] = useState(false);
-
+  const [path, setPath] = useState('');
   // Store latitude and longitude from URL for geocoding-based search
   const [urlLatitude, setUrlLatitude] = useState(null);
   const [urlLongitude, setUrlLongitude] = useState(null);
@@ -62,6 +62,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
   // Trigger skeleton loader when switching between tabs from header
   useEffect(() => {
+    setPath(window.location.pathname);
     setUiLoading(true);
     const t = setTimeout(() => setUiLoading(false), 500);
     return () => clearTimeout(t);
@@ -1710,7 +1711,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         {/* Header with heading */}
         <div className="mb-4 md:mb-6">
             <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
-            Lead Search Results ({totalLeads} Found)
+            Query Search Results ({totalLeads} Found)
           </h2>
         </div>
 
@@ -2141,7 +2142,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                       
                                       if (!token) {
                                         // Redirect to login if not authenticated
-                                        router.push('/login');
+                                        router.push(`/login?redirect=${path}`);
                                         return;
                                       }
                                       

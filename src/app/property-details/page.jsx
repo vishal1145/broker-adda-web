@@ -94,9 +94,11 @@ function PropertyDetailsPageInner() {
   const [ratingsLoading, setRatingsLoading] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [path, setPath] = useState('');
 
   // Fetch property details from API
   useEffect(() => {
+    setPath(window.location.pathname);
     const fetchPropertyDetails = async () => {
       setLoading(true);
       setError("");
@@ -2289,7 +2291,7 @@ function PropertyDetailsPageInner() {
 
                           if (!token) {
                             // User not logged in, redirect to login page
-                            router.push("/login");
+                            router.push(`/login?redirect=${path}`);
                             return;
                           }
 

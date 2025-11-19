@@ -361,7 +361,7 @@ const Hero = ({ data = {
             ?? (typeof b?.leads === 'number' ? b.leads : undefined);
           const leadsNum = Number(rawLeads);
           const hasLeads = Number.isFinite(leadsNum);
-          const leadsText = hasLeads ? `${leadsNum} leads` : `0 leads`;
+          const leadsText = hasLeads ? `${leadsNum} queries` : `0 queries`;
 
           // Match Brokers.tsx logic: prefer userId (object/string), then _id, then id
           const id = (

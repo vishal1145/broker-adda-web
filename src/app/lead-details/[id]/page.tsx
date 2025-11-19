@@ -8,10 +8,10 @@ import ContentLoader from "react-content-loader";
 // removed unused import
 
 const headerData = {
-  title: "Lead Details",
+  title: "Query Details",
   breadcrumb: [
     { label: "Home", href: "/" },
-    { label: "Lead Details", href: "/lead-details" },
+    { label: "Query Details", href: "/lead-details" },
   ],
 };
 
@@ -63,7 +63,9 @@ export default function LeadDetails() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [brokerRating, setBrokerRating] = useState<number | null>(null);
+  const [path, setPath] = useState('');
   useEffect(() => {
+    setPath(window.location.pathname);
     if (!id) return;
 
     const fetchLeadById = async () => {
@@ -983,9 +985,9 @@ export default function LeadDetails() {
 
                 {/* Lead Generation Support Section */}
                 <div className="rounded-[12px] bg-green-50  p-6">
-                  <h3 className="text-[18px] font-semibold text-gray-900 mb-3">Lead Generation Support</h3>
+                  <h3 className="text-[18px] font-semibold text-gray-900 mb-3">Query Generation Support</h3>
                   <p className="text-[12px] text-gray-700 mb-6 max-w-md">
-                    Join our exclusive broker network and get access to premium lead generation tools
+                    Join our exclusive broker network and get access to premium query generation tools
                     and support.
                   </p>
 
@@ -996,7 +998,7 @@ export default function LeadDetails() {
                       <img src="/images/lucide-CircleCheckBig-Outlined.svg" alt="Verified" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                       <div>
-                        <div className="text-[14px] font-semibold text-gray-900">Verified Leads</div>
+                        <div className="text-[14px] font-semibold text-gray-900">Verified Queries</div>
                         <div className="text-[12px] text-gray-600">Pre-qualified properties ready to buy</div>
                       </div>
                     </div>
@@ -1344,7 +1346,7 @@ export default function LeadDetails() {
                                                       
                                                       if (!token) {
                                                         // Redirect to login if not authenticated
-                                                        router.push('/login');
+                                                        router.push(`/login?redirect=${path}`);
                                                         return;
                                                       }
                                                       

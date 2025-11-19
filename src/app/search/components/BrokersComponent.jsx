@@ -28,6 +28,8 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
     { value: 'Noida', label: 'Noida' }
   ]);
   const [regionsLoading, setRegionsLoading] = useState(true);
+
+  const [path, setPath] = useState('');
   
   // New search states
   const [nameSearchTerm, setNameSearchTerm] = useState('');
@@ -72,6 +74,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
   // Listen to URL changes for search query updates (when typing in navbar search)
   useEffect(() => {
+    setPath(window.location.pathname);
     if (typeof window === 'undefined') return;
     const checkURL = () => {
       try {
@@ -1954,7 +1957,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-5a1 1 0 011-1h2a1 1 0 011 1v5h3a1 1 0 001-1V10"
         />
       </svg>
-      <span>{actualLeadsCreated.count || 0} leads</span>
+      <span>{actualLeadsCreated.count || 0} queries</span>
     </span>
   </div>
 
@@ -1994,6 +1997,18 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
+
+        const token =
+                            typeof window !== "undefined"
+                              ? localStorage.getItem("token") ||
+                                localStorage.getItem("authToken")
+                              : null;
+
+                          if (!token) {
+                            // User not logged in, redirect to login page
+                            router.push(`/login?redirect=${path}`);
+                            return;
+                          }
         if (typeof window !== 'undefined' && window.openChatWithBroker) {
 
           const chatBroker = {

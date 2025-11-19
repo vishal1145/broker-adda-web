@@ -120,7 +120,7 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
       <div className="flex items-center bg-[#F3F4F6FF] overflow-hidden w-full sm:w-auto">
   {[
     { id: 'brokers', label: 'Broker' },
-    { id: 'leads', label: 'Lead Enquiry' },
+    { id: 'leads', label: 'Queries' },
     { id: 'properties', label: 'Property Details' },
   ].map((tab) => (
     <button

@@ -24,6 +24,7 @@ const BrokersChatList = () => {
   const [isLeadShareModalOpen, setIsLeadShareModalOpen] = useState(false);
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [allLeads, setAllLeads] = useState([]);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -57,6 +58,49 @@ const BrokersChatList = () => {
       return 'today';
     }
     return messageDate.format('DD/MM/YYYY');
+  };
+
+  const maskEmail = (text) => {
+    if (!text) return text;
+    // Regex to match email addresses
+    // Pattern: username@domain.com
+    return text.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, (match) => {
+      const [username, domain] = match.split('@');
+      // Keep first 2 characters of username, mask the rest
+      const maskedUsername = username.length > 2 
+        ? username.substring(0, 2) + 'X'.repeat(Math.max(0, username.length - 2))
+        : 'XX';
+      // Keep first 2 characters of domain, mask the rest
+      const domainParts = domain.split('.');
+      const domainName = domainParts[0];
+      const domainExtension = domainParts.slice(1).join('.');
+      const maskedDomain = domainName.length > 2
+        ? domainName.substring(0, 2) + 'X'.repeat(Math.max(0, domainName.length - 2))
+        : 'XX';
+      return `${maskedUsername}@${maskedDomain}.${domainExtension}`;
+    });
+  };
+
+  const maskPhoneNumber = (text) => {
+    if (!text) return text;
+    // Regex to match exactly 10 consecutive digits (phone number)
+    // Using word boundaries to ensure it's a standalone 10-digit number
+    return text.replace(/\b\d{10}\b/g, (match) => {
+      // Keep first 4 digits, mask the rest with X
+      return match.substring(0, 4) + 'XXXXXX';
+    });
+  };
+
+  const maskSensitiveData = (text) => {
+    // If user has active subscription, don't mask anything
+    if (hasActiveSubscription) {
+      return text;
+    }
+    // Otherwise, mask both phone numbers and emails
+    if (!text) return text;
+    let maskedText = maskPhoneNumber(text);
+    maskedText = maskEmail(maskedText);
+    return maskedText;
   };
 
   useEffect(() => {
@@ -134,7 +178,16 @@ const BrokersChatList = () => {
 
     const json = await res.json();
     console.log('Current user:', json.data);
-    setCurrentUser(json.data);
+    setCurrentUser(json.data);    
+    // Check subscription status with error handling
+    try {
+      const subscription = json.data?.additionalDetails?.subscription;
+      const isActive = subscription && subscription.status === 'active';
+      setHasActiveSubscription(isActive);
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      setHasActiveSubscription(false);
+    }
 
     const leadsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/leads/all/${json.data.additionalDetails._id
       }`, {
@@ -216,7 +269,13 @@ const BrokersChatList = () => {
       return;
     }
 
-    const messageText = text.trim();
+    let messageText = text.trim();
+    
+    // If user doesn't have active subscription, mask sensitive data before sending
+    // if (!hasActiveSubscription) {
+    //   messageText = maskSensitiveData(messageText);
+    // }
+    
     setText('');
 
     const localMessage = {
@@ -312,7 +371,10 @@ const BrokersChatList = () => {
           <div className="inline-block bg-amber-100 rounded px-4 py-2 border border-gray-200 max-w-md">
             <p className="text-xs text-gray-900">Name: {lead.customerName}</p>
             <p className="text-xs text-gray-900">Budget: {lead.budget}</p>
-            <p className="text-xs text-gray-900">Phone: {lead.customerPhone}</p>
+            <p className="text-xs text-gray-900">Phone: {maskSensitiveData(lead.customerPhone || '')}</p>
+            {lead.customerEmail && (
+              <p className="text-xs text-gray-900">Email: {maskSensitiveData(lead.customerEmail)}</p>
+            )}
             <Link href={`/lead-details/${lead._id}`} onClick={() => openLeadPage()} className="text-xs text-sky-900">View Details</Link>
           </div>
         </div>
@@ -458,7 +520,7 @@ const BrokersChatList = () => {
                         <h4 className="font-semibold text-gray-900 text-sm mt-1 truncate">{broker.participants[0]?.name}</h4>
                       </div>
                       {broker?.lastMessage?.text && (
-                        <p className="text-xs text-gray-400 truncate">{broker.lastMessage?.text}</p>
+                        <p className="text-xs text-gray-400 truncate">{maskSensitiveData(broker.lastMessage?.text)}</p>
                       )}
                       {broker?.lastMessage?.leadCards?.length > 0 && (
                         <p className="text-xs text-gray-400 truncate">Lead Shared</p>
@@ -550,7 +612,7 @@ const BrokersChatList = () => {
                           <div className="flex gap-2 flex-row-reverse">
                             <div className="flex-1 flex justify-end">
                               <div className="flex items-end gap-2 rounded-2xl px-4 py-2 bg-green-500 text-white max-w-md">
-                                <p className="text-sm">{message.text}</p>
+                                <p className="text-sm">{maskSensitiveData(message.text)}</p>
                                 <span className="text-[10px]">
                                   {moment(message.createdAt).format('HH:mm')}
                                 </span>
@@ -572,7 +634,7 @@ const BrokersChatList = () => {
                           <div className="flex gap-2">
                             <div className="flex-1">
                               <div className="inline-block rounded-2xl px-4 py-2 bg-white border border-gray-200 max-w-md">
-                                <p className="text-sm text-gray-900">{message.text}</p>
+                                <p className="text-sm text-gray-900">{maskSensitiveData(message.text)}</p>
                               </div>
                             </div>
 

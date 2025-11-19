@@ -73,8 +73,9 @@ const LatestLeads: React.FC = () => {
   const router = useRouter();
   const [leads, setLeads] = useState<ApiLead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const [path, setPath] = useState('');
   useEffect(() => {
+    setPath(window.location.pathname);
     // Fetch data from API
     const fetchLeads = async () => {
       setLoading(true);
@@ -382,7 +383,7 @@ const LatestLeads: React.FC = () => {
               </svg>
             </div>
             <h3 className="mt-3 text-base font-semibold text-gray-900">
-              No recent leads
+              No recent queries
             </h3>
             <p className="mt-1 text-sm text-gray-600">
               New enquiries will appear here as they arrive.
@@ -405,7 +406,7 @@ const LatestLeads: React.FC = () => {
               </div>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-gray-900">
                 <span className="">Latest</span>
-                <span className="pl-2 text-green-900">Leads</span>
+                <span className="pl-2 text-green-900">Queries</span>
               </h2>
               <p className="text-xs md:text-sm lg:text-base text-gray-600">
                 Explore the latest property requirements posted by verified
@@ -416,7 +417,7 @@ const LatestLeads: React.FC = () => {
                 href="/search?tab=leads"
                 className="inline-flex items-center gap-2 rounded-full bg-green-900 px-4 md:px-5 py-1.5 md:py-2 text-white text-xs md:text-sm font-semibold shadow-sm w-max"
               >
-                View All Leads
+                View All Queries
                 <svg
                   className="h-3 w-3 md:h-4 md:w-4"
                   viewBox="0 0 24 24"
@@ -748,7 +749,7 @@ const LatestLeads: React.FC = () => {
                   
                   if (!token) {
                     // Redirect to login if not authenticated
-                    router.push('/login');
+                    router.push(`/login?redirect=${path}`);
                     return;
                   }
                   

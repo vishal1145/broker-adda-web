@@ -398,7 +398,7 @@ const Dashboard = () => {
             >
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-[14px] leading-[20px] font-medium" style={{ fontFamily: 'Inter', color: '#565D6DFF' }}>Total Leads</div>
+                  <div className="text-[14px] leading-[20px] font-medium" style={{ fontFamily: 'Inter', color: '#565D6DFF' }}>Total Queries</div>
                   <div className="w-5 h-5 flex items-center justify-center">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#565D6DFF' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -442,7 +442,7 @@ const Dashboard = () => {
             >
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-[14px] leading-[20px] font-medium" style={{ fontFamily: 'Inter', color: '#565D6DFF' }}>Total Closed Leads</div>
+                  <div className="text-[14px] leading-[20px] font-medium" style={{ fontFamily: 'Inter', color: '#565D6DFF' }}>Total Closed Queries</div>
                   <div className="w-5 h-5 flex items-center justify-center">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#565D6DFF' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -590,7 +590,7 @@ const Dashboard = () => {
           {/* Lead and Property Performance Overview Section */}
           <div className="mb-8 pb-16">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[18px] font-bold text-gray-900">Lead and Property Performance Overview</h2>
+              <h2 className="text-[18px] font-bold text-gray-900">Query and Property Performance Overview</h2>
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-500 text-black rounded-full text-xs font-medium">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -604,7 +604,7 @@ const Dashboard = () => {
           {/* Recent Leads Section */}
           <div className="mb-8 pb-16">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[18px] font-bold text-gray-900">Recent Leads</h2>
+              <h2 className="text-[18px] font-bold text-gray-900">Recent Queries</h2>
               <button
                 onClick={() => router.push('/leads')}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium text-sm rounded-lg transition-colors cursor-pointer"
@@ -678,7 +678,7 @@ const Dashboard = () => {
                   <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>
-                  <span className="text-gray-600 font-medium text-sm">Add Lead</span>
+                  <span className="text-gray-600 font-medium text-sm">Add Query</span>
                 </button>
                 
                 {/* right: Lead cards grid */}
@@ -787,12 +787,12 @@ const Dashboard = () => {
                   <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>
-                  <span className="text-gray-600 font-medium text-sm mb-3">Add Lead</span>
+                  <span className="text-gray-600 font-medium text-sm mb-3">Add Query</span>
                   <div className="flex items-center justify-center gap-2">
                     <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <span className="text-lg font-semibold text-gray-600">No recent leads found</span>
+                    <span className="text-lg font-semibold text-gray-600">No recent queries found</span>
                   </div>
                 </button>
               </div>

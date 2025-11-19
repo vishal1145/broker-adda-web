@@ -296,9 +296,9 @@ export default function BrokerDetailsPage() {
           <div className="lg:col-span-3 space-y-6">
             {/* Lead Generation Support */}
             <div className="bg-gradient-to-br from-green-900 to-green-900 rounded-2xl p-6 text-white border border-yellow-500">
-              <h3 className="text-lg font-semibold mb-4">Lead Generation Support</h3>
+              <h3 className="text-lg font-semibold mb-4">Query Generation Support</h3>
               <p className="text-green-100 mb-6 text-sm">
-                Join our exclusive broker network and get access to premium lead generation tools and support.
+                Join our exclusive broker network and get access to premium query generation tools and support.
               </p>
               
               <div className="space-y-4">
@@ -309,7 +309,7 @@ export default function BrokerDetailsPage() {
                     </svg>
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">Verified Leads</div>
+                    <div className="font-semibold text-sm">Verified Queries</div>
                     <div className="text-xs text-green-100">Pre-qualified prospects ready to buy</div>
                   </div>
                 </div>
