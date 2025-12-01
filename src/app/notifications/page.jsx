@@ -45,7 +45,7 @@ const NotificationsPage = () => {
   // Filter options
   const filterOptions = [
     { id: 'all', label: 'All', iconKey: 'all' },
-    { id: 'lead', label: 'New Leads', iconKey: 'lead' },
+    { id: 'lead', label: 'New Enquires', iconKey: 'lead' },
     { id: 'property', label: 'Properties', iconKey: 'property' },
     { id: 'broker', label: 'Broker', iconKey: 'broker' },
     // { id: 'unread', label: 'Unread', iconKey: 'unread' }
@@ -63,7 +63,10 @@ const NotificationsPage = () => {
       
       switch (activeFilter) {
         case 'lead':
-          return title.includes('lead') || message.includes('lead') || title.includes('new lead');
+          return title.includes('lead') || message.includes('lead') || title.includes('new lead') ||
+                 title.includes('enquire') || message.includes('enquire') || 
+                 title.includes('enquiry') || message.includes('enquiry') ||
+                 title.includes('enquires') || message.includes('enquires');
         case 'property':
           return title.includes('property') || message.includes('property') || 
                  title.includes('sold') || title.includes('listing') ||
@@ -522,7 +525,10 @@ const NotificationsPage = () => {
                     const title = (notification.title || '').toLowerCase();
                     const message = (notification.message || '').toLowerCase();
                     
-                    if (title.includes('lead') || message.includes('lead')) {
+                    if (title.includes('lead') || message.includes('lead') ||
+                        title.includes('enquire') || message.includes('enquire') ||
+                        title.includes('enquiry') || message.includes('enquiry') ||
+                        title.includes('enquires') || message.includes('enquires')) {
                       return (
                         <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                           <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
