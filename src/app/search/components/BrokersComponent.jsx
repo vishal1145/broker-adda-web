@@ -1759,7 +1759,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
                    brokerFilters.showVerifiedOnly ||
                    brokerFilters.city ||
                    (secondaryFilters && Object.values(secondaryFilters).some(v => v !== null && v !== '' && (Array.isArray(v) ? v.length > 0 : true)))
-                    ? "We couldn't find any brokers matching your current filters. Try adjusting your search criteria."
+                    ? "No brokers found with the selected criteria. Please modify your filters or search terms to see more results."
                     : "No brokers are available at the moment. Please check back later or contact us for assistance."}
                 </p>
                 {/* Action Buttons */}

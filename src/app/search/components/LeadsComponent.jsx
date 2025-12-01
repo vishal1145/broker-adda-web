@@ -1861,7 +1861,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                    leadFilters.datePosted ||
                    (leadFilters.dateAdded.start && leadFilters.dateAdded.start !== '2024-06-01') ||
                    (leadFilters.dateAdded.end)
-                    ? "We couldn't find any leads matching your current filters. Try adjusting your search criteria."
+                    ? "No Enquiries found with the selected criteria. Please modify your filters or search terms to see more results."
                     : "No leads are available at the moment. Please check back later or contact us for assistance."}
                 </p>
                 {/* Action Buttons */}
