@@ -1617,7 +1617,7 @@ export default function BrokerDetailsPage() {
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                               </svg>
-                              <p className="text-[12px] leading-5 font-normal text-gray-600">{leadsCompleted} Queries Completed</p>
+                              <p className="text-[12px] leading-5 font-normal text-gray-600">{leadsCompleted} Client Requests Closed</p>
                             </div>
                           </div>
                         </article>
