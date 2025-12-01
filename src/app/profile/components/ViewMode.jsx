@@ -231,10 +231,10 @@ export default function ViewModeProfile() {
                 </div>
                 <div>
                   <div className="text-gray-500 text-[12px]">Gender</div>
-                  <div className="text-gray-900 text-[14px]">{profile.gender || '-'}</div>
+                  <div className="text-gray-900 text-[14px]">{profile.gender ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1).toLowerCase() : '-'}</div>
                 </div>
                 <div>
-                  <div className="text-gray-500 text-[12px]">Status</div>
+                  <div className="text-gray-500 text-[12px]">Account Status</div>
                   <div className="inline-flex items-center gap-2 text-[12px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">{profile.status || 'Active'}</div>
                 </div>
               </div>
@@ -245,8 +245,8 @@ export default function ViewModeProfile() {
                   <div className="text-gray-900 text-[14px]">{profile.joinedDateFormatted || '-'}</div>
                 </div>
                 <div>
-                  <div className="text-gray-500 text-[12px]">Subscription</div>
-                  <div className="text-gray-900 text-[14px]">{subscription?.planType || 'Not Subscribed'}</div>
+                  <div className="text-gray-500 text-[12px]">Current Plan</div>
+                  <div className="text-gray-900 text-[14px]">{subscription?.planType ? `${subscription.planType}${subscription?.status === 'active' ? ' (Active)' : ''}` : 'Not Subscribed'}</div>
                 </div>
                 <div>
                   <div className="text-gray-500 text-[12px]">License</div>

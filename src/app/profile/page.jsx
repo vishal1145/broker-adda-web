@@ -97,6 +97,10 @@ const Profile = () => {
     phone: "",
     firmName: "",
     regions: [],
+    aadharFront: null,
+    aadharBack: null,
+    panFront: null,
+    panBack: null,
     aadharFile: null,
     panFile: null,
     gstFile: null,
@@ -121,6 +125,9 @@ const Profile = () => {
     // Personal details
     gender: "",
     dateOfBirth: "",
+    alternateNumber: "",
+    languagesSpoken: [],
+    serviceType: [],
     // Location coordinates
     location: null,
   });
@@ -164,8 +171,12 @@ const Profile = () => {
   const [officeAddressOptions, setOfficeAddressOptions] = useState([]);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const searchTimeoutRef = useRef(null);
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
   const [budgetError, setBudgetError] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [whatsappError, setWhatsappError] = useState("");
+  const [alternateNumberError, setAlternateNumberError] = useState("");
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   // Track original documents to detect removals
   const [originalDocuments, setOriginalDocuments] = useState({
@@ -438,6 +449,126 @@ const Profile = () => {
       loadNearestFromBrokerCoords();
     }
   }, [nearestMode, geoCoords.latitude, geoCoords.longitude, brokerFormData]);
+
+  // Initialize mini map for selected regions
+  useEffect(() => {
+    if (currentStep !== 3 || userRole !== "broker") return;
+    if (!googleLoaded || !window.google || !window.google.maps) return;
+    if (!mapRef.current) return;
+
+    const selectedRegions = Array.isArray(brokerFormData.regions) 
+      ? brokerFormData.regions.filter(Boolean)
+      : [];
+
+    // Clear existing map
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current = null;
+    }
+
+    if (selectedRegions.length === 0) {
+      // Clear map if no regions selected
+      if (mapRef.current) {
+        mapRef.current.innerHTML = '';
+      }
+      return;
+    }
+
+    // Get region data (from regionsList or nearestRegions)
+    const allRegions = [...(Array.isArray(regionsList) ? regionsList : []), ...(Array.isArray(nearestRegions) ? nearestRegions : [])];
+    const selectedRegionData = selectedRegions.map(regionId => {
+      if (typeof regionId === 'string') {
+        return allRegions.find(r => r._id === regionId || r.id === regionId);
+      } else if (typeof regionId === 'object' && regionId._id) {
+        return regionId;
+      }
+      return null;
+    }).filter(Boolean);
+
+    if (selectedRegionData.length === 0) return;
+
+    // Initialize map
+    const mapOptions = {
+      zoom: selectedRegionData.length === 1 ? 13 : 11,
+      center: { lat: 28.5355, lng: 77.3910 }, // Default to Noida
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+      zoomControl: true,
+      styles: [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        }
+      ]
+    };
+
+    const map = new window.google.maps.Map(mapRef.current, mapOptions);
+    mapInstanceRef.current = map;
+
+    // Geocode regions and add markers
+    const geocoder = new window.google.maps.Geocoder();
+    const markers = [];
+    const bounds = new window.google.maps.LatLngBounds();
+
+    selectedRegionData.forEach((region, index) => {
+      const regionName = region.name || region.region || '';
+      const regionLocation = region.centerLocation || [region.city, region.state].filter(Boolean).join(', ') || regionName;
+      
+      geocoder.geocode(
+        { address: regionLocation },
+        (results, status) => {
+          if (status === window.google.maps.GeocoderStatus.OK && results && results[0]) {
+            const location = results[0].geometry.location;
+            const position = { lat: location.lat(), lng: location.lng() };
+
+            // Create marker
+            const marker = new window.google.maps.Marker({
+              position: position,
+              map: map,
+              title: regionName,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: '#0D542B',
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 2
+              },
+              label: {
+                text: String(index + 1),
+                color: '#ffffff',
+                fontSize: '10px',
+                fontWeight: 'bold'
+              }
+            });
+
+            // Add info window
+            const infoWindow = new window.google.maps.InfoWindow({
+              content: `<div style="padding: 8px;"><strong>${regionName}</strong><br/>${regionLocation}</div>`
+            });
+
+            marker.addListener('click', () => {
+              infoWindow.open(map, marker);
+            });
+
+            markers.push(marker);
+            bounds.extend(position);
+
+            // Fit bounds when all markers are added
+            if (markers.length === selectedRegionData.length) {
+              if (markers.length === 1) {
+                map.setCenter(position);
+                map.setZoom(13);
+              } else {
+                map.fitBounds(bounds);
+              }
+            }
+          }
+        }
+      );
+    });
+  }, [currentStep, userRole, googleLoaded, brokerFormData.regions, regionsList, nearestRegions]);
 
   // Handle office address selection
   const handleOfficeAddressChange = (selectedOption) => {
@@ -811,6 +942,15 @@ const Profile = () => {
             // Extract location coordinates
             const location = brokerData.location || null;
 
+            // Extract languagesSpoken, serviceType, and alternateNumber
+            const languagesSpoken = Array.isArray(brokerData.languagesSpoken) 
+              ? brokerData.languagesSpoken 
+              : (brokerData.languagesSpoken ? [brokerData.languagesSpoken] : []) || [];
+            const serviceType = Array.isArray(brokerData.serviceType) 
+              ? brokerData.serviceType 
+              : (brokerData.serviceType ? [brokerData.serviceType] : []) || [];
+            const alternateNumber = brokerData.alternateNumber || brokerFormData.alternateNumber || "";
+
             // Track original documents for removal detection
             setOriginalDocuments({
               aadharFile: aadharFile,
@@ -852,6 +992,9 @@ const Profile = () => {
               companyIdFile: companyIdFile,
               brokerImage: brokerImage,
               location: location,
+              languagesSpoken: languagesSpoken,
+              serviceType: serviceType,
+              alternateNumber: alternateNumber,
             }));
 
             // Set office address for the Select component
@@ -1262,6 +1405,18 @@ const Profile = () => {
 
     switch (step) {
       case 1: // Personal Details
+        // Validate WhatsApp number for brokers - must be exactly 10 digits if provided
+        const whatsappValid = userRole !== "broker" || 
+          !currentFormData.whatsapp || 
+          currentFormData.whatsapp.length === 0 ||
+          (currentFormData.whatsapp && /^\d{10}$/.test(currentFormData.whatsapp));
+        
+        // Validate alternate number - must be exactly 10 digits if provided
+        const alternateNumberValid = userRole !== "broker" || 
+          !currentFormData.alternateNumber || 
+          currentFormData.alternateNumber.length === 0 ||
+          (currentFormData.alternateNumber && /^\d{10}$/.test(currentFormData.alternateNumber));
+        
         return (
           currentFormData.name &&
           currentFormData.email &&
@@ -1269,7 +1424,11 @@ const Profile = () => {
           currentFormData.gender &&
           // Require firm name for brokers
           (userRole !== "broker" || Boolean(currentFormData.firmName)) &&
-          !emailError
+          whatsappValid &&
+          alternateNumberValid &&
+          !emailError &&
+          !whatsappError &&
+          !alternateNumberError
         );
       case 2: // Professional/Preferences
         if (userRole === "broker") {
@@ -1740,85 +1899,103 @@ const Profile = () => {
                 {/* Step 1: Personal Details */}
                 {currentStep === 1 && (
                   <div className="w-full mx-auto">
-                    {/* Profile Image Section - Top */}
-                    <div className="flex justify-left mb-8">
-                      <div className="relative inline-block">
-                        <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
-                          {(
-                            userRole === "customer"
-                              ? customerFormData.customerImage
-                              : brokerFormData.brokerImage
-                          ) ? (
-                            <img
-                              src={
-                                typeof (userRole === "customer"
-                                  ? customerFormData.customerImage
-                                  : brokerFormData.brokerImage) === "string"
-                                  ? userRole === "customer"
+                    {/* Personal Information Card - Single Card with Image */}
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-6 flex items-center">
+                        <svg
+                          className="w-5 h-5 text-[#171A1F] mr-2"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                        Personal Information
+                      </h3>
+
+                      {/* Profile Image Section - Inside Card */}
+                      <div className="flex justify-left mb-8">
+                        <div className="relative inline-block">
+                          <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
+                            {(
+                              userRole === "customer"
+                                ? customerFormData.customerImage
+                                : brokerFormData.brokerImage
+                            ) ? (
+                              <img
+                                src={
+                                  typeof (userRole === "customer"
                                     ? customerFormData.customerImage
-                                    : brokerFormData.brokerImage
-                                  : URL.createObjectURL(
-                                      userRole === "customer"
-                                        ? customerFormData.customerImage
-                                        : brokerFormData.brokerImage
-                                    )
-                              }
-                              alt={`${userRole} Profile`}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = "/images/user-1.webp";
-                              }}
-                            />
-                          ) : (
-                            <svg
-                              className="w-8 h-8 text-blue-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    : brokerFormData.brokerImage) === "string"
+                                    ? userRole === "customer"
+                                      ? customerFormData.customerImage
+                                      : brokerFormData.brokerImage
+                                    : URL.createObjectURL(
+                                        userRole === "customer"
+                                          ? customerFormData.customerImage
+                                          : brokerFormData.brokerImage
+                                      )
+                                }
+                                alt={`${userRole} Profile`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = "/images/user-1.webp";
+                                }}
                               />
-                            </svg>
+                            ) : (
+                              <svg
+                                className="w-8 h-8 text-blue-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                              </svg>
+                            )}
+                          </div>
+                          <input
+                            type="file"
+                            name={
+                              userRole === "customer"
+                                ? "customerImage"
+                                : "brokerImage"
+                            }
+                            onChange={handleFileChange}
+                            accept=".jpg,.jpeg,.png"
+                            className="hidden"
+                            id="profile-image-upload"
+                          />
+                          {!isViewMode && (
+                          <button
+                            type="button"
+                            className="absolute -bottom-1 -right-1 bg-[#0D542B] w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#0B4624] transition-all duration-200 shadow-lg hover:shadow-xl"
+                            onClick={() =>
+                              document
+                                .getElementById("profile-image-upload")
+                                .click()
+                            }
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 9C21 8.73478 20.8946 8.48051 20.707 8.29297C20.5429 8.12883 20.3276 8.02757 20.0986 8.00488L20 8H17C16.7033 8 16.4214 7.86856 16.2314 7.64062L14.0312 5H9.96875L7.76855 7.64062C7.57856 7.86856 7.29674 8 7 8H4C3.73478 8 3.48051 8.10543 3.29297 8.29297C3.10543 8.48051 3 8.73478 3 9V18C3 18.2652 3.10543 18.5195 3.29297 18.707C3.48051 18.8946 3.73478 19 4 19H20C20.2652 19 20.5195 18.8946 20.707 18.707C20.8946 18.5195 21 18.2652 21 18V9ZM23 18C23 18.7957 22.6837 19.5585 22.1211 20.1211C21.5585 20.6837 20.7957 21 20 21H4C3.20435 21 2.44152 20.6837 1.87891 20.1211C1.3163 19.5585 1 18.7956 1 18V9C1 8.20435 1.3163 7.44152 1.87891 6.87891C2.44152 6.3163 3.20435 6 4 6H6.53125L8.73145 3.35938L8.80762 3.2793C8.99282 3.10135 9.24033 3 9.5 3H14.5L14.6104 3.00586C14.8656 3.03418 15.1023 3.15991 15.2686 3.35938L17.4688 6H20L20.2969 6.01465C20.9835 6.08291 21.6289 6.38671 22.1211 6.87891C22.6837 7.44152 23 8.20435 23 9V18Z" fill="white"/>
+                                <path d="M14 13C14 11.8954 13.1046 11 12 11C10.8954 11 10 11.8954 10 13C10 14.1046 10.8954 15 12 15C13.1046 15 14 14.1046 14 13ZM16 13C16 15.2091 14.2091 17 12 17C9.79086 17 8 15.2091 8 13C8 10.7909 9.79086 9 12 9C14.2091 9 16 10.7909 16 13Z" fill="white"/>
+                              </svg>
+                            </button>
                           )}
                         </div>
-                        <input
-                          type="file"
-                          name={
-                            userRole === "customer"
-                              ? "customerImage"
-                              : "brokerImage"
-                          }
-                          onChange={handleFileChange}
-                          accept=".jpg,.jpeg,.png"
-                          className="hidden"
-                          id="profile-image-upload"
-                        />
-                        {!isViewMode && (
-                        <button
-                          type="button"
-                          className="absolute -bottom-1 -right-1 bg-[#0D542B] w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#0B4624] transition-all duration-200 shadow-lg hover:shadow-xl"
-                          onClick={() =>
-                            document
-                              .getElementById("profile-image-upload")
-                              .click()
-                          }
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                              <path d="M21 9C21 8.73478 20.8946 8.48051 20.707 8.29297C20.5429 8.12883 20.3276 8.02757 20.0986 8.00488L20 8H17C16.7033 8 16.4214 7.86856 16.2314 7.64062L14.0312 5H9.96875L7.76855 7.64062C7.57856 7.86856 7.29674 8 7 8H4C3.73478 8 3.48051 8.10543 3.29297 8.29297C3.10543 8.48051 3 8.73478 3 9V18C3 18.2652 3.10543 18.5195 3.29297 18.707C3.48051 18.8946 3.73478 19 4 19H20C20.2652 19 20.5195 18.8946 20.707 18.707C20.8946 18.5195 21 18.2652 21 18V9ZM23 18C23 18.7957 22.6837 19.5585 22.1211 20.1211C21.5585 20.6837 20.7957 21 20 21H4C3.20435 21 2.44152 20.6837 1.87891 20.1211C1.3163 19.5585 1 18.7956 1 18V9C1 8.20435 1.3163 7.44152 1.87891 6.87891C2.44152 6.3163 3.20435 6 4 6H6.53125L8.73145 3.35938L8.80762 3.2793C8.99282 3.10135 9.24033 3 9.5 3H14.5L14.6104 3.00586C14.8656 3.03418 15.1023 3.15991 15.2686 3.35938L17.4688 6H20L20.2969 6.01465C20.9835 6.08291 21.6289 6.38671 22.1211 6.87891C22.6837 7.44152 23 8.20435 23 9V18Z" fill="white"/>
-                              <path d="M14 13C14 11.8954 13.1046 11 12 11C10.8954 11 10 11.8954 10 13C10 14.1046 10.8954 15 12 15C13.1046 15 14 14.1046 14 13ZM16 13C16 15.2091 14.2091 17 12 17C9.79086 17 8 15.2091 8 13C8 10.7909 9.79086 9 12 9C14.2091 9 16 10.7909 16 13Z" fill="white"/>
-                            </svg>
-                          </button>
-                        )}
                       </div>
-                    </div>
 
-                    {/* Form Fields */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
+                      {/* Form Fields - All in one card */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-[14px] font-label text-gray-900 mb-2">
                             Full Name <span className="text-red-500">*</span>
@@ -1840,69 +2017,6 @@ const Profile = () => {
                           />
                         </div>
 
-                        <div>
-                          <label className="block text-[14px] font-label text-gray-900 mb-2">
-                            Email Address{" "}
-                            <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="email"
-                            name="email"
-                            value={
-                              userRole === "customer"
-                                ? customerFormData.email
-                                : brokerFormData.email
-                            }
-                            onChange={handleChange}
-                            placeholder="Enter your email address"
-                            disabled={isViewMode}
-                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-[12px] font-body ${
-                              isViewMode
-                                ? 'bg-gray-100 border-gray-200 text-gray-600 cursor-not-allowed'
-                                : emailError
-                                  ? 'bg-gray-50 border-red-300 focus:ring-red-100 focus:border-red-500'
-                                  : 'bg-gray-50 border-gray-200 focus:ring-green-100 focus:border-green-600'
-                            }`}
-                          />
-                          {emailError && (
-                            <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                              <svg
-                                className="w-3 h-3"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              {emailError}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block text-[14px] font-label text-gray-900 mb-2">
-                            Phone Number <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="tel"
-                            name="phone"
-                            value={
-                              userRole === "customer"
-                                ? customerFormData.phone
-                                : brokerFormData.phone
-                            }
-                            onChange={handleChange}
-                            placeholder="Enter your phone number"
-                            disabled
-                            className="w-full px-3 py-2 bg-gray-100 border text-[12px] border-gray-200 rounded-lg text-gray-500 cursor-not-allowed text-sm font-body"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
                         <div>
                           <label className="block text-[14px] font-label text-gray-900 mb-2">
                             Gender <span className="text-red-500">*</span>
@@ -1986,6 +2100,80 @@ const Profile = () => {
                           </div>
                         )}
 
+                        <div>
+                          <label className="block text-[14px] font-label text-gray-900 mb-2">
+                            Email Address{" "}
+                            <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="email"
+                            name="email"
+                            value={
+                              userRole === "customer"
+                                ? customerFormData.email
+                                : brokerFormData.email
+                            }
+                            onChange={handleChange}
+                            placeholder="Enter your email address"
+                            disabled={isViewMode}
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-[12px] font-body ${
+                              isViewMode
+                                ? 'bg-gray-100 border-gray-200 text-gray-600 cursor-not-allowed'
+                                : emailError
+                                  ? 'bg-gray-50 border-red-300 focus:ring-red-100 focus:border-red-500'
+                                  : 'bg-gray-50 border-gray-200 focus:ring-green-100 focus:border-green-600'
+                            }`}
+                          />
+                          {emailError && (
+                            <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                              <svg
+                                className="w-3 h-3"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              {emailError}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-[14px] font-label text-gray-900 mb-2">
+                            Phone Number <span className="text-red-500">*</span>
+                          </label>
+                          <div className="flex items-center gap-1 mb-2 group relative">
+                            <p className="text-[11px] text-gray-500">Used for verification and customer communication.</p>
+                            <button
+                              type="button"
+                              className="text-gray-400 hover:text-gray-600 transition-colors"
+                              title="This number will be used for account verification via OTP and for clients to contact you directly."
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                            </button>
+                          </div>
+                          <input
+                            type="tel"
+                            name="phone"
+                            value={
+                              userRole === "customer"
+                                ? customerFormData.phone
+                                : brokerFormData.phone
+                            }
+                            onChange={handleChange}
+                            placeholder="Enter your phone number"
+                            disabled
+                            className="w-full px-3 py-2 bg-gray-100 border text-[12px] border-gray-200 rounded-lg text-gray-500 cursor-not-allowed text-sm font-body"
+                          />
+                        </div>
+
                         {userRole === "broker" && (
                           <div>
                             <label className="block text-[14px] font-label text-gray-900 mb-2 flex items-center">
@@ -1998,6 +2186,19 @@ const Profile = () => {
                               </svg>
                               WhatsApp Number
                             </label>
+                            <div className="flex items-center gap-1 mb-2 group relative">
+                              <p className="text-[11px] text-gray-500">Shown to clients for quick enquiries.</p>
+                              <button
+                                type="button"
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                title="This WhatsApp number will be displayed on your public profile so clients can contact you directly for property inquiries."
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                            </div>
                             <input
                               type="tel"
                               name="whatsapp"
@@ -2009,12 +2210,92 @@ const Profile = () => {
                                     ...prev,
                                     whatsapp: value,
                                   }));
+                                  // Validate: must be exactly 10 digits if provided, or empty
+                                  if (value.length > 0 && value.length !== 10) {
+                                    setWhatsappError("WhatsApp number must be exactly 10 digits");
+                                  } else {
+                                    setWhatsappError("");
+                                  }
+                                }
+                              }}
+                              onBlur={() => {
+                                // Validate on blur - only show error if field has value but not 10 digits
+                                if (brokerFormData.whatsapp && brokerFormData.whatsapp.length > 0 && brokerFormData.whatsapp.length !== 10) {
+                                  setWhatsappError("WhatsApp number must be exactly 10 digits");
+                                } else {
+                                  setWhatsappError("");
                                 }
                               }}
                               placeholder="Enter your WhatsApp number"
                               maxLength="10"
-                              className="w-full px-3 py-2 border border-gray-200 text-[12px] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-600 text-sm font-body"
+                              className={`w-full px-3 py-2 border text-[12px] rounded-lg focus:outline-none focus:ring-2 text-sm font-body ${
+                                whatsappError 
+                                  ? "border-red-300 focus:border-red-500 focus:ring-red-100" 
+                                  : "border-gray-200 focus:ring-green-100 focus:border-green-600"
+                              }`}
                             />
+                            {whatsappError && (
+                              <p className="mt-1 text-xs text-red-600">{whatsappError}</p>
+                            )}
+                          </div>
+                        )}
+
+                        {userRole === "broker" && (
+                          <div>
+                            <label className="block text-[14px] font-label text-gray-900 mb-2">
+                              Alternate Number
+                            </label>
+                            <div className="flex items-center gap-1 mb-2 group relative">
+                              <p className="text-[11px] text-gray-500">An additional contact number for backup communication.</p>
+                              <button
+                                type="button"
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                title="Provide an alternate phone number that can be used as a backup contact method."
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                            </div>
+                            <input
+                              type="tel"
+                              name="alternateNumber"
+                              value={brokerFormData.alternateNumber}
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); // Remove non-digits
+                                if (value.length <= 10) {
+                                  setBrokerFormData((prev) => ({
+                                    ...prev,
+                                    alternateNumber: value,
+                                  }));
+                                  // Validate: must be exactly 10 digits if provided, or empty
+                                  if (value.length > 0 && value.length !== 10) {
+                                    setAlternateNumberError("Alternate number must be exactly 10 digits");
+                                  } else {
+                                    setAlternateNumberError("");
+                                  }
+                                }
+                              }}
+                              onBlur={() => {
+                                // Validate on blur - only show error if field has value but not 10 digits
+                                if (brokerFormData.alternateNumber && brokerFormData.alternateNumber.length > 0 && brokerFormData.alternateNumber.length !== 10) {
+                                  setAlternateNumberError("Alternate number must be exactly 10 digits");
+                                } else {
+                                  setAlternateNumberError("");
+                                }
+                              }}
+                              placeholder="Enter alternate phone number (optional)"
+                              maxLength="10"
+                              className={`w-full px-3 py-2 border text-[12px] rounded-lg focus:outline-none focus:ring-2 text-sm font-body ${
+                                alternateNumberError 
+                                  ? "border-red-300 focus:border-red-500 focus:ring-red-100" 
+                                  : "border-gray-200 focus:ring-green-100 focus:border-green-600"
+                              }`}
+                            />
+                            {alternateNumberError && (
+                              <p className="mt-1 text-xs text-red-600">{alternateNumberError}</p>
+                            )}
                           </div>
                         )}
                       </div>
@@ -2044,7 +2325,7 @@ const Profile = () => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                               <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
-                                License Number
+                                RERA License Number
                               </label>
                               <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -2098,11 +2379,220 @@ const Profile = () => {
                               />
                             </div>
 
+                            <div>
+                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
+                                Languages Spoken
+                              </label>
+                              <Select
+                                isMulti
+                                name="languagesSpoken"
+                                options={[
+                                  { value: "Hindi", label: "Hindi" },
+                                  { value: "English", label: "English" },
+                                  { value: "Gujarati", label: "Gujarati" },
+                                  { value: "Marathi", label: "Marathi" },
+                                  { value: "Bengali", label: "Bengali" },
+                                  { value: "Tamil", label: "Tamil" },
+                                  { value: "Telugu", label: "Telugu" },
+                                  { value: "Kannada", label: "Kannada" },
+                                  { value: "Malayalam", label: "Malayalam" },
+                                  { value: "Punjabi", label: "Punjabi" },
+                                  { value: "Urdu", label: "Urdu" },
+                                ]}
+                                value={Array.isArray(brokerFormData.languagesSpoken) 
+                                  ? brokerFormData.languagesSpoken.map(lang => ({ value: lang, label: lang }))
+                                  : []}
+                                onChange={(selectedOptions) => {
+                                  const languages = selectedOptions 
+                                    ? selectedOptions.map(option => option.value)
+                                    : [];
+                                  setBrokerFormData((prev) => ({
+                                    ...prev,
+                                    languagesSpoken: languages,
+                                  }));
+                                }}
+                                placeholder="Select languages..."
+                                className="react-select-container"
+                                classNamePrefix="react-select"
+                                styles={{
+                                  control: (provided, state) => ({
+                                    ...provided,
+                                    border: state.isFocused
+                                      ? "1px solid #0D542B"
+                                      : "1px solid #d1d5db",
+                                    borderRadius: "0.5rem",
+                                    fontSize: "12px",
+                                    boxShadow: state.isFocused
+                                      ? "0 0 0 3px rgba(13, 84, 43, 0.1)"
+                                      : "none",
+                                    "&:hover": {
+                                      border: "1px solid #0D542B",
+                                    },
+                                  }),
+                                  placeholder: (provided) => ({
+                                    ...provided,
+                                    fontSize: "12px",
+                                  }),
+                                  input: (provided) => ({
+                                    ...provided,
+                                    fontSize: "12px",
+                                  }),
+                                  multiValue: (provided) => ({
+                                    ...provided,
+                                    backgroundColor: "#E8F8F0",
+                                  }),
+                                  multiValueLabel: (provided) => ({
+                                    ...provided,
+                                    color: "#0D542B",
+                                    fontSize: "12px",
+                                  }),
+                                  multiValueRemove: (provided) => ({
+                                    ...provided,
+                                    color: "#0D542B",
+                                    "&:hover": {
+                                      backgroundColor: "#C8F1DC",
+                                      color: "#0D542B",
+                                    },
+                                  }),
+                                  option: (provided, state) => ({
+                                    ...provided,
+                                    fontSize: "12px",
+                                    backgroundColor: state.isSelected
+                                      ? "#0D542B"
+                                      : state.isFocused
+                                      ? "#E8F8F0"
+                                      : "white",
+                                    color: state.isSelected
+                                      ? "#ffffff"
+                                      : state.isFocused
+                                      ? "#0D542B"
+                                      : "#171A1F",
+                                  }),
+                                }}
+                                theme={(t) => ({
+                                  ...t,
+                                  colors: {
+                                    ...t.colors,
+                                    primary: "#0D542B",
+                                    primary25: "#E8F8F0",
+                                    primary50: "#C8F1DC",
+                                  },
+                                })}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
+                                Service Type
+                              </label>
+                              <Select
+                                isMulti
+                                name="serviceType"
+                                options={[
+                                  { value: "Buy", label: "Buy" },
+                                  { value: "Sell", label: "Sell" },
+                                  { value: "Rent", label: "Rent" },
+                                ]}
+                                value={Array.isArray(brokerFormData.serviceType) 
+                                  ? brokerFormData.serviceType.map(service => ({ value: service, label: service }))
+                                  : []}
+                                onChange={(selectedOptions) => {
+                                  const services = selectedOptions 
+                                    ? selectedOptions.map(option => option.value)
+                                    : [];
+                                  setBrokerFormData((prev) => ({
+                                    ...prev,
+                                    serviceType: services,
+                                  }));
+                                }}
+                                placeholder="Select service types..."
+                                className="react-select-container"
+                                classNamePrefix="react-select"
+                                styles={{
+                                  control: (provided, state) => ({
+                                    ...provided,
+                                    border: state.isFocused
+                                      ? "1px solid #0D542B"
+                                      : "1px solid #d1d5db",
+                                    borderRadius: "0.5rem",
+                                    fontSize: "12px",
+                                    boxShadow: state.isFocused
+                                      ? "0 0 0 3px rgba(13, 84, 43, 0.1)"
+                                      : "none",
+                                    "&:hover": {
+                                      border: "1px solid #0D542B",
+                                    },
+                                  }),
+                                  placeholder: (provided) => ({
+                                    ...provided,
+                                    fontSize: "12px",
+                                  }),
+                                  input: (provided) => ({
+                                    ...provided,
+                                    fontSize: "12px",
+                                  }),
+                                  multiValue: (provided) => ({
+                                    ...provided,
+                                    backgroundColor: "#E8F8F0",
+                                  }),
+                                  multiValueLabel: (provided) => ({
+                                    ...provided,
+                                    color: "#0D542B",
+                                    fontSize: "12px",
+                                  }),
+                                  multiValueRemove: (provided) => ({
+                                    ...provided,
+                                    color: "#0D542B",
+                                    "&:hover": {
+                                      backgroundColor: "#C8F1DC",
+                                      color: "#0D542B",
+                                    },
+                                  }),
+                                  option: (provided, state) => ({
+                                    ...provided,
+                                    fontSize: "12px",
+                                    backgroundColor: state.isSelected
+                                      ? "#0D542B"
+                                      : state.isFocused
+                                      ? "#E8F8F0"
+                                      : "white",
+                                    color: state.isSelected
+                                      ? "#ffffff"
+                                      : state.isFocused
+                                      ? "#0D542B"
+                                      : "#171A1F",
+                                  }),
+                                }}
+                                theme={(t) => ({
+                                  ...t,
+                                  colors: {
+                                    ...t.colors,
+                                    primary: "#0D542B",
+                                    primary25: "#E8F8F0",
+                                    primary50: "#C8F1DC",
+                                  },
+                                })}
+                              />
+                            </div>
+
                             <div className="md:col-span-2">
                               <label className="block mb-1 font-medium text-[14px] leading-[22px] font-[Inter] text-gray-900">
                                 Address{" "}
                                 <span className="text-red-500">*</span>
                               </label>
+                              <div className="flex items-center gap-1 mb-2 group relative">
+                                <p className="text-[11px] text-gray-500">Add your primary operating office location.</p>
+                                <button
+                                  type="button"
+                                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                                  title="Enter the complete address of your main office or business location. This helps clients find and visit your office."
+                                >
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                </button>
+                              </div>
                               <div className="flex gap-2">
                                 <div className="relative w-[750px]  px-3  font-[Inter]  text-[12px] leading-[22px] font-normal bg-white border border-[#DEE1E6] rounded-md outline-none hover:text-[#171A1F] hover:border-[#DEE1E6] focus:text-[#171A1F] focus:border-[#DEE1E6] disabled:text-[#171A1F] disabled:bg-white disabled:border-[#DEE1E6]">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
@@ -2230,7 +2720,7 @@ const Profile = () => {
                                 rows={4}
                                 value={brokerFormData.about || ""}
                                 onChange={(e) => setBrokerFormData((prev) => ({ ...prev, about: e.target.value }))}
-                                placeholder="Tell us about yourself, your experience, and what makes you a great broker. Share your background, expertise, and any notable achievements in real estate."
+                                placeholder="Write a short introduction. This helps clients trust you. Example: 'I have 11+ years of experience in commercial leasing, specializing in Noida Sector 18 and Film City Metro region.'"
                                 className="w-full px-4 py-3 border border-gray-300  text-[12px] rounded-lg bg-gray-50 text-gray-700 placeholder-gray-400"
                               />
                              
@@ -2367,7 +2857,7 @@ const Profile = () => {
                               <path d="M14.9961 11.6758C14.9245 8.69287 13.8664 5.82525 12 3.51562C10.0661 5.90881 9 8.90114 9 12L9.00391 12.3242C9.07549 15.3069 10.1339 18.1739 12 20.4834C13.9336 18.0903 15 15.0986 15 12L14.9961 11.6758ZM16.9951 12.373C16.9026 16.2184 15.3834 19.8976 12.7246 22.6895C12.5359 22.8876 12.2737 23 12 23C11.7263 23 11.4641 22.8876 11.2754 22.6895C8.61661 19.8976 7.09737 16.2184 7.00488 12.373L7 12C7 8.02012 8.53074 4.1926 11.2754 1.31055L11.3496 1.24023C11.5299 1.08586 11.7604 1 12 1C12.2737 1 12.5359 1.11237 12.7246 1.31055C15.4693 4.1926 17 8.02012 17 12L16.9951 12.373Z" fill="#171A1F"/>
                               <path d="M22 11C22.5523 11 23 11.4477 23 12C23 12.5523 22.5523 13 22 13H2C1.44772 13 1 12.5523 1 12C1 11.4477 1.44772 11 2 11H22Z" fill="#171A1F"/>
                             </svg>
-                            Social Media & Online Presence
+                            Social & Online Presence
                           </h3>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2661,8 +3151,9 @@ const Profile = () => {
                 {/* Step 3: Regions (Only for Brokers) */}
                 {currentStep === 3 && userRole === "broker" && (
                   <div className="space-y-8">
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                       <div className="mb-6 flex items-center justify-between">
-                        <h3 className="text-[20px] leading-[28px] font-semibold text-[#171A1F] flex items-center">
+                        <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F] flex items-center">
                           <svg
                             className="w-5 h-5 mr-2"
                             width="20"
@@ -2674,8 +3165,8 @@ const Profile = () => {
                             <path d="M18.9912 9.65332C18.9055 7.92303 18.181 6.28061 16.9502 5.0498C15.7194 3.819 14.077 3.09452 12.3467 3.00879L12 3C10.1435 3 8.36256 3.73705 7.0498 5.0498C5.73705 6.36256 5 8.14348 5 10C5 12.1593 6.21679 14.4871 7.79785 16.5645C9.32566 18.5717 11.0795 20.1963 12 20.9951C12.9205 20.1963 14.6743 18.5717 16.2021 16.5645C17.7832 14.4871 19 12.1593 19 10L18.9912 9.65332ZM21 10C21 12.8337 19.4474 15.603 17.7939 17.7754C16.327 19.7028 14.6832 21.2859 13.6553 22.2041L13.2549 22.5557C13.2379 22.5704 13.2201 22.5851 13.2021 22.5986C12.899 22.8266 12.538 22.9626 12.1621 22.9932L12 23C11.6207 23 11.2504 22.8919 10.9316 22.6904L10.7979 22.5986L10.7451 22.5557C9.78983 21.7308 7.88248 19.978 6.20605 17.7754C4.55262 15.603 3 12.8337 3 10C3 7.61305 3.94791 5.32357 5.63574 3.63574C7.32357 1.94791 9.61305 1 12 1C14.3869 1 16.6764 1.94791 18.3643 3.63574C20.0521 5.32357 21 7.61305 21 10Z" fill="#171A1F"/>
                             <path d="M14 10C14 8.89543 13.1046 8 12 8C10.8954 8 10 8.89543 10 10C10 11.1046 10.8954 12 12 12C13.1046 12 14 11.1046 14 10ZM16 10C16 12.2091 14.2091 14 12 14C9.79086 14 8 12.2091 8 10C8 7.79086 9.79086 6 12 6C14.2091 6 16 7.79086 16 10Z" fill="#171A1F"/>
                           </svg>
-                          Preferred Regions{" "}
-                           <span className= "text-red-500"> * </span>
+                          Regions You Serve{" "}
+                          <span className="text-red-500">*</span>
                         </h3>
                         <button
                           type="button"
@@ -2690,7 +3181,6 @@ const Profile = () => {
                           {nearestMode ? "Choose manually" : "Use nearest"}
                         </button>
                       </div>
-                    <div className="md:bg-white border border-gray-200 rounded-xl p-6 md:shadow-sm">
                     
 
                       {!nearestMode && (
@@ -3093,6 +3583,35 @@ const Profile = () => {
                           />
                         )}
                       </div>
+
+                      {/* Mini Map for Selected Regions */}
+                      {Array.isArray(brokerFormData.regions) && brokerFormData.regions.length > 0 && (
+                        <div className="mt-6">
+                          <div className="mb-3">
+                            <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                              <svg className="w-4 h-4 text-[#0D542B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                              </svg>
+                              Selected Regions Map
+                            </h4>
+                            <p className="text-xs text-gray-500 mt-1">View your selected service regions on the map</p>
+                          </div>
+                          <div 
+                            ref={mapRef}
+                            className="w-full h-[300px] rounded-lg border border-gray-200 overflow-hidden shadow-sm bg-gray-50"
+                            style={{ minHeight: '300px' }}
+                          >
+                            {!googleLoaded && (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <div className="text-center">
+                                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D542B] mx-auto mb-2"></div>
+                                  <p className="text-sm text-gray-500">Loading map...</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -3130,12 +3649,13 @@ const Profile = () => {
                 {/* Step 4: Documents (Only for Brokers) - OPTIONAL */}
                 {currentStep === 4 && userRole === "broker" && (
                   <div className="space-y-6">
-                    <div className="flex items-center mb-6">
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F] mb-6 flex items-center">
                       <svg
-                        className="w-6 h-6 text-gray-900 mr-3"
+                          className="w-5 h-5 text-[#171A1F] mr-2"
                         fill="none"
-                        stroke="currentColor"
                         viewBox="0 0 24 24"
+                          stroke="currentColor"
                       >
                         <path
                           strokeLinecap="round"
@@ -3144,222 +3664,316 @@ const Profile = () => {
                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                         />
                       </svg>
-                      <h3 className="text-[16px] font-semibold text-gray-900">
-                        Documents{" "}
-                        <span className="text-[12px] font-normal text-gray-500">
+                        Upload Verification Documents{" "}
+                        <span className="text-[14px] font-normal text-gray-500 ml-2">
                           (Optional)
                         </span>
                       </h3>
-                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Aadhar File Upload */}
+                      {/* Aadhar Card - Front & Back */}
                       <div className="flex flex-col h-full">
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="block text-sm font-medium text-gray-900">
                           Aadhar Card
                         </label>
-                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
-                          <input
-                            type="file"
-                            name="aadharFile"
-                            onChange={handleFileChange}
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            className="hidden"
-                            id="aadhar-upload"
-                            disabled={!canUploadDocs}
-                          />
-                          <label
-                            htmlFor="aadhar-upload"
-                            className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
-                          >
-                            <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
-                              {isImageFile(brokerFormData.aadharFile) && getImageSrc(brokerFormData.aadharFile) ? (
-                                <div className="absolute inset-0">
-                                  <img src={getImageSrc(brokerFormData.aadharFile)} alt="Aadhar Preview" className="w-full h-full object-contain" />
-                                  <div className="absolute top-2 right-2 flex gap-2">
-                                    <a
-                                      href={getImageSrc(brokerFormData.aadharFile)}
+                          <div className="flex items-center gap-2">
+                            {(brokerFormData.aadharFront || brokerFormData.aadharBack) && (
+                              <>
+                                {(brokerFormData.aadharFront && getImageSrc(brokerFormData.aadharFront)) && (
+                                  <a
+                                    href={getImageSrc(brokerFormData.aadharFront)}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      View
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('aadharFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
-                                    >
-                                      Remove
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : isPdfFile(brokerFormData.aadharFile) && getPdfSrc(brokerFormData.aadharFile) ? (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
-                                  <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    className="p-1.5 text-gray-600 hover:text-[#0D542B] hover:bg-gray-100 rounded transition-colors"
+                                    title="View Front"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                   </svg>
-                                  <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
-                                  <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.aadharFile?.name || 'PDF File'}>
-                                    {brokerFormData.aadharFile?.name || 'PDF File'}
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    <a
-                                      href={getPdfSrc(brokerFormData.aadharFile)}
+                                  </a>
+                                )}
+                                {(brokerFormData.aadharBack && getImageSrc(brokerFormData.aadharBack)) && (
+                                  <a
+                                    href={getImageSrc(brokerFormData.aadharBack)}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
+                                    className="p-1.5 text-gray-600 hover:text-[#0D542B] hover:bg-gray-100 rounded transition-colors"
+                                    title="View Back"
                                     >
-                                      View PDF
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
                                     </a>
+                                )}
                                     <button
                                       type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('aadharFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
-                                    >
-                                      Remove
+                                  onClick={() => {
+                                    handleFileRemove('aadharFront');
+                                    handleFileRemove('aadharBack');
+                                  }}
+                                  className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  title="Remove"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
                                     </button>
+                              </>
+                            )}
                                   </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {/* Front Side */}
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">Front</label>
+                            <div className={`border-2 border-dashed rounded-lg p-2 text-center transition-colors ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
+                              <input
+                                type="file"
+                                name="aadharFront"
+                                onChange={handleFileChange}
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                className="hidden"
+                                id="aadhar-front-upload"
+                                disabled={!canUploadDocs}
+                              />
+                              <label
+                                htmlFor="aadhar-front-upload"
+                                className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
+                              >
+                                <div className="relative w-full rounded-md bg-white" style={{ aspectRatio: '85/54', minHeight: '120px' }}>
+                                  {isImageFile(brokerFormData.aadharFront) && getImageSrc(brokerFormData.aadharFront) ? (
+                                    <img src={getImageSrc(brokerFormData.aadharFront)} alt="Aadhar Front" className="w-full h-full object-contain rounded" />
+                                  ) : isPdfFile(brokerFormData.aadharFront) && getPdfSrc(brokerFormData.aadharFront) ? (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
+                                      <svg className="h-8 w-8 text-red-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                      </svg>
+                                      <span className="text-[10px] font-medium text-red-700">PDF</span>
                                 </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                  <svg
-                                    className="h-10 w-10 text-gray-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
+                                      <svg className="h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                                 </div>
                                 )}
                             </div>
-                            <div className="mt-2"></div>
                           </label>
                         </div>
                       </div>
-
-                      {/* PAN File Upload */}
-                      <div className="flex flex-col h-full">
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                          PAN Card
-                        </label>
-                        <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
+                          {/* Back Side */}
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">Back</label>
+                            <div className={`border-2 border-dashed rounded-lg p-2 text-center transition-colors ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
-                            name="panFile"
+                                name="aadharBack"
                             onChange={handleFileChange}
                             accept=".pdf,.jpg,.jpeg,.png"
                             className="hidden"
-                            id="pan-upload"
+                                id="aadhar-back-upload"
                             disabled={!canUploadDocs}
                           />
                           <label
-                            htmlFor="pan-upload"
+                                htmlFor="aadhar-back-upload"
                             className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
                           >
-                            <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
-                              {isImageFile(brokerFormData.panFile) && getImageSrc(brokerFormData.panFile) ? (
-                                <div className="absolute inset-0">
-                                  <img src={getImageSrc(brokerFormData.panFile)} alt="PAN Preview" className="w-full h-full object-contain" />
-                                  <div className="absolute top-2 right-2 flex gap-2">
-                                    <a
-                                      href={getImageSrc(brokerFormData.panFile)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      View
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('panFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
-                                    >
-                                      Remove
-                                    </button>
-                                  </div>
+                                <div className="relative w-full rounded-md bg-white" style={{ aspectRatio: '85/54', minHeight: '120px' }}>
+                                  {isImageFile(brokerFormData.aadharBack) && getImageSrc(brokerFormData.aadharBack) ? (
+                                    <img src={getImageSrc(brokerFormData.aadharBack)} alt="Aadhar Back" className="w-full h-full object-contain rounded" />
+                                  ) : isPdfFile(brokerFormData.aadharBack) && getPdfSrc(brokerFormData.aadharBack) ? (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
+                                      <svg className="h-8 w-8 text-red-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                      </svg>
+                                      <span className="text-[10px] font-medium text-red-700">PDF</span>
+                                    </div>
+                                  ) : (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <svg className="h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                      </svg>
+                                    </div>
+                                  )}
                                 </div>
-                              ) : isPdfFile(brokerFormData.panFile) && getPdfSrc(brokerFormData.panFile) ? (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
-                                  <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                  </svg>
-                                  <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
-                                  <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.panFile?.name || 'PDF File'}>
-                                    {brokerFormData.panFile?.name || 'PDF File'}
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    <a
-                                      href={getPdfSrc(brokerFormData.panFile)}
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* PAN Card - Front & Back */}
+                      <div className="flex flex-col h-full">
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="block text-sm font-medium text-gray-900">
+                            PAN Card
+                          </label>
+                          <div className="flex items-center gap-2">
+                            {(brokerFormData.panFront || brokerFormData.panBack) && (
+                              <>
+                                {(brokerFormData.panFront && getImageSrc(brokerFormData.panFront)) && (
+                                  <a
+                                    href={getImageSrc(brokerFormData.panFront)}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
+                                    className="p-1.5 text-gray-600 hover:text-[#0D542B] hover:bg-gray-100 rounded transition-colors"
+                                    title="View Front"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                  </a>
+                                )}
+                                {(brokerFormData.panBack && getImageSrc(brokerFormData.panBack)) && (
+                                  <a
+                                    href={getImageSrc(brokerFormData.panBack)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    className="p-1.5 text-gray-600 hover:text-[#0D542B] hover:bg-gray-100 rounded transition-colors"
+                                    title="View Back"
                                     >
-                                      View PDF
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
                                     </a>
+                                )}
                                     <button
                                       type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('panFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
-                                    >
-                                      Remove
+                                  onClick={() => {
+                                    handleFileRemove('panFront');
+                                    handleFileRemove('panBack');
+                                  }}
+                                  className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  title="Remove"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
                                     </button>
+                              </>
+                            )}
                                   </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {/* Front Side */}
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">Front</label>
+                            <div className={`border-2 border-dashed rounded-lg p-2 text-center transition-colors ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
+                              <input
+                                type="file"
+                                name="panFront"
+                                onChange={handleFileChange}
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                className="hidden"
+                                id="pan-front-upload"
+                                disabled={!canUploadDocs}
+                              />
+                              <label
+                                htmlFor="pan-front-upload"
+                                className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
+                              >
+                                <div className="relative w-full rounded-md bg-white" style={{ aspectRatio: '85/54', minHeight: '120px' }}>
+                                  {isImageFile(brokerFormData.panFront) && getImageSrc(brokerFormData.panFront) ? (
+                                    <img src={getImageSrc(brokerFormData.panFront)} alt="PAN Front" className="w-full h-full object-contain rounded" />
+                                  ) : isPdfFile(brokerFormData.panFront) && getPdfSrc(brokerFormData.panFront) ? (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
+                                      <svg className="h-8 w-8 text-red-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                      </svg>
+                                      <span className="text-[10px] font-medium text-red-700">PDF</span>
                                 </div>
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                  <svg
-                                    className="h-10 w-10 text-gray-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
+                                      <svg className="h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                      </svg>
+                                    </div>
+                                  )}
+                                </div>
+                              </label>
+                            </div>
+                          </div>
+                          {/* Back Side */}
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">Back</label>
+                            <div className={`border-2 border-dashed rounded-lg p-2 text-center transition-colors ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
+                              <input
+                                type="file"
+                                name="panBack"
+                                onChange={handleFileChange}
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                className="hidden"
+                                id="pan-back-upload"
+                                disabled={!canUploadDocs}
                               />
+                              <label
+                                htmlFor="pan-back-upload"
+                                className={`cursor-pointer ${!canUploadDocs ? "pointer-events-none" : ""}`}
+                              >
+                                <div className="relative w-full rounded-md bg-white" style={{ aspectRatio: '85/54', minHeight: '120px' }}>
+                                  {isImageFile(brokerFormData.panBack) && getImageSrc(brokerFormData.panBack) ? (
+                                    <img src={getImageSrc(brokerFormData.panBack)} alt="PAN Back" className="w-full h-full object-contain rounded" />
+                                  ) : isPdfFile(brokerFormData.panBack) && getPdfSrc(brokerFormData.panBack) ? (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
+                                      <svg className="h-8 w-8 text-red-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                      </svg>
+                                      <span className="text-[10px] font-medium text-red-700">PDF</span>
+                                    </div>
+                                  ) : (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <svg className="h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                                 </div>
                                 )}
                             </div>
-                            <div className="mt-2"></div>
                           </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
                       {/* GST File Upload */}
                       <div className="flex flex-col h-full">
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="block text-sm font-medium text-gray-900">
                           GST Certificate
                         </label>
+                          <div className="flex items-center gap-2">
+                            {brokerFormData.gstFile && (
+                              <>
+                                <a
+                                  href={isImageFile(brokerFormData.gstFile) ? getImageSrc(brokerFormData.gstFile) : getPdfSrc(brokerFormData.gstFile)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 text-gray-600 hover:text-[#0D542B] hover:bg-gray-100 rounded transition-colors"
+                                  title="View"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                </a>
+                                <button
+                                  type="button"
+                                  onClick={() => handleFileRemove('gstFile')}
+                                  className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  title="Remove"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
                         <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
@@ -3376,31 +3990,7 @@ const Profile = () => {
                           >
                             <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
                               {isImageFile(brokerFormData.gstFile) && getImageSrc(brokerFormData.gstFile) ? (
-                                <div className="absolute inset-0">
-                                  <img src={getImageSrc(brokerFormData.gstFile)} alt="GST Preview" className="w-full h-full object-contain" />
-                                  <div className="absolute top-2 right-2 flex gap-2">
-                                    <a
-                                      href={getImageSrc(brokerFormData.gstFile)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      View
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('gstFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
-                                    >
-                                      Remove
-                                    </button>
-                                  </div>
-                                </div>
+                                <img src={getImageSrc(brokerFormData.gstFile)} alt="GST Preview" className="w-full h-full object-contain rounded" />
                               ) : isPdfFile(brokerFormData.gstFile) && getPdfSrc(brokerFormData.gstFile) ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
                                   <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3409,28 +3999,6 @@ const Profile = () => {
                                   <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
                                   <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.gstFile?.name || 'PDF File'}>
                                     {brokerFormData.gstFile?.name || 'PDF File'}
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    <a
-                                      href={getPdfSrc(brokerFormData.gstFile)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      View PDF
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('gstFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
-                                    >
-                                      Remove
-                                    </button>
                                   </div>
                                 </div>
                               ) : (
@@ -3458,9 +4026,39 @@ const Profile = () => {
 
                       {/* Broker License File Upload */}
                       <div className="flex flex-col h-full">
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="block text-sm font-medium text-gray-900">
                           Broker License
                         </label>
+                          <div className="flex items-center gap-2">
+                            {brokerFormData.brokerLicenseFile && (
+                              <>
+                                <a
+                                  href={isImageFile(brokerFormData.brokerLicenseFile) ? getImageSrc(brokerFormData.brokerLicenseFile) : getPdfSrc(brokerFormData.brokerLicenseFile)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 text-gray-600 hover:text-[#0D542B] hover:bg-gray-100 rounded transition-colors"
+                                  title="View"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                </a>
+                                <button
+                                  type="button"
+                                  onClick={() => handleFileRemove('brokerLicenseFile')}
+                                  className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  title="Remove"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
                         <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors flex-1 flex flex-col justify-center ${canUploadDocs ? "border-gray-300 hover:border-green-400" : "border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"}`}>
                           <input
                             type="file"
@@ -3477,31 +4075,7 @@ const Profile = () => {
                           >
                             <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
                               {isImageFile(brokerFormData.brokerLicenseFile) && getImageSrc(brokerFormData.brokerLicenseFile) ? (
-                                <div className="absolute inset-0">
-                                  <img src={getImageSrc(brokerFormData.brokerLicenseFile)} alt="License Preview" className="w-full h-full object-contain" />
-                                  <div className="absolute top-2 right-2 flex gap-2">
-                                    <a
-                                      href={getImageSrc(brokerFormData.brokerLicenseFile)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      View
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('brokerLicenseFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
-                                    >
-                                      Remove
-                                    </button>
-                                  </div>
-                                </div>
+                                <img src={getImageSrc(brokerFormData.brokerLicenseFile)} alt="License Preview" className="w-full h-full object-contain rounded" />
                               ) : isPdfFile(brokerFormData.brokerLicenseFile) && getPdfSrc(brokerFormData.brokerLicenseFile) ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
                                   <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3510,28 +4084,6 @@ const Profile = () => {
                                   <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
                                   <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.brokerLicenseFile?.name || 'PDF File'}>
                                     {brokerFormData.brokerLicenseFile?.name || 'PDF File'}
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    <a
-                                      href={getPdfSrc(brokerFormData.brokerLicenseFile)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      View PDF
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('brokerLicenseFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
-                                    >
-                                      Remove
-                                    </button>
                                   </div>
                                 </div>
                               ) : (
@@ -3559,9 +4111,39 @@ const Profile = () => {
 
                       {/* Company Identification Details File Upload */}
                       <div className="flex flex-col h-full">
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="block text-sm font-medium text-gray-900">
                           Company Identification Details
                         </label>
+                          <div className="flex items-center gap-2">
+                            {brokerFormData.companyIdFile && (
+                              <>
+                                <a
+                                  href={isImageFile(brokerFormData.companyIdFile) ? getImageSrc(brokerFormData.companyIdFile) : getPdfSrc(brokerFormData.companyIdFile)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 text-gray-600 hover:text-[#0D542B] hover:bg-gray-100 rounded transition-colors"
+                                  title="View"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                </a>
+                                <button
+                                  type="button"
+                                  onClick={() => handleFileRemove('companyIdFile')}
+                                  className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  title="Remove"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors flex-1 flex flex-col justify-center">
                           <input
                             type="file"
@@ -3577,31 +4159,7 @@ const Profile = () => {
                           >
                             <div className="relative mx-auto w-full max-w-[380px] rounded-md bg-white" style={{ aspectRatio: '85/54' }}>
                               {isImageFile(brokerFormData.companyIdFile) && getImageSrc(brokerFormData.companyIdFile) ? (
-                                <div className="absolute inset-0">
-                                  <img src={getImageSrc(brokerFormData.companyIdFile)} alt="Company ID Preview" className="w-full h-full object-contain" />
-                                  <div className="absolute top-2 right-2 flex gap-2">
-                                    <a
-                                      href={getImageSrc(brokerFormData.companyIdFile)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-green-900 text-white text-xs rounded hover:bg-green-900 transition-colors shadow-lg"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      View
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('companyIdFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors shadow-lg"
-                                    >
-                                      Remove
-                                    </button>
-                                  </div>
-                                </div>
+                                <img src={getImageSrc(brokerFormData.companyIdFile)} alt="Company ID Preview" className="w-full h-full object-contain rounded" />
                               ) : isPdfFile(brokerFormData.companyIdFile) && getPdfSrc(brokerFormData.companyIdFile) ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 border-2 border-red-200 rounded-md p-2">
                                   <svg className="h-10 w-10 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3610,28 +4168,6 @@ const Profile = () => {
                                   <span className="text-xs font-medium text-red-700 text-center">PDF Document</span>
                                   <div className="text-xs text-red-600 mt-1 text-center truncate w-full px-1" title={brokerFormData.companyIdFile?.name || 'PDF File'}>
                                     {brokerFormData.companyIdFile?.name || 'PDF File'}
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    <a
-                                      href={getPdfSrc(brokerFormData.companyIdFile)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      View PDF
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleFileRemove('companyIdFile');
-                                      }}
-                                      className="px-2 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-800 transition-colors"
-                                    >
-                                      Remove
-                                    </button>
                                   </div>
                                 </div>
                               ) : (
@@ -3654,6 +4190,7 @@ const Profile = () => {
                             </div>
                             <div className="mt-2"></div>
                           </label>
+                        </div>
                         </div>
                       </div>
                     </div>
@@ -3697,7 +4234,7 @@ const Profile = () => {
                           </>
                         ) : (
                           <>
-                            {mode === 'create' ? `Continue to ${getStepTitle(currentStep + 1)}` : 'Update'}
+                            {mode === 'create' ? `Save & Continue ` : 'Save & Continue '}
                             <svg
                               className="w-4 h-4 inline"
                               fill="none"
@@ -3912,6 +4449,48 @@ const Profile = () => {
                                 "brokerDetails[website]",
                                 currentFormData.website || ""
                               );
+                              formDataToSend.append(
+                                "brokerDetails[alternateNumber]",
+                                currentFormData.alternateNumber || ""
+                              );
+
+                              // Add languagesSpoken - send as array using [] format
+                              if (
+                                currentFormData.languagesSpoken &&
+                                Array.isArray(currentFormData.languagesSpoken) &&
+                                currentFormData.languagesSpoken.length > 0
+                              ) {
+                                currentFormData.languagesSpoken.forEach(
+                                  (lang) => {
+                                    const langValue = typeof lang === 'string' ? lang : String(lang);
+                                    if (langValue.trim() !== '') {
+                                      formDataToSend.append(
+                                        `brokerDetails[languagesSpoken][]`,
+                                        langValue
+                                      );
+                                    }
+                                  }
+                                );
+                              }
+
+                              // Add serviceType - send as array using [] format
+                              if (
+                                currentFormData.serviceType &&
+                                Array.isArray(currentFormData.serviceType) &&
+                                currentFormData.serviceType.length > 0
+                              ) {
+                                currentFormData.serviceType.forEach(
+                                  (service) => {
+                                    const serviceValue = typeof service === 'string' ? service : String(service);
+                                    if (serviceValue.trim() !== '') {
+                                      formDataToSend.append(
+                                        `brokerDetails[serviceType][]`,
+                                        serviceValue
+                                      );
+                                    }
+                                  }
+                                );
+                              }
 
                               // Add regions - use [] format to match API structure
                               if (currentFormData.regions && currentFormData.regions.length > 0) {
@@ -4141,7 +4720,7 @@ const Profile = () => {
                           </>
                         ) : (
                           <>
-                            {mode === 'create' ? 'Complete Profile' : 'Update Profile'}
+                            {mode === 'create' ? 'Save & Complete Profile' : 'Save & Update Profile'}
                             <svg
                               className="w-4 h-4 inline"
                               fill="none"
