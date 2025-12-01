@@ -49,6 +49,12 @@ const HeaderFile = ({ data }) => (
 
       <h1 className="text-3xl font-medium text-gray-900 mb-2">{data.title}</h1>
 
+      {data.description && (
+        <p className="text-base text-gray-600 mb-2 max-w-2xl px-4">
+          {data.description}
+        </p>
+      )}
+
       {data.breadcrumb?.length > 0 && (
         <div className="flex justify-center items-center gap-2 text-gray-500 text-base">
           {data.breadcrumb.map((item, idx) => (
