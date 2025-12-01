@@ -741,7 +741,7 @@ export default function BrokerDetailsPage() {
   className="w-3 h-3 mr-1.5 inline-block  fill-[#565D6D]"
 />
 
-                     {propertiesCount} Properties
+                     {propertiesCount} Active Listings
                    </span>
                    <span className="inline-flex items-center px-2.5 h-[26px] bg-[#0D542B] rounded-full border border-transparent font-[Inter] text-[12px] leading-[16px] font-medium text-white">
                                     <img
@@ -786,7 +786,7 @@ export default function BrokerDetailsPage() {
                       <img src="/images/lucide-Briefcase-Outlined (1).svg" alt="Firm" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                     </div>
                     <div>
-                      <div className="text-[14px] text-gray-500">Firm Name</div>
+                      <div className="text-[14px] text-gray-500">Real Estate Firm</div>
                       <div className="font-medium text-[12px] text-gray-900">{firmDisplay}</div>
                     </div>
                   </div>
@@ -796,7 +796,7 @@ export default function BrokerDetailsPage() {
                       <img src="/images/lucide-Award-Outlined.svg" alt="License" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
                      </div>
                     <div>
-                      <div className="text-[14px] text-gray-500">License Number</div>
+                      <div className="text-[14px] text-gray-500">RERA License Number</div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium   text-[12px] text-gray-900">{licenseDisplay}</span>
                         {nonEmpty(licenseNumber) && (
@@ -1257,6 +1257,13 @@ export default function BrokerDetailsPage() {
                                    propertyStatus?.toLowerCase() === 'active' ||
                                    !propertyStatus || propertyStatus === '';
                       
+                      // Format price in lakhs
+                      const formatPriceInLakhs = (price) => {
+                        if (!price || price === 0) return '—';
+                        const lakhs = price / 100000;
+                        return `₹${lakhs.toFixed(2)} Lakhs`;
+                      };
+                      
                       // Use broker's _id from the API response
                       const brokerMongoId = broker?._id;
                       
@@ -1297,7 +1304,7 @@ export default function BrokerDetailsPage() {
                               <p className="text-[12px] text-gray-600 truncate mb-1">{propertyLocation}</p>
                               <p className="text-[12px] text-gray-500 mb-1">{propertyType}</p>
                               <p className="text-[14px] font-bold text-[#0D542B]">
-                                ₹{propertyPrice.toLocaleString('en-IN')}
+                                {formatPriceInLakhs(propertyPrice)}
                               </p>
                             </div>
                           </div>
@@ -1371,7 +1378,7 @@ export default function BrokerDetailsPage() {
              hover:bg-gray-50 active:bg-gray-100
              transition-colors duration-200"
 >
-  Join Our Network
+ Become a Partner Broker
 </a>
               </div>
               
@@ -1415,7 +1422,7 @@ export default function BrokerDetailsPage() {
                 </div>
                 
                 <Link href="/signup" className="w-full h-[40px] px-3 mt-4 flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium text-white bg-[#0D542B] hover:bg-[#0B4624] hover:active:bg-[#08321A] disabled:opacity-40 border-none opacity-100 rounded-md transition-colors">
-                  Join Our Network
+      Become a Partner Broker
                 </Link>
                 
                 {/* Rating Button */}

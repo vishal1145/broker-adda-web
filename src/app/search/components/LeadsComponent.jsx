@@ -1000,6 +1000,34 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     }).format(price);
   };
 
+  // Helper function to format budget based on value (thousands, lakhs, crores)
+  const formatBudget = (budget) => {
+    if (!budget || budget === 0) return "—";
+    // Convert to number
+    const numBudget = typeof budget === 'string' ? parseFloat(budget.replace(/[₹,]/g, '')) : budget;
+    if (isNaN(numBudget) || numBudget === 0) return "—";
+    
+    // If budget is >= 1 crore (1,00,00,000)
+    if (numBudget >= 10000000) {
+      const crores = numBudget / 10000000;
+      return `₹${crores.toFixed(2)} Cr`;
+    }
+    // If budget is >= 1 lakh (1,00,000)
+    else if (numBudget >= 100000) {
+      const lakhs = numBudget / 100000;
+      return `₹${lakhs.toFixed(2)} Lakhs`;
+    }
+    // If budget is >= 1 thousand (1,000)
+    else if (numBudget >= 1000) {
+      const thousands = numBudget / 1000;
+      return `₹${thousands.toFixed(2)} K`;
+    }
+    // If budget is < 1 thousand, show as is
+    else {
+      return `₹${Math.round(numBudget).toLocaleString("en-IN")}`;
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'Open':
@@ -1711,8 +1739,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         {/* Header with heading */}
         <div className="mb-4 md:mb-6">
             <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
-            Query Search Results ({totalLeads} Found)
+         {totalLeads}    Query Found
           </h2>
+          <p className="text-[10px] md:text-[12px] text-gray-600">
+            Experts that match your selected region & specialization.
+          </p>
         </div>
 
         {/* Leads Grid */}
@@ -1793,7 +1824,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
           </div>
         ) : (leads.length === 0 && !isLoading) ? (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex items-center justify-center ">
             <div className="w-full mx-auto px-6 py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
               <div className="flex flex-col items-center justify-center text-center">
                 {/* Image/Icon */}
@@ -2013,7 +2044,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           <circle cx="12" cy="10" r="3" />
                         </svg>
                         <div className="flex items-center flex-wrap gap-1 min-w-0">
-                          <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF]">Preferred:</span>
+                          <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF]">Primary Location:</span>
                           <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-normal capitalize text-[#565D6DFF] truncate">
                             {regionName(lead.primaryRegion) || primary || "—"}
                   </span>
@@ -2034,7 +2065,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                             <circle cx="12" cy="10" r="3" />
                           </svg>
                           <div className="flex items-center flex-wrap gap-1 min-w-0">
-                            <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF]">Secondary:</span>
+                            <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF]">Secondary Location:</span>
                             <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-normal capitalize text-[#565D6DFF] truncate">
                               {regionName(lead.secondaryRegion) || secondary || "—"}
                             </span>
@@ -2057,9 +2088,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                         <div className="flex items-center flex-wrap gap-1 min-w-0">
                           <span className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF]">Budget:</span>
                           <span className="text-[11px] md:text-[12px] leading-4 md:leading-5 font-normal truncate" style={{ color: '#565D6D' }}>
-                            {typeof lead.budget === "number"
-                              ? "₹" + INR.format(lead.budget).replace("₹", "")
-                              : lead.budget || "—"}
+                            {formatBudget(lead.budget)}
                       </span>
                 </div>
                 </div>
@@ -2204,7 +2233,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         )}
 
         {/* Pagination */}
-        {!isLoading && !leadsError && totalLeads > 0 && (
+        {!isLoading && !leadsError && totalLeads > 0 && totalPages > 1 && (
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-4">
             {/* Left: Results info */}
             <div className="text-sm text-gray-600">
@@ -2212,7 +2241,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             </div>
 
             {/* Right: Pagination buttons */}
-            {totalPages > 1 ? (
               <div className="flex items-center gap-1">
               <button
                 onClick={handlePreviousPage}
@@ -2316,7 +2344,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   </svg>
               </button>
             </div>
-            ) : null}
           </div>
         )}
       </div>

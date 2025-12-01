@@ -120,6 +120,31 @@ const Search = () => {
     }
   };
 
+  const getHeaderData = () => {
+    switch (activeTab) {
+      case 'properties':
+        return {
+          title: 'Find Your Dream Property',
+          description: 'Discover properties that match your preferences, budget, and location requirements.',
+        };
+      case 'leads':
+        return {
+          title: 'Discover Quality Leads',
+          description: 'Browse and connect with potential clients looking for real estate services in your area.',
+        };
+      case 'brokers':
+        return {
+          title: 'Find the Perfect Broker for Your Needs',
+          description: 'Browse verified brokers matched to your location, category, and budget.',
+        };
+      default:
+        return {
+          title: 'Find the Perfect Broker for Your Needs',
+          description: 'Browse verified brokers matched to your location, category, and budget.',
+        };
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'properties':
@@ -134,14 +159,8 @@ const Search = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <HeaderFile data={{
-        title: 'Search',
-        breadcrumb: [
-          { label: 'Home', href: '/' },
-          { label: 'Search', href: '/search' }
-        ]
-      }} />
+    <div className="min-h-screen bg-white ">
+      <HeaderFile data={getHeaderData()} />
 
       <div className="w-full mx-auto px-4 md:px-0 py-8">
         {/* Render Active Component */}

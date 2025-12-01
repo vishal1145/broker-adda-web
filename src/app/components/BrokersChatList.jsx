@@ -397,13 +397,24 @@ const BrokersChatList = () => {
           onClick={toggleExpand}
         >
           <div className="flex items-center gap-2 md:gap-2 lg:gap-3">
-            <div className="w-14 h-14 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex-shrink-0 flex items-center justify-center">
+            {/* Mobile: Show Logo */}
+            <div className="w-14 h-14 md:hidden rounded-full bg-white flex-shrink-0 flex items-center justify-center border border-gray-200 p-2">
+              <img 
+                className='rounded-full object-contain h-full w-full' 
+                src="/BROKER_GULLY_FINAL_LOGO_ICON_JPG__1_-removebg-preview.png" 
+                alt="Broker Gully Logo" 
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+            {/* Desktop: Show Broker Image */}
+            <div className="hidden md:flex w-10 h-10 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex-shrink-0 items-center justify-center">
               {currentUser?.additionalDetails?.brokerImage ? (
-                <img className='rounded-full object-cover h-full w-full' src={currentUser?.additionalDetails?.brokerImage} alt="Logo" />
+                <img className='rounded-full object-cover h-full w-full' src={currentUser?.additionalDetails?.brokerImage} alt="Broker" />
               ) : (
-                <img className='rounded-full object-cover h-full w-full' src="https://www.vhv.rs/dpng/d/312-3120300_default-profile-hd-png-download.png" alt="Logo" />
+                <img className='rounded-full object-cover h-full w-full' src="https://www.vhv.rs/dpng/d/312-3120300_default-profile-hd-png-download.png" alt="Broker" />
               )}
-
             </div>
             <span className="text-sm font-medium text-gray-900 hidden md:inline">Messaging</span>
           </div>
@@ -423,11 +434,23 @@ const BrokersChatList = () => {
         <div className="fixed bottom-0 justify-between right-0 w-[calc(100vw-2rem)]  md:w-80 h-[calc(100vh-6rem)] max-h-[600px] bg-white shadow-2xl rounded-lg border border-gray-200 z-50 flex flex-col overflow-hidden animate-slide-left">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex-shrink-0 flex items-center justify-center">
+              {/* Mobile: Show Logo */}
+              <div className="w-10 h-10 md:hidden rounded-full bg-white flex-shrink-0 flex items-center justify-center border border-gray-200 p-1.5">
+                <img 
+                  className='rounded-full object-contain h-full w-full' 
+                  src="/BROKER_GULLY_FINAL_LOGO_ICON_JPG__1_-removebg-preview.png" 
+                  alt="Broker Gully Logo" 
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+              {/* Desktop: Show Broker Image */}
+              <div className="hidden md:flex w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex-shrink-0 items-center justify-center">
                 {currentUser?.additionalDetails?.brokerImage ? (
-                  <img className='rounded-full object-cover h-full w-full' src={currentUser?.additionalDetails?.brokerImage} alt="Logo" />
+                  <img className='rounded-full object-cover h-full w-full' src={currentUser?.additionalDetails?.brokerImage} alt="Broker" />
                 ) : (
-                  <img className='rounded-full object-cover h-full w-full' src="https://www.vhv.rs/dpng/d/312-3120300_default-profile-hd-png-download.png" alt="Logo" />
+                  <img className='rounded-full object-cover h-full w-full' src="https://www.vhv.rs/dpng/d/312-3120300_default-profile-hd-png-download.png" alt="Broker" />
                 )}
               </div>
               <h2 className="text-lg font-semibold text-gray-900">Messaging</h2>

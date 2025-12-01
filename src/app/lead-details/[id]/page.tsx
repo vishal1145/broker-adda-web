@@ -8,10 +8,10 @@ import ContentLoader from "react-content-loader";
 // removed unused import
 
 const headerData = {
-  title: "Query Details",
+  title: "Enquiries Details",
   breadcrumb: [
     { label: "Home", href: "/" },
-    { label: "Query Details", href: "/lead-details" },
+    { label: "Enquiries Details", href: "/lead-details" },
   ],
 };
 
@@ -256,6 +256,15 @@ export default function LeadDetails() {
       console.error("Error fetching similar leads:", error);
       setSameLeads([]); // fallback
     }
+  };
+
+  // Helper function to format budget in crores
+  const formatBudgetInCrores = (budget: number | string | undefined): string => {
+    if (!budget || budget === 0) return "—";
+    const numBudget = typeof budget === 'string' ? parseFloat(budget.replace(/[₹,]/g, '')) : budget;
+    if (isNaN(numBudget) || numBudget === 0) return "—";
+    const crores = numBudget / 10000000; // Convert to crores
+    return `₹${crores.toFixed(2)} Cr`;
   };
 
   useEffect(() => {
@@ -751,7 +760,7 @@ export default function LeadDetails() {
               <div className="flex items-center gap-4 text-[12px] leading-[20px] font-[400]" style={{ color: '#565D6DFF', fontFamily: 'Inter, sans-serif' }}>
               <span>Active {lead?.addedAgo || "5 days ago"}</span>
               <span className="text-gray-300">|</span>
-              <span>Last contact {lead?.lastContact || "2 hours ago"}</span>
+              <span>Last contacted {lead?.lastContact || "2 hours ago"}</span>
               </div>
           </div>
               {/* Requirements Section */}
@@ -786,7 +795,7 @@ export default function LeadDetails() {
                       <div className="flex-1">
                         <div className="text-[12px] text-gray-500 mb-1">Budget Range</div>
                         <div className="text-[12px] font-medium text-gray-900">
-                          ₹{typeof lead?.budget === 'number' ? lead.budget.toLocaleString('en-IN') : lead?.budget || "1,20,15,000"}
+                          {formatBudgetInCrores(lead?.budget)}
                         </div>
                       </div>
                     </div>
@@ -1032,7 +1041,8 @@ export default function LeadDetails() {
                     }}
                     className="w-full px-4 py-3 bg-green-900 hover:bg-green-900 text-white rounded-lg font-semibold text-sm transition-colors"
                   >
-                    Join Our Network
+             Become a Partner Broker
+
                   </button>
                 </div>
             </aside>
@@ -1040,7 +1050,7 @@ export default function LeadDetails() {
 {/* Similar Leads Section */}
               <div className="pb-16">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-[18px] font-semibold text-gray-900">Similar Leads</h3>
+                  <h3 className="text-[18px] font-semibold text-gray-900">Similar Enquiries </h3>
                   <a 
                     href="/search?tab=leads" 
                     onClick={(e) => {
@@ -1180,7 +1190,7 @@ export default function LeadDetails() {
                                       </svg>
                                       <div className="flex items-center flex-wrap gap-1">
                                         <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
-                                          Preferred:
+                                           Primary Location:
                                         </span>
                                         <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
                                           {s.primaryRegion.name || "—"}
@@ -1203,7 +1213,8 @@ export default function LeadDetails() {
                                         <circle cx="12" cy="10" r="3" />
                                       </svg>
                                       <div className="flex items-center flex-wrap gap-1">
-                                        <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Secondary:</span>{" "}
+                                        <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]"> Secondary Location:
+</span>{" "}
                                         <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
                                           {s.secondaryRegion.name}
                                         </span>
@@ -1227,9 +1238,7 @@ export default function LeadDetails() {
                                     <div className="flex items-center flex-wrap gap-1">
                                       <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
                                       <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
-                                        {typeof s.budget === "number"
-                                          ? "₹" + s.budget.toLocaleString('en-IN')
-                                          : s.budget || "—"}
+                                        {formatBudgetInCrores(s.budget)}
                                       </span>
                                     </div>
                                   </div>
@@ -1456,7 +1465,7 @@ export default function LeadDetails() {
                     <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    <p className="text-base font-semibold text-gray-900 mb-2">No similar leads found</p>
+                    <p className="text-base font-semibold text-gray-900 mb-2">No similar enquiries  found</p>
                     <p className="text-sm text-gray-600">We couldn &apos;t find any leads with similar requirements.</p>
                   </div>
                 )}
@@ -1468,7 +1477,7 @@ export default function LeadDetails() {
                 <div className="text-[12px] text-gray-600 mb-2">Funded by 1000+ Brokers</div>
                 <h2 className="text-[18px] font-bold text-gray-900 mb-3">Ready to Find Your Perfect Property?</h2>
                 <p className="text-[12px] text-gray-700 leading-6">
-                  Join thousands of satisfied customers who found their dream homes through our platform. Get started today and let our expert brokers help you every step of the way.
+                  Join thousands of buyers & investors who found their dream property with Broker Gully. Get verified leads, expert guidance, and personalized assistance.
                 </p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
@@ -1476,7 +1485,7 @@ export default function LeadDetails() {
                   href="/search?type=leads" 
                   className="inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-yellow-500 text-gray-900 font-medium text-[12px] hover:bg-yellow-600 transition-colors"
                 >
-                  Discover All Leads
+                  Discover All Enquiries 
                 </a>
                 <a 
                   href="/search?type=brokers" 

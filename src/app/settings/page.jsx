@@ -371,11 +371,12 @@ const Settings = () => {
   };
 
   const headerData = {
-    title: 'Settings',
-    breadcrumb: [
-      { label: 'Home', href: '/' },
-      { label: 'Settings', href: '/settings' },
-    ],
+    title: 'Account Settings',
+    description: 'Manage your profile preferences, notifications, security, and subscription.',
+    // breadcrumb: [
+    //   { label: 'Home', href: '/' },
+    //   { label: 'Settings', href: '/settings' },
+    // ],
   };
 
   // Navigation items based on user role
@@ -420,7 +421,7 @@ const Settings = () => {
                     Notifications
                           </h3>
                   <p className="text-sm text-gray-600 mb-6">
-                    Enable or disable email, SMS, and push notifications
+                    Choose how you want to receive alerts and updates
                   </p>
                         <div className="space-y-4">
                     {/* Email Notifications */}
@@ -430,7 +431,7 @@ const Settings = () => {
                           Email Notifications
                               </p>
                         <p className="text-xs text-gray-600 mt-1">
-                          Receive notifications via email
+                   Receive updates, lead alerts, and verification messages
                               </p>
                             </div>
                             <button
@@ -472,7 +473,8 @@ const Settings = () => {
                           SMS Notifications
                         </p>
                                 <p className="text-xs text-gray-600 mt-1">
-                          Receive notifications via SMS
+                         Receive important alerts and reminders.
+
                                 </p>
                             </div>
                             <button
@@ -543,11 +545,11 @@ const Settings = () => {
 
                 {/* Subscription Section */}
                 <div className="mb-8 pb-8 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     Subscription & Plans
                   </h3>
                   <p className="text-sm text-gray-600 mb-6">
-                    Manage your subscription plan and view available plans
+                 View current plan, manage renewal settings, and compare available plans
                   </p>
                   <Link
                     href="/plans"
@@ -642,8 +644,7 @@ const Settings = () => {
                                 Delete Account
                               </h3>
                       <p className="text-xs md:text-sm text-gray-600">
-                        Permanently delete your account and all associated data.
-                        This action cannot be undone.
+                  This action is permanent and cannot be undone. All your data will be removed..
                               </p>
                             </div>
                     <div className="flex-shrink-0 sm:ml-6">

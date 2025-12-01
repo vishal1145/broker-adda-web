@@ -1027,6 +1027,34 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
     }
   };
 
+  // Helper function to format budget based on value (thousands, lakhs, crores)
+  const formatBudget = (budget) => {
+    if (!budget || budget === 0) return "—";
+    // Convert to number
+    const numBudget = typeof budget === 'string' ? parseFloat(budget.replace(/[₹,]/g, '')) : budget;
+    if (isNaN(numBudget) || numBudget === 0) return "—";
+    
+    // If budget is >= 1 crore (1,00,00,000)
+    if (numBudget >= 10000000) {
+      const crores = numBudget / 10000000;
+      return `₹${crores.toFixed(2)} Cr`;
+    }
+    // If budget is >= 1 lakh (1,00,000)
+    else if (numBudget >= 100000) {
+      const lakhs = numBudget / 100000;
+      return `₹${lakhs.toFixed(2)} Lakhs`;
+    }
+    // If budget is >= 1 thousand (1,000)
+    else if (numBudget >= 1000) {
+      const thousands = numBudget / 1000;
+      return `₹${thousands.toFixed(2)} K`;
+    }
+    // If budget is < 1 thousand, show as is
+    else {
+      return `₹${Math.round(numBudget).toLocaleString("en-IN")}`;
+    }
+  };
+
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
       <svg
@@ -1394,7 +1422,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
           {/* Specialization */}
           <div>
-            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Specialization</label>
+            <label className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}> Expertise Areas</label>
             <div className="space-y-2">
               {specializationOptions.map((spec) => {
                 const selected = brokerFilters.brokerType.includes(spec);

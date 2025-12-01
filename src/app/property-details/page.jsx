@@ -51,13 +51,32 @@ function PropertyDetailsPageInner() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
 
-  // Helper function to format price without trailing zeros
+  // Helper function to format price based on value (thousands, lakhs, crores)
   const formatPrice = (price) => {
     if (!price || price === 0) return "0";
-    // Convert to number, round to integer, and format with Indian locale
-    const numPrice = typeof price === "string" ? parseFloat(price) : price;
-    const roundedPrice = Math.round(numPrice);
-    return roundedPrice.toLocaleString("en-IN");
+    // Convert to number
+    const numPrice = typeof price === "string" ? parseFloat(price.replace(/[₹,]/g, '')) : price;
+    if (isNaN(numPrice) || numPrice === 0) return "0";
+    
+    // If price is >= 1 crore (1,00,00,000)
+    if (numPrice >= 10000000) {
+      const crores = numPrice / 10000000;
+      return `${crores.toFixed(2)} Cr`;
+    }
+    // If price is >= 1 lakh (1,00,000)
+    else if (numPrice >= 100000) {
+      const lakhs = numPrice / 100000;
+      return `${lakhs.toFixed(2)} Lakhs`;
+    }
+    // If price is >= 1 thousand (1,000)
+    else if (numPrice >= 1000) {
+      const thousands = numPrice / 1000;
+      return `${thousands.toFixed(2)} K`;
+    }
+    // If price is < 1 thousand, show as is
+    else {
+      return Math.round(numPrice).toLocaleString("en-IN");
+    }
   };
 
   // Also support dynamic route /property-details/[id] by reading path when query is missing
@@ -1701,7 +1720,7 @@ function PropertyDetailsPageInner() {
                       </span>
                       <div>
                         <div className="font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
-                          Property Size
+                          Built-up Area
                         </div>
                         <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">
                           {product.areaSqft?.toLocaleString("en-IN")} sq.ft
@@ -1766,7 +1785,7 @@ function PropertyDetailsPageInner() {
                           Price
                         </div>
                         <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">
-                          ₹{Math.round(price).toLocaleString("en-IN")}
+                          ₹{formatPrice(price)}
                         </div>
                       </div>
                     </div>
@@ -2193,7 +2212,7 @@ function PropertyDetailsPageInner() {
                         : "3 days ago"}
                     </p>
                     <p className="  text-[18px] leading-[32px] font-bold text-[#0D542B] mt-2">
-                      ₹{Math.round(price).toLocaleString("en-IN")}
+                      ₹{formatPrice(price)}
                     </p>
                   </div>
                 </div>
@@ -2472,7 +2491,7 @@ function PropertyDetailsPageInner() {
 
                       {/* Subtitle */}
                       <p className="mt-1 font-inter text-[12px] leading-[20px] font-normal text-[#19191F]">
-                        Experience every corner of the property
+                       Take a 360° tour of the property
                       </p>
 
                       {/* Button */}
@@ -2997,7 +3016,8 @@ function PropertyDetailsPageInner() {
             </div>
 
             <h2 className="text-[18px] leading-[36px] font-bold text-[#19191F] mt-4">
-              Ready to Find Your Perfect Property?
+             Ready to Find Your Perfect Home?
+
             </h2>
             <p className="w-full max-w-2xl mx-auto font-inter text-[12px] leading-[28px] font-normal text-[#19191F] mt-4">
               Join thousands of satisfied customers who found their dream homes
@@ -3140,7 +3160,7 @@ function PropertyDetailsPageInner() {
                         : product.region}
                     </p>
                     <p className="text-[12px] font-medium text-[#0D542B] mt-1">
-                      ₹{Math.round(product.price || 0).toLocaleString("en-IN")}
+                      ₹{formatPrice(product.price || 0)}
                     </p>
                   </div>
                 </div>

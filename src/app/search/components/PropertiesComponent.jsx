@@ -1007,18 +1007,34 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           <div className="mb-5">
             <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Price/Budget Range (INR)</h3>
             <div className="flex gap-2">
-              <input
-                type="number"
-                value={filters.priceRange[0]}
-                onChange={(e) => handlePriceChange(0, parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
-              />
+              <div className="flex-1">
+                <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Min</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>₹</span>
                   <input
-                type="number"
-                value={filters.priceRange[1]}
-                onChange={(e) => handlePriceChange(1, parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
-              />
+                    type="number"
+                    value={filters.priceRange[0] || ''}
+                    onChange={(e) => handlePriceChange(0, parseInt(e.target.value) || 0)}
+                    placeholder="0"
+                    min="0"
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                  />
+                </div>
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Max</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>₹</span>
+                  <input
+                    type="number"
+                    value={filters.priceRange[1] || ''}
+                    onChange={(e) => handlePriceChange(1, parseInt(e.target.value) || 0)}
+                    placeholder="50000000"
+                    min="0"
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1461,12 +1477,16 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           {/* Results Heading */}
           <div className="mb-4 md:mb-6">
             <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
-              Property Search Results ({propertyItems.length} Found)
+               {propertyItems.length} Property Found
+                  <p className="text-[10px] md:text-[12px] text-gray-600">
+            Experts that match your selected region & specialization.
+          </p>
             </h2>
+              
           </div>
 
           {!isLoading && hasLoaded && propertyItems.length === 0 ? (
-            <div className="flex items-center justify-center py-16">
+            <div className="flex items-center justify-center ">
               <div className="w-full mx-auto px-6 py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
                 <div className="flex flex-col items-center justify-center text-center">
                   {/* Image/Icon */}
@@ -1499,8 +1519,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     filters.search ||
                     selectedRegion ||
                     Object.values(secondaryFilters).some(v => v !== null)
-                      ? "We couldn't find any properties matching your current filters. Try adjusting your search criteria."
-                      : "No properties are available at the moment. Please check back later or contact us for assistance."}
+                      ? "No properties match your current search filters. Try removing some filters or adjusting your search criteria to see more results."
+                      : "No properties are currently available. Please check back later or contact us for assistance."}
                   </p>
                   {/* Action Buttons */}
                   {(filters.categories.length > 0 || 
@@ -1686,12 +1706,11 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           </div>
 
           {/* Pagination */}
-          {pagination.total > 0 && (
+          {pagination.total > 0 && pagination.totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4 md:mt-6">
               <p className="text-xs md:text-sm text-gray-600">
                 Showing {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} results
               </p>
-              {pagination.totalPages > 1 && (
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -1745,7 +1764,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     </svg>
                   </button>
                 </div>
-              )}
             </div>
           )}
           </>
