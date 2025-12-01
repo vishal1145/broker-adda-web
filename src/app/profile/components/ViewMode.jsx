@@ -249,7 +249,7 @@ export default function ViewModeProfile() {
                   <div className="text-gray-900 text-[14px]">{subscription?.planType ? `${subscription.planType}${subscription?.status === 'active' ? ' (Active)' : ''}` : 'Not Subscribed'}</div>
                 </div>
                 <div>
-                  <div className="text-gray-500 text-[12px]">License</div>
+                  <div className="text-gray-500 text-[12px]">RERA License Number</div>
                   <div className="text-gray-900 text-[14px]">{profile.license || '-'}</div>
                 </div>
                 <div>
