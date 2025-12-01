@@ -768,7 +768,7 @@ const PropertiesManagement = () => {
 
   return (
     <ProtectedRoute>
-      <HeaderFile data={{ title: 'My Properties', breadcrumb: [{ label: 'Home', href: '/' }, { label: 'Property', href: '/properties-management' }] }} />
+      <HeaderFile data={{ title: 'My Properties', description: 'Manage all your active listings, edit details, and track performance in one place.', }} />
 
       <div className=" mx-auto px-4 md:px-0 py-8">
         <div className="flex items-center justify-between mb-6">
@@ -901,7 +901,7 @@ const PropertiesManagement = () => {
         ) : items.length === 0 && pagination.total === 0 ? (
           <div>
             <div>
-              <div className="flex items-center justify-end">
+              {/* <div className="flex items-center justify-end">
                 <div className="bg-white w-full lg:w-4/12 rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5 mb-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -919,8 +919,8 @@ const PropertiesManagement = () => {
                     </label>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-center py-16">
+              </div> */}
+              <div className="flex items-center justify-center py-4">
                 <div className="w-full mx-auto px-6 py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
                   <div className="flex flex-col items-center justify-center text-center">
                     {/* Icon */}
@@ -1079,7 +1079,8 @@ const PropertiesManagement = () => {
                       <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                       </svg>
-                      <span className="text-sm font-medium text-gray-600">Add Property</span>
+                      <span className="text-base font-semibold text-gray-900 mb-1">Add New Property</span>
+                      <span className="text-sm text-gray-600 text-center px-4">Create a new listing with photos, price, and amenities in under 2 minutes.</span>
                     </div>
                   </div>
                 </Link>
@@ -1331,7 +1332,7 @@ const PropertiesManagement = () => {
             {/* Right column - 4/12 width - match lead details right cards style */}
             <div className="">
               {/* Shared Properties Toggle */}
-              <div className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5 mb-4">
+              {/* <div className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border border-gray-200 p-5 mb-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-[14px] font-semibold text-gray-900 mb-1">Shared Properties</h3>
@@ -1347,7 +1348,7 @@ const PropertiesManagement = () => {
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-900"></div>
                   </label>
                 </div>
-              </div>
+              </div> */}
 
             </div>
 
@@ -1363,8 +1364,8 @@ const PropertiesManagement = () => {
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-[13px] font-medium text-gray-800">Add high-quality images</h4>
-                      <p className="text-[12px] text-gray-600 mt-1">Properties with 5+ images get 70% more inquiries</p>
+                      <h4 className="text-[13px] font-medium text-gray-800">Use high-quality photos</h4>
+                      <p className="text-[12px] text-gray-600 mt-1">Listings with 5+ clear photos get up to 70% more enquiries.</p>
                     </div>
                   </div>
 
@@ -1376,8 +1377,8 @@ const PropertiesManagement = () => {
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-[13px] font-medium text-gray-800">Complete all details</h4>
-                      <p className="text-[12px] text-gray-600 mt-1">Properties with complete information get 40% more views</p>
+                      <h4 className="text-[13px] font-medium text-gray-800">Complete every detail</h4>
+                      <p className="text-[12px] text-gray-600 mt-1">Properties with full information see 40% more views.</p>
                     </div>
                   </div>
 
@@ -1389,7 +1390,7 @@ const PropertiesManagement = () => {
                     </div>
                     <div>
                       <h4 className="text-[13px] font-medium text-gray-800">Respond quickly</h4>
-                      <p className="text-[12px] text-gray-600 mt-1">Responding within 24 hours increases conversion by 50%</p>
+                      <p className="text-[12px] text-gray-600 mt-1">Replying within 24 hours increases conversion by 50%.</p>
                     </div>
                   </div>
                 </div>

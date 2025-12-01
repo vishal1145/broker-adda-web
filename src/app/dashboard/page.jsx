@@ -380,7 +380,7 @@ const Dashboard = () => {
   return (
     <ProtectedRoute requiredRole="broker">
       
-      <HeaderFile data={{ title: 'Dashboard', breadcrumb: [{ label: 'Home', href: '/' }, { label: 'Dashboard', href: '/dashboard' }] }} />
+      <HeaderFile data={{ title: 'Dashboard', description: 'Get a complete overview of your business performance, manage enquiries, and track your property listings all in one place.',}} />
       
       <div className="min-h-screen bg-white py-8">
         <div className="w-full mx-auto px-4 md:px-0">

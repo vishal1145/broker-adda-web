@@ -1912,11 +1912,11 @@ export default function BrokerLeadsPage() {
 
   const headerData = {
     title: "My Enquires",
-    subtitle: "Manage your property requirements, track status, and collaborate with brokers — all in one place.",
-    breadcrumb: [
-      { label: "Home", href: "/" },
-      { label: "Enquires", href: "/leads" },
-    ],
+    description: "Manage your property requirements, track status, and collaborate with brokers — all in one place.",
+    // breadcrumb: [
+    //   { label: "Home", href: "/" },
+    //   { label: "Enquires", href: "/leads" },
+    // ],
   };
 
   return (
