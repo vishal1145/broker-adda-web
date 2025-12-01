@@ -513,7 +513,7 @@ const Brokers = () => {
                   <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
                 <p className="text-[12px] leading-5 font-normal text-gray-600">
-                  {broker.leadsCreated?.count || broker.leadCount || broker.totalLeads || broker.leads || 0} Queries Completed
+                  {broker.leadsCreated?.count || broker.leadCount || broker.totalLeads || broker.leads || 0} Enquires Completed
                 </p>
               </div>
             </div>
@@ -542,7 +542,7 @@ const Brokers = () => {
             <path d="M3 14l9 6 9-6"/>
           </svg>
         </span>
-        <span>Query generation support</span>
+        <span>Enquiry generation support</span>
       </div>
       <div className="flex flex-col items-center gap-2 md:gap-3">
         <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-10 w-10 md:h-14 md:w-14">
@@ -550,7 +550,7 @@ const Brokers = () => {
             <path d="M20 6L9 17l-5-5"/>
           </svg>
         </span>
-        <span>Verified queries</span>
+        <span>Verified enquires</span>
       </div>
       <div className="flex flex-col items-center gap-2 md:gap-3">
         <span className="inline-flex items-center justify-center rounded-full bg-yellow-50 h-10 w-10 md:h-14 md:w-14">

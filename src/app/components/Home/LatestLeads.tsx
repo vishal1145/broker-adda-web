@@ -383,7 +383,7 @@ const LatestLeads: React.FC = () => {
               </svg>
             </div>
             <h3 className="mt-3 text-base font-semibold text-gray-900">
-              No recent queries
+              No recent enquires
             </h3>
             <p className="mt-1 text-sm text-gray-600">
               New enquiries will appear here as they arrive.
@@ -406,7 +406,7 @@ const LatestLeads: React.FC = () => {
               </div>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-gray-900">
                 <span className="">Latest</span>
-                <span className="pl-2 text-green-900">Queries</span>
+                <span className="pl-2 text-green-900">Enquires</span>
               </h2>
               <p className="text-xs md:text-sm lg:text-base text-gray-600">
                 Explore the latest property requirements posted by verified
@@ -417,7 +417,7 @@ const LatestLeads: React.FC = () => {
                 href="/search?tab=leads"
                 className="inline-flex items-center gap-2 rounded-full bg-green-900 px-4 md:px-5 py-1.5 md:py-2 text-white text-xs md:text-sm font-semibold shadow-sm w-max"
               >
-                View All Queries
+                View All Enquires
                 <svg
                   className="h-3 w-3 md:h-4 md:w-4"
                   viewBox="0 0 24 24"
@@ -560,7 +560,7 @@ const LatestLeads: React.FC = () => {
 
                       {/* Middle Section - Property Details */}
                       <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
-                        {/* Preferred Location */}
+                        {/* Primary Location */}
                         <div className="flex items-center gap-2">
   <svg
     className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
@@ -575,7 +575,7 @@ const LatestLeads: React.FC = () => {
 
   <div className="flex items-center flex-wrap gap-1">
     <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
-      Preferred:
+      Primary:
     </span>
     <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
       {regionName(lead.primaryRegion) || "—"}
