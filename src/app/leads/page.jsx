@@ -60,6 +60,7 @@ export default function BrokerLeadsPage() {
     requirement: { value: "all", label: "All Requirements" },
     startDate: "",
     endDate: "",
+    budgetMin: 0,
     budgetMax: 500000,
   });
 
@@ -1881,7 +1882,7 @@ export default function BrokerLeadsPage() {
         </svg>
       </div>
       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        No queries found
+        No enquires found
       </h3>
       <p className="text-sm text-gray-500 text-center max-w-sm">
         {filters.query ||
@@ -1890,8 +1891,8 @@ export default function BrokerLeadsPage() {
         filters.propertyType?.value !== "all" ||
         filters.requirement?.value !== "all" ||
         filters.budgetMax !== 500000
-          ? "No queries match your current filters. Try adjusting your search criteria."
-          : "You don't have any leads yet. Click 'Add New Query' to get started."}
+          ? "No enquires match your current filters. Try adjusting your search criteria."
+          : "You don't have any leads yet. Click 'Add New Enquiry' to get started."}
       </p>
       {!filters.query &&
         filters.status?.value === "all" &&
@@ -1903,17 +1904,18 @@ export default function BrokerLeadsPage() {
             onClick={() => setShowAddLead(true)}
             className="mt-4 px-4 py-2 bg-green-900 text-white text-sm font-semibold rounded-lg hover:bg-green-950 transition-colors"
           >
-            Add Your First Query
+            Add Your First Enquiry
           </button>
         )}
     </div>
   );
 
   const headerData = {
-    title: "My Queries",
+    title: "My Enquires",
+    subtitle: "Manage your property requirements, track status, and collaborate with brokers — all in one place.",
     breadcrumb: [
       { label: "Home", href: "/" },
-      { label: "Queries", href: "/leads" },
+      { label: "Enquires", href: "/leads" },
     ],
   };
 
@@ -1932,10 +1934,10 @@ export default function BrokerLeadsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h1 className=" font-archivo text-[18px] leading-[36px] font-bold text-[#171A1FFF]">
-                      Query Management
+                      Enquiry Management
                     </h1>
                     <p className="text-[12px] leading-[20px] font-normal text-[#565D6DFF]">
-                      Capture queries, share with brokers, and track progress —
+                      Capture enquires, share with brokers, and track progress —
                       all in one place.
                     </p>
                   </div>
@@ -1972,7 +1974,7 @@ export default function BrokerLeadsPage() {
                     <span className="text-[12px] leading-5 font-normal text-[#565D6D]">
                       {leadViewMode === "transferred"
                         ? "Transferred to Me"
-                        : "My Queries"}
+                        : " My Enquires"}
                     </span>
                   </div>
                 </div>
@@ -1983,11 +1985,14 @@ export default function BrokerLeadsPage() {
                 {/* Total Leads (Active Card with Purple Border) */}
                 <div className="border border-gray-200 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white rounded-lg p-4">
                   <p className="text-[12px] text-[#565D6DFF] font-medium">
-                    Total Queries
+                    Total Enquires
                   </p>
-                  <p className="text-[18px] font-semibold text-gray-900 mt-1">
-                    {metricsLoading ? "—" : metrics.totalLeads.toLocaleString()}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[18px] font-semibold text-gray-900">
+                      {metricsLoading ? "—" : metrics.totalLeads.toLocaleString()}
+                    </p>
+
+                  </div>
                 </div>
 
                 {/* Shared With Me */}
@@ -1995,13 +2000,16 @@ export default function BrokerLeadsPage() {
                   <p className="text-[12px] text-[#565D6DFF] font-medium">
                     Shared With Me
                   </p>
-                  <p className="text-[18px] font-semibold text-gray-900 mt-1">
-                    {metricsLoading
-                      ? "—"
-                      : Number(
-                          metrics.transferredToMe || metrics.transfersToMe || 0
-                        ).toLocaleString()}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[18px] font-semibold text-gray-900">
+                      {metricsLoading
+                        ? "—"
+                        : Number(
+                            metrics.transferredToMe || metrics.transfersToMe || 0
+                          ).toLocaleString()}
+                    </p>
+
+                  </div>
                 </div>
 
                 {/* Shared By Me */}
@@ -2009,13 +2017,16 @@ export default function BrokerLeadsPage() {
                   <p className="text-[12px] text-[#565D6DFF] font-medium">
                     Shared By Me
                   </p>
-                  <p className="text-[18px] font-semibold text-gray-900 mt-1">
-                    {metricsLoading
-                      ? "—"
-                      : Number(
-                          metrics.transferredByMe || metrics.transfersByMe || 0
-                        ).toLocaleString()}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[18px] font-semibold text-gray-900">
+                      {metricsLoading
+                        ? "—"
+                        : Number(
+                            metrics.transferredByMe || metrics.transfersByMe || 0
+                          ).toLocaleString()}
+                    </p>
+
+                  </div>
                 </div>
                 {/* <StatCard
     color="violet"
@@ -2036,7 +2047,7 @@ export default function BrokerLeadsPage() {
                 <div className="w-full sm:w-80 relative">
                   <input
                     type="text"
-                    placeholder="Search queries..."
+                    placeholder="Search by name, budget, region, or property type…"
                     value={filters.query}
                     onChange={(e) =>
                       setFilters({ ...filters, query: e.target.value })
@@ -2128,7 +2139,7 @@ export default function BrokerLeadsPage() {
                         d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                       />
                     </svg>
-                    Add New Query
+                    Add New Enquiry
                   </button>
                 </div>
 
@@ -2251,22 +2262,22 @@ export default function BrokerLeadsPage() {
                                     ? "#FDC700"
                                     : row.status?.toLowerCase() === "assigned"
                                     ? "linear-gradient(90deg, #3b82f6 0%, #1e40af 100%)"
-                                    : row.status?.toLowerCase() ===
-                                      "in progress"
+                                    : row.status?.toLowerCase() === "in progress"
                                     ? "linear-gradient(90deg, #f59e0b 0%, #dc2626 100%)"
+                                    : row.status?.toLowerCase() === "completed"
+                                    ? "linear-gradient(90deg, #10b981 0%, #047857 100%)"
+                                    : row.status?.toLowerCase() === "shared"
+                                    ? "linear-gradient(90deg, #8b5cf6 0%, #6d28d9 100%)"
                                     : row.status?.toLowerCase() === "closed"
                                     ? "linear-gradient(90deg, #10b981 0%, #047857 100%)"
                                     : row.status?.toLowerCase() === "rejected"
                                     ? "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)"
-                                    : row.status?.toLowerCase() ===
-                                      "transferred"
+                                    : row.status?.toLowerCase() === "transferred"
                                     ? "linear-gradient(90deg, #f97316 0%, #ea580c 100%)"
                                     : row.status?.toLowerCase() === "active"
                                     ? "linear-gradient(90deg, #10b981 0%, #047857 100%)"
                                     : "#FDC700", // default yellow
-                                // clipPath:
-                                //   "polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%)",
-                                minWidth: "40px",
+                                minWidth: "50px",
                               }}
                             >
                               {row.status ? row.status.toUpperCase() : "NEW"}
@@ -2312,47 +2323,71 @@ export default function BrokerLeadsPage() {
 
                             {/* Lead Details Section - Two Rows */}
                             <div className="space-y-3">
-                              {/* First Row */}
-                              <div className="flex justify-between items-center  border-gray-100">
+                              {/* First Row - Requirement and Property Type as Badges */}
+                              <div className="flex justify-between items-center gap-2">
                                 <div className="flex-1">
-                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
-                                    REQUIREMENT
+                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1.5">
+                                    Requirement
                                   </div>
-                                  <div className="break-words text-[12px] leading-[16px]  font-medium text-[#171A1F]">
-                                    {row.requirement || row.req || "—"}
+                                  <div>
+                                    {row.requirement || row.req ? (
+                                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${
+                                        (row.requirement || row.req || "").toLowerCase() === "sell"
+                                          ? "bg-green-100 text-green-800"
+                                          : (row.requirement || row.req || "").toLowerCase() === "buy"
+                                          ? "bg-blue-100 text-blue-800"
+                                          : "bg-gray-100 text-gray-800"
+                                      }`}>
+                                        {row.requirement || row.req}
+                                      </span>
+                                    ) : (
+                                      <span className="text-[12px] text-gray-400">—</span>
+                                    )}
                                   </div>
                                 </div>
                                 <div className="flex-1 pl-4">
-                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
-                                    PROPERTY TYPE
+                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1.5">
+                                    Property Type
                                   </div>
-                                  <div className="break-words text-[12px] leading-[16px]  font-medium text-[#171A1F]">
-                                    {row.propertyType || "—"}
+                                  <div>
+                                    {row.propertyType ? (
+                                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${
+                                        (row.propertyType || "").toLowerCase() === "commercial"
+                                          ? "bg-yellow-100 text-yellow-800"
+                                          : (row.propertyType || "").toLowerCase() === "residential"
+                                          ? "bg-purple-100 text-purple-800"
+                                          : "bg-gray-100 text-gray-800"
+                                      }`}>
+                                        {row.propertyType}
+                                      </span>
+                                    ) : (
+                                      <span className="text-[12px] text-gray-400">—</span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
 
-                              {/* Second Row */}
-                              <div className="flex justify-between items-top">
+                              {/* Second Row - Budget and Location */}
+                              <div className="flex justify-between items-top gap-2">
                                 <div className="flex-1">
-                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
-                                    BUDGET
+                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1.5">
+                                    Budget
                                   </div>
-                                  <div className="break-words text-[12px] leading-[16px]  font-medium  text-[#171A1F]">
+                                  <div className="break-words text-[12px] leading-[18px] font-bold text-green-700 bg-green-50  py-1 rounded">
                                     {typeof row.budget === "number"
-                                      ? `$${row.budget.toLocaleString()}`
-                                      : row.budget || "—"}
+                                      ? `₹${row.budget.toLocaleString('en-IN')}`
+                                      : row.budget ? `₹${String(row.budget).replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')}` : "—"}
                                   </div>
                                 </div>
                                 <div className="flex-1 pl-4">
-                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1">
-                                    REGION(S)
+                                  <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1.5">
+                                    Location
                                   </div>
                                   {(() => {
                                     const { primary, secondary } =
                                       getRegionNames(row);
                                     return (
-                                      <div className="break-words text-[12px] leading-[16px] flex flex-col gap-2 font-medium text-[#171A1F]">
+                                      <div className="break-words text-[12px] leading-[16px] flex flex-col gap-1 font-medium text-[#171A1F]">
                                         <div>{primary || "—"}</div>
                                         {secondary && (
                                           <div className="break-words text-[12px] leading-[16px]  font-medium text-[#171A1F]">
@@ -2382,8 +2417,14 @@ export default function BrokerLeadsPage() {
                                   
                                   if (transfers.length === 0) {
                                     return (
-                                      <span className="text-[10px] font-normal text-[#565D6D]">
-                                        Not shared
+                                      <span className="text-[11px] font-normal text-[#565D6D] italic">
+                                        Not yet shared — <span 
+                                          className="text-green-700 font-semibold cursor-pointer hover:underline" 
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            openTransferForLead(row);
+                                          }}
+                                        >Share now</span>
                                       </span>
                                     );
                                   }
@@ -2888,7 +2929,7 @@ export default function BrokerLeadsPage() {
                   >
                     <summary className="list-none cursor-pointer flex items-center justify-between">
                       <span className="text-[12px] leading-5 font-normal text-[#171A1F]">
-                        How do I add a new query quickly?
+                        What's the fastest way to add a new enquiry?
                       </span>
                       <svg
                         className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
@@ -2903,8 +2944,8 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[10px] leading-4 text-gray-600 border-l-2 border-gray-300">
-                      Use the Add Query button, fill name, phone, requirement and
-                      region. You can edit details later in Query Details.
+                      Use the Add Enquiry button, fill name, phone, requirement and
+                      region. You can edit details later in Enquiry Details.
                     </p>
                   </details>
 
@@ -2912,7 +2953,7 @@ export default function BrokerLeadsPage() {
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
                       <span className="text-[12px] leading-5 font-normal text-[#171A1F]">
-                        How do I change a query status?
+                        How do I update my enquiry status?
                       </span>
                       <svg
                         className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
@@ -2927,7 +2968,7 @@ export default function BrokerLeadsPage() {
                       </svg>
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[10px] leading-4 text-slate-600 border-l-2 border-gray-300">
-                      Open a query, click Edit Status in the drawer header, pick
+                      Open an enquiry, click Edit Status in the drawer header, pick
                       the status and save.
                     </p>
                   </details>
@@ -2936,7 +2977,7 @@ export default function BrokerLeadsPage() {
                   <details className="group relative rounded-xl border border-slate-100 p-4 pr-5 transition-colors">
                     <summary className="list-none cursor-pointer flex items-center justify-between">
                       <span className="text-[12px] leading-5 font-normal text-[#171A1F]">
-                        How do I share a query with another broker?
+                        How do I share my enquiry securely?
                       </span>
                       <svg
                         className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 group-open:text-gray-600 shrink-0 overflow-visible"
@@ -2952,7 +2993,7 @@ export default function BrokerLeadsPage() {
                     </summary>
                     <p className="mt-2 pl-3 md:pl-4 text-[10px] leading-4 text-slate-600 border-l-2 border-gray-300">
                       Use Share/Transfer, choose brokers, add notes and confirm.
-                      The transfer history appears in Query Details.
+                      The transfer history appears in Enquiry Details.
                     </p>
                   </details>
                 </div>
@@ -3104,9 +3145,14 @@ export default function BrokerLeadsPage() {
             />
             <div className="relative w-full max-w-xl mx-4 bg-white rounded-2xl shadow-xl">
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <h4 className="text-lg font-semibold text-slate-900">
-                  Advanced Filters
-                </h4>
+                <div>
+                  <h4 className="text-lg font-semibold text-slate-900">
+                    Advanced Filters
+                  </h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Refine your enquiry list using region, requirement, property type, and budget filters.
+                  </p>
+                </div>
                 <button
                   onClick={() => setShowAdvanced(false)}
                   className="p-2 rounded-lg hover:bg-gray-100"
@@ -3132,7 +3178,7 @@ export default function BrokerLeadsPage() {
                 {/* Region */}
                 <div>
                   <label className="block text-xs font-label text-gray-700 mb-2">
-                    Region
+                    Preferred Regions
                   </label>
                   {regionsLoading ? (
                     <div className="flex items-center justify-center py-3 border border-gray-200 rounded-lg bg-gray-50">
@@ -3172,6 +3218,7 @@ export default function BrokerLeadsPage() {
                         setFilters({ ...filters, region: opt })
                       }
                       options={regionOptions}
+                      placeholder="Select Region (optional)"
                       styles={{
                         ...customSelectStyles,
                         menuPortal: (base) => ({ ...base, zIndex: 99999 }),
@@ -3188,7 +3235,7 @@ export default function BrokerLeadsPage() {
                 {/* Requirement */}
                 <div>
                   <label className="block text-xs font-label text-gray-700 mb-2">
-                    Requirement
+                    Requirement Type
                   </label>
                   <Select
                     value={filters.requirement}
@@ -3196,6 +3243,7 @@ export default function BrokerLeadsPage() {
                       setFilters({ ...filters, requirement: opt })
                     }
                     options={requirementOptions}
+                    placeholder="Buy / Sell / Rent"
                     styles={{
                       ...customSelectStyles,
                       menuPortal: (base) => ({ ...base, zIndex: 99999 }),
@@ -3212,7 +3260,7 @@ export default function BrokerLeadsPage() {
                 {/* Property Type */}
                 <div>
                   <label className="block text-xs font-label text-gray-700 mb-2">
-                    Property Type
+                    Property Category
                   </label>
                   <Select
                     value={filters.propertyType}
@@ -3220,6 +3268,7 @@ export default function BrokerLeadsPage() {
                       setFilters({ ...filters, propertyType: opt })
                     }
                     options={propertyTypeOptions}
+                    placeholder="Commercial / Residential / Plot"
                     styles={{
                       ...customSelectStyles,
                       menuPortal: (base) => ({ ...base, zIndex: 99999 }),
@@ -3233,7 +3282,7 @@ export default function BrokerLeadsPage() {
                   />{" "}
                 </div>
 
-                {/* Max Budget */}
+                {/* Budget Range */}
                 <div>
                   <label className="block text-xs font-label text-gray-700 mb-4">
                     Max Budget:{" "}
@@ -3324,7 +3373,7 @@ export default function BrokerLeadsPage() {
             <div className="relative w-full max-w-xl mx-4 bg-white rounded-2xl shadow-xl">
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                 <h4 className="text-lg font-semibold text-slate-900">
-                  Add New Query
+                  Add New Enquiry
                 </h4>
                 <button
                   onClick={() => {
@@ -3960,7 +4009,7 @@ export default function BrokerLeadsPage() {
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  Query Details
+                  Enquiry Details
                 </h4>
                 <button
                   onClick={() => {

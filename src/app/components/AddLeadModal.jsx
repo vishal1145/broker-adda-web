@@ -344,7 +344,7 @@ const AddLeadModal = ({ isOpen, onClose, onSuccess, brokerId }) => {
       />
       <div className="relative w-full max-w-xl mx-4 bg-white rounded-2xl shadow-xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h4 className="text-lg font-semibold text-slate-900">Add New Query</h4>
+          <h4 className="text-lg font-semibold text-slate-900">Add New Enquiry</h4>
           <button
             onClick={() => {
               onClose();
