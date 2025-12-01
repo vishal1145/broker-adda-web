@@ -1652,8 +1652,12 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         {/* Header with heading */}
         <div className="mb-4 md:mb-6">
           <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
-            Broker Search Results ({totalItems} Found)
+           {totalItems} Brokers Found
+           
           </h2>
+           <p className="text-[10px] md:text-[12px] text-gray-600">
+           Experts that match your selected region & specialization.
+          </p>
         </div>
         
         {/* Brokers Grid */}
@@ -1822,11 +1826,12 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   {/* Header */}
   <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-5">
     {/* Avatar + Rating */}
-    <div className="relative flex flex-col items-center flex-shrink-0">
+    <div className="relative flex flex-col items-center flex-shrink-0" style={{ border: '2px solid #d1d5db', borderRadius: '50%', padding: '4px' }}>
       <img
         src={broker.profileImage}
         alt={broker.name}
         className="w-14 h-14 md:w-18 md:h-18 rounded-full object-cover"
+        
       />
 
       {/* Rating chip - positioned above image */}
