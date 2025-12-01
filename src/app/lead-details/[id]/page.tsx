@@ -9,10 +9,11 @@ import ContentLoader from "react-content-loader";
 
 const headerData = {
   title: "Enquiries Details",
-  breadcrumb: [
-    { label: "Home", href: "/" },
-    { label: "Enquiries Details", href: "/lead-details" },
-  ],
+  description: 'View enquiry information including property requirements, budget, and preferred locations.',
+  // breadcrumb: [
+  //   { label: "Home", href: "/" },
+  //   { label: "Enquiries Details", href: "/lead-details" },
+  // ],
 };
 
 type LeadItem = {

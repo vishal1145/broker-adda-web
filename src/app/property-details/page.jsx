@@ -814,10 +814,11 @@ function PropertyDetailsPageInner() {
 
   const headerData = {
     title: "Property Details",
-    breadcrumb: [
-      { label: "Home", href: "/" },
-      { label: "Property Details", href: "/property-details" },
-    ],
+    description: 'View property information, features, amenities, location details, and pricing.',
+    // breadcrumb: [
+    //   { label: "Home", href: "/" },
+    //   { label: "Property Details", href: "/property-details" },
+    // ],
   };
 
   // Loading state

@@ -9,10 +9,11 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const headerData = {
   title: 'Broker Details',
-  breadcrumb: [
-    { label: 'Home', href: '/' },
-    { label: 'Broker Details', href: '/broker-details' }
-  ]
+  description: 'View broker profile, ratings, experience, specializations, and contact information.',
+  // breadcrumb: [
+  //   { label: 'Home', href: '/' },
+  //   { label: 'Broker Details', href: '/broker-details' }
+  // ]
 };
 
 export default function BrokerDetailsPage() {
