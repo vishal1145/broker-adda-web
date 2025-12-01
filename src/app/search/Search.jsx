@@ -129,7 +129,7 @@ const Search = () => {
         };
       case 'leads':
         return {
-          title: 'Discover Quality Leads',
+          title: 'Discover Quality Enquiries',
           description: 'Browse and connect with potential clients looking for real estate services in your area.',
         };
       case 'brokers':

@@ -956,7 +956,7 @@ export default function BrokerDetailsPage() {
                                   <circle cx="12" cy="10" r="3" />
                                 </svg>
                                 <div className="flex items-center flex-wrap gap-1">
-                                  <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Preferred:</span>
+                                  <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Primary Location:</span>
                                   <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">{regionName(lead?.primaryRegion || lead?.region)}</span>
                                 </div>
                               </div>
@@ -968,7 +968,7 @@ export default function BrokerDetailsPage() {
                                     <circle cx="12" cy="10" r="3" />
                                   </svg>
                                   <div className="flex items-center flex-wrap gap-1">
-                                    <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Secondary:</span>
+                                    <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Secondary Location:</span>
                                     <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">{regionName(lead?.secondaryRegion)}</span>
                                   </div>
                                 </div>

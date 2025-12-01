@@ -1985,7 +1985,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-5a1 1 0 011-1h2a1 1 0 011 1v5h3a1 1 0 001-1V10"
         />
       </svg>
-      <span>{actualLeadsCreated.count || 0} queries</span>
+      <span>{(actualLeadsCreated.count || 0) === 0 ? 'New Broker' : `${actualLeadsCreated.count} queries`}</span>
     </span>
   </div>
 
@@ -2074,7 +2074,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         )}
 
         {/* Pagination */}
-        {totalItems > 0 && (
+        {totalPages > 1 && (
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-4">
             {/* Left: Results info */}
             <div className="text-sm text-gray-600">
@@ -2082,7 +2082,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
             </div>
 
             {/* Right: Pagination buttons */}
-            {totalPages > 1 && (
             <div className="flex items-center gap-1">
               <button
                 onClick={handlePrevious}
@@ -2186,7 +2185,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
                 </svg>
               </button>
             </div>
-            )}
           </div>
         )}
       </div>
