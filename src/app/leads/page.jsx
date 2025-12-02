@@ -2401,7 +2401,7 @@ export default function BrokerLeadsPage() {
                                   <div className="text-[12px] font-normal text-[#565D6D] break-words uppercase tracking-wide mb-1.5">
                                     Budget
                                   </div>
-                                  <div className="break-words text-[12px] leading-[18px] font-bold text-green-700 bg-green-50  py-1 rounded">
+                                  <div className="break-words text-[12px] leading-[18px] font-bold text-green-700  py-1 rounded">
                                     {formatBudget(row.budget)}
                                   </div>
                                 </div>
