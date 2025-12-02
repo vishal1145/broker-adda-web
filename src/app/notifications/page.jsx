@@ -45,7 +45,7 @@ const NotificationsPage = () => {
   // Filter options
   const filterOptions = [
     { id: 'all', label: 'All', iconKey: 'all' },
-    { id: 'lead', label: 'New Enquires', iconKey: 'lead' },
+    { id: 'lead', label: 'New Enquiries', iconKey: 'lead' },
     { id: 'property', label: 'Properties', iconKey: 'property' },
     { id: 'broker', label: 'Broker', iconKey: 'broker' },
     // { id: 'unread', label: 'Unread', iconKey: 'unread' }

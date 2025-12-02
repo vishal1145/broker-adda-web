@@ -347,6 +347,34 @@ const LatestLeads: React.FC = () => {
     return s + "s ago";
   };
 
+  /* ───────────── Budget formatting helper ───────────── */
+  const formatBudget = (budget: number | string | undefined): string => {
+    if (!budget && budget !== 0) return "—";
+    
+    const num = typeof budget === "number" ? budget : Number(String(budget).replace(/[^0-9.]/g, ""));
+    if (isNaN(num) || num === 0) return "—";
+    
+    // 1 Crore = 1,00,00,000
+    if (num >= 10000000) {
+      const crores = num / 10000000;
+      return `₹${crores % 1 === 0 ? crores.toFixed(0) : crores.toFixed(2)} Cr`;
+    }
+    // 1 Lakh = 1,00,000
+    else if (num >= 100000) {
+      const lakhs = num / 100000;
+      return `₹${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(2)} Lakh`;
+    }
+    // 1 Thousand = 1,000
+    else if (num >= 1000) {
+      const thousands = num / 1000;
+      return `₹${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(2)}K`;
+    }
+    // Less than 1000
+    else {
+      return `₹${num.toLocaleString('en-IN')}`;
+    }
+  };
+
   return (
     <section id="latest-leads" className="relative py-4 md:py-16 ">
       <div className="w-full mx-auto px-4 ">
@@ -383,7 +411,7 @@ const LatestLeads: React.FC = () => {
               </svg>
             </div>
             <h3 className="mt-3 text-base font-semibold text-gray-900">
-              No recent enquires
+              No recent enquiries
             </h3>
             <p className="mt-1 text-sm text-gray-600">
               New enquiries will appear here as they arrive.
@@ -406,7 +434,7 @@ const LatestLeads: React.FC = () => {
               </div>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-gray-900">
                 <span className="">Latest</span>
-                <span className="pl-2 text-green-900">Enquires</span>
+                <span className="pl-2 text-green-900">Enquiries</span>
               </h2>
               <p className="text-xs md:text-sm lg:text-base text-gray-600">
                 Explore the latest property requirements posted by verified
@@ -417,7 +445,7 @@ const LatestLeads: React.FC = () => {
                 href="/search?tab=leads"
                 className="inline-flex items-center gap-2 rounded-full bg-green-900 px-4 md:px-5 py-1.5 md:py-2 text-white text-xs md:text-sm font-semibold shadow-sm w-max"
               >
-                View All Enquires
+                View All Enquiries
                 <svg
                   className="h-3 w-3 md:h-4 md:w-4"
                   viewBox="0 0 24 24"
@@ -622,9 +650,7 @@ const LatestLeads: React.FC = () => {
                             <div className="flex items-center flex-wrap gap-1">
     <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
                             <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
-                              {typeof lead.budget === "number"
-                                ? "₹" + INR.format(lead.budget).replace("₹", "")
-                                : lead.budget || "—"}
+                              {formatBudget(lead.budget)}
                             </span>
                           </div>
                         </div>

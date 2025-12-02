@@ -231,7 +231,7 @@ export default function DashboardCharts() {
         {/* Leads by Month (shorter card, chunky rounded bars) */}
         <div className="bg-white rounded-[10px] border border-gray-200 p-4"
              style={{height: 230}}>
-          <div className="mb-2 text-[14px] font-medium text-gray-900">Enquires  by Month</div>
+          <div className="mb-2 text-[14px] font-medium text-gray-900">Enquiries  by Month</div>
           <div className="h-[160px]">
             {leadsLoading ? (
               <div className="h-full flex items-center justify-center">

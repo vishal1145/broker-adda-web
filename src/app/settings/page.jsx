@@ -385,7 +385,7 @@ const Settings = () => {
       return [
         { label: 'Dashboard', href: '/dashboard', icon: '📊' },
         { label: 'Profile', href: '/profile?mode=view', icon: '👤' },
-        { label: 'Enquires', href: '/leads', icon: '📋' },
+        { label: 'Enquiries', href: '/leads', icon: '📋' },
         { label: 'Properties', href: '/properties-management', icon: '🏠' },
       ];
     } else {

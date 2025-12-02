@@ -836,6 +836,34 @@ export default function BrokerLeadsPage() {
     return { primary, secondary };
   };
 
+  /* ───────────── Budget formatting helper ───────────── */
+  const formatBudget = (budget) => {
+    if (!budget && budget !== 0) return "—";
+    
+    const num = typeof budget === "number" ? budget : Number(String(budget).replace(/[^0-9.]/g, ""));
+    if (isNaN(num) || num === 0) return "—";
+    
+    // 1 Crore = 1,00,00,000
+    if (num >= 10000000) {
+      const crores = num / 10000000;
+      return `₹${crores % 1 === 0 ? crores.toFixed(0) : crores.toFixed(2)} Cr`;
+    }
+    // 1 Lakh = 1,00,000
+    else if (num >= 100000) {
+      const lakhs = num / 100000;
+      return `₹${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(2)} Lakh`;
+    }
+    // 1 Thousand = 1,000
+    else if (num >= 1000) {
+      const thousands = num / 1000;
+      return `₹${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(2)}K`;
+    }
+    // Less than 1000
+    else {
+      return `₹${num.toLocaleString('en-IN')}`;
+    }
+  };
+
   /* ───────────── Notification helpers ───────────── */
   const formatNotificationDate = (dateString) => {
     if (!dateString) return "";
@@ -1882,7 +1910,7 @@ export default function BrokerLeadsPage() {
         </svg>
       </div>
       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        No enquires found
+        No enquiries found
       </h3>
       <p className="text-sm text-gray-500 text-center max-w-sm">
         {filters.query ||
@@ -1891,7 +1919,7 @@ export default function BrokerLeadsPage() {
         filters.propertyType?.value !== "all" ||
         filters.requirement?.value !== "all" ||
         filters.budgetMax !== 500000
-          ? "No enquires match your current filters. Try adjusting your search criteria."
+          ? "No enquiries match your current filters. Try adjusting your search criteria."
           : "You don't have any leads yet. Click 'Add New Enquiry' to get started."}
       </p>
       {!filters.query &&
@@ -1911,7 +1939,7 @@ export default function BrokerLeadsPage() {
   );
 
   const headerData = {
-    title: "My Enquires",
+    title: "My Enquiries",
     description: "Manage your property requirements, track status, and collaborate with brokers — all in one place.",
     // breadcrumb: [
     //   { label: "Home", href: "/" },
@@ -1937,7 +1965,7 @@ export default function BrokerLeadsPage() {
                       Enquiry Management
                     </h1>
                     <p className="text-[12px] leading-[20px] font-normal text-[#565D6DFF]">
-                      Capture enquires, share with brokers, and track progress —
+                      Capture enquiries, share with brokers, and track progress —
                       all in one place.
                     </p>
                   </div>
@@ -1974,7 +2002,7 @@ export default function BrokerLeadsPage() {
                     <span className="text-[12px] leading-5 font-normal text-[#565D6D]">
                       {leadViewMode === "transferred"
                         ? "Transferred to Me"
-                        : " My Enquires"}
+                        : " My Enquiries"}
                     </span>
                   </div>
                 </div>
@@ -1985,7 +2013,7 @@ export default function BrokerLeadsPage() {
                 {/* Total Leads (Active Card with Purple Border) */}
                 <div className="border border-gray-200 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] bg-white rounded-lg p-4">
                   <p className="text-[12px] text-[#565D6DFF] font-medium">
-                    Total Enquires
+                    Total Enquiries
                   </p>
                   <div className="flex items-center gap-2">
                     <p className="text-[18px] font-semibold text-gray-900">
@@ -2374,9 +2402,7 @@ export default function BrokerLeadsPage() {
                                     Budget
                                   </div>
                                   <div className="break-words text-[12px] leading-[18px] font-bold text-green-700 bg-green-50  py-1 rounded">
-                                    {typeof row.budget === "number"
-                                      ? `₹${row.budget.toLocaleString('en-IN')}`
-                                      : row.budget ? `₹${String(row.budget).replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')}` : "—"}
+                                    {formatBudget(row.budget)}
                                   </div>
                                 </div>
                                 <div className="flex-1 pl-4">
@@ -4353,9 +4379,7 @@ export default function BrokerLeadsPage() {
                                 />
                               ) : (
                                 <span className="text-slate-900">
-                                  {typeof selectedLead.budget === "number"
-                                    ? `$${selectedLead.budget.toLocaleString()}`
-                                    : selectedLead.budget || "—"}
+                                  {formatBudget(selectedLead.budget)}
                                 </span>
                               )}
                             </div>
