@@ -180,6 +180,10 @@ const Profile = () => {
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   // Track original documents to detect removals
   const [originalDocuments, setOriginalDocuments] = useState({
+    aadharFront: null,
+    aadharBack: null,
+    panFront: null,
+    panBack: null,
     aadharFile: null,
     panFile: null,
     gstFile: null,
@@ -927,11 +931,17 @@ const Profile = () => {
 
             // Handle KYC documents from the actual API response structure
             const kycDocs = brokerData.kycDocs || {};
-            const aadharFile = kycDocs.aadhar || null;
-            const panFile = kycDocs.pan || null;
-            const gstFile = kycDocs.gst || null;
-            const brokerLicenseFile = kycDocs.brokerLicense || null;
-            const companyIdFile = kycDocs.companyId || null;
+            // Handle Aadhar and PAN as front/back separately
+            const aadharFront = toPublicUrl(kycDocs.aadharFront || kycDocs.aadhar?.front || null);
+            const aadharBack = toPublicUrl(kycDocs.aadharBack || kycDocs.aadhar?.back || null);
+            const panFront = toPublicUrl(kycDocs.panFront || kycDocs.pan?.front || null);
+            const panBack = toPublicUrl(kycDocs.panBack || kycDocs.pan?.back || null);
+            // Keep legacy support for single file format
+            const aadharFile = toPublicUrl(kycDocs.aadhar && typeof kycDocs.aadhar === 'string' ? kycDocs.aadhar : null);
+            const panFile = toPublicUrl(kycDocs.pan && typeof kycDocs.pan === 'string' ? kycDocs.pan : null);
+            const gstFile = toPublicUrl(kycDocs.gst || null);
+            const brokerLicenseFile = toPublicUrl(kycDocs.brokerLicense || null);
+            const companyIdFile = toPublicUrl(kycDocs.companyId || null);
             const brokerImage = toPublicUrl(
               brokerData.brokerImage ||
               brokerData.userId?.profileImage ||
@@ -951,8 +961,12 @@ const Profile = () => {
               : (brokerData.serviceType ? [brokerData.serviceType] : []) || [];
             const alternateNumber = brokerData.alternateNumber || brokerFormData.alternateNumber || "";
 
-            // Track original documents for removal detection
+            // Track original documents for removal detection (including front/back)
             setOriginalDocuments({
+              aadharFront: aadharFront,
+              aadharBack: aadharBack,
+              panFront: panFront,
+              panBack: panBack,
               aadharFile: aadharFile,
               panFile: panFile,
               gstFile: gstFile,
@@ -985,6 +999,10 @@ const Profile = () => {
               whatsapp: whatsapp,
               website: website,
               regions: regions,
+              aadharFront: aadharFront,
+              aadharBack: aadharBack,
+              panFront: panFront,
+              panBack: panBack,
               aadharFile: aadharFile,
               panFile: panFile,
               gstFile: gstFile,
@@ -1136,35 +1154,56 @@ const Profile = () => {
 
   const handleFileRemove = (fileName) => {
     if (userRole === "broker") {
-      // Check if document exists before removing (could be File or string URL from API)
+      // Remove file from form data and check if it should be marked as removed
       setBrokerFormData((prev) => {
         const currentDoc = prev[fileName];
-        // If document exists (either File or string URL), mark it as removed
+        
+        // Remove the file from form data
+        const updatedFormData = { ...prev, [fileName]: null };
+        
+        // Check if we need to mark it as removed
         if (currentDoc) {
-          // Check if it was originally from API (string) or originalDocuments has it
+          const isStringUrl = typeof currentDoc === 'string' && currentDoc.trim() !== '';
+          const isFileObject = currentDoc instanceof File;
+          
+          // Check original documents to see if this was originally from API
           setOriginalDocuments((origDocs) => {
-            const wasOriginallyPresent = origDocs[fileName] || (typeof currentDoc === 'string' && currentDoc.trim() !== '');
-            if (wasOriginallyPresent) {
+            const wasOriginallyPresent = origDocs[fileName] || isStringUrl;
+            
+            // Mark as removed if it was originally from API (string URL) or if it's a File but was in original docs
+            if (wasOriginallyPresent || (isFileObject && origDocs[fileName])) {
               setRemovedDocuments((removed) => {
                 const newSet = new Set(removed);
                 newSet.add(fileName);
                 return newSet;
               });
             }
+            
             return origDocs;
           });
         }
-        return { ...prev, [fileName]: null };
+        
+        return updatedFormData;
       });
+      
       // Reset the file input
-      const fileInput = document.getElementById(fileName === 'aadharFile' ? 'aadhar-upload' :
-                                                    fileName === 'panFile' ? 'pan-upload' :
-                                                    fileName === 'gstFile' ? 'gst-upload' :
-                                                    fileName === 'brokerLicenseFile' ? 'broker-license-upload' :
-                                                    fileName === 'companyIdFile' ? 'company-id-upload' : '');
-      if (fileInput) {
-        fileInput.value = '';
-      }
+      const fileInputId = fileName === 'aadharFront' ? 'aadhar-front-upload' :
+                          fileName === 'aadharBack' ? 'aadhar-back-upload' :
+                          fileName === 'panFront' ? 'pan-front-upload' :
+                          fileName === 'panBack' ? 'pan-back-upload' :
+                          fileName === 'aadharFile' ? 'aadhar-upload' :
+                          fileName === 'panFile' ? 'pan-upload' :
+                          fileName === 'gstFile' ? 'gst-upload' :
+                          fileName === 'brokerLicenseFile' ? 'broker-license-upload' :
+                          fileName === 'companyIdFile' ? 'company-id-upload' : '';
+      
+      // Reset file input - use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        const fileInput = document.getElementById(fileInputId);
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      });
     }
   };
 
@@ -1601,9 +1640,17 @@ const Profile = () => {
 
         // Handle KYC documents from the actual API response structure
         const kycDocs = brokerData.kycDocs || {};
-        const aadharFile = kycDocs.aadhar || null;
-        const panFile = kycDocs.pan || null;
-        const gstFile = kycDocs.gst || null;
+        // Handle Aadhar and PAN as front/back separately
+        const aadharFront = toPublicUrl(kycDocs.aadharFront || kycDocs.aadhar?.front || null);
+        const aadharBack = toPublicUrl(kycDocs.aadharBack || kycDocs.aadhar?.back || null);
+        const panFront = toPublicUrl(kycDocs.panFront || kycDocs.pan?.front || null);
+        const panBack = toPublicUrl(kycDocs.panBack || kycDocs.pan?.back || null);
+        // Keep legacy support for single file format
+        const aadharFile = toPublicUrl(kycDocs.aadhar && typeof kycDocs.aadhar === 'string' ? kycDocs.aadhar : null);
+        const panFile = toPublicUrl(kycDocs.pan && typeof kycDocs.pan === 'string' ? kycDocs.pan : null);
+        const gstFile = toPublicUrl(kycDocs.gst || null);
+        const brokerLicenseFile = toPublicUrl(kycDocs.brokerLicense || null);
+        const companyIdFile = toPublicUrl(kycDocs.companyId || null);
         const brokerImage = toPublicUrl(
           brokerData.brokerImage ||
           brokerData.userId?.profileImage ||
@@ -1634,6 +1681,10 @@ const Profile = () => {
           whatsapp: whatsapp,
           website: website,
           regions: regions,
+          aadharFront: aadharFront,
+          aadharBack: aadharBack,
+          panFront: panFront,
+          panBack: panBack,
           aadharFile: aadharFile,
           panFile: panFile,
           gstFile: gstFile,
@@ -4509,25 +4560,87 @@ const Profile = () => {
                               }
 
                               // Add file uploads - only send if changed (new File) or removed
-                              // For removal: send empty string AND removal flag so backend can detect it
+                              // Handle Aadhar Front/Back separately
+                              const shouldRemoveAadharFront = removedDocuments.has('aadharFront') || 
+                                (originalDocuments.aadharFront && !currentFormData.aadharFront);
+                              if (
+                                currentFormData.aadharFront &&
+                                currentFormData.aadharFront instanceof File
+                              ) {
+                                // New file uploaded - send it
+                                formDataToSend.append(
+                                  "aadharFront",
+                                  currentFormData.aadharFront
+                                );
+                              } else if (shouldRemoveAadharFront) {
+                                // Document was removed - send empty string and removal flag
+                                formDataToSend.append("aadharFront", "");
+                                formDataToSend.append("removeAadharFront", "true");
+                              }
+
+                              const shouldRemoveAadharBack = removedDocuments.has('aadharBack') || 
+                                (originalDocuments.aadharBack && !currentFormData.aadharBack);
+                              if (
+                                currentFormData.aadharBack &&
+                                currentFormData.aadharBack instanceof File
+                              ) {
+                                formDataToSend.append(
+                                  "aadharBack",
+                                  currentFormData.aadharBack
+                                );
+                              } else if (shouldRemoveAadharBack) {
+                                formDataToSend.append("aadharBack", "");
+                                formDataToSend.append("removeAadharBack", "true");
+                              }
+
+                              // Legacy support: handle single aadhar file if exists
                               const shouldRemoveAadhar = removedDocuments.has('aadharFile') || 
                                 (originalDocuments.aadharFile && !currentFormData.aadharFile);
                               if (
                                 currentFormData.aadharFile &&
                                 currentFormData.aadharFile instanceof File
                               ) {
-                                // New file uploaded - send it
                                 formDataToSend.append(
                                   "aadhar",
                                   currentFormData.aadharFile
                                 );
                               } else if (shouldRemoveAadhar) {
-                                // Document was removed - send empty string and removal flag
                                 formDataToSend.append("aadhar", "");
                                 formDataToSend.append("removeAadhar", "true");
                               }
-                              // If document exists as string (from API) and wasn't changed, don't send it
                               
+                              // Handle PAN Front/Back separately
+                              const shouldRemovePanFront = removedDocuments.has('panFront') || 
+                                (originalDocuments.panFront && !currentFormData.panFront);
+                              if (
+                                currentFormData.panFront &&
+                                currentFormData.panFront instanceof File
+                              ) {
+                                formDataToSend.append(
+                                  "panFront",
+                                  currentFormData.panFront
+                                );
+                              } else if (shouldRemovePanFront) {
+                                formDataToSend.append("panFront", "");
+                                formDataToSend.append("removePanFront", "true");
+                              }
+
+                              const shouldRemovePanBack = removedDocuments.has('panBack') || 
+                                (originalDocuments.panBack && !currentFormData.panBack);
+                              if (
+                                currentFormData.panBack &&
+                                currentFormData.panBack instanceof File
+                              ) {
+                                formDataToSend.append(
+                                  "panBack",
+                                  currentFormData.panBack
+                                );
+                              } else if (shouldRemovePanBack) {
+                                formDataToSend.append("panBack", "");
+                                formDataToSend.append("removePanBack", "true");
+                              }
+
+                              // Legacy support: handle single pan file if exists
                               const shouldRemovePan = removedDocuments.has('panFile') || 
                                 (originalDocuments.panFile && !currentFormData.panFile);
                               if (
@@ -4622,8 +4735,9 @@ const Profile = () => {
                             for (let pair of formDataToSend.entries()) {
                                 const key = pair[0];
                                 if (key.includes('remove') || 
-                                    (key === 'aadhar' || key === 'pan' || key === 'gst' || 
-                                     key === 'brokerLicense' || key === 'companyId')) {
+                                    (key === 'aadhar' || key === 'aadharFront' || key === 'aadharBack' || 
+                                     key === 'pan' || key === 'panFront' || key === 'panBack' || 
+                                     key === 'gst' || key === 'brokerLicense' || key === 'companyId')) {
                                   console.log(key, ':', pair[1] instanceof File ? `[File: ${pair[1].name}]` : pair[1]);
                                 }
                             }

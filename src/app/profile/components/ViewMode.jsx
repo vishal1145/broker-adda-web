@@ -92,10 +92,14 @@ export default function ViewModeProfile() {
         instagram: pick(data?.socialMedia?.instagram, data?.instagram),
         facebook: pick(data?.socialMedia?.facebook, data?.facebook)
       },
-      // docs
+      // docs - handle front/back separately for Aadhar and PAN
       docs: {
-        aadhar: toPublicUrl(pick(data?.kycDocs?.aadhar, data?.documents?.aadhar, data?.aadharCard)),
-        pan: toPublicUrl(pick(data?.kycDocs?.pan, data?.documents?.pan, data?.panCard)),
+        aadharFront: toPublicUrl(pick(data?.kycDocs?.aadharFront, data?.kycDocs?.aadhar?.front, data?.documents?.aadharFront, data?.documents?.aadhar?.front)),
+        aadharBack: toPublicUrl(pick(data?.kycDocs?.aadharBack, data?.kycDocs?.aadhar?.back, data?.documents?.aadharBack, data?.documents?.aadhar?.back)),
+        aadhar: toPublicUrl(pick(data?.kycDocs?.aadhar && typeof data?.kycDocs?.aadhar === 'string' ? data?.kycDocs?.aadhar : null, data?.documents?.aadhar && typeof data?.documents?.aadhar === 'string' ? data?.documents?.aadhar : null, data?.aadharCard)),
+        panFront: toPublicUrl(pick(data?.kycDocs?.panFront, data?.kycDocs?.pan?.front, data?.documents?.panFront, data?.documents?.pan?.front)),
+        panBack: toPublicUrl(pick(data?.kycDocs?.panBack, data?.kycDocs?.pan?.back, data?.documents?.panBack, data?.documents?.pan?.back)),
+        pan: toPublicUrl(pick(data?.kycDocs?.pan && typeof data?.kycDocs?.pan === 'string' ? data?.kycDocs?.pan : null, data?.documents?.pan && typeof data?.documents?.pan === 'string' ? data?.documents?.pan : null, data?.panCard)),
         gst: toPublicUrl(pick(data?.kycDocs?.gst, data?.documents?.gst, data?.gstCertificate)),
         license: toPublicUrl(pick(data?.kycDocs?.brokerLicense, data?.documents?.brokerLicense, data?.brokerLicense)),
         companyId: toPublicUrl(pick(data?.kycDocs?.companyId, data?.documents?.companyId, data?.companyId))
@@ -279,10 +283,18 @@ export default function ViewModeProfile() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Contact Details */}
         {(() => {
-          // Check if there are any documents with values
+          // Check if there are any documents with values - handle front/back separately
           const documentsList = [
-            { label: 'Aadhar Card', value: profile.docs.aadhar },
-            { label: 'PAN Card', value: profile.docs.pan },
+            // Aadhar - show front/back separately if available, otherwise show single file
+            ...(profile.docs.aadharFront ? [{ label: 'Aadhar Card (Front)', value: profile.docs.aadharFront }] : []),
+            ...(profile.docs.aadharBack ? [{ label: 'Aadhar Card (Back)', value: profile.docs.aadharBack }] : []),
+            // If no front/back but single aadhar exists, show it
+            ...(!profile.docs.aadharFront && !profile.docs.aadharBack && profile.docs.aadhar ? [{ label: 'Aadhar Card', value: profile.docs.aadhar }] : []),
+            // PAN - show front/back separately if available, otherwise show single file
+            ...(profile.docs.panFront ? [{ label: 'PAN Card (Front)', value: profile.docs.panFront }] : []),
+            ...(profile.docs.panBack ? [{ label: 'PAN Card (Back)', value: profile.docs.panBack }] : []),
+            // If no front/back but single pan exists, show it
+            ...(!profile.docs.panFront && !profile.docs.panBack && profile.docs.pan ? [{ label: 'PAN Card', value: profile.docs.pan }] : []),
             { label: 'GST Certificate', value: profile.docs.gst },
             { label: 'Broker License', value: profile.docs.license },
             { label: 'Company ID', value: profile.docs.companyId },
@@ -404,9 +416,18 @@ export default function ViewModeProfile() {
 
         {/* Documents - Only show if there are documents */}
         {(() => {
+          // Handle front/back separately for Aadhar and PAN
           const documentsList = [
-            { label: 'Aadhar Card', value: profile.docs.aadhar },
-            { label: 'PAN Card', value: profile.docs.pan },
+            // Aadhar - show front/back separately if available, otherwise show single file
+            ...(profile.docs.aadharFront ? [{ label: 'Aadhar Card (Front)', value: profile.docs.aadharFront }] : []),
+            ...(profile.docs.aadharBack ? [{ label: 'Aadhar Card (Back)', value: profile.docs.aadharBack }] : []),
+            // If no front/back but single aadhar exists, show it
+            ...(!profile.docs.aadharFront && !profile.docs.aadharBack && profile.docs.aadhar ? [{ label: 'Aadhar Card', value: profile.docs.aadhar }] : []),
+            // PAN - show front/back separately if available, otherwise show single file
+            ...(profile.docs.panFront ? [{ label: 'PAN Card (Front)', value: profile.docs.panFront }] : []),
+            ...(profile.docs.panBack ? [{ label: 'PAN Card (Back)', value: profile.docs.panBack }] : []),
+            // If no front/back but single pan exists, show it
+            ...(!profile.docs.panFront && !profile.docs.panBack && profile.docs.pan ? [{ label: 'PAN Card', value: profile.docs.pan }] : []),
             { label: 'GST Certificate', value: profile.docs.gst },
             { label: 'Broker License', value: profile.docs.license },
             { label: 'Company ID', value: profile.docs.companyId },
