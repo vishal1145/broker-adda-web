@@ -6,7 +6,16 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import Link from "next/link";
 import HeaderFile from "../components/Header";
 
-const DEFAULT_IMAGE = "/images/pexels-binyaminmellish-106399.jpg";
+const isValidImageUrl = (u) => {
+  if (typeof u !== "string") return false;
+  const trimmed = u.trim();
+  if (!trimmed) return false;
+  // Block bundled placeholder
+  if (trimmed === "/images/pexels-binyaminmellish-106399.jpg") return false;
+  return true;
+};
+
+const DEFAULT_IMAGE = "";
 
 const initialProperties = [
   {
@@ -18,7 +27,7 @@ const initialProperties = [
     propertyType: "Residential",
     rating: "4.7",
     currentPrice: "₹4,20,00,000",
-    images: [DEFAULT_IMAGE],
+    images: [],
     bedrooms: 4,
     bathrooms: 3
   },
@@ -31,7 +40,7 @@ const initialProperties = [
     propertyType: "Residential",
     rating: "4.5",
     currentPrice: "₹1,20,00,000",
-    images: [DEFAULT_IMAGE],
+    images: [],
     bedrooms: 3,
     bathrooms: 2
   },
@@ -44,7 +53,7 @@ const initialProperties = [
     propertyType: "Commercial",
     rating: "4.6",
     currentPrice: "₹9,50,00,000",
-    images: [DEFAULT_IMAGE]
+    images: []
   },
   {
     id: "demo-4",
@@ -55,7 +64,7 @@ const initialProperties = [
     propertyType: "Residential",
     rating: "4.3",
     currentPrice: "₹85,00,000",
-    images: [DEFAULT_IMAGE],
+    images: [],
     bedrooms: 2,
     bathrooms: 2
   },
@@ -68,7 +77,7 @@ const initialProperties = [
     propertyType: "Industrial",
     rating: "4.2",
     currentPrice: "₹5,10,00,000",
-    images: [DEFAULT_IMAGE]
+    images: []
   },
   {
     id: "demo-6",
@@ -79,7 +88,7 @@ const initialProperties = [
     propertyType: "Land",
     rating: "4.4",
     currentPrice: "₹60,00,000",
-    images: [DEFAULT_IMAGE]
+    images: []
   }
 ];
 
@@ -349,8 +358,8 @@ const PropertiesManagement = () => {
           // Final safety check - ensure it's always a string
           regionDisplay = String(regionDisplay || '');
 
-          const imagesArray = Array.isArray(property.images) ? property.images : [];
-          const firstNonEmptyImage = imagesArray.find((u) => typeof u === 'string' && u.trim().length > 0);
+          const imagesArray = Array.isArray(property.images) ? property.images.filter(isValidImageUrl) : [];
+          const firstNonEmptyImage = imagesArray.find(isValidImageUrl);
           return ({
             id: property._id || property.id || `api-${Date.now()}-${Math.random()}`,
             title: property.title || property.name || 'Untitled Property',
@@ -370,8 +379,8 @@ const PropertiesManagement = () => {
             nearbyAmenities: Array.isArray(property.nearbyAmenities) ? property.nearbyAmenities : [],
             features: Array.isArray(property.features) ? property.features : [],
             locationBenefits: Array.isArray(property.locationBenefits) ? property.locationBenefits : [],
-            images: imagesArray.length > 0 ? imagesArray : [DEFAULT_IMAGE],
-            coverImage: firstNonEmptyImage || DEFAULT_IMAGE,
+            images: imagesArray.length > 0 ? imagesArray : [],
+            coverImage: firstNonEmptyImage || '',
             videos: Array.isArray(property.videos) ? property.videos : [],
             propertyType: property.propertyType || property.type || 'Residential',
             subType: property.subType || 'Apartment',
@@ -596,8 +605,8 @@ const PropertiesManagement = () => {
           // Final safety check - ensure it's always a string
           regionDisplay = String(regionDisplay || '');
 
-          const imagesArray = Array.isArray(property.images) ? property.images : [];
-          const firstNonEmptyImage = imagesArray.find((u) => typeof u === 'string' && u.trim().length > 0);
+          const imagesArray = Array.isArray(property.images) ? property.images.filter(isValidImageUrl) : [];
+          const firstNonEmptyImage = imagesArray.find(isValidImageUrl);
           return ({
             id: property._id || property.id || `api-${Date.now()}-${Math.random()}`,
             title: property.title || property.name || 'Untitled Property',
@@ -617,8 +626,8 @@ const PropertiesManagement = () => {
             nearbyAmenities: Array.isArray(property.nearbyAmenities) ? property.nearbyAmenities : [],
             features: Array.isArray(property.features) ? property.features : [],
             locationBenefits: Array.isArray(property.locationBenefits) ? property.locationBenefits : [],
-            images: imagesArray.length > 0 ? imagesArray : [DEFAULT_IMAGE],
-            coverImage: firstNonEmptyImage || DEFAULT_IMAGE,
+            images: imagesArray.length > 0 ? imagesArray : [],
+            coverImage: firstNonEmptyImage || '',
             videos: Array.isArray(property.videos) ? property.videos : [],
             propertyType: property.propertyType || property.type || 'Residential',
             subType: property.subType || 'Apartment',
@@ -698,7 +707,7 @@ const PropertiesManagement = () => {
         nearbyAmenities,
         features,
         locationBenefits,
-        images: images.length ? images : [DEFAULT_IMAGE],
+        images: images.filter(isValidImageUrl),
         videos,
         propertyType: form.propertyType || "Residential",
         subType: form.subType,
@@ -1092,7 +1101,22 @@ const PropertiesManagement = () => {
                         <div className="relative w-full md:w-[400px] h-[200px] md:h-[235px] flex-shrink-0 self-stretch">
                           {/* Image carousel */}
                           <div className="relative w-full h-full overflow-hidden rounded-t-xl md:rounded-l-xl md:rounded-t-none">
-                            <img src={property.coverImage || DEFAULT_IMAGE} alt={property.title} className="block w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-t-none" style={{ minHeight: '100%' }} />
+                            {property.coverImage ? (
+                              <img
+                                src={property.coverImage}
+                                alt={property.title}
+                                className="block w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-t-none"
+                                style={{ minHeight: '100%' }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = '';
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-100 flex items-center justify-center text-sm text-gray-500 rounded-t-xl md:rounded-l-xl md:rounded-t-none">
+                                No image
+                              </div>
+                            )}
                           </div>
                           {/* Tag overlay - top-left */}
                           <div className="absolute top-4 left-4">

@@ -277,44 +277,18 @@ const Brokers = () => {
     console.log('Brokers length:', brokers.length);
   }, [brokers]);
 
-  // Fallback broker data if API fails
-  const fallbackBrokers: Broker[] = [
-    {
-      _id: '1',
-      name: 'Ravi Kumar',
-      specializations: ['Residential Specialist'],
-      region: ['Delhi NCR'],
-      leadsCreated: { count: 120, items: [] },
-      brokerImage: '/images/broker2.webp'
-    },
-    {
-      _id: '2',
-      name: 'Priya Shah',
-      specializations: ['Luxury Homes Advisor'],
-      region: ['Mumbai'],
-      leadsCreated: { count: 95, items: [] },
-      brokerImage: '/images/broker7.webp'
-    },
-    {
-      _id: '3',
-      name: 'Aditi Verma',
-      specializations: ['Commercial Specialist'],
-      region: ['Bengaluru'],
-      leadsCreated: { count: 110, items: [] },
-      brokerImage: '/images/broker8.jpg'
-    },
-    {
-      _id: '4',
-      name: 'Sandeep Mehra',
-      specializations: ['Land & Plots Consultant'],
-      region: ['Pune'],
-      leadsCreated: { count: 70, items: [] },
-      brokerImage: '/images/broker5.webp'
-    }
-  ];
+  // Use API data - limit to 4 brokers
+  const displayBrokers = brokers.slice(0, 4);
 
-  // Use API data if available, otherwise fallback - limit to 4 brokers
-  const displayBrokers = brokers.length > 0 ? brokers.slice(0, 4) : fallbackBrokers;
+  // Normalize image URLs coming from API (prefix base URL when missing protocol)
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+  const normalizeImageUrl = (raw?: string) => {
+    const url = raw?.trim();
+    if (!url || url === 'null' || url === 'undefined') return '';
+    if (/^https?:\/\//i.test(url)) return url;
+    if (apiBaseUrl) return `${apiBaseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+    return url;
+  };
   
   console.log('Current brokers state:', brokers);
   console.log('Brokers length:', brokers.length);
@@ -372,8 +346,13 @@ const Brokers = () => {
         </button>
       </div>
     ) : (
-      <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4 md:px-6 lg:px-0">
-        {displayBrokers.map((broker, index) => {
+      displayBrokers.length === 0 ? (
+        <div className="text-center py-8 text-gray-600">
+          No verified brokers available right now.
+        </div>
+      ) : (
+        <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4 md:px-6 lg:px-0">
+          {displayBrokers.map((broker, index) => {
           console.log('Rendering broker:', broker);
           console.log('Broker image fields:', {
             brokerImage: broker.brokerImage,
@@ -386,18 +365,13 @@ const Brokers = () => {
             defaultImage: broker.defaultImage
           });
           console.log('All broker fields:', Object.keys(broker));
-          
-          // Different fallback images for each position
-          const fallbackImages = [
-            '/images/broker2.webp',
-            '/images/broker7.webp', 
-            '/images/broker8.jpg',
-            '/images/broker5.webp'
-          ];
-          
+
           // Pick the first valid, non-empty image string from API
           const pickValidImage = (...cands: (string | undefined)[]) => {
-            const valid = cands.find((s) => typeof s === 'string' && s.trim() && s !== 'null' && s !== 'undefined');
+            const valid = cands
+              .filter((s) => typeof s === 'string' && s.trim() && s !== 'null' && s !== 'undefined')
+              .map((s) => normalizeImageUrl(s))
+              .find(Boolean);
             return valid || '';
           };
 
@@ -409,8 +383,7 @@ const Brokers = () => {
             broker.photo,
             broker.picture,
             broker.profilePicture,
-            broker.defaultImage,
-            fallbackImages[index]
+            broker.defaultImage
           );
           console.log('Final image URL being used:', imageUrl);
           
@@ -422,13 +395,16 @@ const Brokers = () => {
           return (
           <article key={brokerId} className="group relative rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition duration-300 overflow-hidden hover:bg-yellow-400 hover:ring-1 hover:ring-yellow-500/60 hover:-translate-y-0.5">
             <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
-              <img 
-                src={imageUrl} 
+                <img 
+                src={imageUrl || normalizeImageUrl(broker.defaultImage) || ''} 
                 alt={`Broker portrait - ${typeof broker.name === 'string' ? broker.name : typeof broker.fullName === 'string' ? broker.fullName : 'Broker'}`} 
                 className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" 
                 onError={(e) => {
                   // Fallback to default image if API image fails to load
-                  e.currentTarget.src = pickValidImage(broker.defaultImage, fallbackImages[index]);
+                  const fallback = pickValidImage(broker.defaultImage);
+                  if (fallback && e.currentTarget.src !== fallback) {
+                    e.currentTarget.src = fallback;
+                  }
                 }}
               />
             </div>
@@ -521,6 +497,7 @@ const Brokers = () => {
           );
         })}
       </div>
+      )
     )}
    
   </div>

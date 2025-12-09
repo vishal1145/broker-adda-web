@@ -300,7 +300,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
             .map((property: ApiProperty) => ({
               id: property._id || property.id || '',
               title: property.title || property.name || 'Property',
-              image: property.images?.[0] || property.image || '/images/pexels-binyaminmellish-106399.jpg',
+              image: property.images?.[0] || property.image || '',
               price: property.price || 0
             }));
 

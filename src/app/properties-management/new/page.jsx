@@ -40,6 +40,13 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
   const fileInputRef = useRef(null);
   const [videoFiles, setVideoFiles] = useState([]);
   const videoFileInputRef = useRef(null);
+  const isValidImageUrl = (u) => {
+    if (typeof u !== "string") return false;
+    const trimmed = u.trim();
+    if (!trimmed) return false;
+    if (trimmed === "/images/placeholder-image.png") return false;
+    return true;
+  };
   // New property meta fields
   const amenityPresetOptions = [
     "Parking","Power Backup","Lift","Garden","Security","Gym","Water Supply","Swimming Pool"
@@ -361,7 +368,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
     setNearbyAmenities(Array.isArray(property.nearbyAmenities) ? property.nearbyAmenities : []);
     setFeatures(Array.isArray(property.features) ? property.features : []);
     setLocationBenefits(Array.isArray(property.locationBenefits) ? property.locationBenefits : []);
-    setImages(Array.isArray(property.images) ? property.images : []);
+    setImages(Array.isArray(property.images) ? property.images.filter(isValidImageUrl) : []);
     setVideos(Array.isArray(property.videos) ? property.videos : []);
     setBedrooms(property.bedrooms ? String(property.bedrooms) : "");
     setBathrooms(property.bathrooms ? String(property.bathrooms) : "");
@@ -1474,23 +1481,28 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
                     {(images.length > 0 || imageFiles.length > 0) && (
                       <div className="grid grid-cols-3 gap-3 mt-4">
                         {/* URL Images */}
-                        {images.map((url, idx) => (
-                          <div key={`url-${idx}`} className="relative group aspect-square">
-                            <img 
-                              src={url} 
-                              alt={`Image ${idx + 1}`} 
-                              className="w-full h-full object-cover rounded-lg border border-gray-200"
-                              onError={(e) => { e.target.src = '/images/placeholder-image.png'; }}
-                            />
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); removeFrom(url, setImages); }}
-                              className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs shadow-lg"
-                            >
-                              ×
-                            </button>
+                        {images
+                          .filter((url) => isValidImageUrl(url))
+                          .map((url, idx) => (
+                            <div key={`url-${idx}`} className="relative group aspect-square">
+                              <img 
+                                src={url} 
+                                alt={`Image ${idx + 1}`} 
+                                className="w-full h-full object-cover rounded-lg border border-gray-200"
+                                onError={(e) => { 
+                                  e.target.onerror = null;
+                                  e.target.src = '';
+                                }}
+                              />
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); removeFrom(url, setImages); }}
+                                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs shadow-lg"
+                              >
+                                ×
+                              </button>
                 </div>
-                        ))}
+                          ))}
                         {/* File Images */}
                         {imageFiles.map((file, idx) => {
                           const url = URL.createObjectURL(file);
@@ -1500,6 +1512,10 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
                                 src={url} 
                                 alt={file.name} 
                                 className="w-full h-full object-cover rounded-lg border border-gray-200"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = '';
+                                }}
                               />
                               <button
                                 type="button"
