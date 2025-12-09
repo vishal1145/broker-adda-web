@@ -4712,34 +4712,36 @@ const Profile = () => {
                             }
 
                             // Debug: Log specializations and removals being sent
-
-
-
-                            ? '(Array)' : '(Not Array)');
+                            console.log('=== Profile Update Debug ===');
+                            console.log('Specializations - Original:', originalSpecializations);
+                            console.log('Specializations - Current:', currentFormData.specializations);
+                            console.log('Specializations - Type:', typeof currentFormData.specializations, Array.isArray(currentFormData.specializations) ? '(Array)' : '(Not Array)');
                             
                             if (removedDocuments.size > 0) {
-                              );
-
+                              console.log('Removed documents:', Array.from(removedDocuments));
+                              console.log('Original documents:', originalDocuments);
                             }
                             
                             // Log all FormData entries for specializations and document removals
-
+                            console.log('FormData entries for specializations:');
                             for (let pair of formDataToSend.entries()) {
                                 const key = pair[0];
                                 if (key.includes('specializations')) {
-
+                                  console.log(key, ':', pair[1] instanceof File ? `[File: ${pair[1].name}]` : pair[1]);
                                 }
                             }
-
+                            
+                            console.log('FormData entries for document removals:');
                             for (let pair of formDataToSend.entries()) {
                                 const key = pair[0];
                                 if (key.includes('remove') || 
                                     (key === 'aadhar' || key === 'aadharFront' || key === 'aadharBack' || 
                                      key === 'pan' || key === 'panFront' || key === 'panBack' || 
                                      key === 'gst' || key === 'brokerLicense' || key === 'companyId')) {
-
+                                  console.log(key, ':', pair[1] instanceof File ? `[File: ${pair[1].name}]` : pair[1]);
                                 }
                             }
+                            console.log('==========================================');
 
                             const res = await fetch(
                               `${process.env.NEXT_PUBLIC_API_URL}/auth/complete-profile`,
