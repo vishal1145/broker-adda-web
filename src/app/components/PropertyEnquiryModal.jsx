@@ -53,7 +53,7 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
         else if (data?._id && data?.name) regions = [data];
         setRegionsList(regions);
       } catch (error) {
-        console.error("Error loading regions:", error);
+
         setRegionsList([]);
       } finally {
         setRegionsLoading(false);
@@ -220,7 +220,7 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
     onClose();
     resetForm();
     } catch (error) {
-      console.error("Error creating lead:", error);
+
       toast.error("Error creating lead. Please try again.");
     } finally {
       setLoading(false);

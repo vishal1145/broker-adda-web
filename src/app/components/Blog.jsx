@@ -24,7 +24,7 @@ const Blog = () => {
     // Store in localStorage for persistence
     localStorage.setItem('currentBlog', JSON.stringify(transformedBlog));
     
-    console.log('Navigating to blog details:', transformedBlog);
+    // console.log('Navigating to blog details:', transformedBlog);
     
     navigate(`/blogdetails/${blog.id}`, {
       state: { blogData: transformedBlog }

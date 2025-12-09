@@ -116,7 +116,6 @@ export default function EditModeCustomerProfile() {
           }));
         }
       } catch (error) {
-        console.error('Error loading customer data:', error);
         toast.error('Failed to load customer data');
       } finally {
         setLoading(false);
@@ -274,7 +273,6 @@ export default function EditModeCustomerProfile() {
         router.push('/customer-profile?mode=view');
       }, 1500);
     } catch (error) {
-      console.error('Error updating profile:', error);
       toast.error('Network error. Please try again.');
     } finally {
       setSubmitting(false);

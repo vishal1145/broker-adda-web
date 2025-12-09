@@ -43,8 +43,6 @@ const Settings = () => {
         };
 
         const apiEndpoint = `${apiUrl}/auth/profile`;
-        console.log('Fetching profile data:', apiEndpoint);
-
         const response = await fetch(apiEndpoint, {
           method: 'GET',
           headers
@@ -52,8 +50,6 @@ const Settings = () => {
 
         if (response.ok) {
           const responseData = await response.json().catch(() => ({}));
-          console.log('Profile data fetched:', responseData);
-          
           // Update state based on profile API response
           const userData = responseData?.data?.user || responseData?.user || {};
           
@@ -77,11 +73,9 @@ const Settings = () => {
             setIsEmailVerified(userData.emailVerified);
           }
         } else {
-          console.log('Failed to fetch profile data:', response.status);
           // Keep default values if fetch fails
         }
       } catch (err) {
-        console.error('Error fetching profile data:', err);
         // Keep default values if fetch fails
       } finally {
         setIsLoadingPreferences(false);
@@ -114,10 +108,6 @@ const Settings = () => {
       };
 
       const apiEndpoint = `${apiUrl}/notifications/preferences`;
-      console.log('Calling update email notification API:', apiEndpoint);
-      console.log('Method: PATCH');
-      console.log('Body:', { emailNotification: newValue });
-
       const response = await fetch(apiEndpoint, {
         method: 'PATCH',
         headers,
@@ -125,14 +115,8 @@ const Settings = () => {
           emailNotification: newValue
         })
       });
-
-      console.log('Update email notification response status:', response.status);
-      console.log('Update email notification response ok:', response.ok);
-
       if (response.ok) {
         const responseData = await response.json().catch(() => ({}));
-        console.log('Email notification updated successfully:', responseData);
-        
         setEmailNotifications(newValue);
     toast.success(
           `Email notifications ${newValue ? 'enabled' : 'disabled'}`,
@@ -142,15 +126,12 @@ const Settings = () => {
     );
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to update email notification:', response.status, errorData);
-        
         const errorMessage = errorData?.message || errorData?.error || 'Failed to update email notification preferences. Please try again.';
         toast.error(errorMessage, {
           duration: 3000,
         });
       }
     } catch (err) {
-      console.error('Error updating email notification:', err);
       toast.error('An error occurred while updating email notification preferences. Please try again.', {
         duration: 3000,
       });
@@ -182,10 +163,6 @@ const Settings = () => {
       };
 
       const apiEndpoint = `${apiUrl}/notifications/preferences`;
-      console.log('Calling update SMS notification API:', apiEndpoint);
-      console.log('Method: PATCH');
-      console.log('Body:', { smsNotification: newValue });
-
       const response = await fetch(apiEndpoint, {
         method: 'PATCH',
         headers,
@@ -193,14 +170,8 @@ const Settings = () => {
           smsNotification: newValue
         })
       });
-
-      console.log('Update SMS notification response status:', response.status);
-      console.log('Update SMS notification response ok:', response.ok);
-
       if (response.ok) {
         const responseData = await response.json().catch(() => ({}));
-        console.log('SMS notification updated successfully:', responseData);
-        
         setSmsNotifications(newValue);
         toast.success(
           `SMS notifications ${newValue ? 'enabled' : 'disabled'}`,
@@ -210,15 +181,12 @@ const Settings = () => {
         );
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to update SMS notification:', response.status, errorData);
-        
         const errorMessage = errorData?.message || errorData?.error || 'Failed to update SMS notification preferences. Please try again.';
         toast.error(errorMessage, {
       duration: 3000,
     });
       }
     } catch (err) {
-      console.error('Error updating SMS notification:', err);
       toast.error('An error occurred while updating SMS notification preferences. Please try again.', {
         duration: 3000,
       });
@@ -258,36 +226,23 @@ const Settings = () => {
       };
 
       const apiEndpoint = `${apiUrl}/auth/send-verification-email`;
-      console.log('Calling send verification email API:', apiEndpoint);
-      console.log('Method: POST');
-      console.log('Headers:', headers);
-
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers
       });
-
-      console.log('Send verification email response status:', response.status);
-      console.log('Send verification email response ok:', response.ok);
-
       if (response.ok) {
         const responseData = await response.json().catch(() => ({}));
-        console.log('Verification email sent successfully:', responseData);
-        
         toast.success('Verification email sent successfully. Please check your inbox.', {
           duration: 4000,
         });
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to send verification email:', response.status, errorData);
-        
         const errorMessage = errorData?.message || errorData?.error || 'Failed to send verification email. Please try again.';
         toast.error(errorMessage, {
           duration: 3000,
         });
       }
     } catch (err) {
-      console.error('Error sending verification email:', err);
       toast.error('An error occurred while sending verification email. Please try again.', {
         duration: 3000,
       });
@@ -317,22 +272,12 @@ const Settings = () => {
       };
 
       const apiEndpoint = `${apiUrl}/auth/account`;
-      console.log('Calling delete account API:', apiEndpoint);
-      console.log('Method: DELETE');
-      console.log('Headers:', headers);
-
       const response = await fetch(apiEndpoint, {
         method: 'DELETE',
         headers
       });
-
-      console.log('Delete account response status:', response.status);
-      console.log('Delete account response ok:', response.ok);
-
       if (response.ok) {
         const responseData = await response.json().catch(() => ({}));
-        console.log('Account deleted successfully:', responseData);
-        
         toast.success('Account deleted successfully', {
       duration: 3000,
     });
@@ -353,8 +298,6 @@ const Settings = () => {
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to delete account:', response.status, errorData);
-        
         const errorMessage = errorData?.message || errorData?.error || 'Failed to delete account. Please try again.';
         toast.error(errorMessage, {
           duration: 3000,
@@ -362,7 +305,6 @@ const Settings = () => {
         setIsDeleting(false);
       }
     } catch (err) {
-      console.error('Error deleting account:', err);
       toast.error('An error occurred while deleting your account. Please try again.', {
         duration: 3000,
       });

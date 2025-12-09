@@ -124,10 +124,10 @@ const LatestLeads: React.FC = () => {
                 // API stores as [latitude, longitude]
                 latitude = broker.location.coordinates[0];
                 longitude = broker.location.coordinates[1];
-                console.log('📍 LatestLeads: Using broker location coordinates (from profile):', latitude, longitude);
+                // console.log('📍 LatestLeads: Using broker location coordinates (from profile):', latitude, longitude);
               }
               
-              console.log('Current broker ID for leads filter:', currentBrokerId);
+              // console.log('Current broker ID for leads filter:', currentBrokerId);
             }
           } catch (err) {
             console.error('Error fetching broker details:', err);
@@ -147,9 +147,9 @@ const LatestLeads: React.FC = () => {
               });
               latitude = position.coords.latitude;
               longitude = position.coords.longitude;
-              console.log('📍 LatestLeads: Using current location coordinates (geolocation):', latitude, longitude);
+              // console.log('📍 LatestLeads: Using current location coordinates (geolocation):', latitude, longitude);
             } catch (err) {
-              console.log('📍 LatestLeads: Could not get current location, will fetch all verified leads');
+              // console.log('📍 LatestLeads: Could not get current location, will fetch all verified leads');
             }
           }
         }
@@ -167,14 +167,14 @@ const LatestLeads: React.FC = () => {
         let apiUrlWithParams = `${apiUrl}/leads?verificationStatus=Verified`;
         if (latitude && longitude) {
           apiUrlWithParams += `&latitude=${latitude}&longitude=${longitude}`;
-          console.log('📍 LatestLeads: Fetching leads with location filter:', apiUrlWithParams);
+          // console.log('📍 LatestLeads: Fetching leads with location filter:', apiUrlWithParams);
         } else {
-          console.log('📍 LatestLeads: Fetching all verified leads (no location filter)');
+          // console.log('📍 LatestLeads: Fetching all verified leads (no location filter)');
         }
         
         // Add limit to fetch more leads (increase from default 9)
         apiUrlWithParams += `&limit=100`;
-        console.log('📊 LatestLeads: Fetching with limit=100 to get all available leads');
+        // console.log('📊 LatestLeads: Fetching with limit=100 to get all available leads');
 
         const res = await axios.get(apiUrlWithParams, { headers });
         // Handle different response structures
@@ -192,10 +192,10 @@ const LatestLeads: React.FC = () => {
         }
 
         // Debug: Log all leads and current broker/user IDs
-        console.log('🔍 Filtering leads - Total leads:', items.length, {
-          currentBrokerId,
-          currentUserId
-        });
+        // console.log('🔍 Filtering leads - Total leads:', items.length, {
+        //   currentBrokerId,
+        //   currentUserId
+        // });
 
         // Filter out leads belonging to the logged-in broker
         const filteredItems = (currentBrokerId || currentUserId)
@@ -260,21 +260,21 @@ const LatestLeads: React.FC = () => {
               const shouldShow = !shouldFilter;
               
               if (shouldFilter) {
-                console.log('❌ Filtering out lead:', lead._id, {
-                  leadBrokerId: leadBrokerIdStr,
-                  leadUserId: leadUserIdStr,
-                  currentBrokerId: brokerIdStr,
-                  currentUserId: userIdStr,
-                  matchesBrokerId,
-                  matchesUserId
-                });
+                // console.log('❌ Filtering out lead:', lead._id, {
+                //   leadBrokerId: leadBrokerIdStr,
+                //   leadUserId: leadUserIdStr,
+                //   currentBrokerId: brokerIdStr,
+                //   currentUserId: userIdStr,
+                //   matchesBrokerId,
+                //   matchesUserId
+                // });
               }
               
               return shouldShow;
             })
           : items;
 
-        console.log('✅ Filtered leads - Remaining:', filteredItems.length, 'out of', items.length);
+        // console.log('✅ Filtered leads - Remaining:', filteredItems.length, 'out of', items.length);
 
         // Helper function to extract distance (in km)
         const getDistance = (lead: ApiLead & { distanceKm?: number; distance?: number }): number => {
@@ -288,7 +288,7 @@ const LatestLeads: React.FC = () => {
           const distanceB = getDistance(b);
           return distanceA - distanceB; // Ascending order (closest first)
         });
-        console.log('📍 LatestLeads: Sorted leads by distance (closest first), showing', sorted.length, 'leads');
+        // console.log('📍 LatestLeads: Sorted leads by distance (closest first), showing', sorted.length, 'leads');
         setLeads(sorted);
       } catch (error) {
         console.error("Error fetching leads:", error);

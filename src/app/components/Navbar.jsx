@@ -63,7 +63,6 @@ const Navbar = ({ data }) => {
 
       const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
       if (!apiKey) {
-        console.warn('Google Maps API key not found');
         return;
       }
 
@@ -73,7 +72,6 @@ const Navbar = ({ data }) => {
       script.defer = true;
       script.onload = () => setGoogleLoaded(true);
       script.onerror = () => {
-        console.error('Google Maps API failed to load');
       };
       document.head.appendChild(script);
     };
@@ -112,10 +110,8 @@ const Navbar = ({ data }) => {
         );
       }
       
-      console.log('Broker ID from token:', brokerId, 'Full payload:', payload);
       return brokerId;
     } catch (e) {
-      console.error('Error extracting broker ID from token:', e);
       return '';
     }
   };
@@ -143,8 +139,6 @@ const Navbar = ({ data }) => {
       //   queryParams = `?brokerId=${encodeURIComponent(brokerId)}&userId=${encodeURIComponent(brokerId)}`;
       // }
       const apiEndpoint = `${apiUrl}/notifications`;
-      // console.log('Fetching notifications from:', apiEndpoint, 'with brokerId:', brokerId);
-      
       const response = await fetch(apiEndpoint, {
         method: 'GET',
         headers
@@ -155,9 +149,7 @@ const Navbar = ({ data }) => {
       }
 
       const data = await response.json();
-      console.log('Notifications data:', data);
-      
-      // Handle different response structures
+     // // Handle different response structures
       let notificationsList = [];
       if (Array.isArray(data?.data)) {
         notificationsList = data.data;
@@ -178,11 +170,9 @@ const Navbar = ({ data }) => {
         unread: notif?.isRead === false || notif?.read === false || notif?.unread === true || false
       }));
 
-      console.log('Transformed notifications:', transformedNotifications);
-      // Use API data if available, even if empty (don't use fallback for empty API response)
+     // // Use API data if available, even if empty (don't use fallback for empty API response)
       setNotifications(transformedNotifications);
     } catch (err) {
-      console.error('Error fetching notifications:', err);
       // Clear notifications on error (don't show fallback)
       setNotifications([]);
     } finally {
@@ -404,16 +394,13 @@ const Navbar = ({ data }) => {
             if (status === 'OK' && results && results[0] && results[0].geometry && results[0].geometry.location) {
               latitude = results[0].geometry.location.lat();
               longitude = results[0].geometry.location.lng();
-              console.log('📍 Geocoded:', query, '→', latitude, longitude);
-            } else {
-              console.log('⚠️ Geocoding failed for:', query, 'Status:', status);
-            }
+              } else {
+              }
             resolve();
           });
         });
       }
     } catch (error) {
-      console.error('Error geocoding address:', error);
     }
     
     // If we have coordinates, navigate with lat/lng (priority)
@@ -469,7 +456,6 @@ const Navbar = ({ data }) => {
         }
       }
     } catch (error) {
-      console.error('Error checking region match:', error);
     }
     
     // Default: pass as query parameter for company name search

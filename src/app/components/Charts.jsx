@@ -39,7 +39,7 @@ export default function DashboardCharts() {
 
   // Debug: Log state changes
   useEffect(() => {
-    console.log('Leads chart state updated - Labels:', leadsLabels, 'Data:', leadsData, 'Loading:', leadsLoading);
+    //// console.log('Leads chart state updated - Labels:', leadsLabels, 'Data:', leadsData, 'Loading:', leadsLoading);
   }, [leadsLabels, leadsData, leadsLoading]);
 
   // Fetch leads by month data from API
@@ -68,7 +68,7 @@ export default function DashboardCharts() {
         }
 
         const data = await response.json();
-        console.log('Leads by month API response:', data);
+       // console.log('Leads by month API response:', data);
 
         // Handle API response structure: { success: true, data: [...] }
         let leadsByMonthData = null;
@@ -80,7 +80,7 @@ export default function DashboardCharts() {
           leadsByMonthData = [];
         }
 
-        console.log('Extracted leadsByMonthData:', leadsByMonthData);
+       // console.log('Extracted leadsByMonthData:', leadsByMonthData);
 
         // Transform API data to chart format
         // API format: [{ year: 2025, month: 1, monthName: "Jan", count: 0 }, ...]
@@ -92,7 +92,7 @@ export default function DashboardCharts() {
             return monthA - monthB;
           });
 
-          console.log('Sorted leads data:', sorted);
+         // console.log('Sorted leads data:', sorted);
 
           // Use monthName if available, otherwise map from month number
           const transformedLabels = sorted.map(item => {
@@ -110,9 +110,9 @@ export default function DashboardCharts() {
           // Extract closedCount from API response
           const transformedClosedData = sorted.map(item => item.closedCount || 0);
 
-          console.log('Transformed labels:', transformedLabels);
-          console.log('Transformed data:', transformedData);
-          console.log('Transformed closed leads data:', transformedClosedData);
+         // console.log('Transformed labels:', transformedLabels);
+         // console.log('Transformed data:', transformedData);
+         // console.log('Transformed closed leads data:', transformedClosedData);
 
           setLeadsLabels(transformedLabels);
           setLeadsData(transformedData);
@@ -166,7 +166,7 @@ export default function DashboardCharts() {
         }
 
         const data = await response.json();
-        console.log('Properties by month API response:', data);
+       // console.log('Properties by month API response:', data);
 
         // Handle API response structure: { success: true, data: [...] }
         let propertiesByMonthData = null;

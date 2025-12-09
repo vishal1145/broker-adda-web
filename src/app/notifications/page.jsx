@@ -115,10 +115,8 @@ const NotificationsPage = () => {
         );
       }
       
-      console.log('Broker ID from token:', brokerId, 'Full payload:', payload);
       return brokerId;
     } catch (e) {
-      console.error('Error extracting broker ID from token:', e);
       return '';
     }
   };
@@ -184,7 +182,6 @@ const NotificationsPage = () => {
         }
         
         const apiEndpoint = `${apiUrl}/notifications${queryParams}`;
-        console.log(`Fetching notifications page ${currentPage} from:`, apiEndpoint);
         
         const response = await fetch(apiEndpoint, {
           method: 'GET',
@@ -196,7 +193,6 @@ const NotificationsPage = () => {
         }
 
         const data = await response.json();
-        console.log(`Page ${currentPage} notifications data:`, data);
         
         // Handle different response structures
         let notificationsList = [];
@@ -220,22 +216,17 @@ const NotificationsPage = () => {
         if (pagination) {
           hasMorePages = pagination.hasNextPage === true || (pagination.page < pagination.pages);
           currentPage++;
-          console.log(`Pagination info: page ${pagination.page} of ${pagination.pages}, hasNextPage: ${pagination.hasNextPage}`);
         } else {
           // If no pagination info, check if we got fewer notifications than the limit
           hasMorePages = notificationsList.length === limit;
           currentPage++;
-          console.log(`No pagination info, got ${notificationsList.length} notifications, hasMorePages: ${hasMorePages}`);
         }
 
         // Safety limit to prevent infinite loops
         if (currentPage > 100) {
-          console.warn('Reached safety limit of 100 pages, stopping pagination');
           hasMorePages = false;
         }
       }
-
-      console.log(`Total notifications fetched: ${allNotificationsList.length}`);
 
       // Transform API data to match expected format
       const transformedNotifications = allNotificationsList.map((notif, index) => ({
@@ -246,13 +237,11 @@ const NotificationsPage = () => {
         unread: notif?.isRead === false || notif?.read === false || notif?.unread === true || false
       }));
 
-      console.log('Total transformed notifications:', transformedNotifications.length);
       // Use API data if available, even if empty (don't use fallback for empty API response)
       setAllNotifications(transformedNotifications);
       // Directly set notifications since API already filtered them
       setNotifications(transformedNotifications);
     } catch (err) {
-      console.error('Error fetching notifications:', err);
       setError('Failed to load notifications. Please try again.');
       setAllNotifications([]);
       setNotifications([]);
@@ -269,7 +258,6 @@ const NotificationsPage = () => {
         : null;
       
       if (!token) {
-        console.warn('No token found, cannot mark notifications as read');
         return;
       }
       
@@ -280,21 +268,14 @@ const NotificationsPage = () => {
       };
 
       const apiEndpoint = `${apiUrl}/notifications/read-all`;
-      console.log('Calling mark all as read API:', apiEndpoint);
-      console.log('Method: PATCH');
-      console.log('Headers:', headers);
 
       const response = await fetch(apiEndpoint, {
         method: 'PATCH',
         headers
       });
 
-      console.log('Mark all as read response status:', response.status);
-      console.log('Mark all as read response ok:', response.ok);
-
       if (response.ok) {
         const responseData = await response.json().catch(() => ({}));
-        console.log('All notifications marked as read successfully:', responseData);
         
         // Update local state to mark all as read
         setAllNotifications(prev => prev.map(n => ({ ...n, unread: false })));
@@ -303,22 +284,17 @@ const NotificationsPage = () => {
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('notificationsUpdated'));
         }
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to mark all notifications as read:', response.status, errorData);
       }
     } catch (err) {
-      console.error('Error marking all notifications as read:', err);
+      // Error handling
     }
   };
 
   useEffect(() => {
     const loadAndMarkRead = async () => {
-      console.log('Notifications page loaded, fetching notifications and marking as read...');
       const apiType = getApiTypeFromFilter(activeFilter);
       await fetchNotifications(apiType);
       // Mark all as read after fetching notifications
-      console.log('Calling markAllAsRead after notifications fetched...');
       await markAllAsRead();
       setIsInitialLoad(false);
     };
@@ -338,7 +314,6 @@ const NotificationsPage = () => {
     
     const fetchFilteredNotifications = async () => {
       const apiType = getApiTypeFromFilter(activeFilter);
-      console.log(`Filter changed to: ${activeFilter}, API type: ${apiType}`);
       await fetchNotifications(apiType);
     };
     

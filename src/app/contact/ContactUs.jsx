@@ -85,7 +85,6 @@ const ContactUs = () => {
         message: "",
       });
     } catch (error) {
-      console.error('Error submitting form:', error);
       const errorMessage = error.message || 'Failed to send message. Please try again.';
       toast.error(errorMessage);
     } finally {

@@ -13,20 +13,17 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
     // Small delay to ensure user data is loaded
     const timer = setTimeout(() => {
     if (!isAuthenticated()) {
-      console.log('ProtectedRoute: User not authenticated, redirecting to login');
-      router.push('/login');
+     // router.push('/login');
       return;
     }
     // Check role-specific access
     if (requiredRole === 'broker' && !isBroker()) {
-      console.log('ProtectedRoute: User is not a broker, redirecting to login');
-      router.push('/login');
+     // router.push('/login');
       return;
     }
 
     if (requiredRole === 'customer' && !isCustomer()) {
-      console.log('ProtectedRoute: User is not a customer, redirecting to login');
-      router.push('/login');
+     // router.push('/login');
       return;
     }
     }, 100);

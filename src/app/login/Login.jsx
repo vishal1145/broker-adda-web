@@ -82,16 +82,11 @@ const Login = () => {
         
         try {
           const errorData = await response.json();
-          console.error('Login API Error:', errorData);
-          
           // Prioritize the API's actual error message
-          console.log('API Error Data:', errorData);
           if (errorData.message) {
             errorMessage = errorData.message;
-            console.log('Using API message:', errorMessage);
           } else if (errorData.error && typeof errorData.error === 'string') {
             errorMessage = errorData.error;
-            console.log('Using API error:', errorMessage);
           } else if (errorData.error && errorData.error.includes('E11000')) {
             errorMessage = 'This phone number is already registered. Please use a different number.';
           } else if (errorData.error && errorData.error.includes('validation')) {
@@ -108,7 +103,6 @@ const Login = () => {
             errorMessage = `Login failed (${response.status})`;
           }
         } catch (parseError) {
-          console.error('Error parsing login response:', parseError);
           if (response.status === 400) {
             errorMessage = 'Invalid phone number. Please check and try again.';
           } else if (response.status === 401) {
@@ -125,7 +119,6 @@ const Login = () => {
         toast.error(errorMessage);
       }
     } catch (error) {
-      console.error('Login network error:', error);
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         toast.error('Network error. Please check your connection and try again.');
       } else {
@@ -149,8 +142,6 @@ const Login = () => {
 
   const handleOTPVerify = async (otpCode) => {
     try {
-      console.log('Starting OTP verification for phone:', phoneNumber);
-      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: {
@@ -164,8 +155,6 @@ const Login = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('OTP verification response:', data);
-        
         if (data.success) {
           // Extract user data from response
           const role = data?.role || data?.user?.role || data?.data?.role || '';
@@ -187,8 +176,6 @@ const Login = () => {
             
             // Decode token payload to validate structure
             const tokenPayload = JSON.parse(atob(tokenParts[1]));
-            console.log('Token payload:', tokenPayload);
-            
             // Check if token is expired
             const currentTime = Math.floor(Date.now() / 1000);
             if (tokenPayload.exp && tokenPayload.exp < currentTime) {
@@ -196,13 +183,10 @@ const Login = () => {
             }
             
           } catch (tokenError) {
-            console.error('Token validation failed:', tokenError);
             throw new Error('Invalid authentication token received');
           }
 
           // Save to localStorage and login user
-          console.log('Saving user data to localStorage:', { token: !!token, phone: phoneFromApi, role, userId });
-          
           // Save userId to localStorage if available
           if (userId) {
             localStorage.setItem('userId', userId);
@@ -215,8 +199,6 @@ const Login = () => {
           if (!savedToken) {
             throw new Error('Failed to save authentication token');
           }
-          
-          console.log('Token saved successfully, redirecting based on role');
           toast.success(data.message || 'Phone number verified successfully!');
           setShowOTPModal(false);
           
@@ -230,8 +212,6 @@ const Login = () => {
             } else {
               // Redirect based on user role - prioritize explicit role check
               const finalRole = role || (typeof window !== 'undefined' ? localStorage.getItem('role') : null);
-              console.log('Login redirect - Final role:', finalRole);
-              
               if (finalRole === 'broker') {
                 router.push(redirect || '/dashboard');
               } else if (finalRole === 'customer') {
@@ -261,11 +241,9 @@ const Login = () => {
         }
       } else {
         const errorData = await response.json();
-        console.error('OTP verification failed:', errorData);
         throw new Error(errorData.message || 'Invalid OTP');
       }
     } catch (error) {
-      console.error('OTP verification error:', error);
       throw error;
     }
   };

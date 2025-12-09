@@ -189,10 +189,10 @@ const Hero = ({ data = {
               if (broker?.location?.coordinates && Array.isArray(broker.location.coordinates) && broker.location.coordinates.length >= 2) {
                 latitude = broker.location.coordinates[0];
                 longitude = broker.location.coordinates[1];
-                console.log('📍 Hero: Using broker location coordinates:', latitude, longitude);
+               // console.log('📍 Hero: Using broker location coordinates:', latitude, longitude);
               }
               
-              console.log('Current broker ID for hero filter:', currentBrokerId);
+             // console.log('Current broker ID for hero filter:', currentBrokerId);
             }
           } catch (err) {
             console.error('Error fetching broker details:', err);
@@ -212,9 +212,9 @@ const Hero = ({ data = {
               });
               latitude = position.coords.latitude;
               longitude = position.coords.longitude;
-              console.log('📍 Hero: Using current location coordinates:', latitude, longitude);
+             // console.log('📍 Hero: Using current location coordinates:', latitude, longitude);
             } catch (err) {
-              console.log('📍 Hero: Could not get current location, will fetch all verified brokers');
+             // console.log('📍 Hero: Could not get current location, will fetch all verified brokers');
             }
           }
         }
@@ -233,9 +233,9 @@ const Hero = ({ data = {
         let apiUrlWithParams = `${apiUrl}/brokers?verificationStatus=Verified`;
         if (latitude && longitude) {
           apiUrlWithParams += `&latitude=${latitude}&longitude=${longitude}`;
-          console.log('📍 Hero: Fetching brokers with location filter:', apiUrlWithParams);
+         // console.log('📍 Hero: Fetching brokers with location filter:', apiUrlWithParams);
         } else {
-          console.log('📍 Hero: Fetching all verified brokers (no location filter)');
+         // console.log('📍 Hero: Fetching all verified brokers (no location filter)');
         }
 
         const response = await fetch(apiUrlWithParams, {
@@ -332,7 +332,7 @@ const Hero = ({ data = {
               const shouldFilter = matchesBrokerId || matchesUserId;
               
               if (shouldFilter) {
-                console.log('Filtering out broker from hero:', brokerIdStr, 'Current Broker ID:', currentBrokerIdStr, 'Current User ID:', currentUserIdStr);
+               // console.log('Filtering out broker from hero:', brokerIdStr, 'Current Broker ID:', currentBrokerIdStr, 'Current User ID:', currentUserIdStr);
               }
               
               // Only show brokers that don't match the logged-in broker

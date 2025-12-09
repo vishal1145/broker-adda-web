@@ -129,9 +129,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
               const brokerData = await brokerRes.json();
               const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
               currentBrokerId = broker?._id || broker?.id || '';
-              console.log('Current broker ID:', currentBrokerId);
-              
-              // Get coordinates from broker's location
+             // // Get coordinates from broker's location
               if (broker?.location?.coordinates && Array.isArray(broker.location.coordinates) && broker.location.coordinates.length >= 2) {
                 // API format: [latitude, longitude] OR GeoJSON: [longitude, latitude]
                 const coords = broker.location.coordinates;
@@ -142,11 +140,9 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
                   longitude = coords[0];
                   latitude = coords[1];
                 }
-                console.log('📍 FlashSale: Using broker location coordinates:', latitude, longitude);
-              }
+                }
             }
           } catch (err) {
-            console.error('Error fetching broker details:', err);
           }
         }
 
@@ -159,18 +155,15 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
                   (position) => {
                     latitude = position.coords.latitude;
                     longitude = position.coords.longitude;
-                    console.log('📍 FlashSale: Using geolocation coordinates:', latitude, longitude);
                     resolve();
                   },
                   (error) => {
-                    console.log('📍 FlashSale: Geolocation error:', error.message);
                     resolve(); // Continue without coordinates
                   },
                   { timeout: 5000 }
                 );
               });
             } catch (err) {
-              console.error('Error getting geolocation:', err);
             }
           }
         }
@@ -184,9 +177,8 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
         let apiUrlWithParams = `${apiUrl}/properties`;
         if (latitude && longitude) {
           apiUrlWithParams += `?latitude=${latitude}&longitude=${longitude}`;
-          console.log('📍 FlashSale: Fetching properties with location filter:', apiUrlWithParams);
         } else {
-          console.log('📍 FlashSale: Fetching all properties (no location filter)');
+          
         }
 
         const response = await fetch(apiUrlWithParams, {
@@ -242,8 +234,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
                 const propertyBrokerIdStr = String(propertyBrokerId).trim();
                 const shouldShow = propertyBrokerIdStr !== brokerIdStr && propertyBrokerIdStr !== '';
                 if (!shouldShow) {
-                  console.log('🔍 FlashSale: Filtering out own property:', property.title || property.name, 'Broker ID:', propertyBrokerIdStr);
-                }
+                  }
                 // Only show properties that don't belong to the logged-in broker
                 return shouldShow;
               })
@@ -254,9 +245,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
             return property.isHotProperty === true;
           });
           
-          console.log('🔥 FlashSale: Hot properties found:', hotProperties.length, 'out of', filteredProperties.length);
-
-          // Helper function to extract distance (in km)
+         // // Helper function to extract distance (in km)
           const getDistance = (property: ApiProperty): number => {
             const distance = property.distanceKm ?? property.distance;
             return Number.isFinite(Number(distance)) ? Number(distance) : Infinity;
@@ -306,11 +295,9 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
 
           setProperties(mappedProperties);
         } else {
-          console.error('Failed to fetch properties');
           setProperties([]);
         }
       } catch (error) {
-        console.error('Error fetching properties:', error);
         setProperties([]);
       } finally {
         setLoading(false);

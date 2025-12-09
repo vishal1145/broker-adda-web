@@ -142,7 +142,6 @@ const PropertyEnquiryPage = () => {
             adminId = payload.userId || payload.id || payload.adminId || payload.sub || '';
           }
         } catch (error) {
-          console.error('Error parsing token for admin ID:', error);
         }
       }
 
@@ -153,7 +152,6 @@ const PropertyEnquiryPage = () => {
 
       return adminId;
     } catch (error) {
-      console.error('Error getting admin ID from API:', error);
       return '';
     }
   };
@@ -189,7 +187,6 @@ const PropertyEnquiryPage = () => {
 
         setRegions(regionsData);
       } catch (error) {
-        console.error('Error fetching regions:', error);
         toast.error('Failed to load regions. Please refresh the page.');
       } finally {
         setRegionsLoading(false);
@@ -283,7 +280,6 @@ const PropertyEnquiryPage = () => {
         specificRequirements: '',
       });
     } catch (error) {
-      console.error('Error submitting enquiry:', error);
       toast.error(error.message || 'Failed to submit enquiry. Please try again.');
     } finally {
       setIsSubmitting(false);

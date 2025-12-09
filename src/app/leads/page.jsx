@@ -1533,7 +1533,6 @@ export default function BrokerLeadsPage() {
       setTransferRegion(null);
       setTransferMode("all");
     } catch (error) {
-      console.error("Error sending transfer request:", error);
       toast.error("Error sending transfer request");
     } finally {
       setTransferLoading(false);

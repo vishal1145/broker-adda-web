@@ -129,7 +129,6 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
     });
     
     // Show success message (you can add a toast notification here)
-    console.log(`Added ${product.name} to cart`);
   };
 
   const handleQuickView = (product: ProductItem, e: React.MouseEvent) => {
@@ -255,8 +254,6 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
           {filteredItems.length === 0 ? (
             <div className="col-span-full text-center text-sm text-gray-500">No properties found.</div>
           ) : filteredItems.map((product, index) => {
-            console.log('Home Products - Rendering product:', product);
-            console.log('Home Products - Product image path:', product.image);
             return (
               <div
                 key={product.id + index}
@@ -273,7 +270,6 @@ const Products = ({ data = { items: [], tabs: [] } }: { data: ProductsData }) =>
                       alt={product.name}
                       className="w-full h-52 object-cover"
                       onError={(e) => {
-                        console.error('Image failed to load:', product.image);
                         (e.target as HTMLImageElement).src = '/images/chair2.png'; // Fallback image
                       }}
                     />

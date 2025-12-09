@@ -173,7 +173,6 @@ export default function CreateModeCustomerProfile() {
         router.push('/customer-profile?mode=view');
       }, 1500);
     } catch (error) {
-      console.error('Error creating profile:', error);
       toast.error('Failed to create profile. Please try again.');
       setSubmitting(false);
     }

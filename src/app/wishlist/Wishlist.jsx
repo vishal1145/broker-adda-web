@@ -60,8 +60,6 @@ const Wishlist = () => {
     
     // Clear wishlist
     clearWishlist();
-    
-    console.log('Added all items to cart:', wishlistItems);
   };
 
   const handleAddCart = (item) => {
@@ -91,8 +89,6 @@ const Wishlist = () => {
     
     // Remove item from wishlist
     removeItem(item.id);
-    
-    console.log('Added item to cart:', item);
   };
 
   return (

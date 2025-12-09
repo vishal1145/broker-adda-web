@@ -74,13 +74,10 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
       
       // If verification is successful, show success state briefly
       setIsSuccess(true);
-      console.log('OTP verification successful, token should be saved locally');
-      
       // The parent component should handle token saving and redirect
       // The modal will be closed by the parent component after a short delay
       
     } catch (err) {
-      console.error('OTP verification failed:', err);
       setError(err.message || 'Invalid verification code. Please try again.');
     } finally {
       setIsVerifying(false);

@@ -104,7 +104,6 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
       script.defer = true;
       script.onload = () => setGoogleLoaded(true);
       script.onerror = () => {
-        console.error("Google Places API failed to load");
       };
       document.head.appendChild(script);
     };
@@ -217,7 +216,6 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
         throw new Error('Invalid response format from regions API');
       }
     } catch (error) {
-      console.error('Error fetching regions:', error);
       setRegionsError('Failed to load regions');
     } finally {
       setRegionsLoading(false);
@@ -287,7 +285,6 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
           router.push("/properties-management");
         }
       } catch (error) {
-        console.error("Error fetching property:", error);
         toast.error("Failed to load property data");
         router.push("/properties-management");
       } finally {
@@ -441,7 +438,6 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
       }
     } catch (err) {
       // Fail silently if Google is not available
-      console.warn('Address autocomplete init failed:', err);
     }
   }, [regions]);
 
@@ -505,14 +501,8 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
   const nextStep = (e) => { 
     e.preventDefault();
     e.stopPropagation();
-    console.log('Continue button clicked, current step:', currentStep, 'isValid:', isCurrentStepValid());
-    console.log('Continue button clicked - submitting state:', submitting);
     if (currentStep < totalSteps && isCurrentStepValid()) {
-      console.log('Moving to next step...');
       setCurrentStep(currentStep + 1);
-      console.log('Moved to step:', currentStep + 1);
-    } else {
-      console.log('Cannot proceed - either at last step or validation failed');
     }
   };
   const prevStep = () => { if (currentStep > 1) setCurrentStep(currentStep - 1); };
@@ -593,18 +583,12 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
     const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Form submitted - current step:', currentStep);
-    console.log('Form submitted - submitting state:', submitting);
     
     // Only proceed if we're on the last step (Step 3)
     if (currentStep !== 3) {
-      console.log('Form submitted but not on Step 4, current step:', currentStep);
-      console.log('Preventing form submission - not on step 4');
       toast.error(`Please complete all steps. Currently on step ${currentStep} of 3.`);
       return;
     }
-    
-    console.log('Create Property button clicked - starting property creation');
     setSubmitting(true);
 
     try {
@@ -631,7 +615,6 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
             null;
         }
       } catch (err) {
-        console.warn("Token decoding failed:", err);
       }
 
       if (!userId) {
@@ -664,7 +647,6 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
             userRole = brokerData?.data?.broker?.role;
         }
       } catch (err) {
-        console.warn("Broker fetch failed:", err);
       }
 
       if (!brokerId) {
@@ -921,9 +903,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
             </div>
             {/* Form (left) */}
           <form onSubmit={(e) => {
-            console.log('Form onSubmit triggered - current step:', currentStep);
             if (currentStep !== 3) {
-              console.log('Form submission prevented - not on step 4');
               e.preventDefault();
               e.stopPropagation();
               return false;

@@ -164,7 +164,6 @@ export default function ViewModeProfile() {
                   document.body.removeChild(link);
                   window.URL.revokeObjectURL(url);
                 } catch (error) {
-                  console.error('Download failed:', error);
                   // Fallback to direct link
                   const link = document.createElement('a');
                   link.href = value;

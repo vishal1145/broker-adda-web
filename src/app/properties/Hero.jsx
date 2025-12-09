@@ -190,8 +190,6 @@ const ShopHero = ({ data = { filters: { price: { min: 0, max: 1000 } }, products
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('wishlist', JSON.stringify(wishlist));
-      console.log('Wishlist saved to localStorage:', wishlist);
-      
       // Dispatch custom event to notify navbar about wishlist update
       window.dispatchEvent(new Event('wishlistUpdated'));
     }
@@ -220,8 +218,6 @@ const ShopHero = ({ data = { filters: { price: { min: 0, max: 1000 } }, products
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('cart', JSON.stringify(addCart));
-      console.log('Cart saved to localStorage:', addCart);
-      
       // Dispatch custom event to notify navbar about cart update
       window.dispatchEvent(new Event('cartUpdated'));
     }
@@ -606,8 +602,6 @@ const ShopHero = ({ data = { filters: { price: { min: 0, max: 1000 } }, products
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 ">
             {paginatedFilteredProducts.map((product, idx) => {
               const isFilled = wishlist.some(item => item.id === product.id);
-              console.log('Rendering product:', product);
-              console.log('Product image path:', product.image);
               return (
                 <Link
                   key={product.id}

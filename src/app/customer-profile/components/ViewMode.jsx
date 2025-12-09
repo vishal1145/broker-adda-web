@@ -66,7 +66,6 @@ export default function ViewModeCustomerProfile() {
         
         setData(customerData || null);
       } catch (e) {
-        console.error('Error loading customer profile:', e);
         setError('Failed to load profile');
       } finally {
         setLoading(false);

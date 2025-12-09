@@ -132,7 +132,6 @@ const SavedProperties = () => {
           hasPrevPage: false,
         });
       } catch (err) {
-        console.error("Error fetching saved properties:", err);
         setError(err.message || "Failed to load saved properties");
         setSavedProperties([]);
       } finally {
@@ -176,7 +175,6 @@ const SavedProperties = () => {
         toast.error(errorData.message || "Failed to remove property");
       }
     } catch (error) {
-      console.error("Error removing saved property:", error);
       toast.error("Network error. Please try again.");
     }
   };

@@ -106,7 +106,6 @@ const SignUp = () => {
           toast.error(errorMessage);
         }
       } catch (error) {
-        console.error('Signup network error:', error);
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
           toast.error('Network error. Please check your connection and try again.');
         } else {
@@ -132,8 +131,6 @@ const SignUp = () => {
 
   const handleOTPVerify = async (otpCode) => {
     try {
-      console.log('Starting OTP verification for phone:', phoneNumber);
-      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: {
@@ -147,8 +144,6 @@ const SignUp = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('OTP verification response:', data);
-        
         if (data.success) {
           // Extract user data from response
           const role = data?.role || data?.user?.role || data?.data?.role || formData.role;
@@ -170,8 +165,6 @@ const SignUp = () => {
             
             // Decode token payload to validate structure
             const tokenPayload = JSON.parse(atob(tokenParts[1]));
-            console.log('Token payload:', tokenPayload);
-            
             // Check if token is expired
             const currentTime = Math.floor(Date.now() / 1000);
             if (tokenPayload.exp && tokenPayload.exp < currentTime) {
@@ -179,12 +172,10 @@ const SignUp = () => {
             }
             
           } catch (tokenError) {
-            console.error('Token validation failed:', tokenError);
             throw new Error('Invalid authentication token received');
           }
 
           // Save to localStorage and login user
-          console.log('Saving user data to localStorage:', { token: !!token, phone: phoneFromApi, role, userId });
           auth.login({ token, phone: phoneFromApi, role, userId });
           
           // Verify token was saved successfully
@@ -192,8 +183,6 @@ const SignUp = () => {
           if (!savedToken) {
             throw new Error('Failed to save authentication token');
           }
-          
-          console.log('Token saved successfully, redirecting to profile');
           toast.success(data.message || 'Phone number verified successfully!');
           setShowOTPModal(false);
           
@@ -208,11 +197,9 @@ const SignUp = () => {
         }
       } else {
         const errorData = await response.json();
-        console.error('OTP verification failed:', errorData);
         throw new Error(errorData.message || 'Invalid OTP');
       }
     } catch (error) {
-      console.error('OTP verification error:', error);
       throw error;
     }
   };

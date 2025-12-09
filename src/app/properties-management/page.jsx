@@ -267,7 +267,6 @@ const PropertiesManagement = () => {
       }
 
       const brokerIdToUse = brokerId;
-      console.log('Using broker ID:', brokerIdToUse);
 
       const headers = {
         'Content-Type': 'application/json',
@@ -275,8 +274,7 @@ const PropertiesManagement = () => {
       };
 
       // Fetch properties via properties endpoint filtered by broker for consistent shape
-      const apiUrlWithParams = `${apiUrl}/properties?broker=${encodeURIComponent(String(brokerIdToUse))}&page=${page}&limit=${limit}&sharedWithme=${sharedWithMe}`; console.log('API URL with broker filter:', apiUrlWithParams);
-      console.log('Debug mode (no broker filter):', DEBUG_DISABLE_BROKER_FILTER);
+      const apiUrlWithParams = `${apiUrl}/properties?broker=${encodeURIComponent(String(brokerIdToUse))}&page=${page}&limit=${limit}&sharedWithme=${sharedWithMe}`;
 
       const response = await fetch(apiUrlWithParams, {
         method: 'GET',
@@ -285,7 +283,6 @@ const PropertiesManagement = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('API Response data:', data);
 
         // Handle broker endpoint response structure
         let properties = [];
@@ -346,7 +343,6 @@ const PropertiesManagement = () => {
               }
             }
           } catch (e) {
-            console.warn('Error processing region:', e, property?.region);
             regionDisplay = '';
           }
 
@@ -406,15 +402,7 @@ const PropertiesManagement = () => {
           region: typeof p.region === 'string' ? p.region : String(p.region || p.city || 'Location')
         }));
 
-        if (DEBUG_DISABLE_BROKER_FILTER) {
-          console.log('Debug mode: Showing all properties without broker filtering');
-        } else {
-          console.log('Using broker endpoint - all properties belong to current broker');
-        }
-
         setItems(finalProperties);
-        console.log(`Found ${finalProperties.length} properties for broker ID: ${brokerIdToUse}`);
-        console.log('Properties data:', finalProperties);
 
         // Fetch ratings for all properties
         fetchPropertyRatings(finalProperties);
@@ -425,7 +413,6 @@ const PropertiesManagement = () => {
         setItems([]);
       }
     } catch (err) {
-      console.error('Error fetching properties:', err);
       setError('Error loading properties');
       // Don't show demo data - only show broker-specific properties
       setItems([]);
@@ -466,7 +453,6 @@ const PropertiesManagement = () => {
           }
         }
       } catch (error) {
-        console.error(`Error fetching rating for property ${propertyId}:`, error);
       }
     });
 
@@ -508,7 +494,6 @@ const PropertiesManagement = () => {
         throw new Error(errorData.message || 'Failed to delete property');
       }
     } catch (err) {
-      console.error('Error deleting property:', err);
       setError(err.message || 'Failed to delete property');
       throw err;
     }
@@ -518,7 +503,6 @@ const PropertiesManagement = () => {
     try {
       await deleteProperty(propertyId);
     } catch (err) {
-      console.error('Error deleting property:', err);
     }
   };
 
@@ -546,7 +530,6 @@ const PropertiesManagement = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Property created successfully:', data);
         // Refresh the properties list
         await fetchProperties(pagination.page, pagination.limit);
         return { success: true, data };
@@ -555,7 +538,6 @@ const PropertiesManagement = () => {
         throw new Error(errorData.message || 'Failed to create property');
       }
     } catch (err) {
-      console.error('Error creating property:', err);
       throw err;
     } finally {
       setSubmitting(false);
@@ -593,7 +575,6 @@ const PropertiesManagement = () => {
               }
             }
           } catch (e) {
-            console.warn('Error processing region:', e, property?.region);
             regionDisplay = '';
           }
 
@@ -747,7 +728,6 @@ const PropertiesManagement = () => {
       setIsModalOpen(false);
 
     } catch (err) {
-      console.error('Error creating property:', err);
       setError(err.message || 'Failed to create property');
     }
   };
@@ -788,10 +768,6 @@ const PropertiesManagement = () => {
           </div>
         </div>
 
-        {(() => {
-          console.log('Render state - loading:', loading, 'brokerId:', brokerId, 'items.length:', items.length, 'pagination.total:', pagination.total);
-          return null;
-        })()}
 
         {loading || brokerIdLoading ? (
           <div className="flex flex-col lg:flex-row gap-6">

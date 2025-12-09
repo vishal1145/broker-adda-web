@@ -21,23 +21,13 @@ const VerifyEmail = () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
         const apiEndpoint = `${apiUrl}/auth/verify-email?token=${encodeURIComponent(token)}`;
-        
-        console.log('Verifying email with token:', token);
-        console.log('API endpoint:', apiEndpoint);
-
         const response = await fetch(apiEndpoint, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
-
-        console.log('Email verification response status:', response.status);
-        console.log('Email verification response ok:', response.ok);
-
         const responseData = await response.json().catch(() => ({}));
-        console.log('Email verification response data:', responseData);
-
         if (response.ok) {
           toast.success('Email verified successfully!', {
             duration: 2000,
@@ -57,7 +47,6 @@ const VerifyEmail = () => {
           }, 3000);
         }
       } catch (err) {
-        console.error('Error verifying email:', err);
         toast.error('An error occurred while verifying your email. Please try again.', {
           duration: 3000,
         });

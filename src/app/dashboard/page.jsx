@@ -274,7 +274,6 @@ const Dashboard = () => {
           setProfileData(profile);
         }
       } catch (e) {
-        console.error('Error fetching profile:', e);
       } finally {
         setProfileLoading(false);
       }
@@ -299,8 +298,6 @@ const Dashboard = () => {
         });
 
         const apiEndpoint = `${baseApi}/notifications/recent?${queryParams.toString()}`;
-        console.log('Fetching recent activity from:', apiEndpoint, 'with brokerId:', brokerId);
-
         const response = await fetch(apiEndpoint, {
           method: 'GET',
           headers
@@ -311,8 +308,6 @@ const Dashboard = () => {
         }
 
         const data = await response.json();
-        console.log('Recent activity data:', data);
-        
         // Handle different response structures
         let notificationsList = [];
         if (Array.isArray(data?.data)) {
@@ -347,12 +342,9 @@ const Dashboard = () => {
 
         // Sort by timestamp (most recent first)
         activities.sort((a, b) => b.timestamp - a.timestamp);
-        
-        console.log('Transformed activities:', activities);
         // Use API data if available, even if empty (don't use fallback for empty API response)
         setRecentActivity(activities);
       } catch (e) {
-        console.error('Error fetching recent activity:', e);
         // Keep hardcoded fallback on error (already set in initial state, don't clear it)
       } finally {
         setActivityLoading(false);
@@ -1047,8 +1039,6 @@ const Dashboard = () => {
   <button 
     onClick={async () => {
       try {
-        console.log('=== FIND BROKER BUTTON CLICKED ===');
-        
         // Get user ID from token
         const getCurrentUserIdFromToken = () => {
           try {
@@ -1063,8 +1053,6 @@ const Dashboard = () => {
         };
         
         const currentUserId = getCurrentUserIdFromToken();
-        console.log('Current user ID from token:', currentUserId);
-        
         if (!currentUserId) {
           alert('User ID not found. Please login again.');
           return;
@@ -1105,7 +1093,6 @@ const Dashboard = () => {
             console.log('First region from array:', firstRegion);
             if (typeof firstRegion === 'object' && firstRegion !== null) {
               regionId = firstRegion._id || firstRegion.id || '';
-              console.log('Extracted regionId from broker data:', regionId);
             } else if (typeof firstRegion === 'string' && /^[0-9a-fA-F]{24}$/.test(firstRegion)) {
               regionId = firstRegion;
               console.log('Extracted regionId from broker data (string):', regionId);
@@ -1131,15 +1118,11 @@ const Dashboard = () => {
           
           router.push(url);
         } else {
-          console.warn('❌ No region found in broker data');
-          console.log('Broker data:', brokerData);
-          console.log('Broker region:', brokerData?.region);
           alert('Region information not found in your profile. Please update your profile with region information.');
           // Navigate to search page without filter
           router.push('/search?tab=brokers');
         }
       } catch (error) {
-        console.error('Error fetching broker data:', error);
         alert('Failed to fetch broker data. Please try again.');
       }
     }}

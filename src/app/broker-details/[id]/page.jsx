@@ -223,17 +223,13 @@ export default function BrokerDetailsPage() {
         const brokerMongoId = broker._id;
         const leadsEndpoint = `/leads?createdBy=${encodeURIComponent(String(brokerMongoId))}`;
         
-        console.log('Fetching leads for broker _id:', brokerMongoId);
-        
-        const res = await fetch(`${base}${leadsEndpoint}`, { headers });
+         const res = await fetch(`${base}${leadsEndpoint}`, { headers });
         if (!res.ok) {
           throw new Error(`Failed to fetch leads: ${res.status}`);
         }
         
         const data = await res.json();
-        console.log('API Response:', data);
-        
-        // Handle the response structure - leads are in data.items array
+         // Handle the response structure - leads are in data.items array
         let leadsData = [];
         if (Array.isArray(data?.data?.items)) {
           leadsData = data.data.items;
@@ -248,9 +244,7 @@ export default function BrokerDetailsPage() {
         }
 
         setBrokerLeads(leadsData);
-        console.log('Broker leads fetched successfully:', leadsData.length, 'leads found for broker _id:', brokerMongoId);
-      } catch (e) {
-        console.error('Error fetching broker leads:', e);
+         } catch (e) {
         setLeadsError(`Failed to load broker leads: ${e.message}`);
         setBrokerLeads([]);
       } finally {
@@ -281,8 +275,6 @@ export default function BrokerDetailsPage() {
 
         const ratingsEndpoint = `/broker-ratings/broker/${encodeURIComponent(String(brokerMongoId))}`;
         
-        console.log('Fetching broker ratings from:', `${base}${ratingsEndpoint}`);
-        
         const res = await fetch(`${base}${ratingsEndpoint}`, { headers });
         
         const data = await res.json();
@@ -290,7 +282,6 @@ export default function BrokerDetailsPage() {
         if (!res.ok) {
           // Check if it's a "Broker not found" error
           if (data.message && data.message.includes('not found')) {
-            console.warn('Broker not found in ratings API, brokerId:', brokerMongoId);
             setBrokerRatingsStats(null);
             return;
           }
@@ -299,13 +290,10 @@ export default function BrokerDetailsPage() {
         
         if (data.success && data.data && data.data.stats) {
           setBrokerRatingsStats(data.data.stats);
-          console.log('Broker ratings stats:', data.data.stats);
         } else {
-          console.warn('No stats in ratings response:', data);
           setBrokerRatingsStats(null);
         }
       } catch (e) {
-        console.error('Error fetching broker ratings:', e);
         setBrokerRatingsStats(null);
       } finally {
         setRatingsLoading(false);
@@ -1922,9 +1910,6 @@ export default function BrokerDetailsPage() {
                         review: ratingReview || ''
                       };
 
-                      console.log('Submitting rating to:', `${base}/broker-ratings`);
-                      console.log('Rating data:', ratingData);
-
                       const res = await fetch(`${base}/broker-ratings`, {
                         method: 'POST',
                         headers,
@@ -1940,7 +1925,6 @@ export default function BrokerDetailsPage() {
                       // Handle success response
                       if (responseData.success && responseData.data) {
                         toast.success(responseData.message || 'Thank you for your rating!');
-                        console.log('Rating submitted successfully:', responseData.data);
                       } else {
                         toast.success('Thank you for your rating!');
                       }
@@ -1972,13 +1956,11 @@ export default function BrokerDetailsPage() {
                             }
                           }
                         } catch (e) {
-                          console.error('Error refreshing ratings:', e);
                         }
                       };
                       
                       refreshRatings();
                     } catch (error) {
-                      console.error('Error submitting rating:', error);
                       toast.error(error.message || 'Failed to submit rating. Please try again.');
                     } finally {
                       setRatingLoading(false);

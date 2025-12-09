@@ -12,8 +12,8 @@ const Instagram = ({ data = { subtitle: '', title: '', images: [] } }: { data: I
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Debug logging
-  console.log('Instagram component data:', data);
-  console.log('Images array:', data.images);
+  //// console.log('Instagram component data:', data);
+  //// console.log('Images array:', data.images);
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -74,11 +74,11 @@ const Instagram = ({ data = { subtitle: '', title: '', images: [] } }: { data: I
                 height={220}
                 className="object-cover w-full h-full"
                 onError={(e) => {
-                  console.log('Image failed to load:', image);
-                  console.log('Error:', e);
+                 // console.log('Image failed to load:', image);
+                 // console.log('Error:', e);
                 }}
                 onLoad={() => {
-                  console.log('Image loaded successfully:', image);
+                 // console.log('Image loaded successfully:', image);
                 }}
               />
             ) : (

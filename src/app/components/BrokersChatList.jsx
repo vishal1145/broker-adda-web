@@ -177,7 +177,7 @@ const BrokersChatList = () => {
     });
 
     const json = await res.json();
-    console.log('Current user:', json.data);
+    // console.log('Current user:', json.data);
     setCurrentUser(json.data);    
     // Check subscription status with error handling
     try {
@@ -195,7 +195,7 @@ const BrokersChatList = () => {
     });
 
     const leadsJson = await leadsRes.json();
-    console.log('Leads:', leadsJson.data);
+    // console.log('Leads:', leadsJson.data);
     setAllLeads(leadsJson.data.leads);
   }
 
@@ -222,7 +222,7 @@ const BrokersChatList = () => {
         throw new Error('Failed to create chat ID');
       }
       const data = await response.json();
-      console.log('Chat ID:', data);
+      // console.log('Chat ID:', data);
       setChatId(data.chatId);
 
       const msgRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chats/${data.chatId}/messages`, {
@@ -247,7 +247,7 @@ const BrokersChatList = () => {
       headers: { Authorization: token ? `Bearer ${token}` : '' }
     });
     const json = await res.json();
-    console.log('Chats brokers:', json);
+    // console.log('Chats brokers:', json);
     if (json.success) {
       setBrokers(json.data);
     }
@@ -306,7 +306,7 @@ const BrokersChatList = () => {
       leadCard: selectedLeads.length > 0 ? selectedLeads : null
     };
 
-    console.log('Message data:', messageData);
+    // console.log('Message data:', messageData);
 
     socketRef.current.emit('send_message', messageData);
 

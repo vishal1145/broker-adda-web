@@ -102,8 +102,6 @@ const VerifyCode = () => {
     try {
       const codeString = code.join('');
       const phoneNumber = searchParams.get('phone');
-      console.log('Starting OTP verification for phone:', phoneNumber);
-      
       const requestUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`;
       const response = await fetch(requestUrl, {
         method: 'POST',
@@ -115,8 +113,6 @@ const VerifyCode = () => {
       });
 
       const data = await response.json().catch(() => ({}));
-      console.log('OTP verification response:', data);
-
       if (response.ok && (data.success === undefined || data.success === true)) {
         const role = data?.role || data?.user?.role || data?.data?.role || '';
         const token = data?.token || data?.data?.token;
@@ -137,8 +133,6 @@ const VerifyCode = () => {
           
           // Decode token payload to validate structure
           const tokenPayload = JSON.parse(atob(tokenParts[1]));
-          console.log('Token payload:', tokenPayload);
-          
           // Check if token is expired
           const currentTime = Math.floor(Date.now() / 1000);
           if (tokenPayload.exp && tokenPayload.exp < currentTime) {
@@ -146,12 +140,10 @@ const VerifyCode = () => {
           }
           
         } catch (tokenError) {
-          console.error('Token validation failed:', tokenError);
           throw new Error('Invalid authentication token received');
         }
 
         // Use auth context to handle login
-        console.log('Saving user data to localStorage:', { token: !!token, phone: phoneFromApi, role, userId });
         login({
           token: token,
           phone: phoneFromApi,
@@ -164,8 +156,6 @@ const VerifyCode = () => {
         if (!savedToken) {
           throw new Error('Failed to save authentication token');
         }
-
-        console.log('Token saved successfully, redirecting based on role');
         toast.success('Verification successful! Redirecting...');
         
         // Check if there's a return URL to redirect back to (for wishlist saving)
@@ -185,11 +175,9 @@ const VerifyCode = () => {
           }
         }
       } else {
-        console.error('Verify OTP failed:', { url: requestUrl, status: response.status, data });
         toast.error(data.message || `Verification failed (${response.status})`);
       }
     } catch (error) {
-      console.error('Verify OTP error:', error);
       toast.error(error.message || "Verification failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -213,14 +201,11 @@ const VerifyCode = () => {
       if (response.ok) {
         const data = await response.json();
         toast.success("Verification code sent successfully!");
-        console.log('Resend OTP successful:', data);
       } else {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         toast.error(errorData.message || `Failed to resend code (${response.status})`);
-        console.error('Resend OTP failed:', errorData);
       }
     } catch (error) {
-      console.error('Resend OTP network error:', error);
       toast.error("Network error. Please try again.");
     }
   };

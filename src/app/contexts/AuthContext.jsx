@@ -32,21 +32,12 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token') || localStorage.getItem('authToken');
         const phone = localStorage.getItem('phone');
         const role = localStorage.getItem('role');
-        
-        console.log('AuthContext: Loading user, token:', !!token, 'phone:', phone, 'role:', role);
-        
         if (token && phone) {
           try {
             // Validate token
             const tokenPayload = JSON.parse(atob(token.split('.')[1]));
             const currentTime = Math.floor(Date.now() / 1000);
-            
-            console.log('AuthContext: Token payload:', tokenPayload);
-            console.log('AuthContext: Role from token:', tokenPayload.role);
-            console.log('AuthContext: Role from localStorage:', role);
-            
             if (tokenPayload.exp < currentTime) {
-              console.log('AuthContext: Token expired, clearing user data');
               logout();
               return;
             }
@@ -61,19 +52,14 @@ export const AuthProvider = ({ children }) => {
               token: token,
               userId: userId
             };
-            
-            console.log('AuthContext: Final user data:', userData);
             setUser(userData);
           } catch (error) {
-            console.error('AuthContext: Error parsing token:', error);
             logout();
           }
         } else {
-          console.log('AuthContext: No token or phone found, setting user to null');
           setUser(null);
         }
       } catch (error) {
-        console.error('AuthContext: Error loading user:', error);
         setUser(null);
       } finally {
         setLoading(false);
@@ -107,14 +93,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData) => {
     try {
-      console.log('AuthContext: Login called with:', userData);
-      
       if (userData.token) localStorage.setItem('token', userData.token);
       if (userData.phone) localStorage.setItem('phone', userData.phone);
       if (userData.role) localStorage.setItem('role', userData.role);
       if (userData.userId) localStorage.setItem('userId', userData.userId);
-      
-      console.log('AuthContext: Setting user data:', userData);
       setUser(userData);
       
       // Dispatch custom event to notify other components
@@ -122,7 +104,6 @@ export const AuthProvider = ({ children }) => {
         window.dispatchEvent(new CustomEvent('userLoggedIn'));
       }
     } catch (error) {
-      console.error('AuthContext: Error during login:', error);
     }
   };
 
@@ -140,7 +121,6 @@ export const AuthProvider = ({ children }) => {
         window.dispatchEvent(new CustomEvent('userLoggedOut'));
       }
     } catch (error) {
-      console.error('AuthContext: Error during logout:', error);
     }
   };
 

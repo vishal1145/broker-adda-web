@@ -42,8 +42,6 @@ const Connections = () => {
       }
 
       const data = await response.json();
-      console.log('Connections data:', data);
-      
       // Handle different response structures
       let connectionsList = [];
       if (Array.isArray(data?.data)) {
@@ -60,7 +58,6 @@ const Connections = () => {
 
       setConnections(connectionsList);
     } catch (err) {
-      console.error('Error fetching connections:', err);
       setError('Failed to load connections. Please try again.');
     } finally {
       setIsLoading(false);

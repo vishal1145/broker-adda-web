@@ -27,7 +27,6 @@ const Plans = () => {
     loadRazorpayScript()
       .then(() => setIsRzpLoaded(true))
       .catch((err) => {
-        console.error('Razorpay SDK load error:', err);
         setIsRzpLoaded(false);
       });
   }, []);
@@ -67,9 +66,6 @@ const Plans = () => {
             planType: orderRes.data.planType,
             period: orderRes.data.period,
           };
-
-          console.log('payload', payload);
-
           try {
             const verifyRes = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/payments/verify-payment`, payload, {headers}  );
 
@@ -80,7 +76,6 @@ const Plans = () => {
               toast.error('Payment verification failed');
             }
           } catch (err) {
-            console.error('verify error', err);
             toast.error('Verification request failed');
           }
         },
@@ -93,7 +88,6 @@ const Plans = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
-      console.error('handlePayment error', error?.response?.data || error.message || error);
       toast.error('Payment initiation failed');
     } finally {
       setSelectedPlan(null);

@@ -13,8 +13,6 @@ const TrackOrder = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Tracking:", { orderId, email });
-    
     // Navigate to track order results page
     router.push('/track-results');
   };
