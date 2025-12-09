@@ -30,17 +30,18 @@
     "react-icons": "^5.5.0",
     "react-multi-select-component": "^4.3.4",
     "react-select": "^5.10.2",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "typescript": "^5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@flydotio/dockerfile": "^0.7.10",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "tailwindcss": "^4"
   }
 }
