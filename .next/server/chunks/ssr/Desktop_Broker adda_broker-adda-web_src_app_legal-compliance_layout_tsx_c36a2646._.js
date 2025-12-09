@@ -1,0 +1,3 @@
+module.exports=[46495,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Legal Compliance | Legal Guidelines | Broker Gully",description:"Learn about legal compliance requirements and guidelines for real estate brokers. Stay informed about regulations and best practices on Broker Gully."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_legal-compliance_layout_tsx_c36a2646._.js.map

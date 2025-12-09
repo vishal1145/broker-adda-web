@@ -1,0 +1,3 @@
+module.exports=[97437,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Enquiries  Details | View Query Information | Broker Gully",description:"View detailed query information including property requirements, budget, preferred locations, and broker details. Manage your real estate queries on Broker Gully."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=3d860_Broker%20adda_broker-adda-web_src_app_lead-details_%5Bid%5D_layout_tsx_00b27ce4._.js.map

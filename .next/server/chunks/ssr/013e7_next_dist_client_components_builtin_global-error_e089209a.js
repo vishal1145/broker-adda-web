@@ -1,0 +1,3 @@
+module.exports=[59873,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(37500);a.n(d("[project]/Desktop/Broker adda/broker-adda-web/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},85238,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(37500);a.n(d("[project]/Desktop/Broker adda/broker-adda-web/node_modules/next/dist/client/components/builtin/global-error.js"))},21955,a=>{"use strict";a.i(59873);var b=a.i(85238);a.n(b)}];
+
+//# sourceMappingURL=013e7_next_dist_client_components_builtin_global-error_e089209a.js.map

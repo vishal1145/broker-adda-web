@@ -1,0 +1,3 @@
+module.exports=[8650,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Legal Compliance | Legal Guidelines & Regulations | Broker Gully",description:"Learn about legal compliance requirements for real estate brokers. Understand regulations, compliance checklists, and regulatory bodies on Broker Gully."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=3d860_Broker%20adda_broker-adda-web_src_app_help_legal-compliance_layout_tsx_9a24ac76._.js.map

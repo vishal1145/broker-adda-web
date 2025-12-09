@@ -1,0 +1,3 @@
+module.exports=[57493,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Notifications | View All Notifications | Broker Gully",description:"View and manage all your notifications on Broker Gully. Stay updated with leads, properties, broker connections, and important updates."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_notifications_layout_tsx_afc91d80._.js.map
