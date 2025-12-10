@@ -13,14 +13,40 @@ import ViewModeProfile from "./components/ViewMode";
 // Normalize backend file paths to public URLs for images
 const toPublicUrl = (raw) => {
   if (!raw || typeof raw !== "string") return raw;
+  const imageHost = process.env.NEXT_PUBLIC_API_IMAGE_URL || "https://broker-adda-be.fly.dev";
+  const legacyHostPattern = /^https?:\/\/broker-adda-be\.algofolks\.com/;
+  if (legacyHostPattern.test(raw)) {
+    return raw.replace(legacyHostPattern, imageHost);
+  }
   if (raw.startsWith('/opt/lampp/htdocs/')) {
     const filename = raw.split('/').pop();
-    return `https://broker-adda-be.algofolks.com/uploads/${filename}`;
+    return `${imageHost}/uploads/${filename}`;
   }
   if (raw.startsWith('/uploads/')) {
-    return `https://broker-adda-be.algofolks.com${raw}`;
+    return `${imageHost}${raw}`;
   }
   return raw;
+};
+
+// Deeply rewrite any legacy host URLs in API responses to the configured image host
+const sanitizeLegacyUrls = (value) => {
+  const imageHost = process.env.NEXT_PUBLIC_API_IMAGE_URL || "https://broker-adda-be.fly.dev";
+  const legacyHost = "https://broker-adda-be.algofolks.com";
+
+  const replaceString = (str) => {
+    if (typeof str !== "string") return str;
+    return str.replaceAll(legacyHost, imageHost);
+  };
+
+  if (Array.isArray(value)) {
+    return value.map((v) => sanitizeLegacyUrls(v));
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([k, v]) => [k, sanitizeLegacyUrls(v)])
+    );
+  }
+  return replaceString(value);
 };
 
 // Helpers to detect and preview images (for document uploads)
@@ -798,7 +824,7 @@ const Profile = () => {
         }
 
         if (response.ok) {
-          let data = await response.json();
+          let data = sanitizeLegacyUrls(await response.json());
 
           if (currentUserRole === "customer") {
             // Update customer form data from customer by ID API response

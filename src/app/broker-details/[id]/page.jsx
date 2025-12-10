@@ -267,7 +267,7 @@ export default function BrokerDetailsPage() {
         const token = typeof window !== 'undefined'
           ? localStorage.getItem('token') || localStorage.getItem('authToken')
           : null;
-        const base = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+        const base = process.env.NEXT_PUBLIC_API_URL ;
         const headers = {
           'Content-Type': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -1895,7 +1895,7 @@ export default function BrokerDetailsPage() {
                         return;
                       }
 
-                      const base = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+                      const base = process.env.NEXT_PUBLIC_API_URL;
                       const headers = {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -1939,7 +1939,7 @@ export default function BrokerDetailsPage() {
                           const refreshToken = typeof window !== 'undefined'
                             ? localStorage.getItem('token') || localStorage.getItem('authToken')
                             : null;
-                          const refreshBase = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+                          const refreshBase = process.env.NEXT_PUBLIC_API_URL ;
                           const refreshHeaders = {
                             'Content-Type': 'application/json',
                             ...(refreshToken ? { 'Authorization': `Bearer ${refreshToken}` } : {})

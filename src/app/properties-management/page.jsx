@@ -428,7 +428,7 @@ const PropertiesManagement = () => {
     const token = typeof window !== 'undefined'
       ? localStorage.getItem('token') || localStorage.getItem('authToken')
       : null;
-    const base = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+    const base = process.env.NEXT_PUBLIC_API_URL ;
 
     const ratingsMap = {};
 

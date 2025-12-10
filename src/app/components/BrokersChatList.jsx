@@ -108,7 +108,7 @@ const BrokersChatList = () => {
     setCurrentUserId(currentUserId);
 
     try {
-      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://broker-adda-be.algofolks.com';
+      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL ;
 
       socketRef.current = io(socketUrl, {
         auth: { token: localStorage.getItem('token'), userId: currentUserId },

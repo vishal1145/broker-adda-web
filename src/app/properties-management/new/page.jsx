@@ -201,7 +201,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
     try {
       setRegionsLoading(true);
       setRegionsError("");
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api'}/regions`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.fly.dev/api'}/regions`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch regions: ${response.status}`);
@@ -628,7 +628,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
       let userRole = null;
       try {
         const brokerRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.algofolks.com/api"}/brokers/${userId}`,
+          `${process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.fly.dev/api"}/brokers/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -740,7 +740,7 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
       formData.append("broker", brokerId);
 
       // ✅ API call to create or update property
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.algofolks.com/api";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.fly.dev/api";
       const url = isEditMode && propertyId 
         ? `${apiUrl}/properties/${propertyId}`
         : `${apiUrl}/properties`;

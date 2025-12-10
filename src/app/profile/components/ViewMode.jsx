@@ -15,12 +15,14 @@ export default function ViewModeProfile() {
 
   const toPublicUrl = (raw) => {
     if (!raw || typeof raw !== 'string') return raw;
-    if (raw.startsWith('/opt/lampp/htdocs/')) {
-      const filename = raw.split('/').pop();
-      return `https://broker-adda-be.algofolks.com/uploads/${filename}`;
+      const imageHost = process.env.NEXT_PUBLIC_API_IMAGE_URL ;
+     
+      if (raw.startsWith('/opt/lampp/htdocs/')) {
+        const filename = raw.split('/').pop();
+        return `${imageHost}/uploads/${filename}`;
     }
     if (raw.startsWith('/uploads/')) {
-      return `https://broker-adda-be.algofolks.com${raw}`;
+        return `${imageHost}${raw}`;
     }
     return raw;
   };
@@ -79,7 +81,7 @@ export default function ViewModeProfile() {
       license: pick(data?.licenseNumber),
       regions: regionsArr.map(r => (typeof r === 'string' ? r : r?.name || '')),
       gender: pick(data?.gender),
-      image: pick(data?.brokerImage, data?.profileImage, data?.image, '/images/user-1.webp'),
+      image: toPublicUrl(pick(data?.brokerImage, data?.profileImage, data?.image, '/images/user-1.webp')),
       // contacts
       phone: pick(data?.phone, data?.userId?.phone, data?.mobile),
       whatsapp: pick(data?.whatsappNumber, data?.whatsapp),

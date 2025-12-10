@@ -19,7 +19,7 @@ const VerifyEmail = () => {
       }
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
         const apiEndpoint = `${apiUrl}/auth/verify-email?token=${encodeURIComponent(token)}`;
         const response = await fetch(apiEndpoint, {
           method: 'GET',

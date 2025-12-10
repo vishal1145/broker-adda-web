@@ -161,7 +161,7 @@ const PropertyEnquiryPage = () => {
     const fetchRegions = async () => {
       try {
         setRegionsLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiUrl}/regions`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -205,7 +205,7 @@ const PropertyEnquiryPage = () => {
         ? localStorage.getItem('token') || localStorage.getItem('authToken')
         : null;
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
       
       // Get admin ID from API
       const adminId = await getAdminIdFromAPI(apiUrl);

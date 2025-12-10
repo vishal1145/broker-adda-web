@@ -183,11 +183,11 @@ const MyAccountCustomer = () => {
               // Extract the filename from the local path
               const filename = customerImageUrl.split('/').pop();
               // Convert to public URL
-              customerImageUrl = `https://broker-adda-be.algofolks.com/uploads/${filename}`;
+              customerImageUrl = `https://broker-adda-be.fly.dev/uploads/${filename}`;
               console.log('Converted from local path to:', customerImageUrl);
             } else if (customerImageUrl && customerImageUrl.startsWith('/uploads/')) {
               // If it's already a relative path, make it absolute
-              customerImageUrl = `https://broker-adda-be.algofolks.com${customerImageUrl}`;
+              customerImageUrl = `https://broker-adda-be.fly.dev${customerImageUrl}`;
               console.log('Converted from relative path to:', customerImageUrl);
             } else if (customerImageUrl) {
               console.log('Using original URL:', customerImageUrl);

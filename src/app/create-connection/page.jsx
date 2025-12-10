@@ -25,7 +25,7 @@ const Connections = () => {
         ? localStorage.getItem('token') || localStorage.getItem('authToken')
         : null;
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
       
       const headers = {
         'Content-Type': 'application/json',

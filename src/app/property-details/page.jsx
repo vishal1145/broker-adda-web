@@ -353,8 +353,7 @@ function PropertyDetailsPageInner() {
             ? localStorage.getItem("token") || localStorage.getItem("authToken")
             : null;
         const base =
-          process.env.NEXT_PUBLIC_API_URL ||
-          "https://broker-adda-be.algofolks.com/api";
+          process.env.NEXT_PUBLIC_API_URL ;
         const headers = {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -3254,7 +3253,7 @@ function PropertyDetailsPageInner() {
 
                       const base =
                         process.env.NEXT_PUBLIC_API_URL ||
-                        "https://broker-adda-be.algofolks.com/api";
+                        "https://broker-adda-be.fly.dev/api";
                       const headers = {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
@@ -3316,7 +3315,7 @@ function PropertyDetailsPageInner() {
                               : null;
                           const refreshBase =
                             process.env.NEXT_PUBLIC_API_URL ||
-                            "https://broker-adda-be.algofolks.com/api";
+                            "https://broker-adda-be.fly.dev/api";
                           const refreshHeaders = {
                             "Content-Type": "application/json",
                             ...(refreshToken

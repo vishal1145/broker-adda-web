@@ -13,12 +13,14 @@ export default function ViewModeCustomerProfile() {
 
   const toPublicUrl = (raw) => {
     if (!raw || typeof raw !== 'string') return raw;
+      const imageHost = process.env.NEXT_PUBLIC_API_IMAGE_URL ;
+     
     if (raw.startsWith('/opt/lampp/htdocs/')) {
       const filename = raw.split('/').pop();
-      return `https://broker-adda-be.algofolks.com/uploads/${filename}`;
+        return `${imageHost}/uploads/${filename}`;
     }
     if (raw.startsWith('/uploads/')) {
-      return `https://broker-adda-be.algofolks.com${raw}`;
+        return `${imageHost}${raw}`;
     }
     return raw;
   };

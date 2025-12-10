@@ -38,7 +38,7 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
     const loadRegions = async () => {
       try {
         setRegionsLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.algofolks.com/api";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
         const res = await fetch(`${apiUrl}/regions`, {
           headers: { "Content-Type": "application/json" },
         });
@@ -146,7 +146,7 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
     try {
       setLoading(true);
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://broker-adda-be.algofolks.com/api";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
       const token = typeof window !== "undefined" 
         ? localStorage.getItem("token") || localStorage.getItem("authToken")
         : null;

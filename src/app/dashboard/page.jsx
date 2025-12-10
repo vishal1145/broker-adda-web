@@ -85,7 +85,7 @@ const Dashboard = () => {
     };
 
     const resolveBrokerId = async () => {
-      const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+      const baseApi = process.env.NEXT_PUBLIC_API_URL ;
       const token = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : '';
       const getCurrentUserIdFromToken = () => {
         try {
@@ -1059,7 +1059,7 @@ const Dashboard = () => {
         }
         
         // Call broker API with user ID to get broker data
-        const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+        const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.fly.dev/api';
         const token = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : '';
         
         console.log('Fetching broker data for user ID:', currentUserId);
@@ -1383,7 +1383,7 @@ const Dashboard = () => {
         onClose={() => setIsAddLeadModalOpen(false)}
         onSuccess={async () => {
           // Refresh metrics and leads after successful lead creation
-          const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.algofolks.com/api';
+          const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.fly.dev/api';
           const tok = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : '';
           const bid = currentBrokerId || (typeof window !== 'undefined' ? localStorage.getItem('brokerId') : '');
           
