@@ -1,3 +1,0 @@
-module.exports=[17817,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Edit Property | Update Property Listing | Broker Gully",description:"Edit and update your property listing details on Broker Gully. Modify information, photos, amenities, and pricing."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=e4340_broker-adda-web_src_app_properties-management_edit_%5Bid%5D_layout_tsx_d96d2c6d._.js.map

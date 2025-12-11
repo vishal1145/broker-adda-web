@@ -1,3 +1,0 @@
-module.exports=[89390,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Customer Profile | Manage Your Profile | Broker Gully",description:"View and edit your customer profile on Broker Gully. Update your information, preferences, and saved properties."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_customer-profile_layout_tsx_8d807f3b._.js.map

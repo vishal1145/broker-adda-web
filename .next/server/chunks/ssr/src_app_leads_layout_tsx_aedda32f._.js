@@ -1,0 +1,3 @@
+module.exports=[20218,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Queries Management | Manage Your Real Estate Queries | Broker Gully",description:"Manage and track all your real estate leads in one place. View query details, update status, add notes, and connect with potential clients through Broker Gully."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=src_app_leads_layout_tsx_aedda32f._.js.map

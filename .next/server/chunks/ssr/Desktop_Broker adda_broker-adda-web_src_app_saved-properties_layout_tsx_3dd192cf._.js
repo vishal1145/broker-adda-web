@@ -1,3 +1,0 @@
-module.exports=[83814,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Saved Properties | Your Favorite Properties | Broker Gully",description:"View all your saved properties in one place. Access your favorite real estate listings and continue your property search on Broker Gully."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_saved-properties_layout_tsx_3dd192cf._.js.map

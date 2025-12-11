@@ -1,0 +1,3 @@
+module.exports=[38982,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Properties Management | Manage Your Property Listings | Broker Gully",description:"Manage all your property listings in one place. Add, edit, delete, and track your real estate properties on Broker Gully."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=src_app_properties-management_layout_tsx_b4e63588._.js.map

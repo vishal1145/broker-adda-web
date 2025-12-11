@@ -1,3 +1,0 @@
-module.exports=[27632,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Profile | Manage Your Broker Profile | Broker Gully",description:"View and edit your broker profile on Broker Gully. Update your information, specializations, regions, experience, and professional details to attract more clients."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_profile_layout_tsx_1a268c3a._.js.map

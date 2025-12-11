@@ -1,0 +1,3 @@
+module.exports=[74082,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Settings | Account Settings & Preferences | Broker Gully",description:"Manage your account settings, notification preferences, privacy settings, and account information on Broker Gully. Customize your experience."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=src_app_settings_layout_tsx_1552ae82._.js.map

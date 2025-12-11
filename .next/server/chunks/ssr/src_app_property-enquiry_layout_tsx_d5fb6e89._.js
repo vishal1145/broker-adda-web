@@ -1,0 +1,3 @@
+module.exports=[23295,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Property Enquiry | Submit Your Property Requirements | Broker Gully",description:"Submit your property enquiry with detailed requirements. Get matched with verified brokers and find your perfect property on Broker Gully."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=src_app_property-enquiry_layout_tsx_d5fb6e89._.js.map

@@ -1,0 +1,3 @@
+module.exports=[5448,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Add New Property | Create Property Listing | Broker Gully",description:"Create a new property listing on Broker Gully. Add detailed information, photos, amenities, and location to attract potential buyers."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=src_app_properties-management_new_layout_tsx_dc89669d._.js.map

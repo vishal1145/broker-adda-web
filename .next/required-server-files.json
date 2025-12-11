@@ -98,7 +98,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/home/vishal/Broker-Adda-Proposal",
+    "outputFileTracingRoot": "/home/ankur/Music/broker-adda-web",
     "experimental": {
       "useSkewCookie": false,
       "cacheLife": {
@@ -157,7 +157,7 @@
       "middlewarePrefetch": "flexible",
       "optimisticClientCache": true,
       "manualClientBasePath": false,
-      "cpus": 7,
+      "cpus": 3,
       "memoryBasedWorkersCount": false,
       "imgOptConcurrency": null,
       "imgOptTimeoutInSeconds": 7,
@@ -287,10 +287,10 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
     "turbopack": {
-      "root": "/home/vishal/Broker-Adda-Proposal"
+      "root": "/home/ankur/Music/broker-adda-web"
     }
   },
-  "appDir": "/home/vishal/Broker-Adda-Proposal",
+  "appDir": "/home/ankur/Music/broker-adda-web",
   "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",
