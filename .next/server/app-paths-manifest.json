@@ -1,5 +1,4 @@
 {
-  "/Payment/page": "app/Payment/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/aboutus/page": "app/aboutus/page.js",
   "/blog/[slug]/page": "app/blog/[slug]/page.js",
@@ -27,6 +26,7 @@
   "/notifications/page": "app/notifications/page.js",
   "/ordercompleted/page": "app/ordercompleted/page.js",
   "/page": "app/page.js",
+  "/payment/page": "app/payment/page.js",
   "/plans/page": "app/plans/page.js",
   "/post-enquiry/page": "app/post-enquiry/page.js",
   "/privacy/page": "app/privacy/page.js",

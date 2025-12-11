@@ -1,7 +1,7 @@
 {
   "pages": {},
   "app": {
-    "[project]/Desktop/Broker adda/broker-adda-web/src/app/verify-code/page": []
+    "[project]/src/app/verify-code/page": []
   },
   "appUsingSizeAdjust": true,
   "pagesUsingSizeAdjust": false

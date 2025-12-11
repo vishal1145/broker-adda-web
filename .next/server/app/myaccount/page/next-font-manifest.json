@@ -1,7 +1,7 @@
 {
   "pages": {},
   "app": {
-    "[project]/Desktop/Broker adda/broker-adda-web/src/app/myaccount/page": []
+    "[project]/src/app/myaccount/page": []
   },
   "appUsingSizeAdjust": true,
   "pagesUsingSizeAdjust": false

@@ -1,5 +1,4 @@
 {
-  "/Payment/page": "/Payment",
   "/_not-found/page": "/_not-found",
   "/aboutus/page": "/aboutus",
   "/blog/[slug]/page": "/blog/[slug]",
@@ -27,6 +26,7 @@
   "/notifications/page": "/notifications",
   "/ordercompleted/page": "/ordercompleted",
   "/page": "/",
+  "/payment/page": "/payment",
   "/plans/page": "/plans",
   "/post-enquiry/page": "/post-enquiry",
   "/privacy/page": "/privacy",

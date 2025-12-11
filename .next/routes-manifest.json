@@ -215,10 +215,10 @@
       "namedRegex": "^/ordercompleted(?:/)?$"
     },
     {
-      "page": "/Payment",
-      "regex": "^/Payment(?:/)?$",
+      "page": "/payment",
+      "regex": "^/payment(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/Payment(?:/)?$"
+      "namedRegex": "^/payment(?:/)?$"
     },
     {
       "page": "/plans",
