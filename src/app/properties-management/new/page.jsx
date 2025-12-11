@@ -8,7 +8,7 @@ import HeaderFile from "../../components/Header";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
+const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
   const router = useRouter();
   const [form, setForm] = useState({
     title: "",
@@ -1921,5 +1921,19 @@ const NewPropertyPage = ({ propertyId = null, isEditMode = false }) => {
   );
 };
 
+const NewPropertyPage = ({ searchParams = {} }) => {
+  const normalizeParam = (value) => (Array.isArray(value) ? value[0] : value);
+  const propertyIdFromQuery = normalizeParam(searchParams.propertyId ?? searchParams.id) || null;
+  const isEditModeFromQuery = Boolean(searchParams?.mode === "edit" || propertyIdFromQuery);
+
+  return (
+    <PropertyFormPage
+      propertyId={propertyIdFromQuery}
+      isEditMode={isEditModeFromQuery}
+    />
+  );
+};
+
 export default NewPropertyPage;
+export { PropertyFormPage };
 

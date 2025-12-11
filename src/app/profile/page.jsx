@@ -31,7 +31,7 @@ const toPublicUrl = (raw) => {
 // Deeply rewrite any legacy host URLs in API responses to the configured image host
 const sanitizeLegacyUrls = (value) => {
   const imageHost = process.env.NEXT_PUBLIC_API_IMAGE_URL || "https://broker-adda-be.fly.dev";
-  const legacyHost = "https://broker-adda-be.algofolks.com";
+  const legacyHost = "https://broker-adda-be.fly.dev";
 
   const replaceString = (str) => {
     if (typeof str !== "string") return str;

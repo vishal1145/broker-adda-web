@@ -1,14 +1,12 @@
 "use client";
 
 import React from "react";
-import NewPropertyPage from "../../new/page";
-import { useParams } from "next/navigation";
+import { PropertyFormPage } from "../../new/page";
 
-const EditPropertyPage = () => {
-  const params = useParams();
-  const propertyId = params?.id;
+const EditPropertyPage = ({ params }) => {
+  const propertyId = params?.id ?? null;
 
-  return <NewPropertyPage propertyId={propertyId} isEditMode={true} />;
+  return <PropertyFormPage propertyId={propertyId} isEditMode={true} />;
 };
 
 export default EditPropertyPage;
