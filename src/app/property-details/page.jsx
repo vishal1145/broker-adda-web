@@ -46,6 +46,28 @@ const getEmbedUrl = (url) => {
   return trimmedUrl;
 };
 
+// Normalize and sanitize image URLs to avoid 404 placeholder loops
+const PLACEHOLDER_PATTERNS = [
+  "property-placeholder.jpg",
+  "/images/property-placeholder.jpg",
+  "https://brokergully.com/images/property-placeholder.jpg",
+  "http://brokergully.com/images/property-placeholder.jpg",
+  "https://www.brokergully.com/images/property-placeholder.jpg"
+];
+
+const isPlaceholderImage = (url) => {
+  if (!url || typeof url !== "string") return true;
+  const normalized = url.trim().toLowerCase();
+  if (!normalized) return true;
+  return PLACEHOLDER_PATTERNS.some((p) => normalized.includes(p));
+};
+
+const sanitizeImages = (images, fallback) => {
+  const safeList = (Array.isArray(images) ? images : []).filter((img) => !isPlaceholderImage(img));
+  if (safeList.length === 0 && fallback) safeList.push(fallback);
+  return safeList;
+};
+
 function PropertyDetailsPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -153,6 +175,8 @@ function PropertyDetailsPageInner() {
           responseData;
 
         if (propertyData) {
+          const safeImages = sanitizeImages(propertyData.images || [propertyData.image]);
+
           // Map API response to expected format
           const mappedProperty = {
             id: propertyData._id || propertyData.id || idParam,
@@ -168,13 +192,8 @@ function PropertyDetailsPageInner() {
             discount: propertyData.discount || "",
             rating: propertyData.rating || 4.7,
             reviewCount: propertyData.reviewCount || 245,
-            image:
-              propertyData.images?.[0] ||
-              propertyData.image ||
-              "/images/pexels-binyaminmellish-106399.jpg",
-            images: propertyData.images || [
-              propertyData.image || "/images/pexels-binyaminmellish-106399.jpg",
-            ],
+            image: safeImages[0] || "",
+            images: safeImages,
             propertyDescription:
               propertyData.propertyDescription ||
               propertyData.description ||
@@ -743,22 +762,22 @@ function PropertyDetailsPageInner() {
           const limited = sorted.slice(0, 5);
 
           // Map to expected format
-          const similar = limited.map((p) => ({
-            id: p._id || p.id,
-            name: p.title || p.name || "Property",
-            category: p.propertyType || p.type || p.category || "Property",
-            price: p.price || 0,
-            originalPrice: p.originalPrice || p.oldPrice || 0,
-            image:
-              p.images?.[0] ||
-              p.image ||
-              "/images/pexels-binyaminmellish-106399.jpg",
-            areaSqft: p.propertySize || p.areaSqft || p.area || 0,
-            bedrooms: p.bedrooms || 0,
-            bathrooms: p.bathrooms || 0,
-            city: p.city || "",
-            region: p.region || "",
-          }));
+          const similar = limited.map((p) => {
+            const safeSimilarImages = sanitizeImages(p.images || [p.image]);
+            return {
+              id: p._id || p.id,
+              name: p.title || p.name || "Property",
+              category: p.propertyType || p.type || p.category || "Property",
+              price: p.price || 0,
+              originalPrice: p.originalPrice || p.oldPrice || 0,
+              image: safeSimilarImages[0] || "",
+              areaSqft: p.propertySize || p.areaSqft || p.area || 0,
+              bedrooms: p.bedrooms || 0,
+              bathrooms: p.bathrooms || 0,
+              city: p.city || "",
+              region: p.region || "",
+            };
+          });
 
           console.log('📍 SimilarProperties: Showing', similar.length, 'similar properties sorted by distance (excluding own properties)');
           setSimilarProperties(similar);
@@ -792,19 +811,18 @@ function PropertyDetailsPageInner() {
   }, [similarProperties]);
 
   const gallery = useMemo(() => {
-    if (!product) return ["/images/pexels-binyaminmellish-106399.jpg"];
+    if (!product) return [];
 
-    const images = product.images || [product.image];
-    // Return at least 6 images (1 main + 5 thumbnails)
-    // If we have fewer images, repeat them to ensure we always have enough
-    const primary = images[0] || "/images/pexels-binyaminmellish-106399.jpg";
-    const secondary = images[1] || primary;
-    const tertiary = images[2] || primary;
-    const fourth = images[3] || primary;
-    const fifth = images[4] || primary;
-    const sixth = images[5] || primary;
+    const images = Array.isArray(product.images) ? product.images : (product.image ? [product.image] : []);
+    if (images.length === 0) return [];
 
-    return [primary, secondary, tertiary, fourth, fifth, sixth];
+    // Repeat images to ensure we have up to 6 slots, but keep actual URLs only
+    const repeated = [];
+    while (repeated.length < Math.min(6, images.length)) {
+      repeated.push(images[repeated.length % images.length]);
+    }
+
+    return repeated;
   }, [product]);
 
   const price = product?.price || 0;
@@ -1542,11 +1560,17 @@ function PropertyDetailsPageInner() {
                 <div className="space-y-4">
                   {/* Main Large Image */}
                   <div className="bg-gray-50 rounded-2xl overflow-hidden relative group">
-                    <img
-                      src={gallery[selectedImageIndex]}
-                      alt="Property"
-                      className="w-full h-[360px] md:h-[420px] object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                    {gallery.length > 0 ? (
+                      <img
+                        src={gallery[selectedImageIndex]}
+                        alt="Property"
+                        className="w-full h-[360px] md:h-[420px] object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-[360px] md:h-[420px] flex items-center justify-center text-gray-500">
+                        No images available
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="absolute top-4 left-4 flex gap-2">
                       <span className="px-3 py-1.5  backdrop-blur-sm text-white text-sm font-medium rounded-lg ">

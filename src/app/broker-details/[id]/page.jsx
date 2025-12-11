@@ -869,7 +869,7 @@ export default function BrokerDetailsPage() {
                       const description = `${lead?.propertyType || 'Property'} in ${lead?.primaryRegion?.name || lead?.region?.name || 'Location'}`;
                       const price = lead?.budget || '';
                       const location = lead?.primaryRegion?.name || lead?.region?.name || lead?.primaryRegion?.city || lead?.region?.city || '';
-                      const image = lead?.createdBy?.brokerImage || '/images/property-placeholder.jpg';
+                      const image = lead?.createdBy?.brokerImage || '/images/realestate.png';
                       const type = lead?.propertyType || 'Property';
                       const status = lead?.status || 'New';
                       const customerPhone = lead?.customerPhone || '';
@@ -1235,7 +1235,7 @@ export default function BrokerDetailsPage() {
                     {brokerProperties.slice(0, 2).map((property, index) => {
                       // Use property's _id from API response
                       const propertyId = property?._id || property?.id || index;
-                      const propertyImage = property?.images?.[0] || property?.image || '/images/property-placeholder.jpg';
+                      const propertyImage = property?.images?.[0] || property?.image || '/images/realestate.png';
                       const propertyTitle = property?.title || property?.name || 'Property';
                       const propertyPrice = property?.price || 0;
                       const propertyLocation = property?.city || property?.region?.name || property?.location || '';
@@ -1269,7 +1269,7 @@ export default function BrokerDetailsPage() {
                                 alt={propertyTitle}
                                 className="w-24 h-24 object-cover flex-shrink-0"
                                 onError={(e) => {
-                                  e.currentTarget.src = '/images/property-placeholder.jpg';
+                                  e.currentTarget.src = '/images/realestate.png';
                                 }}
                               />
                               {isOpen && (
