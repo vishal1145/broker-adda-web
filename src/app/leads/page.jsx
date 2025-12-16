@@ -770,18 +770,19 @@ export default function BrokerLeadsPage() {
     menu: (p) => ({
       ...p,
       zIndex: 9999,
-      overflow: "hidden",
+      overflow: "visible",
       border: "1px solid #e5e7eb",
       borderRadius: 10,
       fontFamily: "var(--font-body, inherit)",
       fontSize: 12,
+      minWidth: "100%",
     }),
     menuList: (p) => ({
       ...p,
-      maxHeight: 320,
+      maxHeight: 180, // Reduced height to ensure dropdown stays within screen
       overflowY: "auto",
-      overflowX: "hidden",
-      paddingRight: 0,
+      overflowX: "visible",
+      paddingRight: 8,
       fontFamily: "var(--font-body, inherit)",
       fontSize: 12,
     }),
@@ -1071,6 +1072,32 @@ export default function BrokerLeadsPage() {
   const modalSelectStyles = {
     ...customSelectStyles,
     menuPortal: (base) => ({ ...base, zIndex: 999999 }), // above modal/overlay
+    menuList: (p) => ({
+      ...p,
+      maxHeight: 150, // Smaller height for modals to ensure dropdown stays within screen
+      overflowY: "auto",
+      overflowX: "visible",
+      paddingRight: 8,
+      fontFamily: "var(--font-body, inherit)",
+      fontSize: 12,
+    }),
+  };
+
+  // Custom styles for drawer selects to ensure proper menu width
+  const drawerSelectStyles = {
+    ...customSelectStyles,
+    menu: (base) => ({
+      ...base,
+      zIndex: 99999,
+      overflow: "visible",
+      border: "1px solid #e5e7eb",
+      borderRadius: 10,
+      fontFamily: "var(--font-body, inherit)",
+      fontSize: 12,
+      minWidth: "100%",
+      width: "max-content",
+    }),
+    menuPortal: (base) => ({ ...base, zIndex: 99999 }),
   };
   const handleAddLeadSubmit = async () => {
     // Validate form before submission
@@ -2805,28 +2832,32 @@ export default function BrokerLeadsPage() {
                 )}
               </div>
 
-              {/* Pagination */}
-              <div className="flex items-center justify-between mt-4">
-                <div className="text-sm text-gray-600">
-                  Page {page} of {totalPages}
+              {/* Pagination (show only when leads exist) */}
+              {!leadsLoading && Array.isArray(leads) && leads.length > 0 && (
+                <div className="flex items-center justify-between mt-4">
+                  <div className="text-sm text-gray-600">
+                    Page {page} of {totalPages}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm disabled:opacity-50 bg-white cursor-pointer"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page <= 1}
+                    >
+                      Prev
+                    </button>
+                    <button
+                      className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm disabled:opacity-50 bg-white cursor-pointer"
+                      onClick={() =>
+                        setPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={page >= totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm disabled:opacity-50 bg-white cursor-pointer"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page <= 1}
-                  >
-                    Prev
-                  </button>
-                  <button
-                    className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm disabled:opacity-50 bg-white cursor-pointer"
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page >= totalPages}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Right 3 (sticky) */}
@@ -3253,6 +3284,7 @@ export default function BrokerLeadsPage() {
                         typeof window !== "undefined" ? document.body : null
                       }
                       menuPosition="fixed"
+                      menuPlacement="auto"
                       isSearchable
                     />
                   )}
@@ -3278,6 +3310,7 @@ export default function BrokerLeadsPage() {
                       typeof window !== "undefined" ? document.body : null
                     }
                     menuPosition="fixed"
+                    menuPlacement="auto"
                     isSearchable
                   />{" "}
                 </div>
@@ -3303,6 +3336,7 @@ export default function BrokerLeadsPage() {
                       typeof window !== "undefined" ? document.body : null
                     }
                     menuPosition="fixed"
+                    menuPlacement="auto"
                     isSearchable
                   />{" "}
                 </div>
@@ -3828,6 +3862,9 @@ export default function BrokerLeadsPage() {
                       styles={customSelectStyles}
                       isSearchable
                       placeholder="Select region"
+                      menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                      menuPosition="fixed"
+                      menuPlacement="auto"
                     />
                   </div>
                 )}
@@ -3935,6 +3972,9 @@ export default function BrokerLeadsPage() {
                           : "Choose brokers..."
                       }
                       isLoading={brokersLoading}
+                      menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                      menuPosition="fixed"
+                      menuPlacement="auto"
                     />
                   </div>
                 )}
@@ -4338,7 +4378,10 @@ export default function BrokerLeadsPage() {
                                     }))
                                   }
                                   classNamePrefix="react-select"
-                                  styles={customSelectStyles}
+                                  styles={drawerSelectStyles}
+                                  menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                  menuPosition="fixed"
+                                  menuPlacement="auto"
                                 />
                               ) : (
                                 <span className="text-slate-900">
@@ -4448,7 +4491,10 @@ export default function BrokerLeadsPage() {
                                     }))
                                   }
                                   classNamePrefix="react-select"
-                                  styles={customSelectStyles}
+                                  styles={drawerSelectStyles}
+                                  menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                  menuPosition="fixed"
+                                  menuPlacement="auto"
                                 />
                               ) : (
                                 <span className="text-slate-900">
@@ -4502,10 +4548,10 @@ export default function BrokerLeadsPage() {
                                     }))
                                   }
                                   classNamePrefix="react-select"
-                                styles={customSelectStyles}
-                                menuPlacement="top"
-                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-                                menuPosition="fixed"
+                                  styles={drawerSelectStyles}
+                                  menuPlacement="auto"
+                                  menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                  menuPosition="fixed"
                                 />
                               ) : (
                                 <span className="text-slate-900">
@@ -4559,10 +4605,10 @@ export default function BrokerLeadsPage() {
                                     }))
                                   }
                                   classNamePrefix="react-select"
-                                styles={customSelectStyles}
-                                menuPlacement="top"
-                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-                                menuPosition="fixed"
+                                  styles={drawerSelectStyles}
+                                  menuPlacement="auto"
+                                  menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                  menuPosition="fixed"
                                 />
                               ) : (
                                 <span className="text-slate-900">
@@ -4607,10 +4653,10 @@ export default function BrokerLeadsPage() {
                                       }))
                                     }
                                     classNamePrefix="react-select"
-                                    styles={customSelectStyles}
-                                  menuPlacement="top"
-                                  menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-                                  menuPosition="fixed"
+                                    styles={drawerSelectStyles}
+                                    menuPlacement="auto"
+                                    menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                    menuPosition="fixed"
                                   />
                                 ) : (
                                   <span

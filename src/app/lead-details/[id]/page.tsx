@@ -19,11 +19,11 @@ const headerData = {
 type LeadItem = {
   _id: string;
   customerName?: string;
-  primaryRegion?: { 
-    _id?: string; 
-    name?: string; 
-    state?: string; 
-    city?: string; 
+  primaryRegion?: {
+    _id?: string;
+    name?: string;
+    state?: string;
+    city?: string;
     description?: string;
     centerCoordinates?: number[]; // [latitude, longitude]
   };
@@ -65,6 +65,7 @@ export default function LeadDetails() {
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [brokerRating, setBrokerRating] = useState<number | null>(null);
   const [path, setPath] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
     setPath(window.location.pathname);
     if (!id) return;
@@ -102,6 +103,10 @@ export default function LeadDetails() {
     };
 
     fetchLeadById();
+
+    // Check login status
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || localStorage.getItem("authToken") : null;
+    setIsLoggedIn(!!token);
   }, [id]);
 
   const similarLeads = async () => {
@@ -130,7 +135,7 @@ export default function LeadDetails() {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
           currentUserId = payload.brokerId || payload.userId || payload.id || payload.sub || '';
-          
+
           // Fetch broker details to get the actual broker _id
           if (currentUserId) {
             try {
@@ -154,7 +159,7 @@ export default function LeadDetails() {
       // Get coordinates from primary region
       let latitude: number | null = null;
       let longitude: number | null = null;
-      
+
       if (lead.primaryRegion.centerCoordinates && Array.isArray(lead.primaryRegion.centerCoordinates) && lead.primaryRegion.centerCoordinates.length >= 2) {
         // API format: [latitude, longitude]
         latitude = lead.primaryRegion.centerCoordinates[0];
@@ -198,34 +203,34 @@ export default function LeadDetails() {
         if (currentBrokerId || currentUserId) {
           let leadBrokerId = '';
           const createdBy = item.createdBy;
-          
+
           if (createdBy) {
             if (typeof createdBy === 'string') {
               leadBrokerId = createdBy;
             } else if (typeof createdBy === 'object' && createdBy !== null) {
               const obj = createdBy as Record<string, unknown>;
               const userId = obj.userId;
-              
+
               if (userId && typeof userId === 'object' && userId !== null) {
                 const userIdObj = userId as Record<string, unknown>;
                 leadBrokerId = (userIdObj._id || userIdObj.id || '') as string;
               } else if (userId && typeof userId === 'string') {
                 leadBrokerId = userId;
               }
-              
+
               if (!leadBrokerId) {
                 leadBrokerId = (obj._id || obj.id || obj.brokerId || '') as string;
               }
             }
           }
-          
+
           const brokerIdStr = String(currentBrokerId || '').trim();
           const userIdStr = String(currentUserId || '').trim();
           const leadBrokerIdStr = String(leadBrokerId).trim();
-          
+
           const matchesBrokerId = brokerIdStr !== '' && leadBrokerIdStr === brokerIdStr;
           const matchesUserId = userIdStr !== '' && leadBrokerIdStr === userIdStr;
-          
+
           // Exclude if matches logged-in broker
           if (matchesBrokerId || matchesUserId) {
             return false;
@@ -251,7 +256,7 @@ export default function LeadDetails() {
       // Limit to 4-5 leads
       const limited = sorted.slice(0, 5);
       console.log('📍 SimilarLeads: Showing', limited.length, 'similar leads sorted by distance (excluding own leads)');
-      
+
       setSameLeads(limited);
     } catch (error) {
       console.error("Error fetching similar leads:", error);
@@ -285,7 +290,7 @@ export default function LeadDetails() {
         setCanScrollLeft(scrollLeft > 10);
         setCanScrollRight(scrollLeft < maxScroll - 10);
       };
-      
+
       // Small delay to ensure DOM is ready
       setTimeout(updateScrollState, 100);
       carousel.addEventListener('scroll', updateScrollState);
@@ -296,70 +301,70 @@ export default function LeadDetails() {
   // Helper function to extract broker ID from createdBy
   const getBrokerIdFromCreatedBy = (createdBy: LeadItem['createdBy']): { brokerId: string | null; userId: string | null } => {
     if (!createdBy) return { brokerId: null, userId: null };
-    
+
     const createdByAny = createdBy as Record<string, unknown>;
-    
+
     // Handle string type
     if (typeof createdByAny === 'string') {
       return { brokerId: createdByAny, userId: createdByAny };
     }
-    
+
     if (typeof createdByAny === 'object' && createdByAny !== null) {
       console.log('🔍 Extracting broker ID from createdBy:', createdByAny);
-      
+
       // Extract user ID first (for fallback)
       let userId: string | null = null;
       if (createdByAny.userId) {
         const userIdVal = createdByAny.userId;
         if (typeof userIdVal === 'object' && userIdVal !== null) {
           const userIdObj = userIdVal as Record<string, unknown>;
-          userId = (typeof userIdObj._id === 'string' ? userIdObj._id : null) || 
-                   (typeof userIdObj.id === 'string' ? userIdObj.id : null) || 
-                   null;
+          userId = (typeof userIdObj._id === 'string' ? userIdObj._id : null) ||
+            (typeof userIdObj.id === 'string' ? userIdObj.id : null) ||
+            null;
         } else if (typeof userIdVal === 'string') {
           userId = userIdVal;
         }
       }
-      
+
       // Prioritize broker-specific IDs first (broker document ID)
       const brokerDetailId = createdByAny.brokerDetailId;
       const brokerDetailsId = createdByAny.brokerDetailsId;
       const brokerIdVal = createdByAny.brokerId;
-      
+
       let brokerId = (typeof brokerDetailId === 'string' ? brokerDetailId : null) ||
-                    (typeof brokerDetailsId === 'string' ? brokerDetailsId : null) ||
-                    (typeof brokerIdVal === 'string' ? brokerIdVal : null) ||
-                    null;
-      
+        (typeof brokerDetailsId === 'string' ? brokerDetailsId : null) ||
+        (typeof brokerIdVal === 'string' ? brokerIdVal : null) ||
+        null;
+
       // Try nested userId structure for broker ID
       if (!brokerId && createdByAny.userId) {
         const userIdVal = createdByAny.userId;
         if (typeof userIdVal === 'object' && userIdVal !== null) {
           const userIdObj = userIdVal as Record<string, unknown>;
           brokerId = (typeof userIdObj.brokerId === 'string' ? userIdObj.brokerId : null) ||
-                    (typeof userIdObj.brokerDetailId === 'string' ? userIdObj.brokerDetailId : null) ||
-                    null;
+            (typeof userIdObj.brokerDetailId === 'string' ? userIdObj.brokerDetailId : null) ||
+            null;
         }
       }
-      
+
       // Fallback to direct _id or id (may be broker document ID or user ID)
       if (!brokerId) {
         const idVal = createdByAny._id;
         const idVal2 = createdByAny.id;
-        brokerId = (typeof idVal === 'string' ? idVal : null) || 
-                  (typeof idVal2 === 'string' ? idVal2 : null) || 
-                  null;
+        brokerId = (typeof idVal === 'string' ? idVal : null) ||
+          (typeof idVal2 === 'string' ? idVal2 : null) ||
+          null;
       }
-      
+
       // If we still don't have userId, use brokerId as userId
       if (!userId && brokerId) {
         userId = brokerId;
       }
-      
+
       console.log('✅ Extracted IDs:', { brokerId, userId });
       return { brokerId, userId };
     }
-    
+
     return { brokerId: null, userId: null };
   };
 
@@ -474,7 +479,7 @@ export default function LeadDetails() {
   }, [lead?.createdBy]);
 
   if (loading) {
-  return (
+    return (
       <div className="min-h-screen">
         <HeaderFile data={headerData} />
         <div className="py-8">
@@ -514,7 +519,7 @@ export default function LeadDetails() {
                   >
                     <rect x="0" y="0" rx="4" ry="4" width="150" height="24" />
                   </ContentLoader>
-                  
+
                   <div className="space-y-4">
                     {/* Property Type Card */}
                     <div className="bg-white rounded-[10px] p-4 border border-[#DEE1E6]">
@@ -586,13 +591,13 @@ export default function LeadDetails() {
                       {/* Title and badge */}
                       <rect x="0" y="0" rx="4" ry="4" width="100" height="24" />
                       <rect x="500" y="2" rx="12" ry="12" width="80" height="20" />
-                      
+
                       {/* Paragraph lines */}
                       <rect x="0" y="40" rx="4" ry="4" width="600" height="12" />
                       <rect x="0" y="60" rx="4" ry="4" width="580" height="12" />
                       <rect x="0" y="80" rx="4" ry="4" width="550" height="12" />
                       <rect x="0" y="100" rx="4" ry="4" width="520" height="12" />
-                      
+
                       {/* Footer info */}
                       <circle cx="12" cy="140" r="6" />
                       <rect x="25" y="136" rx="4" ry="4" width="100" height="12" />
@@ -618,21 +623,21 @@ export default function LeadDetails() {
                   >
                     {/* Title */}
                     <rect x="0" y="0" rx="4" ry="4" width="130" height="24" />
-                    
+
                     {/* Avatar and name */}
                     <circle cx="24" cy="50" r="24" />
                     <rect x="60" y="42" rx="4" ry="4" width="120" height="16" />
                     <rect x="60" y="62" rx="4" ry="4" width="140" height="12" />
-                    
+
                     {/* Rating and experience */}
                     <circle cx="24" cy="100" r="8" />
                     <rect x="40" y="95" rx="4" ry="4" width="30" height="14" />
                     <rect x="80" y="95" rx="4" ry="4" width="100" height="14" />
-                    
+
                     {/* Tags */}
                     <rect x="0" y="125" rx="16" ry="16" width="120" height="24" />
                     <rect x="130" y="125" rx="16" ry="16" width="120" height="24" />
-                    
+
                     {/* Button */}
                     <rect x="0" y="165" rx="8" ry="8" width="100%" height="40" />
                   </ContentLoader>
@@ -651,12 +656,12 @@ export default function LeadDetails() {
                   >
                     {/* Title */}
                     <rect x="0" y="0" rx="4" ry="4" width="200" height="24" />
-                    
+
                     {/* Description */}
                     <rect x="0" y="40" rx="4" ry="4" width="400" height="12" />
                     <rect x="0" y="58" rx="4" ry="4" width="380" height="12" />
                     <rect x="0" y="76" rx="4" ry="4" width="360" height="12" />
-                    
+
                     {/* 3 feature items */}
                     {[0, 1, 2].map((i) => (
                       <React.Fragment key={i}>
@@ -665,7 +670,7 @@ export default function LeadDetails() {
                         <rect x="50" y={122 + i * 60} rx="4" ry="4" width="280" height="12" />
                       </React.Fragment>
                     ))}
-                    
+
                     {/* Button */}
                     <rect x="0" y="310" rx="8" ry="8" width="100%" height="48" />
                   </ContentLoader>
@@ -687,7 +692,7 @@ export default function LeadDetails() {
                 <rect x="0" y="0" rx="4" ry="4" width="120" height="24" />
                 <rect x="550" y="4" rx="4" ry="4" width="50" height="16" />
               </ContentLoader>
-              
+
               <div className="flex gap-4 min-w-0 pb-2">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="flex-shrink-0 basis-full sm:basis-1/2 lg:basis-1/4 border border-gray-200 rounded-2xl bg-white shadow-sm p-6">
@@ -727,9 +732,9 @@ export default function LeadDetails() {
             </div>
           </div>
         </div>
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
   if (!lead) {
     return (
@@ -743,31 +748,31 @@ export default function LeadDetails() {
   return (
     <div className="min-h-screen ">
       <HeaderFile data={headerData} />
-    
+
       <div className="py-8">
         <div className="w-full mx-auto px-4 md:px-0">
-         
-       
+
+
 
           {/* Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-16">
             {/* Left Content - 8 columns */}
             <section className="lg:col-span-8 space-y-6">
-               {/* Top Header - Lead Title and Status */}
-          <div className="mb-8">
-            <h1 className="text-[20px] font-bold text-gray-900 mb-2">
-              {lead.propertyType } 
-            </h1>
-              <div className="flex items-center gap-4 text-[12px] leading-[20px] font-[400]" style={{ color: '#565D6DFF', fontFamily: 'Inter, sans-serif' }}>
-              <span>Active {lead?.addedAgo || "5 days ago"}</span>
-              <span className="text-gray-300">|</span>
-              <span>Last contacted {lead?.lastContact || "2 hours ago"}</span>
+              {/* Top Header - Lead Title and Status */}
+              <div className="mb-8">
+                <h1 className="text-[20px] font-bold text-gray-900 mb-2">
+                  {lead.propertyType}
+                </h1>
+                <div className="flex items-center gap-4 text-[12px] leading-[20px] font-[400]" style={{ color: '#565D6DFF', fontFamily: 'Inter, sans-serif' }}>
+                  <span>Active {lead?.addedAgo || "5 days ago"}</span>
+                  <span className="text-gray-300">|</span>
+                  <span>Last contacted {lead?.lastContact || "2 hours ago"}</span>
+                </div>
               </div>
-          </div>
               {/* Requirements Section */}
               <div className="">
                 <h2 className="text-[18px] font-semibold text-gray-900 mb-6">Requirements</h2>
-                
+
                 <div className="space-y-4">
                   {/* Property Type Card */}
                   <div className="bg-white rounded-[10px] p-4 border border-[#DEE1E6]">
@@ -791,7 +796,7 @@ export default function LeadDetails() {
                         <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <line x1="12" y1="1" x2="12" y2="23"></line>
                           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-</svg>
+                        </svg>
                       </div>
                       <div className="flex-1">
                         <div className="text-[12px] text-gray-500 mb-1">Budget Range</div>
@@ -847,9 +852,9 @@ export default function LeadDetails() {
                   <div className="bg-white rounded-[10px] p-5 border border-[#DEE1E6]">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-[18px] font-semibold text-gray-900">Notes</h3>
-                    <span className="px-2.5 py-1 rounded-full bg-yellow-500 text-black text-xs font-medium">
-                    Important
-                  </span>
+                      <span className="px-2.5 py-1 rounded-full bg-yellow-500 text-black text-xs font-medium">
+                        Important
+                      </span>
                     </div>
                     <p className="text-[12px] text-gray-700 leading-6 mb-4">
                       {lead.notes}
@@ -878,59 +883,218 @@ export default function LeadDetails() {
                 </div>
               )}
 
-              
+
             </section>
 
             {/* Right Sidebar - 4 columns */}
-              <aside className="lg:col-span-4 space-y-6">
-                {/* Broker Details Section */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                  <h3 className="text-[18px] font-semibold text-gray-900 mb-4">Broker Details</h3>
-                  
-                  {lead?.createdBy ? (
+            <aside className="lg:col-span-4 space-y-6">
+              {/* Broker Details Section */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <h3 className="text-[18px] font-semibold text-gray-900 mb-4">Broker Details</h3>
+
+                {lead?.createdBy ? (
+                  <div>
+                    <div className="flex items-center gap-3 mb-3">
+                      <img
+                        src={lead.createdBy.brokerImage || "/images/user-2.jpeg"}
+                        alt="Broker"
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900 text-[14px]">
+                          {lead.createdBy.name || "Yash Gupta"}
+                        </h4>
+                        <p className="text-[12px] text-gray-500">
+                          {lead.createdBy.firmName || "Gupta Properties"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-4 text-sm">
+                      <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      {brokerRating !== null && (
+                        <span className="font-semibold text-gray-900 text-[12px]">{brokerRating.toFixed(1)}</span>
+                      )}
+                      <span className="text-gray-500 text-[12px]">
+                        {typeof lead.createdBy.experience === 'number' ? `${lead.createdBy.experience}+` : lead.createdBy.experience || '11+'} years
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <span className="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium">
+                        Residential Sales
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium">
+                        Rental Properties
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (!lead?.createdBy) return;
+
+                        // Extract broker ID from createdBy
+                        const createdByAny = lead.createdBy as Record<string, unknown>;
+                        let brokerId: string | null = null;
+
+                        // Handle string type
+                        if (typeof createdByAny === 'string') {
+                          brokerId = createdByAny;
+                        } else if (typeof createdByAny === 'object' && createdByAny !== null) {
+                          // Prioritize broker-specific IDs first
+                          const brokerDetailId = createdByAny.brokerDetailId;
+                          const brokerDetailsId = createdByAny.brokerDetailsId;
+                          const brokerIdVal = createdByAny.brokerId;
+
+                          brokerId = (typeof brokerDetailId === 'string' ? brokerDetailId : null) ||
+                            (typeof brokerDetailsId === 'string' ? brokerDetailsId : null) ||
+                            (typeof brokerIdVal === 'string' ? brokerIdVal : null) ||
+                            null;
+
+                          // Try nested userId structure (common pattern)
+                          if (!brokerId && createdByAny.userId) {
+                            const userId = createdByAny.userId;
+                            if (typeof userId === 'object' && userId !== null) {
+                              const userIdObj = userId as Record<string, unknown>;
+                              brokerId = (typeof userIdObj._id === 'string' ? userIdObj._id : null) ||
+                                (typeof userIdObj.id === 'string' ? userIdObj.id : null) ||
+                                (typeof userIdObj.brokerId === 'string' ? userIdObj.brokerId : null) ||
+                                (typeof userIdObj.brokerDetailId === 'string' ? userIdObj.brokerDetailId : null) ||
+                                null;
+                            } else if (typeof userId === 'string') {
+                              brokerId = userId;
+                            }
+                          }
+
+                          // Fallback to direct _id or id
+                          if (!brokerId) {
+                            const idVal = createdByAny._id;
+                            const idVal2 = createdByAny.id;
+                            brokerId = (typeof idVal === 'string' ? idVal : null) ||
+                              (typeof idVal2 === 'string' ? idVal2 : null) ||
+                              null;
+                          }
+                        }
+
+                        // Navigate to broker details page
+                        if (brokerId) {
+                          router.push(`/broker-details/${brokerId}`);
+                        }
+                      }}
+                      className="w-full px-4 py-2 border border-green-900 text-green-900 hover:bg-green-100 hover:shadow-sm rounded-lg text-sm font-medium transition-all duration-200"
+                    >
+                      View Profile
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <h4 className="font-semibold text-gray-900 text-sm mb-1">Broker Information</h4>
+                    <p className="text-xs text-gray-500">Not available</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Lead Generation Support Section */}
+              <div className="rounded-[12px] bg-green-50  p-6">
+                <h3 className="text-[18px] font-semibold text-gray-900 mb-3">Query Generation Support</h3>
+                <p className="text-[12px] text-gray-700 mb-6 max-w-md">
+                  Join our exclusive broker network and get access to premium query generation tools
+                  and support.
+                </p>
+
+                <div className="space-y-5 mb-6">
+                  {/* Verified Leads */}
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <img src="/images/lucide-CircleCheckBig-Outlined.svg" alt="Verified" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
+                    </div>
                     <div>
-                      <div className="flex items-center gap-3 mb-3">
-                        <img
-                          src={lead.createdBy.brokerImage || "/images/user-2.jpeg"}
-                          alt="Broker"
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 text-[14px]">
-                            {lead.createdBy.name || "Yash Gupta"}
-                          </h4>
-                            <p className="text-[12px] text-gray-500">
-                            {lead.createdBy.firmName || "Gupta Properties"}
-                            </p>
-                        </div>
-                      </div>
-                        <div className="flex items-center gap-2 mb-4 text-sm">
-                        <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        {brokerRating !== null && (
-                          <span className="font-semibold text-gray-900 text-[12px]">{brokerRating.toFixed(1)}</span>
-                        )}
-                          <span className="text-gray-500 text-[12px]">
-                          {typeof lead.createdBy.experience === 'number' ? `${lead.createdBy.experience}+` : lead.createdBy.experience || '11+'} years
-                          </span>
-                        </div>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium">
-                          Residential Sales
-                        </span>
-                        <span className="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium">
-                          Rental Properties
-                            </span>
-                      </div>
-                      <button 
-                        onClick={() => {
-                          if (!lead?.createdBy) return;
-                          
-                          // Extract broker ID from createdBy
-                          const createdByAny = lead.createdBy as Record<string, unknown>;
-                          let brokerId: string | null = null;
-                          
+                      <div className="text-[14px] font-semibold text-gray-900">Verified Queries</div>
+                      <div className="text-[12px] text-gray-600">Pre-qualified properties ready to buy</div>
+                    </div>
+                  </div>
+
+                  {/* Exclusive Training */}
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <img src="/images/lucide-GraduationCap-Outlined.svg" alt="Training" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
+                    </div>
+                    <div>
+                      <div className="text-[14px] font-semibold text-gray-900">Exclusive Training</div>
+                      <div className="text-[12px] text-gray-600">Advanced sales techniques & higher commissions</div>
+                    </div>
+                  </div>
+
+                  {/* Higher Commissions */}
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <img src="/images/lucide-DollarSign-Outlined.svg" alt="Commissions" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
+                    </div>
+                    <div>
+                      <div className="text-[14px] font-semibold text-gray-900">Higher Commissions</div>
+                      <div className="text-[12px] text-gray-600">Up to 10% more than standard rates</div>
+                    </div>
+                  </div>
+                </div>
+
+                {!isLoggedIn && (
+                  <button
+                    onClick={() => {
+                      router.push('/signup');
+                    }}
+                    className="w-full px-4 py-3 bg-green-900 hover:bg-green-900 text-white rounded-lg font-semibold text-sm transition-colors"
+                  >
+                    Become a Partner Broker
+                  </button>
+                )}
+              </div>
+            </aside>
+          </div>
+          {/* Similar Leads Section */}
+          <div className="pb-16">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[18px] font-semibold text-gray-900">Similar Enquiries </h3>
+              <a
+                href="/search?tab=leads"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push('/search?tab=leads');
+                }}
+                className="text-[12px] text-gray-600 font-medium cursor-pointer hover:underline"
+              >
+                View All
+              </a>
+            </div>
+            {sameLeads && sameLeads.filter((s) => s._id !== lead._id).length > 0 ? (
+              <div className="relative">
+                <div
+                  id="similar-leads-horizontal"
+                  className="overflow-x-auto scroll-smooth"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  onScroll={(e) => {
+                    const carousel = e.currentTarget;
+                    const { scrollLeft, scrollWidth, clientWidth } = carousel;
+                    const maxScroll = scrollWidth - clientWidth;
+                    setCanScrollLeft(scrollLeft > 10);
+                    setCanScrollRight(scrollLeft < maxScroll - 10);
+                  }}
+                >
+                  <div className="flex gap-4 min-w-0 pb-2">
+                    {sameLeads
+                      .filter((s) => s._id !== lead._id)
+                      .map((s) => {
+                        // Extract broker ID and broker object from s.createdBy
+                        let brokerId: string | null = null;
+                        let broker: LeadItem['createdBy'] | null = null;
+
+                        if (s.createdBy) {
+                          broker = s.createdBy;
+                          const createdByAny = s.createdBy as Record<string, unknown>;
+
                           // Handle string type
                           if (typeof createdByAny === 'string') {
                             brokerId = createdByAny;
@@ -939,313 +1103,158 @@ export default function LeadDetails() {
                             const brokerDetailId = createdByAny.brokerDetailId;
                             const brokerDetailsId = createdByAny.brokerDetailsId;
                             const brokerIdVal = createdByAny.brokerId;
-                            
+
                             brokerId = (typeof brokerDetailId === 'string' ? brokerDetailId : null) ||
-                                      (typeof brokerDetailsId === 'string' ? brokerDetailsId : null) ||
-                                      (typeof brokerIdVal === 'string' ? brokerIdVal : null) ||
-                                      null;
-                            
+                              (typeof brokerDetailsId === 'string' ? brokerDetailsId : null) ||
+                              (typeof brokerIdVal === 'string' ? brokerIdVal : null) ||
+                              null;
+
                             // Try nested userId structure (common pattern)
                             if (!brokerId && createdByAny.userId) {
                               const userId = createdByAny.userId;
                               if (typeof userId === 'object' && userId !== null) {
                                 const userIdObj = userId as Record<string, unknown>;
-                                brokerId = (typeof userIdObj._id === 'string' ? userIdObj._id : null) || 
-                                          (typeof userIdObj.id === 'string' ? userIdObj.id : null) || 
-                                          (typeof userIdObj.brokerId === 'string' ? userIdObj.brokerId : null) ||
-                                          (typeof userIdObj.brokerDetailId === 'string' ? userIdObj.brokerDetailId : null) ||
-                                          null;
+                                brokerId = (typeof userIdObj._id === 'string' ? userIdObj._id : null) ||
+                                  (typeof userIdObj.id === 'string' ? userIdObj.id : null) ||
+                                  (typeof userIdObj.brokerId === 'string' ? userIdObj.brokerId : null) ||
+                                  (typeof userIdObj.brokerDetailId === 'string' ? userIdObj.brokerDetailId : null) ||
+                                  null;
                               } else if (typeof userId === 'string') {
                                 brokerId = userId;
                               }
                             }
-                            
-                            // Fallback to direct _id or id
+
+                            // Fallback to direct _id or id (may be user ID, not broker ID)
                             if (!brokerId) {
                               const idVal = createdByAny._id;
                               const idVal2 = createdByAny.id;
-                              brokerId = (typeof idVal === 'string' ? idVal : null) || 
-                                        (typeof idVal2 === 'string' ? idVal2 : null) || 
-                                        null;
+                              brokerId = (typeof idVal === 'string' ? idVal : null) ||
+                                (typeof idVal2 === 'string' ? idVal2 : null) ||
+                                null;
                             }
                           }
-                          
-                          // Navigate to broker details page
-                          if (brokerId) {
-                            router.push(`/broker-details/${brokerId}`);
-                          }
-                        }}
-                        className="w-full px-4 py-2 border border-green-900 text-green-900 hover:bg-green-50 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        View Profile
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
-                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                        <h4 className="font-semibold text-gray-900 text-sm mb-1">Broker Information</h4>
-                      <p className="text-xs text-gray-500">Not available</p>
-                    </div>
-                  )}
-              </div>
 
-                {/* Lead Generation Support Section */}
-                <div className="rounded-[12px] bg-green-50  p-6">
-                  <h3 className="text-[18px] font-semibold text-gray-900 mb-3">Query Generation Support</h3>
-                  <p className="text-[12px] text-gray-700 mb-6 max-w-md">
-                    Join our exclusive broker network and get access to premium query generation tools
-                    and support.
-                  </p>
+                          // Ensure brokerId is a string if it exists
+                          brokerId = brokerId ? String(brokerId) : null;
+                        }
 
-                  <div className="space-y-5 mb-6">
-                    {/* Verified Leads */}
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <img src="/images/lucide-CircleCheckBig-Outlined.svg" alt="Verified" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
-                    </div>
-                      <div>
-                        <div className="text-[14px] font-semibold text-gray-900">Verified Queries</div>
-                        <div className="text-[12px] text-gray-600">Pre-qualified properties ready to buy</div>
-                      </div>
-                    </div>
+                        return (
+                          <a
+                            key={s._id}
+                            href={`/lead-details/${s._id}`}
+                            className="flex-shrink-0 w-full sm:w-[calc(50%-8px)] lg:w-[calc(25%-12px)] block group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+                          >
+                            <div className="p-6 h-full flex flex-col">
+                              {/* Top Section - Main Title */}
+                              <div className="mb-4">
+                                <h3 className="text-[14px] leading-[20px] font-bold mb-2" style={{ color: '#323743' }} title={`${s.propertyType || "Property"} for ${s.requirement || "inquiry"}`}>
+                                  {(() => {
+                                    const text = `${s.propertyType || "Property"} for ${s.requirement || "inquiry"}`;
+                                    return text.length > 25 ? text.substring(0, 25) + "..." : text;
+                                  })()}
+                                </h3>
 
-                    {/* Exclusive Training */}
-                    <div className="flex items-start gap-3">
-                     <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <img src="/images/lucide-GraduationCap-Outlined.svg" alt="Training" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
-                    </div>
-                      <div>
-                        <div className="text-[14px] font-semibold text-gray-900">Exclusive Training</div>
-                        <div className="text-[12px] text-gray-600">Advanced sales techniques & higher commissions</div>
-                      </div>
-                    </div>
-
-                    {/* Higher Commissions */}
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <img src="/images/lucide-DollarSign-Outlined.svg" alt="Commissions" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(700%) hue-rotate(115deg) brightness(95%) contrast(90%)' }} />
-                    </div>
-                      <div>
-                        <div className="text-[14px] font-semibold text-gray-900">Higher Commissions</div>
-                        <div className="text-[12px] text-gray-600">Up to 10% more than standard rates</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button 
-                    onClick={() => {
-                      router.push('/signup');
-                    }}
-                    className="w-full px-4 py-3 bg-green-900 hover:bg-green-900 text-white rounded-lg font-semibold text-sm transition-colors"
-                  >
-             Become a Partner Broker
-
-                  </button>
-                </div>
-            </aside>
-          </div>
-{/* Similar Leads Section */}
-              <div className="pb-16">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-[18px] font-semibold text-gray-900">Similar Enquiries </h3>
-                  <a 
-                    href="/search?tab=leads" 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      router.push('/search?tab=leads');
-                    }}
-                    className="text-[12px] text-gray-600 font-medium cursor-pointer hover:underline"
-                  >
-                    View All
-                  </a>
-                </div>
-                {sameLeads && sameLeads.filter((s) => s._id !== lead._id).length > 0 ? (
-                  <div className="relative">
-                    <div 
-                      id="similar-leads-horizontal" 
-                      className="overflow-x-auto scroll-smooth" 
-                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                      onScroll={(e) => {
-                        const carousel = e.currentTarget;
-                        const { scrollLeft, scrollWidth, clientWidth } = carousel;
-                        const maxScroll = scrollWidth - clientWidth;
-                        setCanScrollLeft(scrollLeft > 10);
-                        setCanScrollRight(scrollLeft < maxScroll - 10);
-                      }}
-                    >
-                      <div className="flex gap-4 min-w-0 pb-2">
-                        {sameLeads
-                          .filter((s) => s._id !== lead._id)
-                          .map((s) => {
-                            // Extract broker ID and broker object from s.createdBy
-                            let brokerId: string | null = null;
-                            let broker: LeadItem['createdBy'] | null = null;
-                            
-                            if (s.createdBy) {
-                              broker = s.createdBy;
-                              const createdByAny = s.createdBy as Record<string, unknown>;
-                              
-                              // Handle string type
-                              if (typeof createdByAny === 'string') {
-                                brokerId = createdByAny;
-                              } else if (typeof createdByAny === 'object' && createdByAny !== null) {
-                                // Prioritize broker-specific IDs first
-                                const brokerDetailId = createdByAny.brokerDetailId;
-                                const brokerDetailsId = createdByAny.brokerDetailsId;
-                                const brokerIdVal = createdByAny.brokerId;
-                                
-                                brokerId = (typeof brokerDetailId === 'string' ? brokerDetailId : null) ||
-                                          (typeof brokerDetailsId === 'string' ? brokerDetailsId : null) ||
-                                          (typeof brokerIdVal === 'string' ? brokerIdVal : null) ||
-                                          null;
-                                
-                                // Try nested userId structure (common pattern)
-                                if (!brokerId && createdByAny.userId) {
-                                  const userId = createdByAny.userId;
-                                  if (typeof userId === 'object' && userId !== null) {
-                                    const userIdObj = userId as Record<string, unknown>;
-                                    brokerId = (typeof userIdObj._id === 'string' ? userIdObj._id : null) || 
-                                              (typeof userIdObj.id === 'string' ? userIdObj.id : null) || 
-                                              (typeof userIdObj.brokerId === 'string' ? userIdObj.brokerId : null) ||
-                                              (typeof userIdObj.brokerDetailId === 'string' ? userIdObj.brokerDetailId : null) ||
-                                              null;
-                                  } else if (typeof userId === 'string') {
-                                    brokerId = userId;
-                                  }
-                                }
-                                
-                                // Fallback to direct _id or id (may be user ID, not broker ID)
-                                if (!brokerId) {
-                                  const idVal = createdByAny._id;
-                                  const idVal2 = createdByAny.id;
-                                  brokerId = (typeof idVal === 'string' ? idVal : null) || 
-                                            (typeof idVal2 === 'string' ? idVal2 : null) || 
-                                            null;
-                                }
-                              }
-                              
-                              // Ensure brokerId is a string if it exists
-                              brokerId = brokerId ? String(brokerId) : null;
-                            }
-
-                            return (
-                            <a
-                              key={s._id}
-                              href={`/lead-details/${s._id}`}
-                              className="flex-shrink-0 basis-full sm:basis-1/2 lg:basis-1/4 block group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer"
-                            >
-                              <div className="p-6">
-                                {/* Top Section - Main Title */}
-                                <div className="mb-4">
-                                  <h3 className="text-[14px] leading-[20px] font-bold mb-2" style={{ color: '#323743' }}>
-                                    {s.propertyType || "Property"} for {s.requirement || "inquiry"}
-                                  </h3>
-                                  
-                                  {/* Tags and Time */}
-                                  <div className="flex items-center justify-between gap-2 flex-nowrap">
-                                    <div className="flex items-center gap-2 flex-nowrap">
-                                      <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
-                                        {s.requirement || ""}
-                                      </span>
-                                      <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
-                                        {s.propertyType || ""}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 text-[12px] leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
-                                      <svg
-                                        className="h-4 w-4"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                      >
-                                        <circle cx="12" cy="12" r="10" />
-                                        <path d="M12 6v6l4 2" />
-                                      </svg>
-                                      {s.addedAgo || "2h ago"}
-                                    </div>
+                                {/* Tags and Time */}
+                                <div className="flex items-center justify-between gap-2 flex-nowrap">
+                                  <div className="flex items-center gap-2 flex-nowrap">
+                                    <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#0D542B', color: '#FFFFFF' }}>
+                                      {s.requirement || ""}
+                                    </span>
+                                    <span className="inline-flex items-center justify-center rounded-full h-[18px] p-[10px] whitespace-nowrap" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '16px', fontWeight: '600', background: '#FDC700', color: '#1b1d20ff' }}>
+                                      {s.propertyType || ""}
+                                    </span>
                                   </div>
-                                </div>
-
-                                {/* Horizontal Divider */}
-                                <div className="border-t border-gray-200 my-4"></div>
-
-                                {/* Middle Section - Property Details */}
-                                <div className="space-y-3 mb-4">
-                                  {/* Preferred Location */}
-                                  {s.primaryRegion?.name && (
-                                    <div className="flex items-center gap-2">
-                                      <svg
-                                        className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                      >
-                                        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
-                                        <circle cx="12" cy="10" r="3" />
-                                      </svg>
-                                      <div className="flex items-center flex-wrap gap-1">
-                                        <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
-                                           Primary Location:
-                                        </span>
-                                        <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
-                                          {s.primaryRegion.name || "—"}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* Secondary Location */}
-                                  {s.secondaryRegion?.name && (
-                                    <div className="flex items-center gap-2">
-                                      <svg
-                                        className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                      >
-                                        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
-                                        <circle cx="12" cy="10" r="3" />
-                                      </svg>
-                                      <div className="flex items-center flex-wrap gap-1">
-                                        <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]"> Secondary Location:
-</span>{" "}
-                                        <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
-                                          {s.secondaryRegion.name}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* Budget */}
-                                  <div className="flex items-start gap-2">
+                                  <div className="flex items-center gap-1.5 text-[12px] leading-5 font-normal whitespace-nowrap flex-shrink-0" style={{ color: '#565D6D' }}>
                                     <svg
-                                      className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
-                                      style={{ color: '#565D6D' }}
+                                      className="h-4 w-4"
                                       viewBox="0 0 24 24"
                                       fill="none"
                                       stroke="currentColor"
                                       strokeWidth="2"
                                     >
-                                      <rect x="3" y="8" width="18" height="12" rx="2" />
-                                      <path d="M3 12h18M9 8v8" />
+                                      <circle cx="12" cy="12" r="10" />
+                                      <path d="M12 6v6l4 2" />
+                                    </svg>
+                                    {s.addedAgo || "2h ago"}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Horizontal Divider */}
+                              <div className="border-t border-gray-200 my-4"></div>
+
+                              {/* Middle Section - Property Details */}
+                              <div className="space-y-3 mb-4">
+                                {/* Preferred Location */}
+                                {s.primaryRegion?.name && (
+                                  <div className="flex items-center gap-2">
+                                    <svg
+                                      className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                    >
+                                      <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                                      <circle cx="12" cy="10" r="3" />
                                     </svg>
                                     <div className="flex items-center flex-wrap gap-1">
-                                      <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
-                                      <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
-                                        {formatBudgetInCrores(s.budget)}
+                                      <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
+                                           Primary Location:
+                                      </span>
+                                        <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
+                                          {s.primaryRegion.name || "—"}
                                       </span>
                                     </div>
                                   </div>
-                                </div>
+                                )}
 
-                                {/* Bottom Section - Broker Profile and Actions */}
+                                {/* Secondary Location */}
+                                {s.secondaryRegion?.name && (
+                                  <div className="flex items-center gap-2">
+                                    <svg
+                                      className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                    >
+                                      <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                                      <circle cx="12" cy="10" r="3" />
+                                    </svg>
+                                    <div className="flex items-center flex-wrap gap-1">
+                                        <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]"> Secondary Location:
+                                      </span>{" "}
+                                        <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
+                                          {s.secondaryRegion.name}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Budget */}
+                                <div className="flex items-start gap-2">
+                                  <svg
+                                    className="h-3 w-3 flex-shrink-0 text-[#565D6D]"
+                                    style={{ color: '#565D6D' }}
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
+                                    <rect x="3" y="8" width="18" height="12" rx="2" />
+                                    <path d="M3 12h18M9 8v8" />
+                                  </svg>
+                                  <div className="flex items-center flex-wrap gap-1">
+                                    <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
+                                    <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
+                                      {formatBudgetInCrores(s.budget)}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Bottom Section - Broker Profile and Actions */}
                                 {(() => {
                                   // Check if createdBy is admin
                                   let isAdmin = false;
@@ -1253,16 +1262,16 @@ export default function LeadDetails() {
                                     const createdByObj = s.createdBy as Record<string, unknown>;
                                     const userId = createdByObj.userId;
                                     let role: string | undefined;
-                                    
+
                                     if (userId && typeof userId === 'object' && userId !== null) {
                                       role = (userId as { role?: string })?.role;
                                     }
                                     role = role || (createdByObj.role as string);
                                     const roleLower = role ? role.toLowerCase() : '';
                                     const name = (createdByObj.name as string) || (createdByObj.fullName as string) || (createdByObj.email as string) || "";
-                                    
-                                    isAdmin = 
-                                      roleLower === 'admin' || 
+
+                                    isAdmin =
+                                      roleLower === 'admin' ||
                                       createdByObj.isAdmin === true ||
                                       createdByObj.isAdmin === 'true' ||
                                       (createdByObj.userType as string)?.toLowerCase() === 'admin' ||
@@ -1270,26 +1279,26 @@ export default function LeadDetails() {
                                       (name.toLowerCase().includes('admin') && !createdByObj.brokerImage && !createdByObj.profileImage) ||
                                       (createdByObj.email as string)?.toLowerCase().includes('admin');
                                   }
-                                  
+
                                   // Also check if lead itself indicates admin creation
                                   // If createdBy is null but lead is verified, it might be admin-created
                                   if (!isAdmin) {
                                     const leadObj = s as unknown as { [key: string]: unknown };
                                     const verificationStatus = leadObj["verificationStatus"] as string;
                                     if (verificationStatus === 'Verified' || verificationStatus === 'verified') {
-                                      isAdmin = 
+                                      isAdmin =
                                         leadObj["adminCreatedBy"] !== undefined ||
                                         leadObj["createdByAdmin"] === true ||
                                         leadObj["verifiedByAdmin"] === true ||
                                         (!s.createdBy && verificationStatus === 'Verified'); // If verified but no createdBy, likely admin-created
                                     }
                                   }
-                                  
+
                                   // Show broker section only if createdBy exists or isAdmin
                                   if (!s.createdBy && !isAdmin) {
                                     return null;
                                   }
-                                  
+
                                   return (
                                     <div className="pt-4">
                                       <div className="flex items-center justify-between">
@@ -1350,16 +1359,16 @@ export default function LeadDetails() {
                                                       e.stopPropagation();
                                                       e.preventDefault();
                                                       // Check if user is logged in
-                                                      const token = typeof window !== 'undefined' 
+                                                      const token = typeof window !== 'undefined'
                                                         ? localStorage.getItem("token") || localStorage.getItem("authToken")
                                                         : null;
-                                                      
+
                                                       if (!token) {
                                                         // Redirect to login if not authenticated
                                                         router.push(`/login?redirect=${path}`);
                                                         return;
                                                       }
-                                                      
+
                                                       // If logged in, open chat
                                                       if (typeof window !== 'undefined') {
                                                         const win = window as Window & { openChatWithBroker?: (params: { broker: unknown }) => void };
@@ -1394,7 +1403,7 @@ export default function LeadDetails() {
                                             )}
                                           </div>
                                         </div>
-                                        
+
                                         {/* View button - Right side (only for non-admin) */}
                                         {!isAdmin && (
                                           <div className="flex-shrink-0">
@@ -1418,59 +1427,57 @@ export default function LeadDetails() {
                                     </div>
                                   );
                                 })()}
-                              </div>
-                            </a>
-                            );
-                          })}
-                      </div>
-                    </div>
+                            </div>
+                          </a>
+                        );
+                      })}
+                  </div>
+                </div>
 
-                    {/* Navigation */}
-                    <div className="flex gap-2 mt-4 justify-center">
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          const c = document.getElementById('similar-leads-horizontal');
-                          if (c && canScrollLeft) c.scrollBy({ left: -320, behavior: 'smooth' });
-                        }}
-                        disabled={!canScrollLeft}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                          canScrollLeft 
-                            ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
-                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        }`}
-                        title="Previous"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          const c = document.getElementById('similar-leads-horizontal');
-                          if (c && canScrollRight) c.scrollBy({ left: 320, behavior: 'smooth' });
-                        }}
-                        disabled={!canScrollRight}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                          canScrollRight 
-                            ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
-                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        }`}
-                        title="Next"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-[10px] p-12 border border-[#DEE1E6] text-center">
-                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <p className="text-base font-semibold text-gray-900 mb-2">No similar enquiries  found</p>
-                    <p className="text-sm text-gray-600">We couldn &apos;t find any leads with similar requirements.</p>
-                  </div>
-                )}
+                {/* Navigation */}
+                <div className="flex gap-2 mt-4 justify-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const c = document.getElementById('similar-leads-horizontal');
+                      if (c && canScrollLeft) c.scrollBy({ left: -320, behavior: 'smooth' });
+                    }}
+                    disabled={!canScrollLeft}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${canScrollLeft
+                      ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed hover:none'
+                      }`}
+                    title="Previous"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const c = document.getElementById('similar-leads-horizontal');
+                      if (c && canScrollRight) c.scrollBy({ left: 320, behavior: 'smooth' });
+                    }}
+                    disabled={!canScrollRight}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${canScrollRight
+                      ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed hover:none'
+                      }`}
+                    title="Next"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                </div>
               </div>
+            ) : (
+              <div className="bg-white rounded-[10px] p-12 border border-[#DEE1E6] text-center">
+                <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p className="text-base font-semibold text-gray-900 mb-2">No similar enquiries  found</p>
+                <p className="text-sm text-gray-600">We couldn &apos;t find any leads with similar requirements.</p>
+              </div>
+            )}
+          </div>
           {/* Footer Section */}
           <div className="rounded-xl p-6 sm:p-7 lg:p-8 bg-[#FFF8E6] border border-yellow-100 pb-16">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -1482,14 +1489,14 @@ export default function LeadDetails() {
                 </p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <a 
-                  href="/search?type=leads" 
+                <a
+                  href="/search?type=leads&tab=leads"
                   className="inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-yellow-500 text-gray-900 font-medium text-[12px] hover:bg-yellow-600 transition-colors"
                 >
-                  Discover All Enquiries 
+                  Discover All Enquiries
                 </a>
-                <a 
-                  href="/search?type=brokers" 
+                <a
+                  href="/search?type=brokers"
                   className="inline-flex items-center justify-center px-5 py-2.5 rounded-md border border-yellow-500 text-yellow-600 font-medium text-[12px] hover:bg-yellow-50 transition-colors"
                 >
                   Find Brokers

@@ -68,9 +68,9 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
     () =>
       Array.isArray(regionsList)
         ? regionsList.map((r) => ({
-            value: r._id || r.id || r,
-            label: r.name || r.region || r,
-          }))
+          value: r._id || r.id || r,
+          label: r.name || r.region || r,
+        }))
         : [],
     [regionsList]
   );
@@ -99,8 +99,8 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
       backgroundColor: s.isSelected
         ? "#0D542B"
         : s.isFocused
-        ? "#E8F8F0"
-        : "transparent",
+          ? "#E8F8F0"
+          : "transparent",
       color: s.isSelected ? "#ffffff" : s.isFocused ? "#0D542B" : "#4b5563",
       fontSize: 12,
       borderRadius: 6,
@@ -116,6 +116,8 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
       color: "#6b7280",
       fontWeight: 400,
       fontSize: 12,
+      whiteSpace: 'normal',
+      wordBreak: 'break-word',
     }),
     input: (p) => ({
       ...p,
@@ -131,13 +133,13 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
       const numericValue = value.replace(/[^0-9]/g, "");
       setFormData((prev) => ({ ...prev, [name]: numericValue }));
     } else {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!propertyBrokerId) {
       toast.error("Property broker information not available");
       return;
@@ -145,9 +147,9 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
 
     try {
       setLoading(true);
-      
+
       const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
-      const token = typeof window !== "undefined" 
+      const token = typeof window !== "undefined"
         ? localStorage.getItem("token") || localStorage.getItem("authToken")
         : null;
 
@@ -166,16 +168,16 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
       }
 
       // Parse budget
-      const budgetValue = formData.budget 
-        ? parseFloat(String(formData.budget).replace(/[^0-9.]/g, "")) 
+      const budgetValue = formData.budget
+        ? parseFloat(String(formData.budget).replace(/[^0-9.]/g, ""))
         : 0;
 
       // Extract values from select objects
-      const requirement = typeof formData.requirement === "object" 
-        ? formData.requirement.value || formData.requirement.label 
+      const requirement = typeof formData.requirement === "object"
+        ? formData.requirement.value || formData.requirement.label
         : formData.requirement;
-      const propertyType = typeof formData.propertyType === "object" 
-        ? formData.propertyType.value || formData.propertyType.label 
+      const propertyType = typeof formData.propertyType === "object"
+        ? formData.propertyType.value || formData.propertyType.label
         : formData.propertyType;
       const primaryRegionId = formData.primaryRegion && typeof formData.primaryRegion === "object"
         ? formData.primaryRegion.value || formData.primaryRegion._id
@@ -217,8 +219,8 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
       }
 
       toast.success("Lead created successfully!");
-    onClose();
-    resetForm();
+      onClose();
+      resetForm();
     } catch (error) {
 
       toast.error("Error creating lead. Please try again.");
@@ -249,199 +251,206 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
-      onClick={onClose} 
+      onClick={onClose}
     >
       {/* Modal panel */}
-      <div 
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 relative border border-gray-100"
+      <div
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 relative border border-gray-100 flex flex-col max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Scrollable area (scroll hidden visually but works) */}
-        <div className="max-h-[80vh] overflow-y-auto scrollbar-hide px-6 pt-6 pb-6">
-          <div className="w-full text-[12px]">
-            <h3 className="text-[16px] font-bold text-gray-900 mb-1">
-              Property Enquiry
-            </h3>
-            <p className="text-[11px] text-gray-500 mb-6">
-              Please fill out the form below with your property requirements.
-            </p>
+        {/* Header */}
+        <div className="px-6 pt-6 pb-2 shrink-0">
+          <h3 className="text-[16px] font-bold text-gray-900 mb-1">
+            Property Enquiry
+          </h3>
+          <p className="text-[11px] text-gray-500">
+            Please fill out the form below with your property requirements.
+          </p>
+        </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Input fields */}
-              <div>
-                <label className="block text-[11px] font-medium text-gray-700">
-                  Customer Name
-                </label>
-                <input
-                  type="text"
-                  name="customerName"
-                  value={formData.customerName}
-                  onChange={handleChange}
-                  placeholder="John Doe"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  required
-                />
-              </div>
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto scrollbar-hide px-6 py-4 flex-1">
+          <form id="enquiry-form" onSubmit={handleSubmit} className="space-y-4">
+            {/* Input fields */}
+            <div>
+              <label className="block text-[11px] font-medium text-gray-700">
+                Customer Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="customerName"
+                value={formData.customerName}
+                onChange={handleChange}
+                placeholder="John Doe"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
+                required
+              />
+            </div>
 
-              <div>
-                <label className="block text-[11px] font-medium text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john.doe@example.com"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  required
-                />
-              </div>
+            <div>
+              <label className="block text-[11px] font-medium text-gray-700">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="john.doe@example.com"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
+                required
+              />
+            </div>
 
-              <div>
-                <label className="block text-[11px] font-medium text-gray-700">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  placeholder="+1 (555) 123-4567"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  required
-                />
-              </div>
+            <div>
+              <label className="block text-[11px] font-medium text-gray-700">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="tel"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                placeholder="+1 (555) 123-4567"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
+                required
+              />
+            </div>
 
-              <div>
-                <label className="block text-[11px] font-medium text-gray-700 mb-2">
-                  Requirement
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {requirementOptions.map((opt) => {
-                    const isSelected =
-                      formData.requirement &&
-                      (formData.requirement.value || formData.requirement) === opt.value;
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() =>
-                          setFormData({ ...formData, requirement: opt })
-                        }
-                        className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${
-                          isSelected
-                            ? "bg-green-50 text-green-900 border-green-200 ring-1 ring-green-100 shadow-sm"
-                            : "bg-white text-slate-700 border-gray-200 hover:border-gray-300 hover:bg-slate-50"
+            <div>
+              <label className="block text-[11px] font-medium text-gray-700 mb-2">
+                Requirement <span className="text-red-500">*</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {requirementOptions.map((opt) => {
+                  const isSelected =
+                    formData.requirement &&
+                    (formData.requirement.value || formData.requirement) === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          requirement: isSelected ? null : opt
+                        })
+                      }
+                      className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${isSelected
+                        ? "bg-green-50 text-green-900 border-green-200 ring-1 ring-green-100 shadow-sm"
+                        : "bg-white text-slate-700 border-gray-200 hover:border-gray-300 hover:bg-slate-50"
                         }`}
-                      >
-                        {opt.label}
-                      </button>
-                    );
-                  })}
-                </div>
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
               </div>
+            </div>
 
-              <div>
-                <label className="block text-[11px] font-medium text-gray-700 mb-2">
-                  Property Type
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {propertyTypeOptions.map((opt) => {
-                    const isSelected =
-                      formData.propertyType &&
-                      (formData.propertyType.value || formData.propertyType) === opt.value;
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() =>
-                          setFormData({ ...formData, propertyType: opt })
-                        }
-                        className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${
-                          isSelected
-                            ? "bg-green-50 text-green-900 border-green-200 ring-1 ring-green-100 shadow-sm"
-                            : "bg-white text-slate-700 border-gray-200 hover:border-gray-300 hover:bg-slate-50"
+            <div>
+              <label className="block text-[11px] font-medium text-gray-700 mb-2">
+                Property Type <span className="text-red-500">*</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {propertyTypeOptions.map((opt) => {
+                  const isSelected =
+                    formData.propertyType &&
+                    (formData.propertyType.value || formData.propertyType) === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          propertyType: isSelected ? null : opt
+                        })
+                      }
+                      className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-colors transition-shadow duration-150 ${isSelected
+                        ? "bg-green-50 text-green-900 border-green-200 ring-1 ring-green-100 shadow-sm"
+                        : "bg-white text-slate-700 border-gray-200 hover:border-gray-300 hover:bg-slate-50"
                         }`}
-                      >
-                        {opt.label}
-                      </button>
-                    );
-                  })}
-                </div>
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
               </div>
+            </div>
 
+            <div>
+              <label className="block text-[11px] font-medium text-gray-700 mb-1">
+                Budget
+              </label>
+              <input
+                type="text"
+                name="budget"
+                value={formData.budget}
+                onChange={handleChange}
+                placeholder="Enter budget amount"
+                inputMode="numeric"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[11px] font-medium text-gray-700 mb-1">
-                  Budget
+                  Primary Region <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="budget"
-                  value={formData.budget}
-                  onChange={handleChange}
-                  placeholder="Enter budget amount"
-                  inputMode="numeric"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-[12px] focus:outline-none focus:ring-green-500 focus:border-green-500"
+                <Select
+                  value={formData.primaryRegion}
+                  onChange={(opt) =>
+                    setFormData({ ...formData, primaryRegion: opt })
+                  }
+                  options={regionOptions}
+                  styles={modalSelectStyles}
+                  isSearchable
+                  isLoading={regionsLoading}
+                  menuPortalTarget={
+                    typeof window !== "undefined" ? document.body : null
+                  }
+                  menuPosition="fixed"
+                  menuPlacement="auto"
+                  placeholder="Select region"
                 />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                  <label className="block text-[11px] font-medium text-gray-700 mb-1">
-                    Primary Region *
+                <label className="block text-[11px] font-medium text-gray-700 mb-1">
+                  Region (Optional)
                 </label>
-                  <Select
-                    value={formData.primaryRegion}
-                    onChange={(opt) =>
-                      setFormData({ ...formData, primaryRegion: opt })
-                    }
-                    options={regionOptions}
-                    styles={modalSelectStyles}
-                    isSearchable
-                    isLoading={regionsLoading}
-                    menuPortalTarget={
-                      typeof window !== "undefined" ? document.body : null
-                    }
-                    menuPosition="fixed"
-                    menuPlacement="auto"
-                    placeholder="Select region"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-medium text-gray-700 mb-1">
-                    Optional Region
-                  </label>
-                  <Select
-                    value={formData.secondaryRegion}
-                    onChange={(opt) =>
-                      setFormData({ ...formData, secondaryRegion: opt })
-                    }
-                    options={regionOptions}
-                    styles={modalSelectStyles}
-                    isSearchable
-                    isLoading={regionsLoading}
-                    menuPortalTarget={
-                      typeof window !== "undefined" ? document.body : null
-                    }
-                    menuPosition="fixed"
-                    menuPlacement="auto"
-                    placeholder="Select region (optional)"
-                  />
-                </div>
+                <Select
+                  value={formData.secondaryRegion}
+                  onChange={(opt) =>
+                    setFormData({ ...formData, secondaryRegion: opt })
+                  }
+                  options={regionOptions}
+                  styles={modalSelectStyles}
+                  isSearchable
+                  isLoading={regionsLoading}
+                  menuPortalTarget={
+                    typeof window !== "undefined" ? document.body : null
+                  }
+                  menuPosition="fixed"
+                  menuPlacement="auto"
+                  placeholder="Select region"
+                />
               </div>
+            </div>
+          </form>
+        </div>
 
-              <div className="mt-6">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-3 bg-green-900 text-[13px] font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? "Creating Lead..." : "Submit Enquiry"}
-                </button>
-              </div>
-            </form>
-          </div>
+        {/* Sticky Footer */}
+        <div className="p-6 border-t border-gray-100 bg-white rounded-b-2xl shrink-0">
+          <button
+            type="submit"
+            form="enquiry-form"
+            disabled={loading}
+            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-3 bg-green-900 text-[13px] font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Creating Lead..." : "Submit Enquiry"}
+          </button>
         </div>
       </div>
     </div>

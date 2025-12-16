@@ -6,6 +6,8 @@ import ContentLoader from "react-content-loader";
 import data from "../data/furnitureData.json";
 import HeaderFile from "../components/Header";
 import PropertyEnquiryModal from "../components/PropertyEnquiryModal";
+import ShareModal from "../components/ShareModal";
+import ImageSliderModal from "../components/ImageSliderModal";
 import { useAuth } from "../contexts/AuthContext";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -14,34 +16,34 @@ const TABS = [{ label: "Description" }, { label: "Review" }];
 // Helper function to convert YouTube URL to embed URL
 const getEmbedUrl = (url) => {
   if (!url || typeof url !== 'string') return null;
-  
+
   const trimmedUrl = url.trim();
   if (!trimmedUrl) return null;
-  
+
   // If already an embed URL, return as is
   if (trimmedUrl.includes('youtube.com/embed') || trimmedUrl.includes('youtu.be/embed')) {
     return trimmedUrl;
   }
-  
+
   // Extract video ID from various YouTube URL formats
   let videoId = null;
-  
+
   // youtube.com/watch?v=VIDEO_ID
   const watchMatch = trimmedUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
   if (watchMatch) {
     videoId = watchMatch[1];
   }
-  
+
   // youtube.com/embed/VIDEO_ID
   const embedMatch = trimmedUrl.match(/youtube\.com\/embed\/([^&\n?#]+)/);
   if (embedMatch) {
     videoId = embedMatch[1];
   }
-  
+
   if (videoId) {
     return `https://www.youtube.com/embed/${videoId}?rel=0`;
   }
-  
+
   // If not a YouTube URL, return as is (for other video platforms)
   return trimmedUrl;
 };
@@ -79,7 +81,7 @@ function PropertyDetailsPageInner() {
     // Convert to number
     const numPrice = typeof price === "string" ? parseFloat(price.replace(/[₹,]/g, '')) : price;
     if (isNaN(numPrice) || numPrice === 0) return "0";
-    
+
     // If price is >= 1 crore (1,00,00,000)
     if (numPrice >= 10000000) {
       const crores = numPrice / 10000000;
@@ -109,7 +111,7 @@ function PropertyDetailsPageInner() {
       const path = window.location.pathname || "";
       const m = path.match(/\/property-details\/(.+)$/);
       if (m && m[1]) setRouteId(m[1]);
-    } catch {}
+    } catch { }
   }, []);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -136,6 +138,8 @@ function PropertyDetailsPageInner() {
   const [showVideo, setShowVideo] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [path, setPath] = useState('');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isImageSliderModalOpen, setIsImageSliderModalOpen] = useState(false);
 
   // Fetch property details from API
   useEffect(() => {
@@ -265,11 +269,11 @@ function PropertyDetailsPageInner() {
           // Try to resolve an agent/broker id from the property payload
           const candidateId =
             (typeof propertyData?.createdBy === "object" &&
-            propertyData.createdBy?._id
+              propertyData.createdBy?._id
               ? propertyData.createdBy._id
               : typeof propertyData?.createdBy === "string"
-              ? propertyData.createdBy
-              : null) ||
+                ? propertyData.createdBy
+                : null) ||
             propertyData?.brokerId ||
             propertyData?.agentId ||
             propertyData?.ownerId ||
@@ -372,7 +376,7 @@ function PropertyDetailsPageInner() {
             ? localStorage.getItem("token") || localStorage.getItem("authToken")
             : null;
         const base =
-          process.env.NEXT_PUBLIC_API_URL ;
+          process.env.NEXT_PUBLIC_API_URL;
         const headers = {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -450,9 +454,9 @@ function PropertyDetailsPageInner() {
           const isPropertySaved = savedProperties.some(
             (sp) =>
               (sp.propertyId?._id || sp.propertyId?.id || sp.propertyId) ===
-                propertyId ||
+              propertyId ||
               (sp.property?._id || sp.property?.id || sp.property) ===
-                propertyId ||
+              propertyId ||
               sp._id === propertyId
           );
           setIsSaved(isPropertySaved);
@@ -562,7 +566,7 @@ function PropertyDetailsPageInner() {
           try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             currentUserId = payload.brokerId || payload.userId || payload.id || payload.sub || '';
-            
+
             // Fetch broker details to get the actual broker _id
             if (currentUserId) {
               try {
@@ -587,9 +591,9 @@ function PropertyDetailsPageInner() {
         let latitude = null;
         let longitude = null;
         const propertyData = product._raw || product;
-        
+
         console.log('📍 SimilarProperties: Property data:', propertyData);
-        
+
         // First, check for direct latitude/longitude fields (most common in API response)
         if (propertyData?.latitude !== undefined && propertyData?.longitude !== undefined) {
           latitude = Number(propertyData.latitude);
@@ -601,7 +605,7 @@ function PropertyDetailsPageInner() {
             longitude = null;
           }
         }
-        
+
         // If not found, check for location coordinates in property data
         if (!latitude || !longitude) {
           if (propertyData?.location?.coordinates && Array.isArray(propertyData.location.coordinates) && propertyData.location.coordinates.length >= 2) {
@@ -636,7 +640,7 @@ function PropertyDetailsPageInner() {
             }
           }
         }
-        
+
         if (!latitude || !longitude) {
           console.log('📍 SimilarProperties: No coordinates found in property data');
         }
@@ -685,7 +689,7 @@ function PropertyDetailsPageInner() {
           // Filter out current property and logged-in broker's own properties
           const filteredProperties = properties.filter((p) => {
             const propertyId = p._id || p.id;
-            
+
             // Exclude the current property
             if (propertyId === currentPropertyId) {
               return false;
@@ -694,7 +698,7 @@ function PropertyDetailsPageInner() {
             // Filter out properties belonging to the logged-in broker
             if (currentBrokerId || currentUserId) {
               let propertyBrokerId = '';
-              
+
               // Check broker field first (most common in API response)
               if (p.broker) {
                 if (typeof p.broker === 'string') {
@@ -703,38 +707,38 @@ function PropertyDetailsPageInner() {
                   propertyBrokerId = p.broker._id || p.broker.id || '';
                 }
               }
-              
+
               // If not found, check createdBy, postedBy
               if (!propertyBrokerId) {
                 const createdBy = p.createdBy || p.postedBy;
-                
+
                 if (createdBy) {
                   if (typeof createdBy === 'string') {
                     propertyBrokerId = createdBy;
                   } else if (typeof createdBy === 'object' && createdBy !== null) {
                     const obj = createdBy;
                     const userId = obj.userId;
-                    
+
                     if (userId && typeof userId === 'object' && userId !== null) {
                       propertyBrokerId = userId._id || userId.id || '';
                     } else if (userId && typeof userId === 'string') {
                       propertyBrokerId = userId;
                     }
-                    
+
                     if (!propertyBrokerId) {
                       propertyBrokerId = obj._id || obj.id || obj.brokerId || '';
                     }
                   }
                 }
               }
-              
+
               const brokerIdStr = String(currentBrokerId || '').trim();
               const userIdStr = String(currentUserId || '').trim();
               const propertyBrokerIdStr = String(propertyBrokerId).trim();
-              
+
               const matchesBrokerId = brokerIdStr !== '' && propertyBrokerIdStr === brokerIdStr;
               const matchesUserId = userIdStr !== '' && propertyBrokerIdStr === userIdStr;
-              
+
               // Exclude if matches logged-in broker
               if (matchesBrokerId || matchesUserId) {
                 console.log('🔍 SimilarProperties: Filtering out own property:', propertyId, 'Broker ID:', propertyBrokerIdStr);
@@ -1564,7 +1568,8 @@ function PropertyDetailsPageInner() {
                       <img
                         src={gallery[selectedImageIndex]}
                         alt="Property"
-                        className="w-full h-[360px] md:h-[420px] object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-[360px] md:h-[420px] object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
+                        onClick={() => setIsImageSliderModalOpen(true)}
                       />
                     ) : (
                       <div className="w-full h-[360px] md:h-[420px] flex items-center justify-center text-gray-500">
@@ -1579,32 +1584,7 @@ function PropertyDetailsPageInner() {
                     </div>
                     <div className="absolute top-4 right-4 flex gap-2">
                       <button
-                        onClick={() => {
-                          // Get current page URL
-                          const currentUrl =
-                            typeof window !== "undefined"
-                              ? window.location.href
-                              : "";
-                          const propertyTitle = product?.name || "Property";
-                          const propertyDescription =
-                            product?.description ||
-                            product?.propertyDescription ||
-                            "Check out this property";
-
-                          // Facebook share URL
-                          const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                            currentUrl
-                          )}&quote=${encodeURIComponent(
-                            `${propertyTitle} - ${propertyDescription}`
-                          )}`;
-
-                          // Open Facebook share dialog in a new window
-                          window.open(
-                            facebookShareUrl,
-                            "facebook-share-dialog",
-                            "width=626,height=436"
-                          );
-                        }}
+                        onClick={() => setIsShareModalOpen(true)}
                         className="w-[40px] h-[40px] px-[10px] flex items-center justify-center text-[#171A1F] bg-white/80 backdrop-blur-sm opacity-100 border-none rounded-full hover:text-[#171A1F] hover:bg-white/80 active:text-[#171A1F] active:bg-white/80 disabled:opacity-40 transition-colors"
                         title="Share on Facebook"
                       >
@@ -1625,9 +1605,8 @@ function PropertyDetailsPageInner() {
                       <button
                         onClick={handleWishlistToggle}
                         disabled={savingProperty}
-                        className={`w-[40px] h-[40px] px-[10px] flex items-center justify-center bg-white/80 backdrop-blur-sm opacity-100 border-none rounded-full hover:text-[#171A1F] hover:bg-white/80 active:text-[#171A1F] active:bg-white/80 disabled:opacity-40 transition-colors ${
-                          isSaved ? "text-red-500" : "text-[#171A1F]"
-                        }`}
+                        className={`w-[40px] h-[40px] px-[10px] flex items-center justify-center bg-white/80 backdrop-blur-sm opacity-100 border-none rounded-full hover:text-[#171A1F] hover:bg-white/80 active:text-[#171A1F] active:bg-white/80 disabled:opacity-40 transition-colors ${isSaved ? "text-red-500" : "text-[#171A1F]"
+                          }`}
                         title={isSaved ? "Remove from saved" : "Save property"}
                       >
                         {isSaved ? (
@@ -1666,17 +1645,15 @@ function PropertyDetailsPageInner() {
                         <div
                           key={index}
                           onClick={() => setSelectedImageIndex(thumbnailIndex)}
-                          className={`flex-1 bg-gray-50 overflow-hidden relative group cursor-pointer transition-all duration-300 ${
-                            isSelected ? 'ring-2 ring-[#0D542B] ring-offset-2' : ''
-                          }`}
+                          className={`flex-1 bg-gray-50 overflow-hidden relative group cursor-pointer transition-all duration-300 ${isSelected ? 'ring-2 ring-[#0D542B] ring-offset-2' : ''
+                            }`}
                           style={{ borderRadius: "8px" }}
                         >
                           <img
                             src={img}
                             alt={`Thumbnail ${index + 1}`}
-                            className={`w-full h-[120px] object-cover group-hover:scale-105 transition-transform duration-300 ${
-                              isSelected ? 'opacity-100' : 'opacity-90'
-                            }`}
+                            className={`w-full h-[120px] object-cover group-hover:scale-105 transition-transform duration-300 ${isSelected ? 'opacity-100' : 'opacity-90'
+                              }`}
                             style={{ borderRadius: "8px" }}
                           />
                           {isSelected && (
@@ -1902,7 +1879,7 @@ function PropertyDetailsPageInner() {
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {(product?.locationBenefits &&
-                    product.locationBenefits.length > 0
+                      product.locationBenefits.length > 0
                       ? product.locationBenefits
                       : ["Near IT Park", "Easy Highway Access"]
                     ).map((item) => (
@@ -1925,11 +1902,10 @@ function PropertyDetailsPageInner() {
                     <button
                       key={tab.label}
                       onClick={() => setActiveTab(idx)}
-                      className={`px-6 py-3 text-base font-medium focus:outline-none transition-all rounded-md ${
-                        activeTab === idx
-                          ? "text-[#171A1F] bg-[#E6F7ED]"
-                          : "text-[#565D6D] hover:text-[#171A1F]"
-                      }`}
+                      className={`px-6 py-3 text-base font-medium focus:outline-none transition-all rounded-md ${activeTab === idx
+                        ? "text-[#171A1F] bg-[#E6F7ED]"
+                        : "text-[#565D6D] hover:text-[#171A1F]"
+                        }`}
                     >
                       {tab.label}
                     </button>
@@ -1949,11 +1925,11 @@ function PropertyDetailsPageInner() {
                           <div className="prose prose-gray max-w-none">
                             {(product?.propertyDescription ||
                               product?.description) && (
-                              <p className="w-full font-inter text-[12px] leading-[24px] font-normal text-[#565D6D] mb-4">
-                                {product.propertyDescription ||
-                                  product.description}
-                              </p>
-                            )}
+                                <p className="w-full font-inter text-[12px] leading-[24px] font-normal text-[#565D6D] mb-4">
+                                  {product.propertyDescription ||
+                                    product.description}
+                                </p>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -1989,11 +1965,10 @@ function PropertyDetailsPageInner() {
                                     return (
                                       <svg
                                         key={i}
-                                        className={`w-6 h-6 ${
-                                          i < Math.round(avgRating)
-                                            ? "text-yellow-400"
-                                            : "text-gray-300"
-                                        }`}
+                                        className={`w-6 h-6 ${i < Math.round(avgRating)
+                                          ? "text-yellow-400"
+                                          : "text-gray-300"
+                                          }`}
                                         fill="currentColor"
                                         viewBox="0 0 20 20"
                                       >
@@ -2131,11 +2106,10 @@ function PropertyDetailsPageInner() {
                                                 {[...Array(5)].map((_, i) => (
                                                   <svg
                                                     key={i}
-                                                    className={`w-4 h-4 ${
-                                                      i < review.rating
-                                                        ? "text-yellow-400"
-                                                        : "text-gray-300"
-                                                    }`}
+                                                    className={`w-4 h-4 ${i < review.rating
+                                                      ? "text-yellow-400"
+                                                      : "text-gray-300"
+                                                      }`}
                                                     fill="currentColor"
                                                     viewBox="0 0 20 20"
                                                   >
@@ -2224,9 +2198,9 @@ function PropertyDetailsPageInner() {
                     <p className="top-[61px] left-[16px] font-inter text-[12px] leading-[20px] font-normal text-[#565D6D]">
                       {typeof product.region === "object"
                         ? product.region?.name ||
-                          [product.region?.city, product.region?.state]
-                            .filter(Boolean)
-                            .join(", ")
+                        [product.region?.city, product.region?.state]
+                          .filter(Boolean)
+                          .join(", ")
                         : product.region}
                     </p>
                     <p className="top-[61px] left-[16px] font-inter text-[12px] leading-[20px] font-normal text-[#565D6D] mt-2">
@@ -2306,17 +2280,16 @@ function PropertyDetailsPageInner() {
                           </div>
                         )}
                         <div className="text-[12px] text-gray-400">
-                          {`Expert Broker${
-                            agent?.region
-                              ? " • " +
-                                (typeof agent.region === "object"
-                                  ? agent.region?.name ||
-                                    [agent.region?.city, agent.region?.state]
-                                      .filter(Boolean)
-                                      .join(", ")
-                                  : agent.region)
-                              : ""
-                          }`}
+                          {`Expert Broker${agent?.region
+                            ? " • " +
+                            (typeof agent.region === "object"
+                              ? agent.region?.name ||
+                              [agent.region?.city, agent.region?.state]
+                                .filter(Boolean)
+                                .join(", ")
+                              : agent.region)
+                            : ""
+                            }`}
                         </div>
                       </div>
                     </div>
@@ -2329,7 +2302,7 @@ function PropertyDetailsPageInner() {
                           const token =
                             typeof window !== "undefined"
                               ? localStorage.getItem("token") ||
-                                localStorage.getItem("authToken")
+                              localStorage.getItem("authToken")
                               : null;
 
                           if (!token) {
@@ -2397,9 +2370,8 @@ function PropertyDetailsPageInner() {
                                     viewBox="0 0 24 24"
                                     fill="currentColor"
                                     style={{
-                                      clipPath: `inset(0 ${
-                                        100 - fillPercentage
-                                      }% 0 0)`,
+                                      clipPath: `inset(0 ${100 - fillPercentage
+                                        }% 0 0)`,
                                     }}
                                   >
                                     <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.786 1.4 8.164L12 18.896l-7.334 3.864 1.4-8.164L.132 9.21l8.2-1.192z" />
@@ -2421,7 +2393,7 @@ function PropertyDetailsPageInner() {
                     const token =
                       typeof window !== "undefined"
                         ? localStorage.getItem("token") ||
-                          localStorage.getItem("authToken")
+                        localStorage.getItem("authToken")
                         : null;
 
                     if (!token) {
@@ -2430,9 +2402,8 @@ function PropertyDetailsPageInner() {
                     }
                     setShowRatingModal(true);
                   }}
-                  className={`w-full h-[40px] px-3 flex items-center justify-center gap-2 font-inter text-[12px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] hover:bg-[#EDFDF4] hover:active:bg-[#D9F5E8] disabled:opacity-40 rounded-md transition-colors ${
-                    ratingsStats?.averageRating ? "mt-4" : "mt-0"
-                  }`}
+                  className={`w-full h-[40px] px-3 flex items-center justify-center gap-2 font-inter text-[12px] leading-[22px] font-medium text-[#0D542B] bg-white border border-[#0D542B] hover:bg-[#EDFDF4] hover:active:bg-[#D9F5E8] disabled:opacity-40 rounded-md transition-colors ${ratingsStats?.averageRating ? "mt-4" : "mt-0"
+                    }`}
                 >
                   <svg
                     className="w-4 h-4"
@@ -2460,7 +2431,7 @@ function PropertyDetailsPageInner() {
                         const videoUrl = product.videos[0];
                         const embedUrl = getEmbedUrl(videoUrl);
                         const isYouTube = embedUrl && embedUrl.includes('youtube.com/embed');
-                        
+
                         return isYouTube ? (
                           <iframe
                             src={embedUrl}
@@ -2515,16 +2486,29 @@ function PropertyDetailsPageInner() {
 
                       {/* Subtitle */}
                       <p className="mt-1 font-inter text-[12px] leading-[20px] font-normal text-[#19191F]">
-                       Take a 360° tour of the property
+                        Take a 360° tour of the property
                       </p>
 
                       {/* Button */}
-                      <button
-                        onClick={() => setShowVideo(true)}
-                        className="mt-4 w-[107.13px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium text-[#0D542B] bg-white rounded-[6px] border border-[#0D542B] hover:bg-[#EDFDF4] active:bg-[#EDFDF4] disabled:opacity-40 transition-colors"
-                      >
-                        View Video
-                      </button>
+                      {(() => {
+                        const videoUrl = product?.videos?.[0];
+                        const isValidVideo = videoUrl && typeof videoUrl === 'string' && videoUrl.trim() !== '' && getEmbedUrl(videoUrl);
+                        const isDisabled = !isValidVideo;
+                        
+                        return (
+                          <button
+                            onClick={() => setShowVideo(true)}
+                            disabled={isDisabled}
+                            className={`mt-4 w-[107.13px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium rounded-[6px] border transition-colors ${
+                              isDisabled
+                                ? 'text-gray-400 bg-gray-100 border-gray-300 cursor-not-allowed opacity-50'
+                                : 'text-[#0D542B] bg-white border-[#0D542B] hover:bg-[#EDFDF4] active:bg-[#EDFDF4]'
+                            }`}
+                          >
+                            View Video
+                          </button>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
@@ -2786,7 +2770,7 @@ function PropertyDetailsPageInner() {
               Array.from({ length: 6 }).map((_, index) => (
                 <div
                   key={index}
-                  className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
+                  className="flex-shrink-0 w-[calc((100%-72px)/4)] bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
                 >
                   <ContentLoader
                     speed={2}
@@ -2814,23 +2798,23 @@ function PropertyDetailsPageInner() {
               similarProperties.map((p) => (
                 <div
                   key={p.id}
-                  className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow"
+                  className="flex-shrink-0 w-[calc((100%-72px)/4)] bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group"
                 >
                   <Link
                     href={`/property-details/${p.id}`}
-                    className="block group"
+                    className="block"
                   >
                     <div className="aspect-[4/3] bg-gray-100 rounded-t-2xl overflow-hidden">
                       <img
                         src={p.image}
                         alt={p.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
-                    <div className="px-4 pt-4 pb-4 space-y-3">
+                    <div className="px-4 pt-4 pb-4 space-y-3 group-hover:bg-gray-50 transition-colors duration-300">
                       {/* Name with green upward arrow */}
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-900 text-base line-clamp-1">
+                        <h3 className="font-semibold text-gray-900 text-base line-clamp-1 group-hover:text-[#0D542B] transition-colors">
                           {p.name}
                         </h3>
                         <svg
@@ -2877,12 +2861,12 @@ function PropertyDetailsPageInner() {
                           {p.city || ""}{" "}
                           {typeof p.region === "object"
                             ? p.region?.name ||
-                              [p.region?.city, p.region?.state]
-                                .filter(Boolean)
-                                .join(", ")
+                            [p.region?.city, p.region?.state]
+                              .filter(Boolean)
+                              .join(", ")
                             : p.region
-                            ? `• ${p.region}`
-                            : ""}
+                              ? `• ${p.region}`
+                              : ""}
                         </span>
                       </div>
 
@@ -2907,9 +2891,9 @@ function PropertyDetailsPageInner() {
                         </span>
                       </div>
 
-                      {/* Price */}
+                      {/* Price - Different color (green) */}
                       <div className="flex items-center gap-2 pt-1">
-                        <span className="text-gray-900 font-semibold text-base">
+                        <span className="text-[#0D542B] font-bold text-lg">
                           ₹{formatPrice(p.price)}
                         </span>
                         {/* {p.originalPrice && p.originalPrice > (p.price || 0) && (
@@ -2958,15 +2942,16 @@ function PropertyDetailsPageInner() {
                 "related-properties-carousel"
               );
               if (carousel && canScrollLeft) {
-                carousel.scrollBy({ left: -320, behavior: "smooth" });
+                // Scroll by one card width + gap (exactly 25% of container + 24px gap)
+                const scrollAmount = (carousel.clientWidth - 72) / 4 + 24;
+                carousel.scrollBy({ left: -scrollAmount, behavior: "smooth" });
               }
             }}
             disabled={!canScrollLeft}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${
-              canScrollLeft
-                ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${canScrollLeft
+              ? "bg-yellow-500 text-white hover:bg-yellow-600"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
             title="Previous"
           >
             <svg
@@ -2990,15 +2975,16 @@ function PropertyDetailsPageInner() {
                 "related-properties-carousel"
               );
               if (carousel && canScrollRight) {
-                carousel.scrollBy({ left: 320, behavior: "smooth" });
+                // Scroll by one card width + gap (exactly 25% of container + 24px gap)
+                const scrollAmount = (carousel.clientWidth - 72) / 4 + 24;
+                carousel.scrollBy({ left: scrollAmount, behavior: "smooth" });
               }
             }}
             disabled={!canScrollRight}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${
-              canScrollRight
-                ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${canScrollRight
+              ? "bg-yellow-500 text-white hover:bg-yellow-600"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
             title="Next"
           >
             <svg
@@ -3040,7 +3026,7 @@ function PropertyDetailsPageInner() {
             </div>
 
             <h2 className="text-[18px] leading-[36px] font-bold text-[#19191F] mt-4">
-             Ready to Find Your Perfect Home?
+              Ready to Find Your Perfect Home?
 
             </h2>
             <p className="w-full max-w-2xl mx-auto font-inter text-[12px] leading-[28px] font-normal text-[#19191F] mt-4">
@@ -3178,9 +3164,9 @@ function PropertyDetailsPageInner() {
                     <p className="text-[12px] text-gray-500 truncate">
                       {typeof product.region === "object"
                         ? product.region?.name ||
-                          [product.region?.city, product.region?.state]
-                            .filter(Boolean)
-                            .join(", ")
+                        [product.region?.city, product.region?.state]
+                          .filter(Boolean)
+                          .join(", ")
                         : product.region}
                     </p>
                     <p className="text-[12px] font-medium text-[#0D542B] mt-1">
@@ -3204,11 +3190,10 @@ function PropertyDetailsPageInner() {
                       className="focus:outline-none transition-transform hover:scale-110"
                     >
                       <svg
-                        className={`w-8 h-8 ${
-                          star <= userRating
-                            ? "text-yellow-400 fill-yellow-400"
-                            : "text-gray-300 fill-gray-300"
-                        }`}
+                        className={`w-8 h-8 ${star <= userRating
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-gray-300 fill-gray-300"
+                          }`}
                         viewBox="0 0 24 24"
                       >
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -3265,7 +3250,7 @@ function PropertyDetailsPageInner() {
                       const token =
                         typeof window !== "undefined"
                           ? localStorage.getItem("token") ||
-                            localStorage.getItem("authToken")
+                          localStorage.getItem("authToken")
                           : null;
 
                       if (!token) {
@@ -3335,7 +3320,7 @@ function PropertyDetailsPageInner() {
                           const refreshToken =
                             typeof window !== "undefined"
                               ? localStorage.getItem("token") ||
-                                localStorage.getItem("authToken")
+                              localStorage.getItem("authToken")
                               : null;
                           const refreshBase =
                             process.env.NEXT_PUBLIC_API_URL ||
@@ -3380,7 +3365,7 @@ function PropertyDetailsPageInner() {
                       console.error("Error submitting rating:", error);
                       toast.error(
                         error.message ||
-                          "Failed to submit rating. Please try again."
+                        "Failed to submit rating. Please try again."
                       );
                     } finally {
                       setRatingLoading(false);
@@ -3396,6 +3381,17 @@ function PropertyDetailsPageInner() {
           </div>
         </div>
       )}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+      />
+      <ImageSliderModal
+        isOpen={isImageSliderModalOpen}
+        onClose={() => setIsImageSliderModalOpen(false)}
+        images={product?.images || []}
+        initialIndex={selectedImageIndex}
+      />
     </div>
   );
 }

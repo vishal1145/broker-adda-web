@@ -20,13 +20,13 @@ const Connections = () => {
     try {
       setIsLoading(true);
       setError('');
-      
-      const token = typeof window !== 'undefined' 
+
+      const token = typeof window !== 'undefined'
         ? localStorage.getItem('token') || localStorage.getItem('authToken')
         : null;
-      
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
-      
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
       const headers = {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -67,7 +67,7 @@ const Connections = () => {
   const getBrokerData = (connection) => {
     // Handle different API response structures
     const participant = connection?.participants?.[0] || connection?.participant || connection?.broker || connection;
-    
+
     return {
       name: participant?.name || participant?.fullName || participant?.email || 'Unknown',
       firmName: participant?.firmName || participant?.companyName || participant?.firm || '',
@@ -126,8 +126,8 @@ const Connections = () => {
   return (
     <ProtectedRoute>
       <HeaderFile data={headerData} />
-      
-      <div className="min-h-screen bg-white py-16">
+
+      <div className="bg-white py-16">
         <div className=" mx-auto px-4">
           {/* Header Section */}
           <div className="mb-8">
@@ -215,20 +215,19 @@ const Connections = () => {
                 const broker = getBrokerData(connection);
                 const connectionId = connection?._id || connection?.id || connection?.chatId || index;
                 const avatarColor = getAvatarColor(broker.name);
-                
+
                 // const handleCardClick = () => {
                 //   if (broker.brokerId) {
                 //     router.push(`/broker-details/${broker.brokerId}`);
                 //   }
                 // };
-                
+
                 return (
                   <div
                     key={connectionId}
                     // onClick={handleCardClick}
-                    className={`group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-200 ${
-                      broker.brokerId ? 'cursor-pointer' : 'cursor-default'
-                    }`}
+                    className={`group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-200 ${broker.brokerId ? 'cursor-pointer' : 'cursor-default'
+                      }`}
                   >
                     {/* Full Image Section at Top */}
                     <div className="relative w-full h-64 bg-gray-100">
@@ -244,9 +243,8 @@ const Connections = () => {
                         />
                       ) : null}
                       <div
-                        className={`w-full h-full flex items-center justify-center text-4xl font-semibold ${avatarColor.bg} ${avatarColor.text} ${
-                          broker.brokerImage ? 'hidden' : ''
-                        }`}
+                        className={`w-full h-full flex items-center justify-center text-4xl font-semibold ${avatarColor.bg} ${avatarColor.text} ${broker.brokerImage ? 'hidden' : ''
+                          }`}
                       >
                         {getInitials(broker.name)}
                       </div>

@@ -9,13 +9,21 @@ export default function ConditionalLayout({ children, navbarData, footerData }) 
   
   // Pages where we don't want navbar and footer
   const hideNavbarFooterPages = ['/signup', '/login', '/verify-code'];
+  const noPaddingPages = ['/signup', '/login'];
   
   const shouldHideNavbarFooter = hideNavbarFooterPages.includes(pathname);
+  const shouldRemoveMainPadding = noPaddingPages.includes(pathname);
 
   return (
     <>
       {!shouldHideNavbarFooter && <Navbar data={navbarData} />}
-      <main className="min-h-screen pt-20 px-1 md:px-4 lg:px-[6rem] py-8">{children}</main>
+      <main
+        className={`min-h-screen px-1 md:px-4 lg:px-[6rem] ${
+          shouldRemoveMainPadding ? '' : 'pt-20 py-8'
+        }`}
+      >
+        {children}
+      </main>
       {!shouldHideNavbarFooter && <Footer data={footerData} />}
       <BrokersChatList />
     </>

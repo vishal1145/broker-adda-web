@@ -393,12 +393,12 @@ const BrokersChatList = () => {
 
       {user && (
         <div
-          className="fixed bottom-4 right-4 md:bottom-0 md:right-0 w-14 h-14 md:w-60 md:h-auto z-50 bg-white shadow-lg rounded-full md:rounded-lg border border-gray-200 flex items-center justify-center md:justify-between gap-0 md:gap-2 lg:gap-3 p-0 md:px-3 md:py-2 lg:px-4 lg:py-3 cursor-pointer hover:shadow-xl transition-all duration-200"
+          className="fixed bottom-3 right-3 md:bottom-2 md:right-0 w-12 h-12 md:w-48 md:h-auto z-50 bg-white shadow-lg  border border-gray-200 flex items-center justify-center md:justify-between gap-0 md:gap-2 lg:gap-2.5 p-0 md:px-2.5 md:py-1.5 lg:px-3 lg:py-2 cursor-pointer hover:shadow-xl transition-all duration-200"
           onClick={toggleExpand}
         >
-          <div className="flex items-center gap-2 md:gap-2 lg:gap-3">
+          <div className="flex items-center gap-2 md:gap-2 lg:gap-2.5">
             {/* Mobile: Show Logo */}
-            <div className="w-14 h-14 md:hidden rounded-full bg-white flex-shrink-0 flex items-center justify-center border border-gray-200 p-2">
+            <div className="w-12 h-12 md:hidden rounded-full bg-white flex-shrink-0 flex items-center justify-center border border-gray-200 p-1.5">
               <img 
                 className='rounded-full object-contain h-full w-full' 
                 src="/BROKER_GULLY_FINAL_LOGO_ICON_JPG__1_-removebg-preview.png" 
@@ -409,7 +409,7 @@ const BrokersChatList = () => {
               />
             </div>
             {/* Desktop: Show Broker Image */}
-            <div className="hidden md:flex w-10 h-10 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex-shrink-0 items-center justify-center">
+            <div className="hidden md:flex w-5 h-5 lg:w-5 lg:h-5 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex-shrink-0 items-center justify-center">
               {currentUser?.additionalDetails?.brokerImage ? (
                 <img className='rounded-full object-cover h-full w-full' src={currentUser?.additionalDetails?.brokerImage} alt="Broker" />
               ) : (
@@ -419,7 +419,7 @@ const BrokersChatList = () => {
             <span className="text-sm font-medium text-gray-900 hidden md:inline">Messaging</span>
           </div>
           <svg
-            className={`w-5 h-5 text-gray-600 transition-transform duration-200 hidden md:block ${isExpanded ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 text-gray-600 transition-transform duration-200 hidden md:block ${isExpanded ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

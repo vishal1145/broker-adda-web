@@ -253,9 +253,9 @@ const SignUp = () => {
         }}
       />
     
-      <div className="min-h-screen flex">
+      <div className="h-screen flex overflow-hidden">
         {/* Left Section - Image Background */}
-        <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center p-8">
+        <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center p-8 h-full">
           <div className="relative w-full max-w-2xl">
             <img
               src="/images/signup.png"
@@ -282,7 +282,7 @@ const SignUp = () => {
         </div>
 
         {/* Right Section - Sign Up Form */}
-        <div className="flex-1 lg:w-1/2 flex items-center justify-center p-4 md:p-6 lg:p-8 bg-white">
+        <div className="flex-1 lg:w-1/2 flex items-center justify-center p-4 md:p-6 lg:p-8 bg-white h-full">
           <div className="w-full max-w-xl">
             {/* Card Container */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8 lg:p-12">

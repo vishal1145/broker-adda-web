@@ -119,7 +119,7 @@ const OTPModal = ({ isOpen, onClose, onVerify, phoneNumber, onResend, isLoading 
 
           {/* Instruction */}
           <p className="text-sm md:text-base text-gray-600 text-center mb-6 md:mb-8 font-[Inter]" >
-            Please type the code we sent you in your email
+            Please type the code we sent you in your Mobile Number
           </p>
 
           {/* OTP Input Fields */}
