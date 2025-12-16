@@ -1407,7 +1407,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       }
                       setCurrentPage(1);
                     }}
-                  className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-min"
+                  className="absolute top-1 w-full h-2 bg-transparent appearance-none cursor-pointer slider-min"
                     style={{
                       zIndex: 2,
                       pointerEvents: 'auto'
@@ -1433,7 +1433,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       }
                       setCurrentPage(1);
                     }}
-                  className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-max"
+                  className="absolute top-1 w-full h-2 bg-transparent appearance-none cursor-pointer slider-max"
                     style={{
                       zIndex: 3,
                       pointerEvents: 'auto'

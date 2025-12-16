@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface DotsProps {
   className?: string;
@@ -105,6 +106,7 @@ const Hero = ({ data = {
   cards: []
 } }: { data: HeroData }) => {
   const router = useRouter(); // ✅ Next.js router
+  const { isAuthenticated } = useAuth(); // Check if user is logged in
   const [startIdx, setStartIdx] = useState(0);
   // Read token synchronously to avoid a first paint with hardcoded cards
   // removed unused initialToken
@@ -426,20 +428,24 @@ const Hero = ({ data = {
             <p className="text-gray-500 text-xs md:text-xs lg:text-sm max-w-md">{description}</p>
 
             <div className="flex gap-4 md:gap-4 lg:gap-6 flex-wrap items-center">
-              <button
-onClick={() => {
-    window.location.href = '/signup';
-  }}                className="bg-green-900 text-white px-5 md:px-5 lg:px-6 py-2 md:py-2 lg:py-2.5 rounded-full text-xs md:text-xs lg:text-sm font-semibold flex items-center gap-2 cursor-pointer"
-              >
-                {(buttons as { primary?: string; secondary?: string })?.primary || 'Brokers'}
-                <svg className="w-3 h-3 md:w-[14px] md:h-[14px] lg:w-4 lg:h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l5.3 5.3a1 1 0 010 1.414l-5.3 5.3a1 1 0 01-1.414-1.414L13.586 11H3a1 1 0 110-2h10.586l-3.293-3.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
+              {/* Only show Join button if user is not logged in */}
+              {!isAuthenticated() && (
+                <button
+                  onClick={() => {
+                    window.location.href = '/signup';
+                  }}
+                  className="bg-green-900 text-white px-5 md:px-5 lg:px-6 py-2 md:py-2 lg:py-2.5 rounded-full text-xs md:text-xs lg:text-sm font-semibold flex items-center gap-2 cursor-pointer"
+                >
+                  {(buttons as { primary?: string; secondary?: string })?.primary || 'Join'}
+                  <svg className="w-3 h-3 md:w-[14px] md:h-[14px] lg:w-4 lg:h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10.293 3.293a1 1 0 011.414 0l5.3 5.3a1 1 0 010 1.414l-5.3 5.3a1 1 0 01-1.414-1.414L13.586 11H3a1 1 0 110-2h10.586l-3.293-3.293a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              )}
 
               {/* Use Next Link instead of <a href> for client navigation */}
               <Link

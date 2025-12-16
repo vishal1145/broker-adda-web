@@ -1056,19 +1056,26 @@ export default function LeadDetails() {
           </div>
           {/* Similar Leads Section */}
           <div className="pb-16">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[18px] font-semibold text-gray-900">Similar Enquiries </h3>
-              <a
-                href="/search?tab=leads"
-                onClick={(e) => {
-                  e.preventDefault();
-                  router.push('/search?tab=leads');
-                }}
-                className="text-[12px] text-gray-600 font-medium cursor-pointer hover:underline"
-              >
-                View All
-              </a>
-            </div>
+            {(() => {
+              const filteredLeads = sameLeads ? sameLeads.filter((s) => s._id !== lead._id) : [];
+              const leadCount = filteredLeads.length;
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-[18px] font-semibold text-gray-900">Similar Enquiries </h3>
+                    {leadCount > 4 && (
+                      <a
+                        href="/search?tab=leads"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          router.push('/search?tab=leads');
+                        }}
+                        className="text-[12px] text-gray-600 font-medium cursor-pointer hover:underline"
+                      >
+                        View All
+                      </a>
+                    )}
+                  </div>
             {sameLeads && sameLeads.filter((s) => s._id !== lead._id).length > 0 ? (
               <div className="relative">
                 <div
@@ -1476,7 +1483,10 @@ export default function LeadDetails() {
                 <p className="text-base font-semibold text-gray-900 mb-2">No similar enquiries  found</p>
                 <p className="text-sm text-gray-600">We couldn &apos;t find any leads with similar requirements.</p>
               </div>
-            )}
+                  )}
+                </>
+              );
+            })()}
           </div>
           {/* Footer Section */}
           <div className="rounded-xl p-6 sm:p-7 lg:p-8 bg-[#FFF8E6] border border-yellow-100 pb-16">

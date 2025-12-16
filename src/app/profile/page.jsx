@@ -2117,11 +2117,11 @@ const Profile = () => {
                                         : "bg-white text-gray-600 border border-gray-300"
                                     }`}
                                   >
-                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <circle cx="12" cy="5" r="2" />
                                         <path d="M9 9h6" />
-                                        <path d="M9 9l-3 6h12l-3-6z" />
-                                        <path d="M8 22v-6M16 22v-6" />
+                                        <path d="M7 22V12a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v10" />
+                                        <path d="M10 22v-7M14 22v-7" />
                                       </svg>
                                   </button>
                                   <span className="text-[12px] font-medium text-gray-900">Male</span>
@@ -2141,8 +2141,8 @@ const Profile = () => {
                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <circle cx="12" cy="5" r="2" />
                                         <path d="M9 9h6" />
-                                        <path d="M7 22V12a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v10" />
-                                        <path d="M10 22v-7M14 22v-7" />
+                                        <path d="M9 9l-3 6h12l-3-6z" />
+                                        <path d="M8 22v-6M16 22v-6" />
                                       </svg>
                                   </button>
                                   <span className="text-[12px] font-medium text-gray-900">Female</span>
@@ -4274,7 +4274,8 @@ const Profile = () => {
                         type="button"
                         onClick={nextStep}
                         disabled={isCheckingEmail || !validateStep(currentStep)}
-                        className="w-full h-11  mb-8 px-3  bg-[#0D542B] hover:bg-[#0B4624] active:bg-[#08321A] text-white rounded-md font-medium text-sm leading-[22px] disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200"
+                        className="w-full h-11  mb-8 px-3  bg-[#0D542B] hover:bg-[#0B4624] active:bg-[#08321A] text-white rounded-md font-medium text-sm leading-[22px] disabled:opacity-40 disabled:hover:bg-[#0D542B] focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200"
+                        style={{ cursor: isCheckingEmail || !validateStep(currentStep) ? 'not-allowed' : 'pointer' }}
                       >
                         {isCheckingEmail ? (
                           <>
@@ -4842,7 +4843,8 @@ const Profile = () => {
                           }
                         }}
                         disabled={submitting || !validateStep(currentStep)}
-                        className="w-full h-11 px-3 bg-[#0D542B] hover:bg-[#0B4624] active:bg-[#08321A] text-white rounded-md font-medium text-sm leading-[22px] disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 flex items-center justify-center gap-4"
+                        className="w-full h-11 px-3 bg-[#0D542B] hover:bg-[#0B4624] active:bg-[#08321A] text-white rounded-md font-medium text-sm leading-[22px] disabled:opacity-40 disabled:hover:bg-[#0D542B] focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 flex items-center justify-center gap-4"
+                        style={{ cursor: submitting || !validateStep(currentStep) ? 'not-allowed' : 'pointer' }}
                       >
                         {submitting ? (
                           <>

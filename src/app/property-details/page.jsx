@@ -2463,7 +2463,10 @@ function PropertyDetailsPageInner() {
                       </button>
                     </div>
                   ) : (
-                    <div className="h-[232px] flex flex-col items-center justify-center text-center p-4">
+                    <div 
+                      className="h-[232px] flex flex-col items-center justify-center text-center p-4"
+                      style={{ cursor: 'default' }}
+                    >
                       {/* Video Icon */}
                       <svg
                         className="w-[48px] h-[48px] text-[#0D542B] mb-4"
@@ -2501,9 +2504,10 @@ function PropertyDetailsPageInner() {
                             disabled={isDisabled}
                             className={`mt-4 w-[107.13px] h-[40px] px-[12px] flex items-center justify-center font-inter text-[14px] leading-[22px] font-medium rounded-[6px] border transition-colors ${
                               isDisabled
-                                ? 'text-gray-400 bg-gray-100 border-gray-300 cursor-not-allowed opacity-50'
+                                ? 'text-gray-400 bg-gray-100 border-gray-300 opacity-50'
                                 : 'text-[#0D542B] bg-white border-[#0D542B] hover:bg-[#EDFDF4] active:bg-[#EDFDF4]'
                             }`}
+                            style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
                           >
                             View Video
                           </button>
@@ -2513,7 +2517,7 @@ function PropertyDetailsPageInner() {
                   )}
                 </div>
               ) : (
-                <div className="w-full h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] flex flex-col items-center justify-center text-center">
+                <div className="w-full h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] flex flex-col items-center justify-center text-center" style={{ cursor: 'default' }}>
                   {/* Video Icon */}
                   <svg
                     className="w-[48px] h-[48px] text-[#0D542B] mb-4"

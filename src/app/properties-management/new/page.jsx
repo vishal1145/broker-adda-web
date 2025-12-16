@@ -1847,7 +1847,8 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                           type="button"
                           onClick={nextStep}
                           disabled={!isCurrentStepValid() || submitting}
-                          className={`w-full py-3 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${isCurrentStepValid() && !submitting ? 'bg-green-900 text-white hover:bg-green-700 focus:ring-green-100 hover:shadow-xl' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                          className={`w-full py-3 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${isCurrentStepValid() && !submitting ? 'bg-green-900 text-white hover:bg-green-700 focus:ring-green-100 hover:shadow-xl' : 'bg-gray-200 text-gray-500'}`}
+                          style={{ cursor: !isCurrentStepValid() || submitting ? 'not-allowed' : 'pointer' }}
                         >
                           Continue
                           <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -1858,7 +1859,8 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                         <button
                           type="submit"
                           disabled={submitting || loadingProperty}
-                          className="w-full py-3 bg-green-900 text-white rounded-xl font-semibold hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          className="w-full py-3 bg-green-900 text-white rounded-xl font-semibold hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:hover:bg-green-900 disabled:hover:shadow-lg flex items-center justify-center gap-2"
+                          style={{ cursor: submitting || loadingProperty ? 'not-allowed' : 'pointer' }}
                         >
                           {loadingProperty ? 'Loading...' : (isEditMode ? 'Update Property' : 'Create Property')}
                         </button>
