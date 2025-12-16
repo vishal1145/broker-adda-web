@@ -106,7 +106,11 @@ const Hero = ({ data = {
   cards: []
 } }: { data: HeroData }) => {
   const router = useRouter(); // ✅ Next.js router
-  const { isAuthenticated } = useAuth(); // Check if user is logged in
+  const { isAuthenticated, user, brokerDetails } = useAuth() as {
+    isAuthenticated: () => boolean;
+    user?: { userId?: string; token?: string; role?: string } | null;
+    brokerDetails?: unknown;
+  }; // Access shared auth + broker info
   const [startIdx, setStartIdx] = useState(0);
   // Read token synchronously to avoid a first paint with hardcoded cards
   // removed unused initialToken
@@ -152,9 +156,10 @@ const Hero = ({ data = {
     const fetchBrokersForHero = async () => {
       try {
         setIsLoading(true);
-        const token = typeof window !== 'undefined'
-          ? localStorage.getItem('token') || localStorage.getItem('authToken')
-          : null;
+        const token =
+          typeof window !== 'undefined'
+            ? localStorage.getItem('token') || localStorage.getItem('authToken')
+            : null;
 
         // Get current user ID from token
         const getCurrentUserId = () => {
@@ -172,32 +177,24 @@ const Hero = ({ data = {
         let latitude: number | null = null;
         let longitude: number | null = null;
 
-        // Fetch broker details to get the actual broker _id and location coordinates
-        if (currentUserId && token) {
-          try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-            const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            if (brokerRes.ok) {
-              const brokerData = await brokerRes.json();
-              const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
-              currentBrokerId = broker?._id || broker?.id || '';
-              
-              // Get broker's location coordinates if available
-              if (broker?.location?.coordinates && Array.isArray(broker.location.coordinates) && broker.location.coordinates.length >= 2) {
-                latitude = broker.location.coordinates[0];
-                longitude = broker.location.coordinates[1];
-               // console.log('📍 Hero: Using broker location coordinates:', latitude, longitude);
-              }
-              
-             // console.log('Current broker ID for hero filter:', currentBrokerId);
+        // Prefer shared brokerDetails from AuthContext (avoids duplicate API calls)
+        const sharedBroker = brokerDetails as
+          | {
+              _id?: string;
+              id?: string;
+              location?: { coordinates?: number[] };
             }
-          } catch (err) {
-            console.error('Error fetching broker details:', err);
+          | undefined;
+
+        if (sharedBroker) {
+          currentBrokerId = sharedBroker._id || sharedBroker.id || '';
+          if (
+            sharedBroker.location?.coordinates &&
+            Array.isArray(sharedBroker.location.coordinates) &&
+            sharedBroker.location.coordinates.length >= 2
+          ) {
+            latitude = sharedBroker.location.coordinates[0] as number;
+            longitude = sharedBroker.location.coordinates[1] as number;
           }
         }
 

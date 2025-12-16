@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface DotsProps {
   className?: string;
@@ -85,6 +86,10 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { user, brokerDetails } = useAuth() as {
+    user?: { userId?: string; token?: string; role?: string } | null;
+    brokerDetails?: unknown;
+  };
 
   const openPropertiesPage = () => {
     router.push("/search?tab=properties");
@@ -96,9 +101,10 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
       try {
         setLoading(true);
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        const token = typeof window !== 'undefined' 
-          ? localStorage.getItem('token') || localStorage.getItem('authToken')
-          : null;
+        const token =
+          typeof window !== 'undefined'
+            ? localStorage.getItem('token') || localStorage.getItem('authToken')
+            : null;
 
         // Get current user ID from token
         const getCurrentUserId = () => {
@@ -116,33 +122,30 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
         let latitude: number | null = null;
         let longitude: number | null = null;
 
-        // Fetch broker details to get the actual broker _id and location coordinates
-        if (currentUserId && token) {
-          try {
-            const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            if (brokerRes.ok) {
-              const brokerData = await brokerRes.json();
-              const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
-              currentBrokerId = broker?._id || broker?.id || '';
-             // // Get coordinates from broker's location
-              if (broker?.location?.coordinates && Array.isArray(broker.location.coordinates) && broker.location.coordinates.length >= 2) {
-                // API format: [latitude, longitude] OR GeoJSON: [longitude, latitude]
-                const coords = broker.location.coordinates;
-                if (Math.abs(coords[0]) <= 90 && Math.abs(coords[1]) <= 180) {
-                  latitude = coords[0];
-                  longitude = coords[1];
-                } else {
-                  longitude = coords[0];
-                  latitude = coords[1];
-                }
-                }
+        // Prefer shared broker details from AuthContext to avoid duplicate API calls
+        const sharedBroker = brokerDetails as
+          | {
+              _id?: string;
+              id?: string;
+              location?: { coordinates?: number[] };
             }
-          } catch (err) {
+          | undefined;
+
+        if (sharedBroker) {
+          currentBrokerId = sharedBroker._id || sharedBroker.id || '';
+          if (
+            sharedBroker.location?.coordinates &&
+            Array.isArray(sharedBroker.location.coordinates) &&
+            sharedBroker.location.coordinates.length >= 2
+          ) {
+            const coords = sharedBroker.location.coordinates;
+            if (Math.abs(coords[0] as number) <= 90 && Math.abs(coords[1] as number) <= 180) {
+              latitude = coords[0] as number;
+              longitude = coords[1] as number;
+            } else {
+              longitude = coords[0] as number;
+              latitude = coords[1] as number;
+            }
           }
         }
 

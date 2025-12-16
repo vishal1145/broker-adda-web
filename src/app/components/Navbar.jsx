@@ -18,7 +18,7 @@ const Navbar = ({ data }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const isTypingRef = useRef(false);
-  const { user, logout } = useAuth();
+  const { user, logout, brokerDetails } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [profileImageLoading, setProfileImageLoading] = useState(false);
@@ -277,35 +277,46 @@ const Navbar = ({ data }) => {
       setProfileImageLoading(true);
       try {
         const currentUserRole = user.role || 'broker';
-        const apiUrl =
-          currentUserRole === 'customer'
-          ? `${process.env.NEXT_PUBLIC_API_URL}/customers/${user.userId}`
-          : `${process.env.NEXT_PUBLIC_API_URL}/brokers/${user.userId}`;
+        const apiUrlBase = process.env.NEXT_PUBLIC_API_URL;
 
-        const response = await fetch(apiUrl, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        if (currentUserRole === 'customer') {
+          // Customers still fetch their own profile once
+          const apiUrl = `${apiUrlBase}/customers/${user.userId}`;
 
-        if (response.ok) {
-          const payload = await response.json();
-          
-          if (currentUserRole === 'customer') {
+          const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            const payload = await response.json();
             const c = payload.data?.customer || payload.data || payload;
             const img =
               (c.images && c.images.customerImage) ||
               (c.files && c.files.customerImage) ||
               c.customerImage ||
               c.profileImage ||
-                                null;
+              null;
             setProfileImage(img);
-          } else {
-            const b = payload.data?.broker || payload.data || payload;
+          }
+        } else {
+          // For brokers, reuse shared brokerDetails from AuthContext to avoid extra /brokers/:id calls
+          const b =
+            (brokerDetails &&
+              (brokerDetails.data?.broker ||
+                brokerDetails.broker ||
+                brokerDetails.data)) ||
+            brokerDetails ||
+            null;
+          if (b) {
             setProfileImage(b.brokerImage || b.profileImage || null);
             setSubscription(b.subscription || null);
+          } else {
+            setProfileImage(null);
+            setSubscription(null);
           }
         }
       } catch (err) {
@@ -316,7 +327,7 @@ const Navbar = ({ data }) => {
     };
 
     if (user?.token && user?.userId) loadProfileImage();
-  }, [user?.token, user?.userId, user?.role]);
+  }, [user?.token, user?.userId, user?.role, brokerDetails]);
 
   const toggleMobileMenu = () => setMobileMenuOpen((v) => !v);
 

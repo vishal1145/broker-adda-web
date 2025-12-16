@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface RegionObject { name?: string; city?: string; state?: string }
 
@@ -45,6 +46,10 @@ const Brokers = () => {
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { user, brokerDetails } = useAuth() as {
+    user?: { userId?: string; token?: string; role?: string } | null;
+    brokerDetails?: unknown;
+  };
 
   // Fetch brokers from API
   const fetchBrokers = useCallback(async () => {
@@ -73,32 +78,24 @@ const Brokers = () => {
       let latitude: number | null = null;
       let longitude: number | null = null;
 
-      // Fetch broker details to get the actual broker _id and location coordinates
-      if (currentUserId && token) {
-        try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-          const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          if (brokerRes.ok) {
-            const brokerData = await brokerRes.json();
-            const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
-            currentBrokerId = broker?._id || broker?.id || '';
-            
-            // Get broker's location coordinates if available
-            if (broker?.location?.coordinates && Array.isArray(broker.location.coordinates) && broker.location.coordinates.length >= 2) {
-              latitude = broker.location.coordinates[0];
-              longitude = broker.location.coordinates[1];
-              // console.log('📍 Brokers: Using broker location coordinates:', latitude, longitude);
-            }
-            
-            // console.log('Current broker ID for brokers filter:', currentBrokerId);
+      // Prefer shared broker details from AuthContext to avoid duplicate API calls
+      const sharedBroker = brokerDetails as
+        | {
+            _id?: string;
+            id?: string;
+            location?: { coordinates?: number[] };
           }
-        } catch (err) {
-          console.error('Error fetching broker details:', err);
+        | undefined;
+
+      if (sharedBroker) {
+        currentBrokerId = sharedBroker._id || sharedBroker.id || '';
+        if (
+          sharedBroker.location?.coordinates &&
+          Array.isArray(sharedBroker.location.coordinates) &&
+          sharedBroker.location.coordinates.length >= 2
+        ) {
+          latitude = sharedBroker.location.coordinates[0] as number;
+          longitude = sharedBroker.location.coordinates[1] as number;
         }
       }
 

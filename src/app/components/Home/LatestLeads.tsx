@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios"; // ✅ Added axios import
+import { useAuth } from "../../contexts/AuthContext";
 
 interface DotsProps {
   className?: string;
@@ -74,6 +75,10 @@ const LatestLeads: React.FC = () => {
   const [leads, setLeads] = useState<ApiLead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [path, setPath] = useState('');
+  const { user, brokerDetails } = useAuth() as {
+    user?: { userId?: string; token?: string; role?: string } | null;
+    brokerDetails?: unknown;
+  };
   useEffect(() => {
     setPath(window.location.pathname);
     // Fetch data from API
@@ -104,33 +109,24 @@ const LatestLeads: React.FC = () => {
         let latitude: number | null = null;
         let longitude: number | null = null;
 
-        // Fetch broker details to get the actual broker _id and location coordinates
-        if (currentUserId && token) {
-          try {
-            const brokerRes = await fetch(`${apiUrl}/brokers/${currentUserId}`, {
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            if (brokerRes.ok) {
-              const brokerData = await brokerRes.json();
-              const broker = brokerData?.data?.broker || brokerData?.broker || brokerData?.data || brokerData;
-              currentBrokerId = broker?._id || broker?.id || '';
-              
-              // Get broker's location coordinates if available
-              // API format: [latitude, longitude] (based on example: [27.1798258, 78.0208223])
-              if (broker?.location?.coordinates && Array.isArray(broker.location.coordinates) && broker.location.coordinates.length >= 2) {
-                // API stores as [latitude, longitude]
-                latitude = broker.location.coordinates[0];
-                longitude = broker.location.coordinates[1];
-                // console.log('📍 LatestLeads: Using broker location coordinates (from profile):', latitude, longitude);
-              }
-              
-              // console.log('Current broker ID for leads filter:', currentBrokerId);
+        // Prefer shared broker details from AuthContext to avoid duplicate API calls
+        const sharedBroker = brokerDetails as
+          | {
+              _id?: string;
+              id?: string;
+              location?: { coordinates?: number[] };
             }
-          } catch (err) {
-            console.error('Error fetching broker details:', err);
+          | undefined;
+
+        if (sharedBroker) {
+          currentBrokerId = sharedBroker._id || sharedBroker.id || '';
+          if (
+            sharedBroker.location?.coordinates &&
+            Array.isArray(sharedBroker.location.coordinates) &&
+            sharedBroker.location.coordinates.length >= 2
+          ) {
+            latitude = sharedBroker.location.coordinates[0] as number;
+            longitude = sharedBroker.location.coordinates[1] as number;
           }
         }
 
