@@ -43,10 +43,10 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
                 { name: 'Instagram', icon: 'fab fa-instagram', url: 'https://instagram.com/yourprofile' },
               ].map((item, index) => (
                 <a key={index} href={item.url} target="_blank" rel="noopener noreferrer">
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white/10 backdrop-blur-sm">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white/10 backdrop-blur-sm ">
                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#1e4d2b] flex items-center justify-center shadow-md">
-                      <div className="bg-white w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center">
-                        <i className={`${item.icon} text-[#1e4d2b] text-xs md:text-sm`}></i>
+                      <div className="bg-white w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center ">
+                        <i className={`${item.icon} text-[#1e4d2b] text-xs md:text-sm `}></i>
                       </div>
                     </div>
                   </div>
@@ -109,44 +109,64 @@ const Footer = ({ data = { logo: { text: '', accent: '' }, description: '', link
           {/* Contact Info */}
           <div className="text-left">
             <h3 className="text-lg mb-4 mt-4">Contact Info</h3>
-            <ul className="space-y-2 text-sm text-gray-300 cursor-pointer">
-              {contactLinks.map((link, index) => {
-                const rawHref = link?.href || '';
-                const isMailByName = typeof link?.name === 'string' && /@/.test(link.name);
-                const isTelByName = typeof link?.name === 'string' && /\d{6,}/.test(link.name.replace(/\s+/g, ''));
-                let href = rawHref;
-                if (!href) {
-                  href = isMailByName
-                    ? `mailto:${link.name}`
-                    : isTelByName
-                    ? `tel:${link.name.replace(/\s+/g, '')}`
-                    : '';
-                } else if (!/^mailto:|^tel:|^https?:\//i.test(href)) {
-                  // If href exists but lacks protocol, infer
-                  href = /@/.test(href)
-                    ? `mailto:${href}`
-                    : /\d{6,}/.test(href.replace(/\s+/g, ''))
-                    ? `tel:${href.replace(/\s+/g, '')}`
-                    : href;
-                }
-                return (
-                  <li key={index}>
-                    {href ? (
-                      <a href={href}>{link.name}</a>
-                    ) : (
-                      <span>{link.name}</span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+          <ul className="space-y-3 text-sm text-gray-300">
+  {contactLinks.map((link, index) => {
+    const rawHref = link?.href || '';
+    const name = link?.name || '';
+
+    const isEmail = /@/.test(name);
+    const isPhone = /\d{6,}/.test(name.replace(/\s+/g, ''));
+    const isAddress = !isEmail && !isPhone;
+
+    let href = rawHref;
+    if (!href) {
+      href = isEmail
+        ? `mailto:${name}`
+        : isPhone
+        ? `tel:${name.replace(/\s+/g, '')}`
+        : '';
+    } else if (!/^mailto:|^tel:|^https?:/i.test(href)) {
+      href = isEmail
+        ? `mailto:${href}`
+        : isPhone
+        ? `tel:${href.replace(/\s+/g, '')}`
+        : href;
+    }
+
+    const iconClass = isPhone
+      ? 'fas fa-phone-alt'
+      : isEmail
+      ? 'fas fa-envelope'
+      : 'fas fa-map-marker-alt';
+
+    return (
+      <li key={index}>
+        {href ? (
+          <a
+            href={href}
+            className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors duration-200 group"
+          >
+            <i className={`${iconClass} text-xs group-hover:text-white`} />
+            <span className="group-hover:underline">{name}</span>
+          </a>
+        ) : (
+          <div className="flex items-center gap-3 text-gray-300">
+            <i className={`${iconClass} text-xs`} />
+            <span>{name}</span>
+          </div>
+        )}
+      </li>
+    );
+  })}
+</ul>
+
           </div>
         </div>
       </div>
       
       {/* Bottom Bar */}
       <div className="bg-yellow-400 text-sm text-gray-900 mt-12 py-4 px-4 md:px-4">
-        <div className=" mx-auto flex flex-col sm:flex-row justify-between items-center">
+        <div className=" mx-auto flex flex-col sm:flex-row justify-center items-center">
           <p className="mb-2 sm:mb-0">{data.copyright}</p>
           
         </div>

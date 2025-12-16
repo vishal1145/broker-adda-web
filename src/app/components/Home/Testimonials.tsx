@@ -128,11 +128,35 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3 ml-16 md:ml-24">
-                    {[...Array(5)].map((_, i) => (
-                      <i key={i} className="fas fa-star text-yellow-400 text-xs md:text-base"></i>
-                    ))}
-                    <span className="text-gray-900 font-semibold ml-1 md:ml-2 text-xs md:text-sm">{testimonial.rating}</span>
-                  </div>
+  {(() => {
+    const rating = Number(testimonial.rating || 0);
+
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.3; // show half for .3, .4, .5+
+
+    return (
+      <>
+        {/* Full stars */}
+        {[...Array(fullStars)].map((_, i) => (
+          <i
+            key={`full-${i}`}
+            className="fas fa-star text-yellow-400 text-xs md:text-base"
+          />
+        ))}
+
+        {/* Half star */}
+        {hasHalfStar && (
+          <i className="fas fa-star-half-alt text-yellow-400 text-xs md:text-base" />
+        )}
+      </>
+    );
+  })()}
+
+  <span className="text-gray-900 font-semibold ml-1 md:ml-2 text-xs md:text-sm">
+    {testimonial.rating}
+  </span>
+</div>
+
                   <div className="text-left mt-1 md:mt-2">
                     <p className="text-gray-500 text-xs md:text-sm">{testimonial.text}</p>
                   </div>
@@ -142,15 +166,17 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
           </div>
 
           {/* Navigation Buttons - Positioned at bottom center with better visibility */}
-       <div className="absolute -bottom-2 md:-bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 md:gap-3 z-10">
-  {/* Previous Button (Left Arrow) */}
+    <div className="absolute -bottom-2 md:-bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 md:gap-3 z-10">
+  {/* Previous Button */}
   <button
     onClick={() => scroll('prev')}
-    className="bg-green-900 text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-base md:text-xl shadow-lg hover:bg-green-800 transition-colors duration-200"
+    className="bg-green-900 text-white w-8 h-8 md:w-10 md:h-10 rounded-full 
+               flex items-center justify-center shadow-lg 
+               transition-colors duration-200 hover:bg-green-800"
     aria-label="Previous"
   >
     <svg
-      className="w-4 h-4 md:w-5 md:h-5 rotate-180 transition-colors hover:text-gray-900"
+      className="w-4 h-4 md:w-5 md:h-5 rotate-180"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -159,14 +185,17 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
       <path d="M5 12h14M12 5l7 7-7 7" />
     </svg>
   </button>
-  {/* Next Button (Right Arrow) */}
+
+  {/* Next Button */}
   <button
     onClick={() => scroll('next')}
-    className="bg-yellow-400 text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-base md:text-xl shadow-lg hover:bg-yellow-500 transition-colors duration-200"
+    className="bg-green-900 text-white w-8 h-8 md:w-10 md:h-10 rounded-full 
+               flex items-center justify-center shadow-lg 
+               transition-colors duration-200 hover:bg-green-800"
     aria-label="Next"
   >
     <svg
-      className="w-4 h-4 md:w-5 md:h-5 transition-colors hover:text-gray-900"
+      className="w-4 h-4 md:w-5 md:h-5"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -176,6 +205,7 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
     </svg>
   </button>
 </div>
+
 
         </div>
       </div>

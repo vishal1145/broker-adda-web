@@ -461,9 +461,7 @@ onClick={() => {
                     alt={`User ${index + 1}`}
                   />
                 ))}
-                <div className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex items-center justify-center rounded-full bg-yellow-300 border-2 border-white text-black text-sm md:text-base lg:text-lg font-bold">
-                  +
-                </div>
+           
               </div>
               <div className="text-xs md:text-xs lg:text-sm ml-2 md:ml-0">
                 <p className="font-semibold text-gray-700">
@@ -476,100 +474,111 @@ onClick={() => {
 
           {/* Cards Section */}
           <div className="flex flex-col items-center w-full mt-8 md:mt-0 md:min-w-0">
-            <div className="relative w-full flex flex-col md:flex-row justify-center items-center gap-4 md:gap-2 lg:gap-4 py-2">
-              {intendApi && isLoading && (
-                <>
-                  <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:w-[calc(50%-0.25rem)] md:max-w-none lg:min-w-[260px] h-[220px] md:h-[240px] lg:h-60 animate-pulse flex-shrink-0" />
-                  <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:w-[calc(50%-0.25rem)] md:max-w-none lg:min-w-[260px] h-[220px] md:h-[240px] lg:h-60 animate-pulse hidden md:block flex-shrink-0" />
-                </>
-              )}
-              {!isLoading && displayCards.slice(startIdx, startIdx + CARDS_VISIBLE).map((card, index) => (
-                <div
-                  key={index}
-                  onClick={() => openProductDetails(card.id)}
-                  className="hero-card bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition relative group w-full max-w-xs md:w-[calc(50%-0.25rem)] md:max-w-none lg:min-w-[260px] mx-auto md:mx-0 lg:mx-2 cursor-pointer min-h-[220px] md:min-h-[240px] lg:min-h-[260px] flex-shrink-0"
-                >
-                  {card.image && card.image.trim().length > 0 ? (
-                    <img
-                      src={card.image}
-                      className="rounded-lg object-cover h-40 md:h-44 lg:h-48 w-full"
-                      alt={card.title}
-                    />
-                  ) : (
-                    <div className="rounded-lg h-40 md:h-44 lg:h-48 w-full bg-gray-200 animate-pulse" />
-                  )}
+  <div className="relative w-full flex flex-col md:flex-row justify-center items-center gap-4 md:gap-2 lg:gap-4 py-2">
 
-                  <div className="absolute" style={{ top: '14px', left: '50px' }}>
-                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-white flex items-center justify-center bg-transparent shadow-lg">
-                      <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white"></div>
-                    </div>
-                  </div>
-{/* 
-                  <div className="absolute top-32 right-3 bg-transparent text-white text-sm px-4 py-1 rounded-full font-semibold shadow border border-white">
-                    {card.price}
-                  </div> */}
+    {/* LEFT / RIGHT buttons aligned to the card container left */}
+    <div className="absolute left-0 -bottom-12 md:-bottom-14 lg:-bottom-16 flex gap-2 md:gap-2 lg:gap-3 z-20">
+      <button
+        type="button"
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handlePrev(); }}
+        disabled={!canPrev}
+        className={`w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white transition 
+          ${canPrev ? 'bg-green-900 hover:bg-green-800' : 'bg-green-900 opacity-50 cursor-not-allowed pointer-events-none'}
+        `}
+      >
+        <svg
+          className="w-4 h-4 md:w-[18px] md:h-[18px] lg:w-5 lg:h-5 rotate-180"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </button>
 
-                  <h3 className="font-semibold text-gray-800 mt-2 md:mt-2.5 lg:mt-3 text-left text-sm md:text-sm lg:text-base">
-                    {card.title}
-                  </h3>
-                  <p className="text-gray-500 text-[10px] md:text-[10px] lg:text-xs text-left">{card.items}</p>
+      <button
+        type="button"
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleNext(); }}
+        disabled={!canNext}
+        className={`w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white transition 
+          ${canNext ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-yellow-500 opacity-50 cursor-not-allowed pointer-events-none'}
+        `}
+      >
+        <svg
+          className="w-4 h-4 md:w-[18px] md:h-[18px] lg:w-5 lg:h-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
 
-                  <div
-                    className={`absolute bottom-2 md:bottom-2.5 lg:bottom-3 right-2 md:right-2.5 lg:right-3 bg-green-900 hover:bg-green-800 text-white p-1.5 md:p-1.5 lg:p-2 rounded-full shadow-lg pointer-events-none`}
-                  >
-                    <svg
-                      className="w-3 h-3 md:w-[14px] md:h-[14px] lg:w-4 lg:h-4 -rotate-45"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </div>
+    {/* LOADING */}
+    {intendApi && isLoading && (
+      <>
+        <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:w-[calc(50%-0.25rem)] md:max-w-none lg:min-w-[260px] h-[260px] animate-pulse flex-shrink-0" />
+        <div className="bg-white p-3 rounded-xl shadow-sm w-full max-w-xs md:w-[calc(50%-0.25rem)] md:max-w-none lg:min-w-[260px] h-[260px] animate-pulse hidden md:block flex-shrink-0" />
+      </>
+    )}
 
-                  {index === 0 && (
-                    <div className="absolute left-4 md:left-6 lg:left-8 -bottom-12 md:-bottom-14 lg:-bottom-16 flex gap-2 md:gap-2 lg:gap-3">
-                      <button
-                        onClick={(e)=>{ e.stopPropagation(); handlePrev(); }}
-                        disabled={!canPrev}
-                        className={`w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white bg-green-900 hover:bg-green-800 transition ${
-                          !canPrev ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                      >
-                        <svg
-                          className="w-4 h-4 md:w-[18px] md:h-[18px] lg:w-5 lg:h-5 rotate-180 transition-colors hover:text-gray-900"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={(e)=>{ e.stopPropagation(); handleNext(); }}
-                        disabled={!canNext}
-                        className={`w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white bg-yellow-500 hover:bg-yellow-600 transition ${
-                          !canNext ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                      >
-                        <svg
-                          className="w-4 h-4 md:w-[18px] md:h-[18px] lg:w-5 lg:h-5 transition-colors hover:text-gray-900"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+    {/* CARDS */}
+    {!isLoading && displayCards.slice(startIdx, startIdx + CARDS_VISIBLE).map((card, index) => (
+      <div
+        key={index}
+        onClick={() => openProductDetails(card.id)}
+        className="
+          hero-card group relative cursor-pointer bg-white p-3 rounded-xl shadow-sm
+          transition w-full max-w-xs md:w-[calc(50%-0.25rem)] md:max-w-none lg:min-w-[260px]
+          mx-auto md:mx-0 lg:mx-2 flex-shrink-0
+          h-[260px]   /* ✅ fixed height = same size */
+          hover:shadow-md
+        "
+      >
+        {/* image always same height */}
+        {card.image && card.image.trim().length > 0 ? (
+          <img
+            src={card.image}
+            className="rounded-lg object-cover h-48 w-full"  /* ✅ fixed */
+            alt={card.title}
+          />
+        ) : (
+          <div className="rounded-lg h-48 w-full bg-gray-200 animate-pulse" />
+        )}
+
+        <div className="absolute" style={{ top: '14px', left: '50px' }}>
+          <div className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-white flex items-center justify-center bg-transparent shadow-lg">
+            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white"></div>
           </div>
+        </div>
+
+        <h3 className="font-semibold text-gray-800 mt-2 text-left text-sm md:text-sm lg:text-base line-clamp-2">
+          {card.title}
+        </h3>
+        <p className="text-gray-500 text-[10px] md:text-[10px] lg:text-xs text-left line-clamp-1">
+          {card.items}
+        </p>
+
+        {/* arrow icon - keep pointer-events-none */}
+        <div className="absolute bottom-3 right-3 bg-green-900 text-white p-2 rounded-full shadow-lg pointer-events-none">
+          <svg
+            className="w-4 h-4 -rotate-45"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
         </div>
       </div>
     </section>

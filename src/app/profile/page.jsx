@@ -14,10 +14,6 @@ import ViewModeProfile from "./components/ViewMode";
 const toPublicUrl = (raw) => {
   if (!raw || typeof raw !== "string") return raw;
   const imageHost = process.env.NEXT_PUBLIC_API_IMAGE_URL || "https://broker-adda-be.fly.dev";
-  const legacyHostPattern = /^https?:\/\/broker-adda-be\.algofolks\.com/;
-  if (legacyHostPattern.test(raw)) {
-    return raw.replace(legacyHostPattern, imageHost);
-  }
   if (raw.startsWith('/opt/lampp/htdocs/')) {
     const filename = raw.split('/').pop();
     return `${imageHost}/uploads/${filename}`;
@@ -31,12 +27,7 @@ const toPublicUrl = (raw) => {
 // Deeply rewrite any legacy host URLs in API responses to the configured image host
 const sanitizeLegacyUrls = (value) => {
   const imageHost = process.env.NEXT_PUBLIC_API_IMAGE_URL || "https://broker-adda-be.fly.dev";
-  const legacyHost = "https://broker-adda-be.fly.dev";
-
-  const replaceString = (str) => {
-    if (typeof str !== "string") return str;
-    return str.replaceAll(legacyHost, imageHost);
-  };
+  const replaceString = (str) => str;
 
   if (Array.isArray(value)) {
     return value.map((v) => sanitizeLegacyUrls(v));

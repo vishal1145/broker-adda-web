@@ -384,47 +384,61 @@ const Brokers = () => {
             broker._id || broker.id
           );
           return (
-          <article key={brokerId} className="group relative rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition duration-300 overflow-hidden hover:bg-yellow-400 hover:ring-1 hover:ring-yellow-500/60 hover:-translate-y-0.5">
-            <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
-                <img 
-                src={imageUrl || normalizeImageUrl(broker.defaultImage) || ''} 
-                alt={`Broker portrait - ${typeof broker.name === 'string' ? broker.name : typeof broker.fullName === 'string' ? broker.fullName : 'Broker'}`} 
-                className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" 
-                onError={(e) => {
-                  // Fallback to default image if API image fails to load
-                  const fallback = pickValidImage(broker.defaultImage);
-                  if (fallback && e.currentTarget.src !== fallback) {
-                    e.currentTarget.src = fallback;
-                  }
-                }}
-              />
-            </div>
-            <div className="p-6">
-              {/* Name with Green Arrow Icon */}
-              <div className="flex items-start justify-between mb-3">
-                <Link href={`/broker-details/${brokerId}`} className="flex items-center gap-1 group/name" title="View details">
-                  <h3 className="text-[18px] leading-7 font-semibold text-gray-900 group-hover/name:text-gray-900">
-                    {typeof broker.name === 'string' ? broker.name : 
-                     typeof broker.fullName === 'string' ? broker.fullName : 
-                     broker.name?.name || broker.fullName?.name || 'Unknown Broker'}
-                  </h3>
-                  <svg
-      className="h-5 w-5 text-emerald-600 transition-transform group-hover/name:translate-x-1 group-hover/name:-translate-y-1"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M7 17L17 7" />
-      <path d="M7 7h10v10" />
-    </svg>
-                </Link>
-              </div>
+        <Link href={`/broker-details/${brokerId}`} className="block">
+  <article
+    key={brokerId}
+    className="group relative cursor-pointer rounded-2xl border border-gray-100 bg-white shadow-sm 
+               hover:shadow-xl transition duration-300 overflow-hidden 
+               hover:bg-yellow-400 hover:ring-1 hover:ring-yellow-500/60 hover:-translate-y-0.5"
+  >
+    <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
+      <img
+        src={imageUrl || normalizeImageUrl(broker.defaultImage) || ""}
+        alt={`Broker portrait - ${
+          typeof broker.name === "string"
+            ? broker.name
+            : typeof broker.fullName === "string"
+            ? broker.fullName
+            : "Broker"
+        }`}
+        className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+        onError={(e) => {
+          const fallback = pickValidImage(broker.defaultImage);
+          if (fallback && e.currentTarget.src !== fallback) {
+            e.currentTarget.src = fallback;
+          }
+        }}
+      />
+    </div>
 
-              {/* Title */}
-              <div className="mb-3">
+    <div className="p-6">
+      {/* Name */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-1">
+          <h3 className="text-[18px] leading-7 font-semibold text-gray-900">
+            {typeof broker.name === "string"
+              ? broker.name
+              : typeof broker.fullName === "string"
+              ? broker.fullName
+              : broker.name?.name || broker.fullName?.name || "Unknown Broker"}
+          </h3>
+
+          <svg
+            className="h-5 w-5 text-emerald-600 transition-transform 
+                       group-hover:translate-x-1 group-hover:-translate-y-1"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M7 17L17 7" />
+            <path d="M7 7h10v10" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Title */}
+      <div className="mb-3">
                 <p className="text-[12px] leading-5 font-normal text-gray-600">
                   {Array.isArray(broker.specializations) && broker.specializations.length > 0 ? broker.specializations[0] :
                    typeof broker.specialization === 'string' ? broker.specialization : 
@@ -434,8 +448,8 @@ const Brokers = () => {
                 </p>
               </div>
 
-              {/* Location with Map Pin Icon */}
-              <div className="flex items-center gap-2 mb-3">
+      {/* Location */}
+      <div className="flex items-center gap-2 mb-3">
                 <svg
                   className="h-3 w-3 text-gray-600"
                   viewBox="0 0 24 24"
@@ -465,8 +479,8 @@ const Brokers = () => {
                 </p>
               </div>
 
-              {/* Leads Completed with User Group Icon */}
-              <div className="flex items-center gap-2">
+      {/* Leads */}
+    <div className="flex items-center gap-2">
                 <svg
                   className="h-3 w-3 text-gray-600"
                   viewBox="0 0 24 24"
@@ -484,7 +498,10 @@ const Brokers = () => {
                 </p>
               </div>
             </div>
-          </article>
+   
+  </article>
+</Link>
+
           );
         })}
       </div>

@@ -36,17 +36,21 @@ const Blogs = ({ data = { subtitle: "", title: "", button: "", items: [] } }: { 
       <div className="w-full mx-auto px-4 md:px-6 lg:px-0 ">
         {/* Header Row */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 md:mb-8 lg:mb-12 gap-4">
-        <div>
-          <p className="text-base md:text-base lg:text-xl text-gray-900 text-center md:text-left">
-            <span className="text-yellow-500">—</span> {data.subtitle}
-          </p>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-medium text-gray-900 mt-2 text-center md:text-left">
-            <span>{(data.title || "").split(" ").slice(0, 3).join(" ")}</span>
-            <span className="block text-green-900 text-center md:text-left">
-              {(data.title || "").split(" ").slice(3).join(" ")}
-            </span>
-          </h2>
-        </div>
+    <div>
+  <p className="text-base md:text-base lg:text-xl text-gray-900 text-center md:text-left">
+    <span className="text-yellow-500">—</span> {data.subtitle}
+  </p>
+
+  <h2 className="text-2xl md:text-3xl lg:text-4xl font-medium text-gray-900 mt-2 text-center md:text-left">
+    <span>
+      {(data.title || "").split(" ").slice(0, 3).join(" ")}
+    </span>
+    <span className="text-green-900 ml-2">
+      {(data.title || "").split(" ").slice(3).join(" ")}
+    </span>
+  </h2>
+</div>
+
         <button
           onClick={handleOpenBlogPage}
           className="bg-green-900 text-white text-xs md:text-xs lg:text-sm font-medium px-4 md:px-4 lg:px-5 py-1.5 md:py-1.5 lg:py-2 rounded-full hover:bg-green-800 w-full sm:w-auto"

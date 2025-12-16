@@ -454,7 +454,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
                 </div>
 
                 {/* White Rounded Inner Border */}
-                <div className="absolute inset-0 m-2 border border-white rounded-[22px] pointer-events-none"></div>
+                <div className="absolute inset-0 m-2 border border-white rounded-[12px] pointer-events-none"></div>
               </Link>
             ))
           ) : (

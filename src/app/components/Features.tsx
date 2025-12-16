@@ -108,7 +108,7 @@ const Features = ({ data }: { data: FeaturesData }) => {
       <div className=" mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 md:px-6 lg:px-0">
           {(data.items || []).map((feature, index) => (
-            <div key={index} className="flex items-start gap-4">
+            <div key={index} className="flex items-center gap-4">
               {getIcon(feature.icon)}
               <div>
                 <h4 className="font-semibold text-gray-800 text-sm">{feature.title}</h4>
