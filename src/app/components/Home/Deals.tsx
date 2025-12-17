@@ -114,8 +114,7 @@ const Deals = ({ data = { subtitle: '', title: '', description: '', items: [] } 
       }
     });
     
-    // Show success message (you can add a toast notification here)
-   // console.log(`Added ${deal.name} to cart`);
+    
   };
 
   const openProductDetails = (item: DealItem) => {

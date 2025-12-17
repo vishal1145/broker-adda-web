@@ -1062,7 +1062,6 @@ const Dashboard = () => {
         const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.fly.dev/api';
         const token = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : '';
         
-        console.log('Fetching broker data for user ID:', currentUserId);
         const res = await fetch(`${baseApi}/brokers/${encodeURIComponent(currentUserId)}`, {
           headers: { 
             'Content-Type': 'application/json', 
@@ -1077,44 +1076,36 @@ const Dashboard = () => {
         const brokerResponse = await res.json().catch(() => ({}));
         const brokerData = brokerResponse?.data?.broker || brokerResponse?.broker || brokerResponse?.data || brokerResponse;
         
-        console.log('Broker data fetched:', brokerData);
-        console.log('Broker region:', brokerData?.region);
-        
+    
         // Extract region ID from broker data
         let regionId = '';
         
         if (brokerData?.region) {
           const region = brokerData.region;
-          console.log('Region type:', typeof region, 'Is array:', Array.isArray(region));
           
           // Handle array of regions - use the first one
           if (Array.isArray(region) && region.length > 0) {
             const firstRegion = region[0];
-            console.log('First region from array:', firstRegion);
             if (typeof firstRegion === 'object' && firstRegion !== null) {
               regionId = firstRegion._id || firstRegion.id || '';
             } else if (typeof firstRegion === 'string' && /^[0-9a-fA-F]{24}$/.test(firstRegion)) {
               regionId = firstRegion;
-              console.log('Extracted regionId from broker data (string):', regionId);
             }
           } 
           // Handle single region object
           else if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
             regionId = region._id || region.id || '';
-            console.log('Extracted regionId from broker data (single object):', regionId);
           } 
           // Handle string region ID
           else if (typeof region === 'string' && /^[0-9a-fA-F]{24}$/.test(region)) {
             regionId = region;
-            console.log('Extracted regionId from broker data (string ID):', regionId);
           }
         }
         
         // Navigate to search page with brokers tab and regionId filter
         if (regionId && regionId.trim() !== '') {
           const url = `/search?tab=brokers&regionId=${encodeURIComponent(regionId)}`;
-          console.log('✅ RegionId from broker API:', regionId);
-          console.log('✅ Navigating to:', url);
+        
           
           router.push(url);
         } else {

@@ -164,16 +164,13 @@ export default function LeadDetails() {
         // API format: [latitude, longitude]
         latitude = lead.primaryRegion.centerCoordinates[0];
         longitude = lead.primaryRegion.centerCoordinates[1];
-        console.log('📍 SimilarLeads: Using primary region coordinates:', latitude, longitude);
       }
 
       // Build API URL with coordinates if available
       let apiUrlWithParams = `${apiUrl}/leads?verificationStatus=Verified`;
       if (latitude && longitude) {
         apiUrlWithParams += `&latitude=${latitude}&longitude=${longitude}`;
-        console.log('📍 SimilarLeads: Fetching similar leads with distance filter:', apiUrlWithParams);
       } else {
-        console.log('📍 SimilarLeads: No coordinates available, fetching all verified leads');
       }
 
       const res = await axios.get(apiUrlWithParams, { headers });
@@ -255,7 +252,6 @@ export default function LeadDetails() {
 
       // Limit to 4-5 leads
       const limited = sorted.slice(0, 5);
-      console.log('📍 SimilarLeads: Showing', limited.length, 'similar leads sorted by distance (excluding own leads)');
 
       setSameLeads(limited);
     } catch (error) {
@@ -310,7 +306,6 @@ export default function LeadDetails() {
     }
 
     if (typeof createdByAny === 'object' && createdByAny !== null) {
-      console.log('🔍 Extracting broker ID from createdBy:', createdByAny);
 
       // Extract user ID first (for fallback)
       let userId: string | null = null;
@@ -361,7 +356,6 @@ export default function LeadDetails() {
         userId = brokerId;
       }
 
-      console.log('✅ Extracted IDs:', { brokerId, userId });
       return { brokerId, userId };
     }
 
@@ -378,7 +372,6 @@ export default function LeadDetails() {
 
       const { brokerId, userId } = getBrokerIdFromCreatedBy(lead.createdBy);
       if (!brokerId && !userId) {
-        console.log('❌ No broker ID or user ID found');
         setBrokerRating(null);
         return;
       }
@@ -400,7 +393,6 @@ export default function LeadDetails() {
       let ratingFound = false;
       if (brokerId) {
         try {
-          console.log(`🔍 Fetching rating with broker ID: ${brokerId}`);
           const res = await fetch(`${apiUrl}/broker-ratings/broker/${brokerId}`, {
             method: 'GET',
             headers: headers
@@ -410,15 +402,12 @@ export default function LeadDetails() {
             const data = await res.json().catch(() => ({}));
             const averageRating = data?.data?.stats?.averageRating;
             if (averageRating !== undefined && averageRating !== null) {
-              console.log(`✅ Rating fetched with broker ID: ${averageRating}`);
               setBrokerRating(averageRating);
               ratingFound = true;
             }
           } else if (res.status === 404) {
-            console.log(`❌ Broker not found with broker ID: ${brokerId} (404)`);
             // Try userId as fallback if broker ID failed
             if (userId && userId !== brokerId) {
-              console.log(`🔄 Trying user ID as fallback: ${userId}`);
               try {
                 const fallbackRes = await fetch(`${apiUrl}/broker-ratings/broker/${userId}`, {
                   method: 'GET',
@@ -428,12 +417,10 @@ export default function LeadDetails() {
                   const fallbackData = await fallbackRes.json().catch(() => ({}));
                   const fallbackRating = fallbackData?.data?.stats?.averageRating;
                   if (fallbackRating !== undefined && fallbackRating !== null) {
-                    console.log(`✅ Rating fetched with user ID: ${fallbackRating}`);
                     setBrokerRating(fallbackRating);
                     ratingFound = true;
                   }
                 } else {
-                  console.log(`❌ Broker not found with user ID: ${userId} (${fallbackRes.status})`);
                 }
               } catch (fallbackError) {
                 console.error('Error fetching rating with user ID:', fallbackError);
@@ -448,7 +435,6 @@ export default function LeadDetails() {
       } else if (userId) {
         // If no broker ID, try userId directly
         try {
-          console.log(`🔍 Fetching rating with user ID: ${userId}`);
           const res = await fetch(`${apiUrl}/broker-ratings/broker/${userId}`, {
             method: 'GET',
             headers: headers
@@ -458,12 +444,10 @@ export default function LeadDetails() {
             const data = await res.json().catch(() => ({}));
             const averageRating = data?.data?.stats?.averageRating;
             if (averageRating !== undefined && averageRating !== null) {
-              console.log(`✅ Rating fetched with user ID: ${averageRating}`);
               setBrokerRating(averageRating);
               ratingFound = true;
             }
           } else {
-            console.log(`❌ Broker not found with user ID: ${userId} (${res.status})`);
           }
         } catch (error) {
           console.error('Error fetching broker rating with user ID:', error);

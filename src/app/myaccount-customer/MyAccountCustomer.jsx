@@ -60,7 +60,6 @@ const MyAccountCustomer = () => {
 
   // Debug: Monitor formData changes
   useEffect(() => {
-    console.log('Customer - FormData updated:', formData);
   }, [formData]);
 
   // Load phone from token immediately on component mount
@@ -71,7 +70,6 @@ const MyAccountCustomer = () => {
         if (token) {
           const tokenPayload = JSON.parse(atob(token.split('.')[1]));
           if (tokenPayload.phone && !formData.phone) {
-            console.log('Customer - Setting phone from token:', tokenPayload.phone);
             setFormData(prev => ({ ...prev, phone: tokenPayload.phone }));
           }
         }
@@ -89,20 +87,16 @@ const MyAccountCustomer = () => {
       try {
         setIsLoadingProfileData(true);
         const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-        console.log('Customer - Token from localStorage:', token);
         if (!token) {
-          console.log('Customer - No token found in localStorage');
           setIsLoadingProfileData(false);
           return;
         }
 
         // Validate token
         const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-        console.log('Customer - Decoded token payload:', tokenPayload);
         const currentTime = Math.floor(Date.now() / 1000);
         
         if (tokenPayload.exp < currentTime) {
-          console.log('Customer - Token expired, clearing localStorage');
           localStorage.removeItem('token');
           localStorage.removeItem('authToken');
           setIsLoadingProfileData(false);
@@ -136,17 +130,11 @@ const MyAccountCustomer = () => {
 
         if (response.ok) {
           const profileData = await response.json();
-          console.log('Loaded customer data:', profileData);
-          console.log('Full API response structure:', JSON.stringify(profileData, null, 2));
-          console.log('Inquiry count from API:', profileData.data?.customerDetails?.inquiryCount);
-          console.log('Customer details:', profileData.data?.customerDetails);
+      
           
           // Update form data with existing customer information
           if (profileData.data) {
-            console.log('API Response structure:', profileData.data);
-            console.log('User data:', profileData.data.user);
-            console.log('Additional details:', profileData.data.additionalDetails);
-            
+          
             // Convert region IDs to names for display
             const regionIds = profileData.data.additionalDetails?.preferences?.region || [];
             const regionNames = regionIds.map(regionId => {
@@ -167,7 +155,6 @@ const MyAccountCustomer = () => {
                                 0;
 
             // Load customer profile image if available
-            console.log('Full API response for debugging:', JSON.stringify(profileData, null, 2));
             
             // Check all possible locations for the image
             let customerImageUrl = profileData.data.images?.customerImage ||
@@ -176,7 +163,6 @@ const MyAccountCustomer = () => {
                                  profileData.data.profileImage ||
                                  profileData.data.additionalDetails?.profileImage;
 
-            console.log('Found customerImageUrl:', customerImageUrl);
             
             // Convert local server path to public URL if needed
             if (customerImageUrl && customerImageUrl.startsWith('/opt/lampp/htdocs/')) {
@@ -184,29 +170,17 @@ const MyAccountCustomer = () => {
               const filename = customerImageUrl.split('/').pop();
               // Convert to public URL
               customerImageUrl = `https://broker-adda-be.fly.dev/uploads/${filename}`;
-              console.log('Converted from local path to:', customerImageUrl);
             } else if (customerImageUrl && customerImageUrl.startsWith('/uploads/')) {
               // If it's already a relative path, make it absolute
               customerImageUrl = `https://broker-adda-be.fly.dev${customerImageUrl}`;
-              console.log('Converted from relative path to:', customerImageUrl);
             } else if (customerImageUrl) {
-              console.log('Using original URL:', customerImageUrl);
             } else {
-              console.log('No customer image found in API response');
             }
-            console.log('Setting inquiry count to:', inquiryCount);
-            console.log('Tried locations:', {
-              'additionalDetails.inquiryCount': profileData.data.additionalDetails?.inquiryCount,
-              'data.inquiryCount': profileData.data.inquiryCount,
-              'root.inquiryCount': profileData.inquiryCount
-            });
+           
             
             setFormData(prev => {
-              console.log('Customer - Before API update - Current phone:', prev.phone);
-              console.log('Customer - API user data:', profileData.data.user);
-              
+             
               const newPhone = prev.phone || profileData.data.user?.phone || "";
-              console.log('Customer - Setting phone to:', newPhone);
               
               return {
                 ...prev,
@@ -228,15 +202,12 @@ const MyAccountCustomer = () => {
 
             // Set customer image if available
             if (customerImageUrl) {
-              console.log('Original image path:', profileData.data.images?.customerImage);
-              console.log('Converted customer image URL:', customerImageUrl);
+           
               setCustomerImage(customerImageUrl);
             } else {
-              console.log('No customer image found in any location');
+             
               // Let's also check if there's any image field we missed
-              console.log('All available fields in data:', Object.keys(profileData.data || {}));
               if (profileData.data.images) {
-                console.log('All fields in images:', Object.keys(profileData.data.images));
               }
             }
           }
@@ -394,12 +365,10 @@ const MyAccountCustomer = () => {
       if (response.ok) {
         const data = await response.json();
         setCustomerData(data);
-        console.log('Customer data fetched:', data);
         toast.success('Customer data loaded successfully!');
         
         // Populate form with fetched data
         if (data.data) {
-          console.log('Customer by ID response:', data.data);
           setFormData(prev => ({
             ...prev,
             name: data.data.user?.name || data.data.name || prev.name,
@@ -469,9 +438,7 @@ const MyAccountCustomer = () => {
         return regionIdMap[region];
       }).filter(Boolean);
       
-      console.log('Form data regions:', formData.regions);
-      console.log('Region ID map:', regionIdMap);
-      console.log('Converted region IDs:', regionIds);
+  
 
       // Filter property types to only include valid ones
       const validPropertyTypes = formData.propertyType.filter(type => 
@@ -511,14 +478,11 @@ const MyAccountCustomer = () => {
         submitData.append('customerImage', customerImage);
       }
 
-      console.log('Form data saved searches:', formData.savedSearches);
-      console.log('Complete submit data:', submitData);
-      console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
+     
       
       // Use fallback URL if environment variable is not set
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'i';
       const fullUrl = `${apiUrl}/auth/complete-profile`;
-      console.log('Full URL:', fullUrl);
 
       const response = await fetch(fullUrl, {
         method: 'POST',
@@ -531,7 +495,6 @@ const MyAccountCustomer = () => {
       if (response.ok) {
         const result = await response.json();
         toast.success("Profile updated successfully!");
-        console.log('Profile updated:', result);
       } else {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         toast.error(errorData.message || 'Failed to update profile');
@@ -583,8 +546,7 @@ const MyAccountCustomer = () => {
                         src={typeof customerImage === 'string' ? customerImage : URL.createObjectURL(customerImage)}
                         alt="Customer Profile"
                         className="w-full h-full object-cover"
-                        onLoad={() => console.log('Image loaded successfully:', customerImage)}
-                        onError={(e) => console.log('Image failed to load:', customerImage, e)}
+                     
                       />
                     ) : (
                       <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

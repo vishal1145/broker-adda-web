@@ -11,9 +11,7 @@ interface InstagramData {
 const Instagram = ({ data = { subtitle: '', title: '', images: [] } }: { data: InstagramData }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Debug logging
-  //// console.log('Instagram component data:', data);
-  //// console.log('Images array:', data.images);
+  
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -74,11 +72,9 @@ const Instagram = ({ data = { subtitle: '', title: '', images: [] } }: { data: I
                 height={220}
                 className="object-cover w-full h-full"
                 onError={() => {
-                 // console.log('Image failed to load:', image);
-                 // console.log('Error loading image');
+              
                 }}
                 onLoad={() => {
-                 // console.log('Image loaded successfully:', image);
                 }}
               />
             ) : (

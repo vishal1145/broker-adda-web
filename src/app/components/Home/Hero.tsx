@@ -211,9 +211,7 @@ const Hero = ({ data = {
               });
               latitude = position.coords.latitude;
               longitude = position.coords.longitude;
-             // console.log('📍 Hero: Using current location coordinates:', latitude, longitude);
             } catch {
-             // console.log('📍 Hero: Could not get current location, will fetch all verified brokers');
             }
           }
         }
@@ -232,9 +230,7 @@ const Hero = ({ data = {
         let apiUrlWithParams = `${apiUrl}/brokers?verificationStatus=Verified`;
         if (latitude && longitude) {
           apiUrlWithParams += `&latitude=${latitude}&longitude=${longitude}`;
-         // console.log('📍 Hero: Fetching brokers with location filter:', apiUrlWithParams);
         } else {
-         // console.log('📍 Hero: Fetching all verified brokers (no location filter)');
         }
 
         const response = await fetch(apiUrlWithParams, {
@@ -331,7 +327,6 @@ const Hero = ({ data = {
               const shouldFilter = matchesBrokerId || matchesUserId;
               
               if (shouldFilter) {
-               // console.log('Filtering out broker from hero:', brokerIdStr, 'Current Broker ID:', currentBrokerIdStr, 'Current User ID:', currentUserIdStr);
               }
               
               // Only show brokers that don't match the logged-in broker

@@ -113,7 +113,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           if (!isNaN(lat) && !isNaN(lng)) {
             setUrlLatitude(lat);
             setUrlLongitude(lng);
-            console.log('📍 Loaded coordinates from URL on page load:', lat, lng);
           }
         } else {
           setUrlLatitude(null);
@@ -254,11 +253,9 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         baseQueryParams.append('latitude', urlLatitude.toString());
         baseQueryParams.append('longitude', urlLongitude.toString());
         baseQueryParams.append('radius', '50');
-        console.log('📍 Using latitude/longitude for filtering:', urlLatitude, urlLongitude, 'radius: 50');
       } else if (selectedRegion?.regionId) {
         // Add region filter if provided (only if no lat/lng - like BrokersComponent)
         baseQueryParams.append('regionId', selectedRegion.regionId);
-        console.log('Using region ID for filtering:', selectedRegion.regionId);
       }
 
       // Add other filters (only if NOT using coordinates - like BrokersComponent)
@@ -338,8 +335,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       // For region search, use pagination
       const limit = isLatLngSearch ? null : itemsPerPage;
 
-      console.log('Fetching properties with base query params:', baseQueryParams.toString());
-      console.log('Is lat/lng search:', isLatLngSearch);
+     
 
       // For lat/lng search, make single API call without page/limit (like BrokersComponent)
       if (isLatLngSearch) {
@@ -357,7 +353,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         const queryString = queryParams.toString();
         const apiUrlWithParams = queryString ? `${apiUrl}/properties?${queryString}` : `${apiUrl}/properties`;
 
-        console.log('📍 Fetching properties with lat/lng, URL:', apiUrlWithParams);
 
         const response = await fetch(apiUrlWithParams, { method: 'GET' });
 
@@ -366,7 +361,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
         }
 
         const data = await response.json();
-        console.log('Properties response:', data);
 
         // Extract properties data (like BrokersComponent)
         let propertiesData = [];
@@ -410,7 +404,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           const queryString = queryParams.toString();
           const apiUrlWithParams = queryString ? `${apiUrl}/properties?${queryString}` : `${apiUrl}/properties`;
 
-          console.log(`Fetching properties page ${pageToFetch}, URL:`, apiUrlWithParams);
 
           const response = await fetch(apiUrlWithParams, { method: 'GET' });
 
@@ -419,7 +412,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           }
 
           const data = await response.json();
-          console.log(`Properties response for page ${pageToFetch}:`, data);
 
           // Extract properties data (like BrokersComponent)
           let propertiesData = [];
@@ -437,7 +429,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
           if (propertiesData.length > 0) {
             allProperties = allProperties.concat(propertiesData);
-            console.log(`Total properties collected so far: ${allProperties.length}`);
 
             // Check pagination info from API response (like BrokersComponent)
             const pagination = data?.data?.pagination || data?.pagination;
@@ -447,7 +438,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             if (pagination && totalPages) {
               if (pageToFetch >= totalPages || (hasNextPage === false)) {
                 hasMorePages = false;
-                console.log(`Reached last page ${pageToFetch} of ${totalPages}`);
               } else {
                 pageToFetch++;
                 if (pageToFetch > 10) {
@@ -541,7 +531,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           const matchesUserId = userIdStr !== '' && propertyBrokerIdStr === userIdStr;
 
           if (matchesBrokerId || matchesUserId) {
-            console.log('🔍 PropertiesComponent: Filtering out own property:', property._id || property.id, 'Broker ID:', propertyBrokerIdStr);
           }
 
           return !matchesBrokerId && !matchesUserId; // Exclude if matches
@@ -552,13 +541,11 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       if (allProperties.length > 0) {
         // Filter out own properties
         allProperties = filterOwnProperties(allProperties);
-        console.log('🔍 PropertiesComponent: Filtered out own properties, remaining:', allProperties.length);
 
         // For coordinate searches: use API response directly
         if (isLatLngSearch) {
           // For coordinate searches: map and display data directly (like BrokersComponent) - no pagination, no filtering
           const coordinateTotal = allProperties.length;
-          console.log('📍 PropertiesComponent: Coordinate search - displaying', allProperties.length, 'properties directly from API, total:', coordinateTotal);
 
           // Map properties (same transformation as non-coordinate searches)
           const mapped = allProperties.map((p, idx) => {
@@ -708,8 +695,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   useEffect(() => {
     // Debounce the API call to prevent multiple rapid calls (like BrokersComponent)
     const timeoutId = setTimeout(() => {
-      console.log('=== FETCHING PROPERTIES ===');
-      console.log('URL Latitude:', urlLatitude, 'URL Longitude:', urlLongitude);
+     
       fetchProperties();
     }, 300); // 300ms debounce delay
 

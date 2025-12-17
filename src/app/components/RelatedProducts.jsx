@@ -88,11 +88,9 @@ export default function RelatedProduct() {
     });
     
     // Show success message (you can add a toast notification here)
-   // console.log(`Added ${product.name} to cart`);
   };
 
   const handleCardClick = (product) => {
-   // console.log('Card clicked for product:', product);
     
     // Transform the product data to match what ProductDetails expects
     const transformedProduct = {
@@ -121,13 +119,11 @@ export default function RelatedProduct() {
       localStorage.setItem('currentProduct', JSON.stringify(transformedProduct));
     }
     
-   // console.log('Transformed product:', transformedProduct);
-   // console.log('Navigating to:', `/shop/${product.type?.toLowerCase()}/product-details/${product.id}`);
+ 
     
     try {
       const productDataParam = encodeURIComponent(JSON.stringify(transformedProduct));
       router.push(`/properties/${product.type?.toLowerCase()}/product-details/${product.id}?productData=${productDataParam}`);
-     // console.log('Navigation successful');
     } catch (error) {
       console.error('Navigation failed:', error);
     }

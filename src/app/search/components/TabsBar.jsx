@@ -105,7 +105,6 @@ const TabsBar = ({ activeTab, setActiveTab, sortBy, sortOrder, onSortChange }) =
 
   const handleSortSelect = (option) => {
     if (onSortChange) {
-      console.log('✅ Calling onSortChange with:', { sortBy: option.sortBy, sortOrder: option.sortOrder });
       onSortChange(option.sortBy, option.sortOrder);
     } else {
       console.warn('⚠️ onSortChange is not defined');

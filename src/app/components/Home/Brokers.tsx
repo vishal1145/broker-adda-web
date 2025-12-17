@@ -112,9 +112,7 @@ const Brokers = () => {
             });
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
-            // console.log('📍 Brokers: Using current location coordinates:', latitude, longitude);
           } catch {
-            // console.log('📍 Brokers: Could not get current location, will fetch all verified brokers');
           }
         }
       }
@@ -131,9 +129,9 @@ const Brokers = () => {
       let apiUrlWithParams = `${apiUrl}/brokers?verificationStatus=Verified`;
       if (latitude && longitude) {
         apiUrlWithParams += `&latitude=${latitude}&longitude=${longitude}`;
-        // console.log('📍 Brokers: Fetching brokers with location filter:', apiUrlWithParams);
+        //  ('📍 Brokers: Fetching brokers with location filter:', apiUrlWithParams);
       } else {
-        // console.log('📍 Brokers: Fetching all verified brokers (no location filter)');
+        //  ('📍 Brokers: Fetching all verified brokers (no location filter)');
       }
 
       const response = await fetch(apiUrlWithParams, {
@@ -150,25 +148,18 @@ const Brokers = () => {
         // Try multiple possible structures
         if (Array.isArray(data?.data?.brokers)) {
           brokersData = data.data.brokers;
-          // console.log('Using data.data.brokers, found', brokersData.length, 'brokers');
         } else if (Array.isArray(data?.data)) {
           brokersData = data.data;
-          // console.log('Using data.data, found', brokersData.length, 'brokers');
         } else if (Array.isArray(data?.brokers)) {
           brokersData = data.brokers;
-          // console.log('Using data.brokers, found', brokersData.length, 'brokers');
         } else if (Array.isArray(data?.result)) {
           brokersData = data.result;
-          // console.log('Using data.result, found', brokersData.length, 'brokers');
         } else if (Array.isArray(data?.items)) {
           brokersData = data.items;
-          // console.log('Using data.items, found', brokersData.length, 'brokers');
         } else if (Array.isArray(data)) {
           brokersData = data;
-          // console.log('Using direct data array, found', brokersData.length, 'brokers');
         } else {
-          // console.log('No valid broker data found in response');
-          // console.log('Available keys in response:', Object.keys(data || {}));
+          
         }
 
         // Keep all brokers (including logged-in broker if they appear in filtered results)
@@ -235,7 +226,6 @@ const Brokers = () => {
               const shouldFilter = matchesBrokerId || matchesUserId;
               
               if (shouldFilter) {
-                // console.log('Filtering out broker from brokers list:', brokerIdStr, 'Current Broker ID:', currentBrokerIdStr, 'Current User ID:', currentUserIdStr);
               }
               
               // Only show brokers that don't match the logged-in broker
@@ -265,8 +255,7 @@ const Brokers = () => {
 
   // Monitor brokers state changes
   useEffect(() => {
-    // console.log('Brokers state changed:', brokers);
-    // console.log('Brokers length:', brokers.length);
+ 
   }, [brokers]);
 
   // Use API data - limit to 4 brokers
@@ -341,18 +330,7 @@ const Brokers = () => {
       ) : (
         <div className="grid gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4 md:px-6 lg:px-0">
           {displayBrokers.map((broker, index) => {
-          // console.log('Rendering broker:', broker);
-          // console.log('Broker image fields:', {
-          //   brokerImage: broker.brokerImage,
-          //   image: broker.image,
-          //   profileImage: broker.profileImage,
-          //   avatar: broker.avatar,
-          //   photo: broker.photo,
-          //   picture: broker.picture,
-          //   profilePicture: broker.profilePicture,
-          //   defaultImage: broker.defaultImage
-          // });
-          // console.log('All broker fields:', Object.keys(broker));
+        
 
           // Pick the first valid, non-empty image string from API
           const pickValidImage = (...cands: (string | undefined)[]) => {
@@ -373,7 +351,6 @@ const Brokers = () => {
             broker.profilePicture,
             broker.defaultImage
           );
-          // console.log('Final image URL being used:', imageUrl);
           
           const brokerId = (
             typeof broker.userId === 'object' && broker.userId ? broker.userId._id :

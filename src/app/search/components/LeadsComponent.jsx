@@ -96,14 +96,13 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           if (!isNaN(lat) && !isNaN(lng)) {
             setUrlLatitude(lat);
             setUrlLongitude(lng);
-            console.log('📍 Loaded coordinates from URL on page load:', lat, lng);
           }
         } else {
           setUrlLatitude(null);
           setUrlLongitude(null);
         }
       } catch (error) {
-        console.error('Error reading URL params:', error);
+        // Error reading URL params
       }
     };
     // Read immediately on mount
@@ -136,11 +135,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         baseQueryParams.append('latitude', urlLatitude.toString());
         baseQueryParams.append('longitude', urlLongitude.toString());
         baseQueryParams.append('radius', '50');
-        console.log('📍 Using latitude/longitude for filtering:', urlLatitude, urlLongitude, 'radius: 50');
       } else if (leadFilters.location) {
         // Add region filter if provided (only if no lat/lng - like BrokersComponent)
         baseQueryParams.append('regionId', leadFilters.location);
-        console.log('Using region ID for filtering:', leadFilters.location);
       }
 
       // Add other filters (only if NOT using coordinates - like BrokersComponent)
@@ -225,9 +222,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       // For region search, use pagination
       const limit = isLatLngSearch ? null : 100;
 
-      console.log('Fetching leads with base query params:', baseQueryParams.toString());
-      console.log('Is lat/lng search:', isLatLngSearch);
-
       // Prepare headers with Authorization if token exists
       const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || localStorage.getItem('authToken') || '') : '';
       const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
@@ -248,7 +242,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         const queryString = queryParams.toString();
         const apiUrlWithParams = queryString ? `${apiUrl}/leads?${queryString}` : `${apiUrl}/leads`;
 
-        console.log('📍 Fetching leads with lat/lng, URL:', apiUrlWithParams);
+         ('📍 Fetching leads with lat/lng, URL:', apiUrlWithParams);
 
         const response = await fetch(apiUrlWithParams, { method: 'GET', headers });
 
@@ -257,7 +251,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         }
 
         const data = await response.json();
-        console.log('Leads response:', data);
 
         // Extract leads data (like BrokersComponent)
         let leadsData = [];
@@ -301,7 +294,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           const queryString = queryParams.toString();
           const apiUrlWithParams = queryString ? `${apiUrl}/leads?${queryString}` : `${apiUrl}/leads`;
 
-          console.log(`Fetching leads page ${pageToFetch}, URL:`, apiUrlWithParams);
+           (`Fetching leads page ${pageToFetch}, URL:`, apiUrlWithParams);
 
           const response = await fetch(apiUrlWithParams, { method: 'GET', headers });
 
@@ -310,7 +303,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           }
 
           const data = await response.json();
-          console.log(`Leads response for page ${pageToFetch}:`, data);
 
           // Extract leads data (like BrokersComponent)
           let leadsData = [];
@@ -328,7 +320,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
           if (leadsData.length > 0) {
             allLeads = allLeads.concat(leadsData);
-            console.log(`Total leads collected so far: ${allLeads.length}`);
 
             // Check pagination info from API response (like BrokersComponent)
             const pagination = data?.data?.pagination || data?.pagination;
@@ -338,7 +329,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             if (pagination && totalPages) {
               if (pageToFetch >= totalPages || (hasNextPage === false)) {
                 hasMorePages = false;
-                console.log(`Reached last page ${pageToFetch} of ${totalPages}`);
               } else {
                 pageToFetch++;
                 if (pageToFetch > 10) {
@@ -379,7 +369,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             }
           }
         } catch (err) {
-          console.error('Error parsing token:', err);
+          // Error parsing token
         }
       }
 
@@ -425,12 +415,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
       if (allLeads.length > 0) {
         // Filter out own leads
         allLeads = filterOwnLeads(allLeads);
-        console.log('🔍 LeadsComponent: Filtered out own leads, remaining:', allLeads.length);
+         ('🔍 LeadsComponent: Filtered out own leads, remaining:', allLeads.length);
 
         // For coordinate searches: use API response directly
         if (isLatLngSearch) {
           const totalCount = allLeads.length; // API should return all matching leads
-          console.log('📍 LeadsComponent: Coordinate search - displaying', allLeads.length, 'items directly from API');
           setAllLeads(allLeads);
           setLeads(allLeads);
           setTotalLeads(totalCount);
@@ -553,20 +542,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           }
         }
 
-        console.log('=== LEAD FILTERING DEBUG ===');
-        console.log('📍 LeadsComponent: Total items from API:', items.length);
-        console.log('📍 LeadsComponent: Is coordinate search:', isLatLngSearch);
-        console.log('📍 LeadsComponent: Current filters:', leadFilters);
-        console.log('📍 LeadsComponent: Filtered items count:', filteredItems.length);
-        console.log('Filter results - Status filter:', leadFilters.leadStatus.length > 0 ? `Applied (${leadFilters.leadStatus.join(', ')})` : 'Not applied');
-        console.log('Filter results - Property Type filter:', leadFilters.leadType.length > 0 ? `Applied (${leadFilters.leadType.join(', ')})` : 'Not applied');
-        console.log('Filter results - Requirement filter:', leadFilters.requirement.length > 0 ? `Applied (${leadFilters.requirement.join(', ')})` : 'Not applied');
-        console.log('Filter results - Priority filter:', leadFilters.priority.length > 0 ? 'Applied (Client-side)' : 'Not applied');
-        console.log('Filter results - Location filter:', leadFilters.location ? `Applied (Region ID: ${leadFilters.location})` : 'Not applied');
-        if (items.length > 0 && filteredItems.length === 0) {
-          console.log('WARNING: Items from API but filtered out. Sample item:', items[0]);
-        }
-
         // Client-side sorting (fallback if API doesn't sort)
         let sortedItems = [...filteredItems];
         const currentSortBy = sortBy || 'createdAt';
@@ -617,7 +592,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         finalTotal = sortedItems.length;
         const start = (currentPage - 1) * leadsPerPage;
         itemsToDisplay = sortedItems.slice(start, start + leadsPerPage);
-        console.log('📍 LeadsComponent: Non-coordinate search - paginated items:', itemsToDisplay.length, 'of', finalTotal);
+         ('📍 LeadsComponent: Non-coordinate search - paginated items:', itemsToDisplay.length, 'of', finalTotal);
         setLeads(itemsToDisplay);
         setTotalLeads(finalTotal);
         setLeadsError('');
@@ -628,12 +603,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         setLeadsError('');
       }
     } catch (error) {
-      console.error('📍 LeadsComponent: Error fetching leads:', error);
-      console.error('📍 LeadsComponent: Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
       setLeadsError(`Error loading leads: ${error.message || 'Network error'}`);
       setLeads([]);
       setTotalLeads(0);
@@ -646,8 +615,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   useEffect(() => {
     // Debounce the API call to prevent multiple rapid calls (like BrokersComponent)
     const timeoutId = setTimeout(() => {
-      console.log('=== FETCHING LEADS ===');
-      console.log('URL Latitude:', urlLatitude, 'URL Longitude:', urlLongitude);
       fetchLeads();
     }, 300); // 300ms debounce delay
 
@@ -1083,7 +1050,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           background: 'linear-gradient(90deg, #10B981 0%, #047857 100%)',
         };
       default:
-        console.log('Unknown status:', status);
+         ('Unknown status:', status);
         return { background: 'linear-gradient(90deg, #F59E0B 0%, #EF4444 100%)' };
     }
   };

@@ -404,11 +404,7 @@ function PropertyDetailsPageInner() {
           // Set stats (averageRating, totalRatings, distribution)
           if (data.data.stats) {
             setRatingsStats(data.data.stats);
-            console.log("Property ratings stats:", data.data.stats);
-            console.log(
-              "Total ratings/comments:",
-              data.data.stats.totalRatings
-            );
+          
           }
         } else {
           // If no ratings found, set empty state
@@ -542,11 +538,9 @@ function PropertyDetailsPageInner() {
   useEffect(() => {
     const fetchSimilarProperties = async () => {
       if (!product) {
-        console.log('📍 SimilarProperties: No product, skipping API call');
         return;
       }
 
-      console.log('📍 SimilarProperties: Starting fetch, product:', product?.id || product?._id);
       setSimilarLoading(true);
       try {
         const token =
@@ -592,14 +586,12 @@ function PropertyDetailsPageInner() {
         let longitude = null;
         const propertyData = product._raw || product;
 
-        console.log('📍 SimilarProperties: Property data:', propertyData);
 
         // First, check for direct latitude/longitude fields (most common in API response)
         if (propertyData?.latitude !== undefined && propertyData?.longitude !== undefined) {
           latitude = Number(propertyData.latitude);
           longitude = Number(propertyData.longitude);
           if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
-            console.log('📍 SimilarProperties: Using direct latitude/longitude fields:', latitude, longitude);
           } else {
             latitude = null;
             longitude = null;
@@ -621,7 +613,6 @@ function PropertyDetailsPageInner() {
               longitude = coords[0];
               latitude = coords[1];
             }
-            console.log('📍 SimilarProperties: Using property location coordinates:', latitude, longitude);
           } else if (propertyData?.region && Array.isArray(propertyData.region) && propertyData.region.length > 0) {
             // Check if region has centerCoordinates
             const firstRegion = propertyData.region[0];
@@ -629,20 +620,17 @@ function PropertyDetailsPageInner() {
               // API format: [latitude, longitude]
               latitude = firstRegion.centerCoordinates[0];
               longitude = firstRegion.centerCoordinates[1];
-              console.log('📍 SimilarProperties: Using region centerCoordinates:', latitude, longitude);
             }
           } else if (propertyData?.region && typeof propertyData.region === 'object' && !Array.isArray(propertyData.region)) {
             // Check if region is a single object with centerCoordinates
             if (propertyData.region?.centerCoordinates && Array.isArray(propertyData.region.centerCoordinates) && propertyData.region.centerCoordinates.length >= 2) {
               latitude = propertyData.region.centerCoordinates[0];
               longitude = propertyData.region.centerCoordinates[1];
-              console.log('📍 SimilarProperties: Using single region centerCoordinates:', latitude, longitude);
             }
           }
         }
 
         if (!latitude || !longitude) {
-          console.log('📍 SimilarProperties: No coordinates found in property data');
         }
 
         // Build API URL with coordinates if available
@@ -651,22 +639,17 @@ function PropertyDetailsPageInner() {
           params.append("latitude", latitude.toString());
           params.append("longitude", longitude.toString());
           // Removed verificationStatus filter - fetch all properties
-          console.log('📍 SimilarProperties: Fetching similar properties with distance filter:', `${apiUrl}/properties?${params.toString()}`);
         } else {
           params.append("limit", "20");
           // Removed verificationStatus filter - fetch all properties
-          console.log('📍 SimilarProperties: No coordinates available, fetching all properties:', `${apiUrl}/properties?${params.toString()}`);
         }
 
-        console.log('📍 SimilarProperties: Making API call...');
         const res = await fetch(`${apiUrl}/properties?${params.toString()}`, {
           headers,
         });
-        console.log("📍 SimilarProperties: API Response status:", res.status);
 
         if (res.ok) {
           const responseData = await res.json();
-          console.log("Full API Response:", responseData);
 
           // Try different possible response structures
           let properties = [];
@@ -682,9 +665,7 @@ function PropertyDetailsPageInner() {
             properties = responseData;
           }
 
-          console.log("Properties found:", properties.length);
           const currentPropertyId = product.id || product._id;
-          console.log("Current property ID:", currentPropertyId);
 
           // Filter out current property and logged-in broker's own properties
           const filteredProperties = properties.filter((p) => {
@@ -741,7 +722,6 @@ function PropertyDetailsPageInner() {
 
               // Exclude if matches logged-in broker
               if (matchesBrokerId || matchesUserId) {
-                console.log('🔍 SimilarProperties: Filtering out own property:', propertyId, 'Broker ID:', propertyBrokerIdStr);
                 return false;
               }
             }
@@ -783,7 +763,6 @@ function PropertyDetailsPageInner() {
             };
           });
 
-          console.log('📍 SimilarProperties: Showing', similar.length, 'similar properties sorted by distance (excluding own properties)');
           setSimilarProperties(similar);
         }
       } catch (error) {
@@ -3281,11 +3260,7 @@ function PropertyDetailsPageInner() {
                         review: ratingReview || "",
                       };
 
-                      console.log(
-                        "Submitting rating to:",
-                        `${base}/property-ratings`
-                      );
-                      console.log("Rating data:", ratingData);
+                   
 
                       const res = await fetch(`${base}/property-ratings`, {
                         method: "POST",
@@ -3306,10 +3281,7 @@ function PropertyDetailsPageInner() {
                         toast.success(
                           responseData.message || "Thank you for your rating!"
                         );
-                        console.log(
-                          "Rating submitted successfully:",
-                          responseData.data
-                        );
+                      
                       } else {
                         toast.success("Thank you for your rating!");
                       }

@@ -81,12 +81,7 @@ const ProductDetails = () => {
   // Get product data from URL params or search params
   const productFromState = searchParams.get('productData') ? JSON.parse(searchParams.get('productData')) : null;
   
-  console.log('ProductDetails - productFromState:', productFromState);
-  console.log('ProductDetails - id from params:', id);
-  console.log('ProductDetails - category from params:', category);
-  console.log('ProductDetails - productFromState?.image:', productFromState?.image);
-  console.log('ProductDetails - productFromState?.name:', productFromState?.name);
-  console.log('ProductDetails - productFromState?.price:', productFromState?.price);
+ 
   
   // Initialize wishlist from localStorage
   const [wishlist, setWishlist] = useState(() => {
@@ -101,7 +96,6 @@ const ProductDetails = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('wishlist', JSON.stringify(wishlist));
-      console.log('Wishlist saved to localStorage:', wishlist);
       
       // Dispatch custom event to notify navbar about wishlist update
       window.dispatchEvent(new Event('wishlistUpdated'));
@@ -132,7 +126,6 @@ const ProductDetails = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('cart', JSON.stringify(addCart));
-      console.log('Cart saved to localStorage:', addCart);
       
       // Dispatch custom event to notify navbar about cart update
       window.dispatchEvent(new Event('cartUpdated'));
@@ -160,7 +153,6 @@ const ProductDetails = () => {
     setTimeout(() => setCartSuccess(false), 2000);
     
     // Show success message (you can add a toast notification here)
-    console.log(`Added ${quantity} ${product.name} to cart`);
   };
 
   // Use product from state if available, otherwise fall back to static data
@@ -192,13 +184,7 @@ const ProductDetails = () => {
   const productTitle = displayProduct.title || displayProduct.producttitle || 'Check out this amazing furniture!';
   const productImage = displayProduct.image || displayProduct.images?.[0] || '';
   
-  console.log('ProductDetails - displayProduct:', displayProduct);
-  console.log('ProductDetails - selectedImage:', displayProduct.images?.[0] || displayProduct.image);
-  console.log('ProductDetails - image path:', displayProduct.image);
-  console.log('ProductDetails - wishlist:', wishlist);
-  console.log('ProductDetails - addCart:', addCart);
-  console.log('ProductDetails - isInWishlist:', wishlist.some(item => item.id === displayProduct.id));
-  console.log('ProductDetails - isInCart:', addCart.some(item => item.id === displayProduct.id));
+  
   
   const [selectedColor, setSelectedColor] = useState(displayProduct.selectedColor || '#8B4513');
   const [quantity, setQuantity] = useState(displayProduct.quantity || 1);

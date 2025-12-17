@@ -212,14 +212,13 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           if (!isNaN(lat) && !isNaN(lng)) {
             setUrlLatitude(lat);
             setUrlLongitude(lng);
-            console.log('📍 Loaded coordinates from URL on page load:', lat, lng);
           }
         } else {
           setUrlLatitude(null);
           setUrlLongitude(null);
         }
       } catch (error) {
-        console.error('Error reading URL params:', error);
+        // Error reading URL params
       }
     };
     // Read immediately on mount
@@ -263,7 +262,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         const finalRegionName = matchingRegionInArray || regionName;
         
         if (finalRegionName) {
-          console.log('Setting region filter from regionId:', urlRegionId, 'Region name:', finalRegionName);
           setBrokerFilters(prev => ({
             ...prev,
             region: [finalRegionName]
@@ -273,11 +271,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           setShowSecondaryFilters(true);
           setHasProcessedInitialQuery(true);
           setLastProcessedQuery(''); // Mark as processed with regionId
-        } else {
-          console.warn('Region found by ID but no name available:', region);
         }
-      } else {
-        console.warn('Region not found for regionId:', urlRegionId, 'Available regions:', regionsData);
       }
     }
   }, [urlRegionId, regionsData, regions, hasProcessedInitialQuery]);
@@ -301,7 +295,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         }
         
         const data = await response.json();
-        console.log('Regions API response:', data);
         
         // Extract regions data following app pattern
         let regionsData = [];
@@ -329,14 +322,11 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
             }
             return String(region);
           });
-          console.log('Processed region names:', regionNames);
-          console.log('Full regions data:', regionsData);
           setRegions(regionNames);
         } else {
           throw new Error('No valid regions data received');
         }
       } catch (error) {
-        console.error('Error fetching regions:', error);
         // Fallback to hardcoded regions if API fails
         const fallbackRegions = ['Mumbai', 'Delhi', 'Bengaluru', 'Gurugram', 'Pune', 'Noida ', 'Chennai', 'Hyderabad', 'Kolkata'];
         setRegions(fallbackRegions);
@@ -398,7 +388,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           setBrokerRatings(averagesMap);
         }
       } catch (err) {
-        console.error('Error fetching broker ratings:', err);
         setBrokerRatings({});
       } finally {
         setRatingsLoading(false);
@@ -423,15 +412,11 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         baseQueryParams.append('latitude', urlLatitude.toString());
         baseQueryParams.append('longitude', urlLongitude.toString());
         baseQueryParams.append('radius', '50'); // Add radius=50 for coordinate-based search
-        console.log('📍 Using latitude/longitude for filtering:', urlLatitude, urlLongitude, 'radius: 50');
       } else if (regionIds && regionIds.length > 0) {
         // Add region filter if provided (only if no lat/lng)
-        console.log('Using region IDs for filtering:', regionIds);
-        
         // Use the first valid region ID for API call
         const validRegionId = regionIds[0];
         baseQueryParams.append('regionId', validRegionId);
-        console.log('Using region ID:', validRegionId);
       }
 
       // Add city filter
@@ -477,14 +462,12 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         const selectedStatus = secondaryFilters.brokerStatus;
         // Send the status value as-is (lowercase for API consistency)
         baseQueryParams.append('status', selectedStatus.toLowerCase());
-        console.log(`✅ Status filter: ${selectedStatus.toLowerCase()}`);
       }
 
       // Add specialization filter (if any selected)
       // Note: API may not support specialization filter, but we'll send it anyway
       // If not supported, client-side filtering will handle it
       if (brokerFilters.brokerType.length > 0) {
-        console.log('📌 Specialization filter applied:', brokerFilters.brokerType);
         // Send specializations as multiple parameters
         brokerFilters.brokerType.forEach(spec => {
           baseQueryParams.append('specialization', spec);
@@ -498,10 +481,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       // For lat/lng search, only use baseQueryParams (which already has lat/lng)
       // For region search, use pagination
       const limit = isLatLngSearch ? null : 100;
-      
-      console.log('Fetching brokers with region IDs:', regionIds);
-      console.log('Base query params:', baseQueryParams.toString());
-      console.log('Is lat/lng search:', isLatLngSearch);
       
       // For lat/lng search, make single API call without page/limit
       if (isLatLngSearch) {
@@ -519,8 +498,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         const queryString = queryParams.toString();
         const apiUrlWithParams = queryString ? `${apiUrl}/brokers?${queryString}` : `${apiUrl}/brokers`;
         
-        console.log('📍 Fetching brokers with lat/lng, URL:', apiUrlWithParams);
-        
         const response = await fetch(apiUrlWithParams, { method: 'GET' });
         
         if (!response.ok) {
@@ -528,7 +505,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         }
         
         const data = await response.json();
-        console.log('Brokers response:', data);
         
         // Extract brokers data
         let brokersData = [];
@@ -566,8 +542,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           const queryString = queryParams.toString();
           const apiUrlWithParams = queryString ? `${apiUrl}/brokers?${queryString}` : `${apiUrl}/brokers`;
           
-          console.log(`Fetching brokers page ${pageToFetch}, URL:`, apiUrlWithParams);
-          
           const response = await fetch(apiUrlWithParams, { method: 'GET' });
           
           if (!response.ok) {
@@ -575,55 +549,24 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           }
           
           const data = await response.json();
-          console.log(`Brokers response for page ${pageToFetch}:`, data);
           
           // Extract brokers data following app pattern
           let brokersData = [];
-          
-          console.log('API Response structure:', {
-            hasData: !!data?.data,
-            dataIsArray: Array.isArray(data?.data),
-            hasBrokers: !!data?.brokers,
-            brokersIsArray: Array.isArray(data?.brokers),
-            isArray: Array.isArray(data),
-            hasDataBrokers: !!data?.data?.brokers,
-            dataBrokersIsArray: Array.isArray(data?.data?.brokers),
-            dataKeys: data ? Object.keys(data) : [],
-            dataDataKeys: data?.data ? Object.keys(data.data) : []
-          });
-          
-          // Check if the response has the expected structure from your JSON
-          if (data?.data?.brokers) {
-            console.log('Found data.data.brokers, sample broker:', data.data.brokers[0]);
-            console.log('Sample broker keys:', data.data.brokers[0] ? Object.keys(data.data.brokers[0]) : 'No brokers');
-            console.log('Sample broker specializations:', data.data.brokers[0]?.specializations);
-            console.log('Sample broker firmName:', data.data.brokers[0]?.firmName);
-            console.log('Sample broker leadsCreated:', data.data.brokers[0]?.leadsCreated);
-          }
           
           // Try different data structures based on your JSON format
           // Priority: data.data.brokers > data.brokers > data.data > data (direct array)
           if (data?.data?.brokers && Array.isArray(data.data.brokers)) {
             brokersData = data.data.brokers;
-            console.log(`✅ Using data.data.brokers, found ${brokersData.length} brokers on page ${pageToFetch}`);
           } else if (Array.isArray(data?.brokers)) {
             brokersData = data.brokers;
-            console.log(`✅ Using data.brokers, found ${brokersData.length} brokers on page ${pageToFetch}`);
           } else if (Array.isArray(data?.data)) {
             brokersData = data.data;
-            console.log(`✅ Using data.data, found ${brokersData.length} brokers on page ${pageToFetch}`);
           } else if (Array.isArray(data)) {
             brokersData = data;
-            console.log(`✅ Using data directly, found ${brokersData.length} brokers on page ${pageToFetch}`);
-          } else {
-            console.error('❌ No valid brokers data found in response');
-            console.error('Full response:', JSON.stringify(data, null, 2));
-            console.error('Response keys:', Object.keys(data || {}));
           }
           
           if (brokersData.length > 0) {
             allBrokers = allBrokers.concat(brokersData);
-            console.log(`Total brokers collected so far: ${allBrokers.length}`);
             
             // Check pagination info from API response
             const pagination = data?.data?.pagination || data?.pagination;
@@ -634,42 +577,32 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
               // Use API pagination info
               if (pageToFetch >= totalPages || (hasNextPage === false)) {
                 hasMorePages = false;
-                console.log(`Reached last page ${pageToFetch} of ${totalPages}`);
               } else {
                 pageToFetch++;
                 // Safety check: stop after 10 pages to prevent infinite loops
                 if (pageToFetch > 10) {
                   hasMorePages = false;
-                  console.log('Reached maximum page limit (10), stopping');
                 }
               }
             } else {
               // Fallback: check if we got fewer brokers than the limit
               if (brokersData.length < limit) {
                 hasMorePages = false;
-                console.log('Reached last page - fewer brokers than limit');
               } else {
                 pageToFetch++;
                 // Safety check: stop after 10 pages
                 if (pageToFetch > 10) {
                   hasMorePages = false;
-                  console.log('Reached maximum page limit (10), stopping');
                 }
               }
             }
           } else {
             hasMorePages = false;
-            console.log('No brokers found on page, stopping');
           }
         }
       }
       
-      console.log(`✅ Fetched total of ${allBrokers.length} brokers`);
-      
       if (allBrokers.length > 0) {
-        console.log('Raw broker data sample:', allBrokers[0]);
-        console.log('Available fields in broker:', Object.keys(allBrokers[0]));
-        
         // Helper to compute a stable rating based on available broker data
         const computeRating = (raw) => {
           const leadsCount = raw?.leadsCreated?.count || 0;
@@ -686,12 +619,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         
         // Transform API data to match our component structure
         const transformedBrokers = allBrokers.map((broker, index) => {
-          console.log(`Raw broker data for ${index}:`, broker);
-          console.log(`Available fields in broker:`, Object.keys(broker));
-          console.log(`Broker specializations:`, broker.specializations);
-          console.log(`Broker firmName:`, broker.firmName);
-          console.log(`Broker leadsCreated:`, broker.leadsCreated);
-          
           // Get broker ID for rating lookup (try multiple possible ID fields)
           // Normalize to string for consistent comparison with ratings map
           const userIdRaw = (broker?.userId && typeof broker.userId === 'object') ? broker.userId._id : broker.userId;
@@ -706,19 +633,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           const finalRating = brokerObjectRating !== null && brokerObjectRating > 0 
             ? brokerObjectRating 
             : (ratingsMapRating !== null ? ratingsMapRating : computedRating);
-          
-          // Debug logging for rating lookup
-          if (index === 0) {
-            console.log('Rating lookup for broker:', {
-              name: broker.name,
-              brokerId,
-              brokerObjectRating,
-              ratingsMapRating,
-              computedRating,
-              finalRating,
-              availableRatingsKeys: Object.keys(brokerRatings).slice(0, 5)
-            });
-          }
           
           return {
             // Include all raw broker fields first
@@ -762,15 +676,11 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           };
         });
         
-        console.log(`Fetched ${transformedBrokers.length} total brokers across ${currentPage - 1} pages`);
-        console.log('All brokers data:', transformedBrokers);
-        console.log('Sample transformed broker:', transformedBrokers[0]);
         setBrokers(transformedBrokers);
       } else {
         throw new Error('No valid brokers data received');
       }
     } catch (error) {
-      console.error('Error fetching brokers:', error);
       // Set empty array instead of fallback data
       setBrokers([]);
     } finally {
@@ -782,7 +692,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   useEffect(() => {
     // Skip if we have lat/lng but they're not ready yet, or if we need regions but they're not loaded
     if (urlLatitude === null && urlLongitude === null && regionsData.length === 0) {
-      console.log('⏸️ Skipping fetch - waiting for regions or lat/lng');
       return;
     }
 
@@ -807,10 +716,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       }).filter(Boolean);
       }
       
-      console.log('=== FETCHING BROKERS ===');
-      console.log('Region names:', brokerFilters.region);
-      console.log('Mapped region IDs:', regionIds);
-      console.log('URL Latitude:', urlLatitude, 'URL Longitude:', urlLongitude);
       fetchBrokers(regionIds);
     }, 300); // 300ms debounce delay
 
@@ -919,7 +824,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         const newUrl = window.location.pathname + (sp.toString() ? `?${sp.toString()}` : '');
         window.history.replaceState({}, '', newUrl);
       } catch (error) {
-        console.error('Error clearing URL parameters:', error);
+        // Error clearing URL parameters
       }
     }
 
@@ -1131,19 +1036,13 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
     // Region filter (client-side backup - now using region IDs)
     if (brokerFilters.region.length > 0) {
-      console.log('Client-side region filtering with names:', brokerFilters.region);
-      console.log('Broker locations:', broker.locations);
-      
       const hasMatchingRegion = brokerFilters.region.some(selectedRegion => 
         broker.locations.some(brokerLocation => {
           const brokerLoc = brokerLocation.toLowerCase().trim();
           const selectedLoc = selectedRegion.toLowerCase().trim();
           
-          console.log(`Comparing broker location "${brokerLoc}" with selected region "${selectedLoc}"`);
-          
           // Exact match
           if (brokerLoc === selectedLoc) {
-            console.log('✅ Exact match found');
             return true;
           }
           
@@ -1154,14 +1053,12 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           // If selected region has multiple words, check if all words are in broker location
           if (selectedWords.length > 1) {
             const allWordsMatch = selectedWords.every(word => brokerWords.includes(word));
-            console.log(`Multi-word check: ${allWordsMatch ? '✅' : '❌'}`);
             return allWordsMatch;
           }
           
           // If selected region is a single word, check if it's a complete word in broker location
           if (selectedWords.length === 1) {
             const singleWordMatch = brokerWords.includes(selectedWords[0]);
-            console.log(`Single word check: ${singleWordMatch ? '✅' : '❌'}`);
             return singleWordMatch;
           }
           
@@ -1169,7 +1066,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         })
       );
       
-      console.log(`Region filter result for ${broker.name}: ${hasMatchingRegion ? '✅ PASS' : '❌ FAIL'}`);
       if (!hasMatchingRegion) return false;
     }
 
@@ -1239,7 +1135,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       });
       
       if (!hasMatchingType) {
-        console.log(`❌ Broker ${broker.name} filtered out by specialization. Selected: ${brokerFilters.brokerType.join(', ')}, Broker has: ${allBrokerTypes.join(', ')}`);
         return false;
       }
     }
@@ -1260,7 +1155,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
   // Handle sort change from TabsBar
   const handleSortChange = (newSortBy, newSortOrder) => {
-    console.log('🔄 Sort changed:', { newSortBy, newSortOrder });
     setSortBy(newSortBy);
     setSortOrder(newSortOrder);
     setCurrentPage(1); // Reset to first page when sorting changes
@@ -1324,13 +1218,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       setCurrentPage(currentPage + 1);
     }
   };
-
-  console.log('Total brokers:', brokers.length);
-  console.log('Filtered brokers:', filteredBrokers.length);
-  console.log('Sorted brokers:', sortedBrokers.length);
-  console.log('Current filters:', brokerFilters);
-  console.log('Experience range filter:', brokerFilters.experienceRange);
-  console.log('Pagination - Current page:', currentPage, 'Total pages:', totalPages, 'Items per page:', itemsPerPage);
 
   return (
     <div className="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-8">
@@ -1792,25 +1679,11 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         ) : (
           <div className="grid grid-cols-1 gap-4 lg:gap-6">
             {paginatedBrokers.map((broker) => {
-              console.log('Rendering broker card for:', broker.name, {
-                specializations: broker.specializations,
-                firmName: broker.firmName,
-                leadsCreated: broker.leadsCreated,
-                locations: broker.locations
-              });
-              
               // Use raw broker data if transformed data is missing
               const actualSpecializations = broker.specializations || [];
               const actualFirmName = broker.firmName || '';
               const actualLeadsCreated = broker.leadsCreated || { count: 0, items: [] };
               const actualLocations = broker.locations || [];
-              
-              console.log('Actual data for', broker.name, {
-                actualSpecializations,
-                actualFirmName,
-                actualLeadsCreated,
-                actualLocations
-              });
               
               return (
            <div
@@ -2048,7 +1921,6 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
             ...broker,
             status: broker.statusForChat || 'active' // Use lowercase 'active' for chat
           };
-          console.log('Opening chat with broker:', chatBroker);
           window.openChatWithBroker({ broker: chatBroker });
         }
       }}

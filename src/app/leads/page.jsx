@@ -1524,9 +1524,7 @@ export default function BrokerLeadsPage() {
       requestBody.notes = transferForm.notes.trim();
     }
 
-    console.log('Transfer request body:', JSON.stringify(requestBody, null, 2));
-    console.log('Transfer URL:', `${apiUrl}/leads/${leadId}/transfer-and-notes`);
-
+ 
     try {
       setTransferLoading(true);
       // POST /leads/{leadId}/transfer-and-notes
