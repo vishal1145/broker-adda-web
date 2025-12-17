@@ -428,7 +428,7 @@ const Dashboard = () => {
 
             {/* Total Closed Leads */}
             <div 
-              onClick={() => router.push('/leads')}
+              onClick={() => router.push('/leads?status=Closed')}
               className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
               style={{ width: '100%', height: '140px' }}
             >

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import HeaderFile from "../components/Header";
 import Select, { components as RSComponents } from "react-select";
@@ -48,6 +49,8 @@ const StatCard = ({ label, value, deltaText, trend = "up", color = "sky" }) => {
 };
 
 export default function BrokerLeadsPage() {
+  const searchParams = useSearchParams();
+  
   /* ───────────── Filters & UI state ───────────── */
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [leadViewMode, setLeadViewMode] = useState("my-leads"); // 'my-leads' or 'transferred'
@@ -557,6 +560,26 @@ export default function BrokerLeadsPage() {
     loadLeads(reset, 1, limit, debouncedQuery);
   };
 
+  // Handle status query parameter from URL (e.g., from dashboard card click)
+  useEffect(() => {
+    const statusParam = searchParams?.get('status');
+    if (statusParam && statusOptions.length > 0) {
+      const statusOption = statusOptions.find(opt => opt.value === statusParam);
+      if (statusOption && filters.status?.value !== statusOption.value) {
+        const updatedFilters = {
+          ...filters,
+          status: statusOption
+        };
+        setFilters(updatedFilters);
+        setPage(1);
+        // Load leads with the new filter after a brief delay to ensure state is updated
+        setTimeout(() => {
+          loadLeads(updatedFilters, 1, limit, debouncedQuery);
+        }, 100);
+      }
+    }
+  }, [searchParams]); // eslint-disable-line
+
   useEffect(() => {
     loadLeads();
   }, [page, limit]); // eslint-disable-line
@@ -734,6 +757,10 @@ export default function BrokerLeadsPage() {
       borderRadius: 6,
       margin: "2px 6px",
       padding: "8px 12px",
+      whiteSpace: "normal",
+      wordBreak: "break-word",
+      overflowWrap: "break-word",
+      maxWidth: "100%",
       ":active": {
         backgroundColor: s.isSelected ? "#0D542B" : "#C8F1DC",
         color: s.isSelected ? "#ffffff" : "#0D542B",
@@ -770,18 +797,20 @@ export default function BrokerLeadsPage() {
     menu: (p) => ({
       ...p,
       zIndex: 9999,
-      overflow: "visible",
+      overflowX: "hidden",
+      overflowY: "visible",
       border: "1px solid #e5e7eb",
       borderRadius: 10,
       fontFamily: "var(--font-body, inherit)",
       fontSize: 12,
       minWidth: "100%",
+      maxWidth: "100%",
     }),
     menuList: (p) => ({
       ...p,
       maxHeight: 180, // Reduced height to ensure dropdown stays within screen
       overflowY: "auto",
-      overflowX: "visible",
+      overflowX: "hidden",
       paddingRight: 8,
       fontFamily: "var(--font-body, inherit)",
       fontSize: 12,
@@ -1076,7 +1105,7 @@ export default function BrokerLeadsPage() {
       ...p,
       maxHeight: 150, // Smaller height for modals to ensure dropdown stays within screen
       overflowY: "auto",
-      overflowX: "visible",
+      overflowX: "hidden",
       paddingRight: 8,
       fontFamily: "var(--font-body, inherit)",
       fontSize: 12,
@@ -1089,13 +1118,23 @@ export default function BrokerLeadsPage() {
     menu: (base) => ({
       ...base,
       zIndex: 99999,
-      overflow: "visible",
+      overflowX: "hidden",
+      overflowY: "visible",
       border: "1px solid #e5e7eb",
       borderRadius: 10,
       fontFamily: "var(--font-body, inherit)",
       fontSize: 12,
       minWidth: "100%",
-      width: "max-content",
+      maxWidth: "100%",
+    }),
+    menuList: (p) => ({
+      ...p,
+      overflowX: "hidden",
+      overflowY: "auto",
+      maxHeight: 120,
+      paddingRight: 8,
+      fontFamily: "var(--font-body, inherit)",
+      fontSize: 12,
     }),
     menuPortal: (base) => ({ ...base, zIndex: 99999 }),
   };
@@ -2838,18 +2877,36 @@ export default function BrokerLeadsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm disabled:opacity-50 bg-white cursor-pointer"
+                      className={`px-3 py-1.5 rounded-lg border border-gray-200 text-sm bg-white ${
+                        page <= 1 || totalPages <= 1
+                          ? 'opacity-50 cursor-not-allowed pointer-events-none'
+                          : 'cursor-pointer hover:bg-gray-50'
+                      }`}
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page <= 1}
+                      disabled={page <= 1 || totalPages <= 1}
+                      style={
+                        page <= 1 || totalPages <= 1
+                          ? { cursor: 'not-allowed' }
+                          : { cursor: 'pointer' }
+                      }
                     >
                       Prev
                     </button>
                     <button
-                      className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm disabled:opacity-50 bg-white cursor-pointer"
+                      className={`px-3 py-1.5 rounded-lg border border-gray-200 text-sm bg-white ${
+                        page >= totalPages || totalPages <= 1
+                          ? 'opacity-50 cursor-not-allowed pointer-events-none'
+                          : 'cursor-pointer hover:bg-gray-50'
+                      }`}
                       onClick={() =>
                         setPage((p) => Math.min(totalPages, p + 1))
                       }
-                      disabled={page >= totalPages}
+                      disabled={page >= totalPages || totalPages <= 1}
+                      style={
+                        page >= totalPages || totalPages <= 1
+                          ? { cursor: 'not-allowed' }
+                          : { cursor: 'pointer' }
+                      }
                     >
                       Next
                     </button>
@@ -4038,7 +4095,7 @@ export default function BrokerLeadsPage() {
         {/* View Drawer */}
         {showView && selectedLead && (
           <div
-            className={`fixed inset-0 z-50 ${
+            className={`fixed inset-0 z-[110] ${
               viewClosing ? "pointer-events-none" : ""
             }`}
           >
