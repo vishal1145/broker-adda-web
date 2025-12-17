@@ -756,7 +756,7 @@ const BrokersChatList = () => {
                                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                 }`}
                             >
-                              <div className="flex items-start gap-3">
+                              <div className="flex items-center gap-3">
                                 <div className={`w-3 h-3 border-2 flex items-center justify-center flex-shrink-0 ${isSelected
                                   ? 'bg-green-500 border-green-500'
                                   : 'border-gray-300'
@@ -769,7 +769,9 @@ const BrokersChatList = () => {
                                 </div>
 
                                 <div className="flex-1 min-w-0">
-                                  <h3 className="font-semibold text-gray-900 text-xs">{lead.customerName}</h3>
+                                  <h3 className="font-semibold text-gray-900 text-xs leading-none">
+                                    {lead.customerName}
+                                  </h3>
                                 </div>
                               </div>
                             </div>
