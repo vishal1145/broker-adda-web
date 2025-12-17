@@ -281,7 +281,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
         } else {
           setProperties([]);
         }
-      } catch (error) {
+      } catch {
         setProperties([]);
       } finally {
         setLoading(false);
@@ -289,7 +289,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
     };
 
     fetchProperties();
-  }, []);
+  }, [brokerDetails]);
 
   // Countdown timer
   useEffect(() => {
