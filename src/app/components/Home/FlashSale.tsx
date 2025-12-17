@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../contexts/AuthContext";
@@ -46,12 +46,13 @@ const Dots = ({ className, style }: DotsProps) => (
 interface FlashSaleData {
   title: string;
   subtitle: string;
-  countdown: {
+  countdown?: {
     days: number;
     hours: number;
     minutes: number;
     seconds: number;
   };
+  expiryDate?: string; // ISO date string (e.g., "2024-12-31T23:59:59")
   images: string[];
   button?: string;
 }
@@ -79,10 +80,81 @@ interface ApiProperty {
   distance?: number;
 }
 
+// Helper function to calculate time remaining until expiry
+const calculateTimeRemaining = (expiryDate: string): { days: number; hours: number; minutes: number; seconds: number } => {
+  try {
+    const now = new Date().getTime();
+    // Parse expiry date - handle both ISO strings and date strings without timezone
+    let expiry: Date;
+    if (expiryDate.includes('T') && !expiryDate.includes('Z') && !expiryDate.includes('+') && !expiryDate.includes('-', 10)) {
+      // If it's an ISO-like string without timezone, treat it as local time
+      expiry = new Date(expiryDate);
+    } else {
+      expiry = new Date(expiryDate);
+    }
+    
+    const expiryTime = expiry.getTime();
+    
+    // Check if date is valid
+    if (isNaN(expiryTime)) {
+      console.error('Invalid expiry date:', expiryDate);
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+    
+    const difference = expiryTime - now;
+
+    if (difference <= 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    return { days, hours, minutes, seconds };
+  } catch (error) {
+    console.error('Error calculating time remaining:', error);
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+};
+
+// Helper function to calculate expiry date from countdown (for backward compatibility)
+const calculateExpiryFromCountdown = (countdown: { days: number; hours: number; minutes: number; seconds: number }): string => {
+  const now = new Date();
+  const expiry = new Date(now);
+  expiry.setDate(expiry.getDate() + countdown.days);
+  expiry.setHours(expiry.getHours() + countdown.hours);
+  expiry.setMinutes(expiry.getMinutes() + countdown.minutes);
+  expiry.setSeconds(expiry.getSeconds() + countdown.seconds);
+  return expiry.toISOString();
+};
+
 const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hours: 0, minutes: 0, seconds: 0 }, images: [] } }: { data: FlashSaleData }) => {
-  const [countdown, setCountdown] = useState(
-    data?.countdown || { days: 0, hours: 0, minutes: 0, seconds: 0 }
-  );
+  // Calculate expiry date once and store it - this ensures consistency across refreshes
+  const expiryDate = useMemo((): string => {
+    // First, check if expiryDate is provided and valid (in the future)
+    if (data?.expiryDate) {
+      const expiry = new Date(data.expiryDate);
+      const now = new Date();
+      // If expiry date is valid and in the future, use it
+      if (!isNaN(expiry.getTime()) && expiry.getTime() > now.getTime()) {
+        return data.expiryDate;
+      }
+    }
+    
+    // If expiryDate is not provided or is in the past, calculate from countdown
+    if (data?.countdown && (data.countdown.days > 0 || data.countdown.hours > 0 || data.countdown.minutes > 0 || data.countdown.seconds > 0)) {
+      return calculateExpiryFromCountdown(data.countdown);
+    }
+    
+    // Default: 30 days from now
+    const defaultExpiry = new Date();
+    defaultExpiry.setDate(defaultExpiry.getDate() + 30);
+    return defaultExpiry.toISOString();
+  }, [data?.expiryDate, data?.countdown]);
+  
+  const [countdown, setCountdown] = useState(() => calculateTimeRemaining(expiryDate));
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -291,37 +363,23 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
     fetchProperties();
   }, [brokerDetails]);
 
-  // Countdown timer
+  // Countdown timer - recalculate from expiry date every second
   useEffect(() => {
+    // Initial calculation
+    setCountdown(calculateTimeRemaining(expiryDate));
+
     const interval = setInterval(() => {
-      setCountdown((prevCountdown) => {
-        let { days, hours, minutes, seconds } = prevCountdown;
+      const remaining = calculateTimeRemaining(expiryDate);
+      setCountdown(remaining);
 
-        if (seconds > 0) {
-          seconds--;
-        } else {
-          seconds = 59;
-          if (minutes > 0) {
-            minutes--;
-          } else {
-            minutes = 59;
-            if (hours > 0) {
-              hours--;
-            } else {
-              hours = 23;
-              if (days > 0) {
-                days--;
-              }
-            }
-          }
-        }
-
-        return { days, hours, minutes, seconds };
-      });
+      // If countdown has expired, you could optionally hide the component or show a message
+      if (remaining.days === 0 && remaining.hours === 0 && remaining.minutes === 0 && remaining.seconds === 0) {
+        // Countdown expired - component will show 00:00:00:00
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [expiryDate]);
 
   return (
     <section className="bg-white py-8 md:py-16 lg:py-20" >

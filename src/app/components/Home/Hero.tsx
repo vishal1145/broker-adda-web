@@ -405,7 +405,7 @@ const Hero = ({ data = {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-8 lg:gap-24 items-center justify-between relative z-10">
           {/* Text Content */}
           <div className="space-y-3 md:space-y-3 lg:space-y-4 text-left md:min-w-0">
-            <div className="inline-flex bg-white text-black px-3 md:px-3.5 lg:px-4 py-1.5 md:py-1.5 lg:py-2 rounded-full text-xs md:text-xs lg:text-sm items-center gap-1.5 md:gap-1.5 lg:gap-2">
+            <div className="inline-flex bg-white text-black px-3 md:px-3.5 lg:px-0 py-1.5 md:py-1.5 lg:py-2 rounded-full text-xs md:text-xs lg:text-sm items-center gap-1.5 md:gap-1.5 lg:gap-2">
               <img src="/images/start.png" className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" alt="star" />
               {badge.text}
             </div>
@@ -442,10 +442,18 @@ const Hero = ({ data = {
               {/* Use Next Link instead of <a href> for client navigation */}
               <Link
                 href="/search?tab=brokers"
-                className="text-green-900 text-xs md:text-xs lg:text-sm mt-2 font-semibold hover:opacity-80"
+                className="bg-green-900 text-white px-5 md:px-5 lg:px-6 py-2 md:py-2 lg:py-2.5 rounded-full text-xs md:text-xs lg:text-sm font-semibold flex items-center gap-2 cursor-pointer"
               >
                 {(buttons as { primary?: string; secondary?: string })?.secondary ?? 'Explore'}
+                  <svg className="w-3 h-3 md:w-[14px] md:h-[14px] lg:w-4 lg:h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10.293 3.293a1 1 0 011.414 0l5.3 5.3a1 1 0 010 1.414l-5.3 5.3a1 1 0 01-1.414-1.414L13.586 11H3a1 1 0 110-2h10.586l-3.293-3.293a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
               </Link>
+
             </div>
 
             {/* Rating */}
@@ -475,7 +483,7 @@ const Hero = ({ data = {
   <div className="relative w-full flex flex-col md:flex-row justify-center items-center gap-4 md:gap-2 lg:gap-4 py-2">
 
     {/* LEFT / RIGHT buttons aligned to the card container left */}
-    <div className="absolute left-0 -bottom-12 md:-bottom-14 lg:-bottom-16 flex gap-2 md:gap-2 lg:gap-3 z-20">
+    <div className="absolute left-[-20] -bottom-12 md:-bottom-14 lg:-bottom-16 flex gap-2 md:gap-2 lg:gap-3 z-20">
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); handlePrev(); }}

@@ -409,7 +409,7 @@ const LatestLeads: React.FC = () => {
               </p>
               <Link
                 href="/search?tab=leads"
-                className="inline-flex items-center gap-2 rounded-full bg-green-900 px-4 md:px-5 py-1.5 md:py-2 text-white text-xs md:text-sm font-semibold shadow-sm w-max"
+                className="inline-flex items-center gap-2 rounded-full bg-green-900 px-4 md:px-5 py-1.5 md:py-2 text-white text-xs md:text-sm font-semibold shadow-sm w-max transition-all duration-200 hover:bg-green-800 hover:shadow-md hover:scale-[1.02]"
               >
                 View All Enquiries
                 <svg
@@ -514,9 +514,9 @@ const LatestLeads: React.FC = () => {
                 >
 
                   <article
-                    className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg w-full"
+                    className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg w-full flex flex-col"
                   >
-                    <div className="p-4 md:p-6">
+                    <div className="p-4 md:p-6 flex-1 flex flex-col">
                       {/* Top Section - Main Title */}
                       <div className="mb-3 md:mb-4">
                         <h3 className="text-base md:text-[18px] leading-[20px] font-semibold mb-2" style={{ color: '#323743' }}>
@@ -553,7 +553,7 @@ const LatestLeads: React.FC = () => {
                       <div className="border-t border-gray-200 my-3 md:my-4"></div>
 
                       {/* Middle Section - Property Details */}
-                      <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
+                      <div className="space-y-2 md:space-y-3 mb-3 md:mb-4 flex-1">
                         {/* Primary Location */}
                         <div className="flex items-center gap-2">
   <svg
@@ -568,10 +568,10 @@ const LatestLeads: React.FC = () => {
   </svg>
 
   <div className="flex items-center flex-wrap gap-1">
-    <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
+    <span className="font-inter text-[12px] leading-tight font-medium text-[#171A1FFF]">
       Primary:
     </span>
-    <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
+    <span className="font-inter text-[12px] leading-tight font-normal capitalize text-[#565D6DFF]">
       {regionName(lead.primaryRegion) || "—"}
     </span>
   </div>
@@ -593,8 +593,8 @@ const LatestLeads: React.FC = () => {
   </svg>
 
   <div className="flex items-center flex-wrap gap-1">
-    <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Secondary:</span>{" "}
-    <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
+    <span className="font-inter text-[12px] leading-tight font-medium text-[#171A1FFF]">Secondary:</span>{" "}
+    <span className="font-inter text-[12px] leading-tight font-normal capitalize text-[#565D6DFF]">
                                 {regionName(lead.secondaryRegion)}
                               </span>
                             </div>
@@ -623,7 +623,7 @@ const LatestLeads: React.FC = () => {
                       </div>
 
                       {/* Bottom Section - Broker Profile and Actions */}
-                  <div className="pt-3 md:pt-4">
+                  <div className="pt-3 md:pt-4 mt-auto border-t border-gray-100">
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-3">
       {/* Avatar - Show logo if admin, otherwise show broker image */}
@@ -764,16 +764,16 @@ const LatestLeads: React.FC = () => {
                     }
                   }
                 }}
-                className="flex items-center gap-2 cursor-pointer"
+                className="flex items-center gap-2 cursor-pointer transition-all duration-200 hover:opacity-80 hover:scale-105"
               >
                 <svg
-                  className="w-3 h-3 fill-none stroke-[#3B82F6]"
+                  className="w-3 h-3 fill-none stroke-[#3B82F6] transition-all duration-200"
                   viewBox="0 0 24 24"
                   strokeWidth="2"
                 >
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
-                <span className="font-inter text-[12px] leading-5 font-normal  text-[#3B82F6] hover:text-blue-700 transition-colors">
+                <span className="font-inter text-[12px] leading-5 font-normal text-[#3B82F6] transition-colors duration-200">
                   Chat
                 </span>
               </button>
@@ -793,7 +793,7 @@ const LatestLeads: React.FC = () => {
               e.preventDefault();
               router.push(`/broker-details/${brokerId}`);
             }}
-            className="text-[12px] font-normal  text-[#3B82F6] hover:text-blue-700 transition-colors cursor-pointer"
+            className="text-[12px] font-normal text-[#3B82F6] hover:text-blue-700 transition-all duration-200 cursor-pointer hover:scale-105 inline-block"
           >
             View
           </span>
