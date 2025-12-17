@@ -767,13 +767,13 @@ const LatestLeads: React.FC = () => {
                 className="flex items-center gap-2 cursor-pointer"
               >
                 <svg
-                  className="w-3 h-3 fill-none stroke-[#171A1FFF]"
+                  className="w-3 h-3 fill-none stroke-[#3B82F6]"
                   viewBox="0 0 24 24"
                   strokeWidth="2"
                 >
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
-                <span className="font-inter text-[12px] leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">
+                <span className="font-inter text-[12px] leading-5 font-normal  text-[#3B82F6] hover:text-blue-700 transition-colors">
                   Chat
                 </span>
               </button>
@@ -793,7 +793,7 @@ const LatestLeads: React.FC = () => {
               e.preventDefault();
               router.push(`/broker-details/${brokerId}`);
             }}
-            className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+            className="text-[12px] font-normal  text-[#3B82F6] hover:text-blue-700 transition-colors cursor-pointer"
           >
             View
           </span>

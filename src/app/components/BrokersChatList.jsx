@@ -387,7 +387,7 @@ const BrokersChatList = () => {
 
       {user && (
         <div
-          className="fixed bottom-3 right-3 md:bottom-2 md:right-0 w-12 h-12 md:w-48 md:h-auto z-50 bg-white shadow-lg  border border-gray-200 flex items-center justify-center md:justify-between gap-0 md:gap-2 lg:gap-2.5 p-0 md:px-2.5 md:py-1.5 lg:px-3 lg:py-2 cursor-pointer hover:shadow-xl transition-all duration-200"
+          className="fixed bottom-3 right-3 md:bottom-0 md:right-0 w-12 h-12 md:w-48 md:h-auto z-50 bg-white shadow-lg  border border-gray-200 flex items-center justify-center md:justify-between gap-0 md:gap-2 lg:gap-2.5 p-0 md:px-2.5 md:py-1.5 lg:px-3 lg:py-2 cursor-pointer hover:shadow-xl transition-all duration-200"
           onClick={toggleExpand}
         >
           <div className="flex items-center gap-2 md:gap-2 lg:gap-2.5">
