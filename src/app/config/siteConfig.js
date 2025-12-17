@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-unused-expressions */
 export const SUPPORT_PHONE = "+91 98765 43210";
 export const SUPPORT_EMAIL = "support@brokergully.com";
 export const SUPPORT_ADDRESS = "Broker Gully NSW 2481";
