@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
@@ -48,7 +48,7 @@ const StatCard = ({ label, value, deltaText, trend = "up", color = "sky" }) => {
   );
 };
 
-export default function BrokerLeadsPage() {
+function BrokerLeadsPageContent() {
   const searchParams = useSearchParams();
   
   /* ───────────── Filters & UI state ───────────── */
@@ -5204,5 +5204,22 @@ export default function BrokerLeadsPage() {
         }
       `}</style>
     </ProtectedRoute>
+  );
+}
+
+export default function BrokerLeadsPage() {
+  return (
+    <Suspense fallback={
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    }>
+      <BrokerLeadsPageContent />
+    </Suspense>
   );
 }
