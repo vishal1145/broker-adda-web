@@ -4003,7 +4003,13 @@ function BrokerLeadsPageContent() {
                             }${regionName ? ` (${regionName})` : ""}`,
                           };
                         })}
-                      styles={customSelectStyles}
+                      styles={{
+                        ...customSelectStyles,
+                        menuList: (p) => ({
+                          ...customSelectStyles.menuList(p),
+                          maxHeight: 150,
+                        }),
+                      }}
                       components={{ MenuList: BrokerMenuList }}
                       onInputChange={(inputValue, { action }) => {
                         if (

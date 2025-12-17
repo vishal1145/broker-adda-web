@@ -75,6 +75,8 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
   const [isHotProperty, setIsHotProperty] = useState(false);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const [titleError, setTitleError] = useState("");
   // Wizard steps (match profile page flow style)
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
@@ -175,8 +177,6 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const searchTimeoutRef = useRef(null);
-  // Clamp to avoid negative/overflow percentages
-  const progressPercent = Math.max(0, Math.round((currentStep / totalSteps) * 100));
 
   // Regions API state
   const [regions, setRegions] = useState([]);
@@ -481,7 +481,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
   };
 
   const isStep2Valid = () => {
-    return true; // amenities optional
+    return true; // Step 2 is optional - amenities are not mandatory
   };
 
   const isStep3Valid = () => {
@@ -495,6 +495,18 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
     return false;
   };
 
+  // Calculate progress based on completed valid steps, not just current step
+  const getCompletedSteps = () => {
+    let completed = 0;
+    if (isStep1Valid()) completed = 1;
+    // Step 2 is optional, so if step 1 is valid, we can move to step 2
+    if (completed === 1) completed = 2;
+    if (completed === 2 && isStep3Valid()) completed = 3;
+    return completed;
+  };
+  
+  const progressPercent = Math.max(0, Math.round((getCompletedSteps() / totalSteps) * 100));
+
   const canNavigateToStep = (step) => {
     if (step < 1 || step > totalSteps) return false;
     // Always allow navigating back to completed steps
@@ -507,7 +519,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
 
   const goToStep = (step) => {
     if (!canNavigateToStep(step)) {
-      toast.error("Complete previous step before continuing.");
+      // Button is visually disabled; just ignore click without toast
       return;
     }
     setCurrentStep(step);
@@ -523,7 +535,42 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    
+    // For title field, restrict to 20 words and only allow letters, numbers, and spaces
+    if (name === 'title') {
+      // Remove special characters (keep only letters, numbers, and spaces)
+      const cleanedValue = value.replace(/[^a-zA-Z0-9\s]/g, '');
+      
+      // Count words (split by spaces and filter out empty strings)
+      const words = cleanedValue.trim().split(/\s+/).filter(word => word.length > 0);
+      const wordCount = words.length;
+      
+      // Check for special characters
+      const hasSpecialChars = /[^a-zA-Z0-9\s]/.test(value);
+      // Check if exceeds 20 words
+      const exceedsLimit = wordCount > 20;
+      
+      // Set error message
+      if (hasSpecialChars && exceedsLimit) {
+        setTitleError("Special characters not allowed and maximum 20 words allowed.");
+      } else if (hasSpecialChars) {
+        setTitleError("Special characters are not allowed. Only letters, numbers, and spaces are allowed.");
+      } else if (exceedsLimit) {
+        setTitleError("Maximum 20 words allowed.");
+      } else {
+        setTitleError("");
+      }
+      
+      // If exceeds word limit, keep only first 20 words
+      let limitedValue = cleanedValue;
+      if (exceedsLimit) {
+        limitedValue = words.slice(0, 20).join(' ');
+      }
+      
+      setForm((prev) => ({ ...prev, [name]: limitedValue }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const addTag = (value, setter, list, clear) => {
@@ -603,6 +650,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
       toast.error(`Please complete all steps. Currently on step ${currentStep} of 3.`);
       return;
     }
+    setIsFormSubmitted(true);
     setSubmitting(true);
 
     try {
@@ -895,14 +943,16 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                           <button
                             type="button"
                             onClick={() => {
-                              if (!allowed) {
-                                toast.error("Complete previous step before continuing.");
-                                return;
+                              if (allowed) {
+                                goToStep(step);
                               }
-                              goToStep(step);
                             }}
+                            disabled={!allowed}
                             aria-disabled={!allowed}
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${circleClass} transition-all ${allowed ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${circleClass} transition-all ${
+                              allowed ? "" : "opacity-60 cursor-not-allowed"
+                            }`}
+                            style={{ cursor: allowed ? "pointer" : "not-allowed", pointerEvents: allowed ? "auto" : "none" }}
                           >
                             {step}
                           </button>
@@ -918,7 +968,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                   </div>
                   <div className="w-full h-7 relative">
                     <div className="absolute top-2.5 left-0 w-full h-2 bg-[#9AEFBD] rounded-md overflow-hidden">
-                      <div className="absolute left-0 top-0 h-full bg-[#0D542B] transition-all duration-300 ease-in-out" style={{ width: `${(currentStep / totalSteps) * 100}%` }} />
+                      <div className="absolute left-0 top-0 h-full bg-[#0D542B] transition-all duration-300 ease-in-out" style={{ width: `${(getCompletedSteps() / totalSteps) * 100}%` }} />
                     </div>
                   </div>
                 </div>
@@ -956,16 +1006,28 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                             name="title"
                             value={form.title}
                             onChange={handleChange}
-                      onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
-          className={`w-full rounded-xl text-[13px] px-3 py-2 focus:outline-none transition-all duration-200 ${
-            isNonEmpty(form.title)
-                                ? 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
-                                : 'border border-red-300 focus:ring-2 focus:ring-red-400'
-                              }`}
-                            placeholder="Enter property title"
+                            onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
+                            className={`w-full rounded-xl text-[13px] px-3 py-2 focus:outline-none transition-all duration-200 ${
+                              titleError || (isFormSubmitted && !isNonEmpty(form.title))
+                                ? 'border border-red-300 focus:ring-2 focus:ring-red-400'
+                                : 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
+                            }`}
+                            placeholder="Enter property title "
                             required
                           />
-                          {!isNonEmpty(form.title) && (<p className="text-xs text-red-600">Title is required.</p>)}
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              {titleError && (
+                                <p className="text-xs text-red-600">{titleError}</p>
+                              )}
+                              {!titleError && isFormSubmitted && !isNonEmpty(form.title) && (
+                                <p className="text-xs text-red-600">Title is required.</p>
+                              )}
+                            </div>
+                            {/* <p className="text-xs text-gray-500 ml-auto">
+                              {form.title.trim() ? form.title.trim().split(/\s+/).filter(word => word.length > 0).length : 0}/20 words
+                            </p> */}
+                          </div>
                         </div>
 
                         <div className="space-y-2">
@@ -987,9 +1049,9 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                 ...base,
                                 minHeight: 42,
                                 borderRadius: 12,
-                                borderColor: isNonEmpty(form.address) ? '#D1D5DB' : '#FCA5A5',
-                                boxShadow: state.isFocused ? (isNonEmpty(form.address) ? '0 0 0 2px #9CA3AF' : '0 0 0 2px #FCA5A5') : 'none',
-                                '&:hover': { borderColor: isNonEmpty(form.address) ? '#9CA3AF' : '#FCA5A5' },
+                                borderColor: (!isFormSubmitted || isNonEmpty(form.address)) ? '#D1D5DB' : '#FCA5A5',
+                                boxShadow: state.isFocused ? ((!isFormSubmitted || isNonEmpty(form.address)) ? '0 0 0 2px #9CA3AF' : '0 0 0 2px #FCA5A5') : 'none',
+                                '&:hover': { borderColor: (!isFormSubmitted || isNonEmpty(form.address)) ? '#9CA3AF' : '#FCA5A5' },
                                 fontSize: 13,
                               }),
                               menu: (base) => ({ ...base, zIndex: 50 }),
@@ -1017,7 +1079,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                               }),
                             }}
                           />
-                          {!isNonEmpty(form.address) && (<p className="text-xs text-red-600">Address is required.</p>)}
+                          {isFormSubmitted && !isNonEmpty(form.address) && (<p className="text-xs text-red-600">Address is required.</p>)}
                         </div>
                       </div>
 
@@ -1036,7 +1098,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                               onKeyDown={handleRegionInputKeyDown}
                               onClick={handleRegionInputFocus}
             className={`w-full rounded-xl text-[13px] px-3 py-2 focus:outline-none transition-all duration-200 ${
-                          !isNonEmpty(form.region) 
+                          isFormSubmitted && !isNonEmpty(form.region) 
                                   ? 'border border-red-300 focus:ring-2 focus:ring-red-400'
                                   : 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
                                 }`}
@@ -1094,7 +1156,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                               </div>
                             )}
                           </div>
-                          {!isNonEmpty(form.region) && (<p className="text-xs text-red-600">Region is required.</p>)}
+                          {isFormSubmitted && !isNonEmpty(form.region) && (<p className="text-xs text-red-600">Region is required.</p>)}
                         </div>
 
                         <div className="space-y-2">
@@ -1114,40 +1176,56 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Facing Direction</label>
                           <div className="flex flex-wrap gap-2">
-          {["North","East","South","West"].map(opt => (
-                              <button
-                                key={opt}
-                                type="button"
-              onClick={()=>setFacingDirection(opt)}
-              className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
-                facingDirection===opt
-                                    ? 'bg-gray-200 text-gray-900 border-gray-300'
-                                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                            {["North", "East", "South", "West"].map((opt) => {
+                              const isSelected = facingDirection === opt;
+                              return (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  onClick={() =>
+                                    setFacingDirection((prev) =>
+                                      prev === opt ? "" : opt
+                                    )
+                                  }
+                                  className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+                                    isSelected
+                                      ? "bg-gray-200 text-gray-900 border-gray-300"
+                                      : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
                                   }`}
-                              >
-                                {opt}
-                              </button>
-                            ))}
+                                >
+                                  {opt}
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Possession Status</label>
                           <div className="flex flex-wrap gap-2">
-          {["Ready to Move","Under Construction","Upcoming"].map(opt => (
-                              <button
-                                key={opt}
-                                type="button"
-              onClick={()=>setPossessionStatus(opt)}
-              className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
-                possessionStatus===opt
-                                    ? 'bg-gray-200 text-gray-900 border-gray-300'
-                                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                                  }`}
-                              >
-                                {opt}
-                              </button>
-                            ))}
+                            {["Ready to Move", "Under Construction", "Upcoming"].map(
+                              (opt) => {
+                                const isSelected = possessionStatus === opt;
+                                return (
+                                  <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() =>
+                                      setPossessionStatus((prev) =>
+                                        prev === opt ? "" : opt
+                                      )
+                                    }
+                                    className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+                                      isSelected
+                                        ? "bg-gray-200 text-gray-900 border-gray-300"
+                                        : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                                    }`}
+                                  >
+                                    {opt}
+                                  </button>
+                                );
+                              }
+                            )}
                           </div>
                         </div>
 
@@ -1175,7 +1253,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                         setForm((prev) => ({ ...prev, price: raw }));
                                       }
                                     }}
-                                    className={`pl-6 pr-3 py-2 text-[13px] rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-200 ${!isPositiveNumber(form.price) ? 'border border-red-300 bg-white' : 'border border-gray-300 bg-white'}`}
+                                    className={`pl-6 pr-3 py-2 text-[13px] rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-200 ${isFormSubmitted && !isPositiveNumber(form.price) ? 'border border-red-300 bg-white' : 'border border-gray-300 bg-white'}`}
                                     aria-label="Price"
                                     name="price"
                                     required
@@ -1192,7 +1270,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                 />
                               </div>
                             </div>
-                            {!isPositiveNumber(form.price) && (<p className="text-xs text-red-600">Enter a valid price.</p>)}
+                            {isFormSubmitted && !isPositiveNumber(form.price) && (<p className="text-xs text-red-600">Enter a valid price.</p>)}
                           </div>
 
                           {/* Property Age on the right of Price */}
@@ -1203,7 +1281,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                 <button
                                   key={opt}
                                   type="button"
-                                  onClick={() => setPropertyAge(opt)}
+                                  onClick={() => setPropertyAge(prev => prev === opt ? "" : opt)}
                                   className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${propertyAge === opt
                                       ? 'bg-gray-200 text-gray-900 border-gray-300'
                                       : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
@@ -1219,7 +1297,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                         {/* Property detail fields */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">Property Size (sqft)</label>
+                            <label className="block text-sm font-medium text-gray-700">Property Size (sqft) *</label>
                             <input
                               type="number"
                               name="propertySize"
@@ -1233,15 +1311,16 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                           </div>
 
                           <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">Bedrooms (BHK)</label>
+                            <label className="block text-sm font-medium text-gray-700">Bedrooms (BHK) *</label>
                             <div className="flex flex-wrap gap-2">
                               {["1", "2", "3", "4", "5+"].map(opt => {
+                                const optValue = opt === '5+' ? '5' : opt;
                                 const on = (bedrooms === opt) || (opt === '5+' && Number(bedrooms) >= 5);
                                 return (
                                   <button
                                     key={opt}
                                     type="button"
-                                    onClick={() => setBedrooms(opt === '5+' ? '5' : opt)}
+                                    onClick={() => setBedrooms(prev => prev === optValue ? "" : optValue)}
                                     className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${on ? 'bg-gray-200 text-gray-900 border-gray-300' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                                       }`}
                                   >
@@ -1257,15 +1336,16 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                         {/* Bathrooms + Property Type */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">Bathrooms</label>
+                            <label className="block text-sm font-medium text-gray-700">Bathrooms *</label>
                             <div className="flex flex-wrap gap-2">
                               {["1", "2", "3", "4", "5+"].map(opt => {
+                                const optValue = opt === '5+' ? '5' : opt;
                                 const on = (bathrooms === opt) || (opt === '5+' && Number(bathrooms) >= 5);
                                 return (
                                   <button
                                     key={opt}
                                     type="button"
-                                    onClick={() => setBathrooms(opt === '5+' ? '5' : opt)}
+                                    onClick={() => setBathrooms(prev => prev === optValue ? "" : optValue)}
                                     className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${on ? 'bg-gray-200 text-gray-900 border-gray-300' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                                       }`}
                                   >
@@ -1843,12 +1923,25 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                   <div className="pt-8 border-t border-gray-100">
                     {currentStep < 3 ? (
                       <div className="max-w-3xl mx-auto">
+                        {/*
+                          Next / Continue button.
+                          Cursor should only be pointer when the form step is valid.
+                        */}
                         <button
                           type="button"
                           onClick={nextStep}
                           disabled={!isCurrentStepValid() || submitting}
-                          className={`w-full py-3 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${isCurrentStepValid() && !submitting ? 'bg-green-900 text-white hover:bg-green-700 focus:ring-green-100 hover:shadow-xl' : 'bg-gray-200 text-gray-500'}`}
-                          style={{ cursor: !isCurrentStepValid() || submitting ? 'not-allowed' : 'pointer' }}
+                          className={`w-full py-3 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${
+                            isCurrentStepValid() && !submitting
+                              ? "bg-green-900 text-white hover:bg-green-700 focus:ring-green-100 hover:shadow-xl"
+                              : "bg-gray-200 text-gray-500"
+                          }`}
+                          style={{
+                            cursor:
+                              !isCurrentStepValid() || submitting
+                                ? "default"
+                                : "pointer",
+                          }}
                         >
                           Continue
                           <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -1856,11 +1949,24 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                       </div>
                     ) : (
                       <div className="max-w-3xl mx-auto">
+                        {/*
+                          Final Submit button.
+                          Cursor should not show pointer when submitting/loading/invalid.
+                        */}
                         <button
                           type="submit"
-                          disabled={submitting || loadingProperty}
-                          className="w-full py-3 bg-green-900 text-white rounded-xl font-semibold hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:hover:bg-green-900 disabled:hover:shadow-lg flex items-center justify-center gap-2"
-                          style={{ cursor: submitting || loadingProperty ? 'not-allowed' : 'pointer' }}
+                          disabled={submitting || loadingProperty || !isCurrentStepValid()}
+                          className={`w-full py-3 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${
+                            !submitting && !loadingProperty && isCurrentStepValid()
+                              ? "bg-green-900 text-white hover:bg-green-700 focus:ring-green-100 hover:shadow-xl"
+                              : "bg-gray-200 text-gray-500 opacity-50"
+                          }`}
+                          style={{
+                            cursor:
+                              submitting || loadingProperty || !isCurrentStepValid()
+                                ? "default"
+                                : "pointer",
+                          }}
                         >
                           {loadingProperty ? 'Loading...' : (isEditMode ? 'Update Property' : 'Create Property')}
                         </button>
