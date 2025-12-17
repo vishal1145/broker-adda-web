@@ -111,13 +111,14 @@ const Newsletter = ({ data = { title: '', subtitle: '', description: '' } }: { d
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      await response.json();
       
       toast.success('Successfully subscribed to newsletter!');
       setEmail(''); // Reset form
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Subscription error:', error);
-      toast.error(error.message || 'Failed to subscribe. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to subscribe. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
