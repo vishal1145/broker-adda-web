@@ -75,7 +75,7 @@ const LatestLeads: React.FC = () => {
   const [leads, setLeads] = useState<ApiLead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [path, setPath] = useState('');
-  const { user, brokerDetails } = useAuth() as {
+  const { brokerDetails } = useAuth() as {
     user?: { userId?: string; token?: string; role?: string } | null;
     brokerDetails?: unknown;
   };
@@ -144,7 +144,7 @@ const LatestLeads: React.FC = () => {
               latitude = position.coords.latitude;
               longitude = position.coords.longitude;
               // console.log('📍 LatestLeads: Using current location coordinates (geolocation):', latitude, longitude);
-            } catch (err) {
+            } catch {
               // console.log('📍 LatestLeads: Could not get current location, will fetch all verified leads');
             }
           }
@@ -286,25 +286,15 @@ const LatestLeads: React.FC = () => {
         });
         // console.log('📍 LatestLeads: Sorted leads by distance (closest first), showing', sorted.length, 'leads');
         setLeads(sorted);
-      } catch (error) {
-        console.error("Error fetching leads:", error);
+      } catch {
+        console.error("Error fetching leads");
         setLeads([]); // fallback to empty
       }
       setLoading(false);
     };
 
     fetchLeads();
-  }, []);
-
-  const INR = useMemo(
-    () =>
-      new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }),
-    []
-  );
+  }, [brokerDetails]);
   // Keep for potential future UI use; disable lint for now as it's not used
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const statusClass = (s?: LeadStatus) =>

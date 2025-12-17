@@ -46,7 +46,7 @@ const Brokers = () => {
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { user, brokerDetails } = useAuth() as {
+  const { brokerDetails } = useAuth() as {
     user?: { userId?: string; token?: string; role?: string } | null;
     brokerDetails?: unknown;
   };
@@ -113,7 +113,7 @@ const Brokers = () => {
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
             // console.log('📍 Brokers: Using current location coordinates:', latitude, longitude);
-          } catch (err) {
+          } catch {
             // console.log('📍 Brokers: Could not get current location, will fetch all verified brokers');
           }
         }
@@ -246,17 +246,17 @@ const Brokers = () => {
         
         setBrokers(filteredBrokers);
       } else {
-        const errorText = await response.text();
-        // console.error('Failed to fetch brokers:', response.status, errorText);
+        await response.text();
+        // console.error('Failed to fetch brokers:', response.status, await response.text());
         setError('Failed to load brokers');
       }
-    } catch (err) {
+    } catch {
       // console.error('Error fetching brokers:', err);
       setError('Error loading brokers');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [brokerDetails]);
 
   // Fetch brokers on component mount
   useEffect(() => {
@@ -381,9 +381,8 @@ const Brokers = () => {
             broker._id || broker.id
           );
           return (
-        <Link href={`/broker-details/${brokerId}`} className="block">
+        <Link key={brokerId || index} href={`/broker-details/${brokerId}`} className="block">
   <article
-    key={brokerId}
     className="group relative cursor-pointer rounded-2xl border border-gray-100 bg-white shadow-sm 
                hover:shadow-xl transition duration-300 overflow-hidden 
                hover:bg-yellow-400 hover:ring-1 hover:ring-yellow-500/60 hover:-translate-y-0.5"

@@ -86,7 +86,7 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { user, brokerDetails } = useAuth() as {
+  const { brokerDetails } = useAuth() as {
     user?: { userId?: string; token?: string; role?: string } | null;
     brokerDetails?: unknown;
   };
@@ -106,18 +106,6 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
             ? localStorage.getItem('token') || localStorage.getItem('authToken')
             : null;
 
-        // Get current user ID from token
-        const getCurrentUserId = () => {
-          try {
-            if (!token) return '';
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            return payload.brokerId || payload.userId || payload.id || payload.sub || '';
-          } catch {
-            return '';
-          }
-        };
-
-        const currentUserId = getCurrentUserId();
         let currentBrokerId = '';
         let latitude: number | null = null;
         let longitude: number | null = null;
@@ -160,13 +148,13 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
                     longitude = position.coords.longitude;
                     resolve();
                   },
-                  (error) => {
+                  () => {
                     resolve(); // Continue without coordinates
                   },
                   { timeout: 5000 }
                 );
               });
-            } catch (err) {
+            } catch {
             }
           }
         }
@@ -244,19 +232,12 @@ const FlashSale = ({ data = { title: '', subtitle: '', countdown: { days: 0, hou
             : propertiesList;
 
           // Filter for hot properties only (isHotProperty === true)
-          const hotProperties = filteredProperties.filter((property: ApiProperty) => {
-            return property.isHotProperty === true;
-          });
+          const hotProperties = filteredProperties.filter((property: ApiProperty) => property.isHotProperty === true);
           
-         // // Helper function to extract distance (in km)
+         // Helper function to extract distance (in km)
           const getDistance = (property: ApiProperty): number => {
             const distance = property.distanceKm ?? property.distance;
             return Number.isFinite(Number(distance)) ? Number(distance) : Infinity;
-          };
-
-          // Helper function to check if property is hot
-          const isHot = (property: ApiProperty): boolean => {
-            return property.isHotProperty === true;
           };
 
           // Helper function to get price

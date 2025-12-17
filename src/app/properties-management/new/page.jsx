@@ -891,7 +891,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                           ? "bg-green-700 text-white"
                           : "bg-gray-300 text-gray-500";
                       return (
-                        <React.Fragment key={step}>
+                        <React.Fragment key={`step-${step}`}>
                           <button
                             type="button"
                             onClick={() => {

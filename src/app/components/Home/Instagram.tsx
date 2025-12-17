@@ -73,9 +73,9 @@ const Instagram = ({ data = { subtitle: '', title: '', images: [] } }: { data: I
                 width={220}
                 height={220}
                 className="object-cover w-full h-full"
-                onError={(e) => {
+                onError={() => {
                  // console.log('Image failed to load:', image);
-                 // console.log('Error:', e);
+                 // console.log('Error loading image');
                 }}
                 onLoad={() => {
                  // console.log('Image loaded successfully:', image);

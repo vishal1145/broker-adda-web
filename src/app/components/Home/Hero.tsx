@@ -106,7 +106,7 @@ const Hero = ({ data = {
   cards: []
 } }: { data: HeroData }) => {
   const router = useRouter(); // ✅ Next.js router
-  const { isAuthenticated, user, brokerDetails } = useAuth() as {
+  const { isAuthenticated, brokerDetails } = useAuth() as {
     isAuthenticated: () => boolean;
     user?: { userId?: string; token?: string; role?: string } | null;
     brokerDetails?: unknown;
@@ -212,7 +212,7 @@ const Hero = ({ data = {
               latitude = position.coords.latitude;
               longitude = position.coords.longitude;
              // console.log('📍 Hero: Using current location coordinates:', latitude, longitude);
-            } catch (err) {
+            } catch {
              // console.log('📍 Hero: Could not get current location, will fetch all verified brokers');
             }
           }
@@ -394,7 +394,7 @@ const Hero = ({ data = {
     };
 
     fetchBrokersForHero();
-  }, []);
+  }, [brokerDetails]);
 
   return (
     <section className="py-12 md:py-24 px-4 md:px-8 lg:px-4">
