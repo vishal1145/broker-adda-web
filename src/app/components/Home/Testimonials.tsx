@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 interface TestimonialItem {
   name: string;
@@ -16,6 +16,69 @@ interface TestimonialsData {
 
 const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: TestimonialsData }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isAtStart, setIsAtStart] = useState(true);
+  const [isAtEnd, setIsAtEnd] = useState(false);
+
+  // Create infinite loop testimonials (triple the items for seamless loop)
+  const sourceItems = Array.isArray(data.items) && data.items.length > 0 ? data.items : [];
+  const testimonials = [
+    ...sourceItems,
+    ...sourceItems,
+    ...sourceItems, // Triple for seamless infinite loop
+  ];
+
+  // Check scroll position to enable/disable buttons
+  const checkScrollPosition = () => {
+    const container = scrollRef.current;
+    if (!container) return;
+    
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    const threshold = 10; // Small threshold for edge detection
+    
+    setIsAtStart(scrollLeft <= threshold);
+    setIsAtEnd(scrollLeft >= scrollWidth - clientWidth - threshold);
+  };
+
+  // Handle infinite scroll loop
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container || sourceItems.length === 0) return;
+
+    const handleScroll = () => {
+      checkScrollPosition();
+      
+      // If scrolled to the end (third set), jump to the start of second set
+      if (container.scrollLeft >= container.scrollWidth - container.clientWidth - 50) {
+        container.scrollLeft = container.scrollWidth / 3;
+      }
+      // If scrolled to the start, jump to the start of second set
+      else if (container.scrollLeft <= 50) {
+        container.scrollLeft = container.scrollWidth / 3;
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    
+    // Initialize scroll position to middle set (second set) after a small delay to ensure cards are rendered
+    const initializeScroll = () => {
+      if (container.scrollLeft === 0) {
+        const card = container.querySelector('.testimonial-card') as HTMLElement;
+        if (card && card.offsetWidth > 0) {
+          const gap = typeof window !== 'undefined' && window.innerWidth >= 768 ? 32 : 16;
+          const cardWidth = card.offsetWidth;
+          container.scrollLeft = (cardWidth + gap) * sourceItems.length;
+        } else {
+          // Retry if cards aren't ready yet
+          setTimeout(initializeScroll, 100);
+        }
+      }
+    };
+    
+    // Initialize after a brief delay to ensure DOM is ready
+    setTimeout(initializeScroll, 50);
+
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [sourceItems.length]);
 
   const scroll = (direction: 'next' | 'prev') => {
     const container = scrollRef.current;
@@ -30,43 +93,6 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
       behavior: 'smooth',
     });
   };
-
-  // Add more dummy testimonials for better carousel effect
-  const sourceItems = Array.isArray(data.items) ? data.items : [];
-  const dummyTestimonials = [
-    ...sourceItems,
-    ...sourceItems, // duplicate for infinite scroll
-    // {
-    //   name: "John Doe",
-    //   role: "Product Designer",
-    //   image: "/images/user-1.webp",
-    //   text: "Amazing quality and fast delivery. Will definitely shop again!",
-    //   rating: 5.0,
-    // },
-    // {
-    //   name: "Jane Smith",
-    //   role: "Homeowner",
-    //   image: "/images/user-2.jpeg",
-    //   text: "The furniture fits perfectly in my living room. Highly recommended.",
-    //   rating: 4.8,
-    // },
-    // {
-    //   name: "Michael Brown",
-    //   role: "Architect",
-    //   image: "/images/user-3.jpeg",
-    //   text: "Great customer service and beautiful designs.",
-    //   rating: 4.9,
-    // },
-    // {
-    //   name: "Emily White",
-    //   role: "Interior Decorator",
-    //   image: "/images/user-4.jpeg",
-    //   text: "Stylish and comfortable. My clients love it!",
-    //   rating: 5.0,
-    // },
-  ];
-
-  const testimonials = dummyTestimonials;
 
   return (
     <section className="py-8 md:py-16">
@@ -99,7 +125,7 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
           >
             {(testimonials || []).map((testimonial, index) => (
               <div
-                key={index}
+                key={`${testimonial.name}-${index}`}
                 className="testimonial-card flex bg-white rounded-2xl shadow-md p-4 md:p-6 items-center gap-3 md:gap-4 relative min-w-[280px] md:min-w-[400px] max-w-[90vw] md:max-w-[500px] flex-shrink-0"
               >
                 {/* Avatar */}
@@ -170,9 +196,11 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
   {/* Previous Button */}
   <button
     onClick={() => scroll('prev')}
+    disabled={sourceItems.length === 0}
     className="bg-green-900 text-white w-8 h-8 md:w-10 md:h-10 rounded-full 
                flex items-center justify-center shadow-lg 
-               transition-colors duration-200 hover:bg-green-800"
+               transition-colors duration-200 hover:bg-green-800
+               disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-900"
     aria-label="Previous"
   >
     <svg
@@ -189,9 +217,11 @@ const Testimonials = ({ data = { subtitle: '', items: [] } }: { data: Testimonia
   {/* Next Button */}
   <button
     onClick={() => scroll('next')}
+    disabled={sourceItems.length === 0}
     className="bg-green-900 text-white w-8 h-8 md:w-10 md:h-10 rounded-full 
                flex items-center justify-center shadow-lg 
-               transition-colors duration-200 hover:bg-green-800"
+               transition-colors duration-200 hover:bg-green-800
+               disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-900"
     aria-label="Next"
   >
     <svg
