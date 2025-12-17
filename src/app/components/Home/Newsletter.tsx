@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+import React, { useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface DotsProps {
   className?: string;
@@ -46,7 +48,107 @@ interface NewsletterData {
 }
 
 const Newsletter = ({ data = { title: '', subtitle: '', description: '' } }: { data: NewsletterData }) => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Email validation function - requires proper domain format with dot
+  const isValidEmail = (emailValue: string): boolean => {
+    const trimmedEmail = emailValue?.trim() || '';
+    if (!trimmedEmail) return false;
+    // Requires: local@domain.tld format (must have dot in domain)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(trimmedEmail);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Trim and validate email
+    const trimmedEmail = email?.trim() || '';
+    
+    if (!trimmedEmail) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    // Email validation - requires proper domain format with dot
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      
+      if (!apiUrl) {
+        console.error('NEXT_PUBLIC_API_URL is not defined');
+        toast.error('API configuration error. Please contact support.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+
+      const response = await fetch(`${apiUrl}/email-subscription`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          email: trimmedEmail,
+        }),
+      });
+
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error response:', errorData);
+        const errorMessage = errorData.message || errorData.error || 'Failed to subscribe to newsletter';
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      
+      toast.success('Successfully subscribed to newsletter!');
+      setEmail(''); // Reset form
+    } catch (error: any) {
+      console.error('Subscription error:', error);
+      toast.error(error.message || 'Failed to subscribe. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
+    <>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     <section className="py-8 md:py-16 relative">
       <div className="w-full mx-auto px-4 md:px-[6rem]">
         <div className="hidden md:block absolute left-72 bottom-0">
@@ -70,7 +172,7 @@ const Newsletter = ({ data = { title: '', subtitle: '', description: '' } }: { d
           <p className="text-gray-600 text-base md:text-xl mt-3 md:mt-4">
             {data.description}
           </p>
-          <form className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 mt-4">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 mt-4">
             <div className="flex items-center bg-white rounded-full shadow-sm px-2 md:px-3 py-1.5 md:py-2 w-full sm:w-auto">
               {/* Icon */}
               <div className="bg-green-900 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center flex-shrink-0">
@@ -83,12 +185,20 @@ const Newsletter = ({ data = { title: '', subtitle: '', description: '' } }: { d
               <input
                 type="email"
                 placeholder="Enter Email Address"
-                className="ml-2 md:ml-3 outline-none w-full sm:w-64 text-xs md:text-sm text-gray-600 bg-transparent placeholder-gray-500"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
+                className="ml-2 md:ml-3 outline-none w-full sm:w-64 text-xs md:text-sm text-gray-600 bg-transparent placeholder-gray-500 disabled:opacity-50"
+                required
               />
             </div>
 
-            <button type="submit" className="bg-yellow-500 hover:bg-yellow-500 text-gray-900 px-4 md:px-6 py-2 md:py-3 rounded-full transition text-xs md:text-sm font-medium w-full sm:w-auto">
-              Subscribe
+            <button 
+              type="submit" 
+              disabled={isSubmitting || !isValidEmail(email)}
+              className="bg-yellow-500 hover:bg-yellow-500 text-gray-900 px-4 md:px-6 py-2 md:py-3 rounded-full transition text-xs md:text-sm font-medium w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Subscribing...' : 'Subscribe'}
             </button>
           </form>
         </div>
@@ -97,6 +207,7 @@ const Newsletter = ({ data = { title: '', subtitle: '', description: '' } }: { d
         <div className="absolute bottom-0 right-0 w-20 h-20 bg-[url('https://www.svgrepo.com/show/513156/dots-grid.svg')] opacity-10"></div>
       </div>
     </section>
+    </>
   );
 };
 
