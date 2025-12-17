@@ -550,18 +550,18 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
       // Check if exceeds 20 words
       const exceedsLimit = wordCount > 20;
       
-      // Set error message
+      // Set error message - show immediately when limit reached
       if (hasSpecialChars && exceedsLimit) {
-        setTitleError("Special characters not allowed and maximum 20 words allowed.");
+        setTitleError("Special characters not allowed and only 20 words allowed.");
       } else if (hasSpecialChars) {
         setTitleError("Special characters are not allowed. Only letters, numbers, and spaces are allowed.");
-      } else if (exceedsLimit) {
-        setTitleError("Maximum 20 words allowed.");
+      } else if (exceedsLimit || wordCount === 20) {
+        setTitleError("Only 20 words allowed.");
       } else {
         setTitleError("");
       }
       
-      // If exceeds word limit, keep only first 20 words
+      // If exceeds word limit, keep only first 20 words (prevent further typing)
       let limitedValue = cleanedValue;
       if (exceedsLimit) {
         limitedValue = words.slice(0, 20).join(' ');
@@ -1006,13 +1006,20 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                             name="title"
                             value={form.title}
                             onChange={handleChange}
-                            onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault(); }}
+                            onKeyDown={(e) => {
+                              if(e.key === 'Enter') e.preventDefault();
+                              // Prevent typing when 20 words are reached
+                              const currentWords = form.title.trim().split(/\s+/).filter(word => word.length > 0);
+                              if (currentWords.length >= 20 && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab' && !e.key.startsWith('Arrow') && e.key !== 'Home' && e.key !== 'End') {
+                                e.preventDefault();
+                              }
+                            }}
                             className={`w-full rounded-xl text-[13px] px-3 py-2 focus:outline-none transition-all duration-200 ${
                               titleError || (isFormSubmitted && !isNonEmpty(form.title))
                                 ? 'border border-red-300 focus:ring-2 focus:ring-red-400'
                                 : 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
                             }`}
-                            placeholder="Enter property title "
+                            placeholder="Enter property title (max 20 words, no special characters)"
                             required
                           />
                           <div className="flex items-center justify-between">
