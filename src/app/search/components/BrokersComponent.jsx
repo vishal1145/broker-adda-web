@@ -465,13 +465,11 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       }
 
       // Add specialization filter (if any selected)
-      // Note: API may not support specialization filter, but we'll send it anyway
+      // Note: API expects specialization as a comma-separated string
       // If not supported, client-side filtering will handle it
       if (brokerFilters.brokerType.length > 0) {
-        // Send specializations as multiple parameters
-        brokerFilters.brokerType.forEach(spec => {
-          baseQueryParams.append('specialization', spec);
-        });
+        // Send specializations as comma-separated string
+        baseQueryParams.append('specialization', brokerFilters.brokerType.join(','));
       }
       
       // Fetch brokers with a single API call first, then paginate if needed
@@ -717,7 +715,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
       }
       
       fetchBrokers(regionIds);
-    }, 300); // 300ms debounce delay
+    }, 800); // 800ms debounce delay for input fields
 
     // Cleanup timeout on unmount or dependency change
     return () => clearTimeout(timeoutId);
@@ -1371,6 +1369,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
               styles={reactSelectStyles}
               className="cursor-pointer"
               options={[
+                { value: '0', label: '0+ Years' },
                 { value: '5', label: '5+ Years' },
                 { value: '10', label: '10+ Years' },
                 { value: '15', label: '15+ Years' },
@@ -1379,7 +1378,8 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
               value={brokerFilters.experienceRange[0] >= 20 ? { value: '20', label: '20+ Years' } :
                      brokerFilters.experienceRange[0] >= 15 ? { value: '15', label: '15+ Years' } :
                      brokerFilters.experienceRange[0] >= 10 ? { value: '10', label: '10+ Years' } :
-                     brokerFilters.experienceRange[0] >= 5 ? { value: '5', label: '5+ Years' } : null}
+                     brokerFilters.experienceRange[0] >= 5 ? { value: '5', label: '5+ Years' } :
+                     brokerFilters.experienceRange[0] >= 0 ? { value: '0', label: '0+ Years' } : null}
               onChange={(opt) => setBrokerFilters(prev => ({ ...prev, experienceRange: [parseInt(opt?.value || 0), 20] }))}
               placeholder="Select Experience"
             />
@@ -1428,7 +1428,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
                   placeholder="e.g., John Doe"
                   value={secondaryFilters.brokerName}
                   onChange={(e) => setSecondaryFilters(prev => ({ ...prev, brokerName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent text-sm"
                 />
               </div>
 
@@ -1500,24 +1500,9 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
                   fontWeight: '500',
                   color: '#171A1FFF'
                 }}
-                className="flex-1 text-[12px]  py-1 border border-gray-300 font-medium rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
+                className="w-full text-[12px] py-1 border border-gray-300 font-medium rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
               >
                 Reset
-              </button>
-              <button
-                onClick={() => {
-                  // Apply filters logic here
-                  setShowSecondaryFilters(false);
-                }}
-                className="flex-1 bg-green-900 rounded-lg py-1 text-[12px] font-medium text-white hover:bg-green-800 transition-colors"
-                style={{
-                  fontFamily: 'Inter',
-                  fontSize: '12px',
-                  lineHeight: '22px',
-                  fontWeight: '500'
-                }}
-              >
-                Apply Filters
               </button>
             </div>
           </div>
@@ -1616,7 +1601,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
             ))}
           </div>
         ) : totalItems === 0 ? (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex items-center justify-center py-1">
             <div className="w-full mx-auto px-6 py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
               <div className="flex flex-col items-center justify-center text-center">
                 {/* Image/Icon */}

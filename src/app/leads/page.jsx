@@ -2826,7 +2826,7 @@ function BrokerLeadsPageContent() {
                                   title="Delete Lead"
                                   className={`flex items-center gap-1 text-[12px] font-medium transition-colors ${
                                     isTransferred
-                                      ? "text-gray-300 cursor-not-allowed"
+                                      ? "text-gray-300 cursor-not-allowed pointer-events-none"
                                       : "text-[#565D6D] hover:text-[#565D6D] cursor-pointer"
                                   }`}
                                   onClick={() =>

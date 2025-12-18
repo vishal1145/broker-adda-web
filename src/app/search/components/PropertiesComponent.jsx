@@ -288,11 +288,9 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           baseQueryParams.append('bathrooms', bathroomsValue);
         }
 
-        // Price range
-        if (filters.priceRange[0] && filters.priceRange[0] > 0) {
+        // Price range - only apply when both min and max are set
+        if (filters.priceRange[0] > 0 && filters.priceRange[1] > 0) {
           baseQueryParams.append('minPrice', String(filters.priceRange[0]));
-        }
-        if (filters.priceRange[1] && filters.priceRange[1] > 0) {
           baseQueryParams.append('maxPrice', String(filters.priceRange[1]));
         }
 
@@ -697,7 +695,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     const timeoutId = setTimeout(() => {
      
       fetchProperties();
-    }, 300); // 300ms debounce delay
+    }, 800); // 800ms debounce delay for price input
 
     // Cleanup timeout on unmount or dependency change
     return () => clearTimeout(timeoutId);
@@ -768,9 +766,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     singleValue: (base) => ({ ...base, color: '#111827', fontSize: 12 }),
     placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 12 }),
     input: (base) => ({ ...base, fontSize: 12 }),
-    indicatorSeparator: () => ({ display: 'none' }),
-    menu: (base) => ({ ...base, zIndex: 50, maxHeight: 150 }),
-    menuList: (base) => ({ ...base, maxHeight: 150 })
+    indicatorSeparator: () => ({ display: 'none' })
   };
 
   const categories = ['Residential', 'Commercial', 'Plot', 'Other'];
@@ -1096,30 +1092,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               {/* Secondary Filters Content */}
               {showSecondaryFilters && (
                 <div className="space-y-5 pt-4">
-                  {/* Property Size/Area (Sq. Ft.) */}
-                  <div>
-                    <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Property Size/Area (Sq. Ft.)</h3>
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        min="0"
-                        onKeyDown={(e) => {
-                          if (e.key === '-' || e.key === 'e') e.preventDefault();
-                        }}
-                        placeholder="1000"
-                        className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
-                      />
-                      <input
-                        type="number"
-                        min="0"
-                        onKeyDown={(e) => {
-                          if (e.key === '-' || e.key === 'e') e.preventDefault();
-                        }}
-                        placeholder="2500"
-                        className="w-full p-[10px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
-                      />
-                    </div>
-                  </div>
+                 
 
                   {/* Bathrooms */}
                   <div>
@@ -1304,20 +1277,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                     </div>
                   </div>
 
-                  {/* Date Posted */}
-                  <div>
-                    <h3 className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Date Posted</h3>
-                    <div className="relative">
-                      <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <input
-                        type="date"
-                        placeholder="Pick a date"
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
-                      />
-                    </div>
-                  </div>
+                 
 
                   {/* Verification Status */}
                   <div>
@@ -1357,19 +1317,21 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Action Buttons - Always Visible */}
               <div className="pt-4 border-t border-gray-200 mt-5">
-                <button
-                  onClick={resetFilters}
-                  style={{
-                    fontFamily: 'Inter',
-                    fontSize: '12px',
-                    lineHeight: '22px',
-                    fontWeight: '500',
-                    color: '#171A1FFF'
-                  }}
-                  className="w-full py-2 border border-gray-300 text-[12px] font-medium rounded-lg bg-white hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                >
-                  Reset
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={resetFilters}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '12px',
+                      lineHeight: '22px',
+                      fontWeight: '500',
+                      color: '#171A1FFF'
+                    }}
+                    className="w-full py-1 border border-gray-300 text-[12px] font-medium rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
+                  >
+                    Reset
+                  </button>
+                </div>
               </div>
             </div>
           )}
