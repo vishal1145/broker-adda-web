@@ -1172,7 +1172,7 @@ export default function LeadDetails() {
                               </div>
 
                               {/* Horizontal Divider */}
-                              <div className="border-t border-gray-200 my-4"></div>
+                              <div className="border-t border-gray-200 mb-4"></div>
 
                               {/* Middle Section - Property Details */}
                               <div className="space-y-3 mb-4">
@@ -1291,7 +1291,7 @@ export default function LeadDetails() {
                                   }
 
                                   return (
-                                    <div className="pt-4 mt-auto">
+                                    <div className="pt-4 mt-auto border-t border-gray-200">
                                       <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                           {/* Avatar - Show logo if admin, otherwise show broker image */}

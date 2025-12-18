@@ -550,7 +550,7 @@ const LatestLeads: React.FC = () => {
                       </div>
 
                       {/* Horizontal Divider */}
-                      <div className="border-t border-gray-200 my-3 md:my-4"></div>
+                      <div className="border-t border-gray-200 mb-3 "></div>
 
                       {/* Middle Section - Property Details */}
                       <div className="space-y-2 md:space-y-3 mb-3 md:mb-4 flex-1">
@@ -623,8 +623,8 @@ const LatestLeads: React.FC = () => {
                       </div>
 
                       {/* Bottom Section - Broker Profile and Actions */}
-                  <div className="pt-3 md:pt-4 mt-auto border-t border-gray-100">
-  <div className="flex items-center justify-between">
+                    <div className="pt-3 md:pt-4 mt-auto border-t border-gray-200">
+                        <div className="flex items-center justify-between gap-2 ">
     <div className="flex items-center gap-3">
       {/* Avatar - Show logo if admin, otherwise show broker image */}
        <div

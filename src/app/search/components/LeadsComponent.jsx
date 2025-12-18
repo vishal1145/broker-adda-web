@@ -1985,7 +1985,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       </div>
 
                       {/* Horizontal Divider */}
-                      <div className="border-t border-gray-200 my-3 md:my-4"></div>
+                      <div className="border-t border-gray-200 mb-3 "></div>
 
                       {/* Middle Section - Property Details */}
                       <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
@@ -2053,8 +2053,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       </div>
 
                       {/* Bottom Section - Broker Profile and Actions */}
-                      <div className="pt-3 md:pt-4 mt-auto">
-                        <div className="flex items-center justify-between gap-2">
+                      <div className="pt-3 md:pt-4 mt-auto border-t border-gray-200">
+                        <div className="flex items-center justify-between gap-2 ">
                           <div className="flex items-center gap-2 md:gap-3 min-w-0">
                             {/* Avatar - Show logo if admin, otherwise show broker image */}
                             <div className="relative w-8 h-8 md:w-10 md:h-10 text-sm font-semibold flex-shrink-0" style={{ color: '#323743' }}>

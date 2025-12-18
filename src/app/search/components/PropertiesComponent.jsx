@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Select from 'react-select';
 import ContentLoader from 'react-content-loader';
 import TabsBar from './TabsBar';
-import ShareModal from './ShareModal';
+import ShareModal from "../../components/ShareModal";
 import { FaStar, FaDumbbell, FaSwimmingPool, FaCar, FaShieldAlt, FaBolt, FaTree, FaTint, FaGlassCheers, FaBuilding, FaArrowUp } from 'react-icons/fa';
 
 const PropertiesComponent = ({ activeTab, setActiveTab }) => {
@@ -1661,7 +1661,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                   <ShareModal
                     isOpen={shareModalOpen}
                     onClose={() => setShareModalOpen(false)}
-                    propertyUrl={currentShareUrl}
+                    url={currentShareUrl}
                   />
 
                   {/* Pagination */}

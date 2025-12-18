@@ -1434,25 +1434,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
 
           
 
-              {/* Broker Status - Single Select Dropdown */}
-              <div>
-                <label className="block mb-2" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Broker Status</label>
-                <Select
-                  instanceId="broker-status-select"
-                  styles={reactSelectStyles}
-                  className="cursor-pointer"
-                  options={[
-                    { value: 'Online', label: 'online' },
-                    { value: 'Active', label: 'Active' },
-                    { value: 'Busy', label: 'busy' },
-                    { value: 'Inactive', label: 'inactive' }
-                  ]}
-                  value={secondaryFilters.brokerStatus ? { value: secondaryFilters.brokerStatus, label: secondaryFilters.brokerStatus } : null}
-                  onChange={(opt) => setSecondaryFilters(prev => ({ ...prev, brokerStatus: opt?.value || '' }))}
-                  placeholder="Select Status"
-                  isClearable
-                />
-              </div>
+             
 
               
 
