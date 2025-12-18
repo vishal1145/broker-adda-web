@@ -623,6 +623,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   }, [
     leadFilters,
     sortBy,
+    sortOrder,
     currentPage,
     urlLatitude,
     urlLongitude
