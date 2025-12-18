@@ -470,7 +470,7 @@ const PropertyEnquiryPage = () => {
                       value={formData.primaryRegion}
                       onChange={handleChange}
                       disabled={regionsLoading}
-                      className="w-full px-4 py-3 pr-10 border border-[#0D542B] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0D542B] focus:border-[#0D542B] transition-colors appearance-none bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 pr-10 border border-[#0D542B] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0D542B] focus:border-[#0D542B] transition-colors appearance-none bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed overflow-x-hidden text-ellipsis"
                       required
                     >
                       <option value="">{regionsLoading ? 'Loading regions...' : 'Select...'}</option>
@@ -497,7 +497,7 @@ const PropertyEnquiryPage = () => {
                       value={formData.optionalRegion}
                       onChange={handleChange}
                       disabled={regionsLoading}
-                      className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0D542B] focus:border-[#0D542B] transition-colors appearance-none bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0D542B] focus:border-[#0D542B] transition-colors appearance-none bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed overflow-x-hidden text-ellipsis"
                     >
                       <option value="">{regionsLoading ? 'Loading regions...' : 'Select...'}</option>
                       {regions.map((region) => (

@@ -94,6 +94,8 @@ const PropertyEnquiryModal = ({ isOpen, onClose, propertyId, propertyBrokerId })
     }),
     indicatorSeparator: () => ({ display: "none" }),
     menuPortal: (p) => ({ ...p, zIndex: 999999 }),
+    menu: (p) => ({ ...p, overflowX: 'hidden' }),
+    menuList: (p) => ({ ...p, overflowX: 'hidden' }),
     option: (p, s) => ({
       ...p,
       backgroundColor: s.isSelected
