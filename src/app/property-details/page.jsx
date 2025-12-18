@@ -1892,25 +1892,16 @@ function PropertyDetailsPageInner() {
                 </div>
 
                 {/* Tab Content */}
-                <div className=" rounded-2xl border border-gray-200 shadow-sm p-6">
-                  <div className="pt-2">
+                <div className="rounded-2xl border border-gray-200 shadow-sm p-6">
                     {activeTab === 0 && (
-                      <div className="space-y-8">
-                        <div>
-                          <div className="flex items-center gap-2 mb-6">
-                            {/* <span className="inline-block h-0.5 w-8 rounded bg-yellow-400"></span>
-                          <h3 className="text-xl font-bold text-gray-900">Property Description</h3> */}
-                          </div>
-                          <div className="prose prose-gray max-w-none">
-                            {(product?.propertyDescription ||
-                              product?.description) && (
-                                <p className="w-full font-inter text-[12px] leading-[24px] font-normal text-[#565D6D] mb-4">
-                                  {product.propertyDescription ||
-                                    product.description}
-                                </p>
-                              )}
-                          </div>
-                        </div>
+                      <div className="prose prose-gray max-w-none">
+                        {(product?.propertyDescription ||
+                          product?.description) && (
+                            <p className="w-full font-inter text-[12px] leading-[24px] font-normal text-[#565D6D]">
+                              {product.propertyDescription ||
+                                product.description}
+                            </p>
+                          )}
                       </div>
                     )}
 
@@ -2126,7 +2117,6 @@ function PropertyDetailsPageInner() {
                         </div>
                       </div>
                     )}
-                  </div>
                 </div>
               </div>
             </section>

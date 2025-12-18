@@ -197,7 +197,7 @@ const Newsletter = ({ data = { title: '', subtitle: '', description: '' } }: { d
             <button 
               type="submit" 
               disabled={isSubmitting || !isValidEmail(email)}
-              className="bg-yellow-500 hover:bg-yellow-500 text-gray-900 px-4 md:px-6 py-2 md:py-3 rounded-full transition text-xs md:text-sm font-medium w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-yellow-500 text-gray-900 px-4 md:px-6 py-2 md:py-3 rounded-full transition text-xs md:text-sm font-medium w-full sm:w-auto cursor-pointer disabled:bg-yellow-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:pointer-events-none enabled:hover:bg-yellow-600"
             >
               {isSubmitting ? 'Subscribing...' : 'Subscribe'}
             </button>
