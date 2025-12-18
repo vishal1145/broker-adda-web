@@ -848,7 +848,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     singleValue: (base) => ({ ...base, color: '#111827', fontSize: 12 }),
     placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 12 }),
     input: (base) => ({ ...base, fontSize: 12 }),
-    indicatorSeparator: () => ({ display: 'none' })
+    indicatorSeparator: () => ({ display: 'none' }),
+    menu: (base) => ({ ...base, zIndex: 9999 }),
+    menuPortal: (base) => ({ ...base, zIndex: 9999 })
   };
 
   // Helper function to get region names from lead data
@@ -1236,6 +1238,8 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 isSearchable
                 isClearable
                 placeholder="Select Region"
+                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                menuPosition="fixed"
               />
             </div>
 
@@ -1355,7 +1359,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     }}
                   ></div>
 
-                  {/* Min Range Input - Left slider (full width for interaction) */}
+                  {/* Min Range Input - Left slider (hidden/disabled) */}
                   <input
                     type="range"
                     min="5000"
@@ -1374,10 +1378,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       }
                       setCurrentPage(1);
                     }}
-                  className="absolute top-1 w-full h-2 bg-transparent appearance-none cursor-pointer slider-min"
+                    disabled
+                    className="absolute top-1 w-full h-2 bg-transparent appearance-none slider-min hidden"
                     style={{
                       zIndex: 2,
-                      pointerEvents: 'auto'
+                      pointerEvents: 'none'
                     }}
                   />
 
