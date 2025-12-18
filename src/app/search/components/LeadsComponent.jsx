@@ -849,8 +849,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 12 }),
     input: (base) => ({ ...base, fontSize: 12 }),
     indicatorSeparator: () => ({ display: 'none' }),
-    menu: (base) => ({ ...base, zIndex: 9999 }),
-    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+    menu: (base) => ({ ...base, zIndex: 50, maxHeight: 150 }),
+    menuList: (base) => ({ ...base, maxHeight: 150 }),
+    menuPortal: (base) => ({ ...base, zIndex: 50 })
   };
 
   // Helper function to get region names from lead data
@@ -1152,7 +1153,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
             {/* Requirement Filter */}
             <div>
               <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Requirement</h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex w-full gap-2">
                 {requirementOptions.map((req) => {
                   const selected = leadFilters.requirement?.includes(req);
                   return (
@@ -1171,7 +1172,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                         transition: 'all 0.2s',
 
                       }}
-                    className={`p-[10px] inline-block transition-colors ${
+                    className={`p-[10px] flex-1 text-center transition-colors ${
                       selected 
                           ? 'hover:bg-[#8791A5FF] hover:active:bg-[#8791A5FF]'
                           : 'hover:bg-[#B8BECAFF]'
@@ -1238,8 +1239,6 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                 isSearchable
                 isClearable
                 placeholder="Select Region"
-                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                menuPosition="fixed"
               />
             </div>
 
@@ -1299,7 +1298,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   <div className="flex-1">
                     <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Max</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>₹</span>
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#9CA3AF' }}>₹</span>
                       <input
                         type="text"
                         value={isEditingMax ? budgetMaxInputValue : leadFilters.budgetRange[1].toLocaleString()}
@@ -1605,7 +1604,11 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                     return (
                       <Select
                         instanceId="broker-assigned-select"
-                        styles={reactSelectStyles}
+                        styles={{
+                          ...reactSelectStyles,
+                          menu: (base) => ({ ...base, zIndex: 50, maxHeight: 120 }),
+                          menuList: (base) => ({ ...base, maxHeight: 120 })
+                        }}
                         className="cursor-pointer"
                         options={brokersOptions}
                         value={(() => {
@@ -1658,36 +1661,19 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
             {/* Action Buttons - Always Visible */}
             <div className="pt-4">
-              <div className="flex gap-3">
-                <button
-                  onClick={resetFilters}
-                  style={{
-                    fontFamily: 'Inter',
-                    fontSize: '12px',
-                    lineHeight: '22px',
-                    fontWeight: '500',
-                    color: '#171A1FFF'
-                  }}
-                  className="flex-1 py-1 border border-gray-300 text-[12px] font-medium rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
-                >
-                  Reset
-                </button>
-                <button
-                  onClick={() => {
-                    // Apply filters logic here
-                    setShowSecondaryFilters(false);
-                  }}
-                  className="flex-1  py-1 bg-green-900 rounded-lg text-[12px] font-medium text-white hover:bg-green-800 transition-colors"
-                  style={{
-                    fontFamily: 'Inter',
-                    fontSize: '12px',
-                    lineHeight: '22px',
-                    fontWeight: '500'
-                  }}
-                >
-                  Apply Filters
-                </button>
-              </div>
+              <button
+                onClick={resetFilters}
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: '12px',
+                  lineHeight: '22px',
+                  fontWeight: '500',
+                  color: '#171A1FFF'
+                }}
+                className="w-full py-2 border border-gray-300 text-[12px] font-medium rounded-lg bg-white hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              >
+                Reset
+              </button>
             </div>
           </div>
         )}
@@ -1961,9 +1947,9 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   className="block h-full"
                 >
                   <article
-                    className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+                    className="group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer flex flex-col"
                   >
-                    <div className="p-4 md:p-6">
+                    <div className="p-4 md:p-6 flex flex-col flex-1">
                       {/* Top Section - Main Title */}
                       <div className="mb-3 md:mb-4">
                       <h3 className="text-[14px] md:text-[16px] leading-[20px] md:leading-[22px] font-bold mb-2" style={{  color: '#323743' }}>
@@ -2067,7 +2053,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       </div>
 
                       {/* Bottom Section - Broker Profile and Actions */}
-                      <div className="pt-3 md:pt-4">
+                      <div className="pt-3 md:pt-4 mt-auto">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2 md:gap-3 min-w-0">
                             {/* Avatar - Show logo if admin, otherwise show broker image */}

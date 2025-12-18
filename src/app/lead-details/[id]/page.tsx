@@ -1133,9 +1133,9 @@ export default function LeadDetails() {
                           <a
                             key={s._id}
                             href={`/lead-details/${s._id}`}
-                            className="flex-shrink-0 w-full sm:w-[calc(50%-8px)] lg:w-[calc(25%-12px)] block group h-full relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+                            className="flex-shrink-0 w-full sm:w-[calc(50%-8px)] lg:w-[calc(25%-12px)] block group relative rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 overflow-hidden hover:-translate-y-1 hover:shadow-lg cursor-pointer min-h-[320px]"
                           >
-                            <div className="p-6 h-full flex flex-col">
+                            <div className="p-6 h-full flex flex-col min-h-[320px]">
                               {/* Top Section - Main Title */}
                               <div className="mb-4">
                                 <h3 className="text-[14px] leading-[20px] font-bold mb-2" style={{ color: '#323743' }} title={`${s.propertyType || "Property"} for ${s.requirement || "inquiry"}`}>
@@ -1190,10 +1190,10 @@ export default function LeadDetails() {
                                       <circle cx="12" cy="10" r="3" />
                                     </svg>
                                     <div className="flex items-center flex-wrap gap-1">
-                                      <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">
+                                      <span className="font-inter text-[12px] leading-tight font-medium text-[#171A1FFF]">
                                            Primary Location:
                                       </span>
-                                        <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
+                                        <span className="font-inter text-[12px] leading-tight font-normal capitalize text-[#565D6DFF]">
                                           {s.primaryRegion.name || "—"}
                                       </span>
                                     </div>
@@ -1214,9 +1214,9 @@ export default function LeadDetails() {
                                       <circle cx="12" cy="10" r="3" />
                                     </svg>
                                     <div className="flex items-center flex-wrap gap-1">
-                                        <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]"> Secondary Location:
+                                        <span className="font-inter text-[12px] leading-tight font-medium text-[#171A1FFF]"> Secondary Location:
                                       </span>{" "}
-                                        <span className="font-inter text-[12px] leading-5 font-normal capitalize text-[#565D6DFF]">
+                                        <span className="font-inter text-[12px] leading-tight font-normal capitalize text-[#565D6DFF]">
                                           {s.secondaryRegion.name}
                                       </span>
                                     </div>
@@ -1291,7 +1291,7 @@ export default function LeadDetails() {
                                   }
 
                                   return (
-                                    <div className="pt-4">
+                                    <div className="pt-4 mt-auto">
                                       <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                           {/* Avatar - Show logo if admin, otherwise show broker image */}
@@ -1379,13 +1379,13 @@ export default function LeadDetails() {
                                                     className="flex items-center gap-2 cursor-pointer"
                                                   >
                                                     <svg
-                                                      className="w-3 h-3 fill-none stroke-[#171A1FFF]"
+                                                      className="w-3 h-3 fill-none stroke-[#3B82F6]"
                                                       viewBox="0 0 24 24"
                                                       strokeWidth="2"
                                                     >
                                                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                                     </svg>
-                                                    <span className="font-inter text-xs leading-5 font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors">
+                                                    <span className="font-inter text-xs leading-5 font-normal text-[#3B82F6] hover:text-blue-700 transition-colors">
                                                       Chat
                                                     </span>
                                                   </button>
@@ -1405,12 +1405,12 @@ export default function LeadDetails() {
                                                   e.preventDefault();
                                                   router.push(`/broker-details/${brokerId}`);
                                                 }}
-                                                className="text-[12px] font-normal text-[#565D6DFF] hover:text-gray-900 transition-colors cursor-pointer"
+                                                className="text-[12px] font-normal text-[#3B82F6] hover:text-blue-700 transition-colors cursor-pointer"
                                               >
                                                 View
                                               </span>
                                             ) : (
-                                              <p className="text-[12px] font-normal text-[#565D6DFF]">View</p>
+                                              <p className="text-[12px] font-normal text-[#3B82F6]">View</p>
                                             )}
                                           </div>
                                         )}
@@ -1434,9 +1434,9 @@ export default function LeadDetails() {
                       if (c && canScrollLeft) c.scrollBy({ left: -320, behavior: 'smooth' });
                     }}
                     disabled={!canScrollLeft}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${canScrollLeft
-                      ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed hover:none'
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${canScrollLeft
+                      ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer transition-colors'
+                      : 'bg-gray-200 text-gray-400 !cursor-default pointer-events-none'
                       }`}
                     title="Previous"
                   >
@@ -1449,9 +1449,9 @@ export default function LeadDetails() {
                       if (c && canScrollRight) c.scrollBy({ left: 320, behavior: 'smooth' });
                     }}
                     disabled={!canScrollRight}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${canScrollRight
-                      ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed hover:none'
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${canScrollRight
+                      ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer transition-colors'
+                      : 'bg-gray-200 text-gray-400 !cursor-default pointer-events-none'
                       }`}
                     title="Next"
                   >
