@@ -462,7 +462,7 @@ const Hero = ({ data = {
                 {(rating.users || []).map((user, index) => (
                   <img
                     key={index}
-                    className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-full border-2 border-white"
+                    className="w-6 h-6 md:w-7 md:h-7 lg:w-11 lg:h-11 rounded-full border-2 border-white"
                     src={user}
                     alt={`User ${index + 1}`}
                   />
@@ -483,7 +483,7 @@ const Hero = ({ data = {
   <div className="relative w-full flex flex-col md:flex-row justify-center items-center gap-4 md:gap-2 lg:gap-4 py-2">
 
     {/* LEFT / RIGHT buttons aligned to the card container left */}
-    <div className="absolute left-[-20] -bottom-12 md:-bottom-14 lg:-bottom-16 flex gap-2 md:gap-2 lg:gap-3 z-20">
+    <div className="absolute left-[-4%] -bottom-12 md:-bottom-14 lg:-bottom-16 flex gap-2 md:gap-2 lg:gap-3 z-20">
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); handlePrev(); }}

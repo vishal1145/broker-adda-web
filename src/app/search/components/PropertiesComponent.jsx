@@ -768,7 +768,9 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     singleValue: (base) => ({ ...base, color: '#111827', fontSize: 12 }),
     placeholder: (base) => ({ ...base, color: '#6b7280', fontSize: 12 }),
     input: (base) => ({ ...base, fontSize: 12 }),
-    indicatorSeparator: () => ({ display: 'none' })
+    indicatorSeparator: () => ({ display: 'none' }),
+    menu: (base) => ({ ...base, zIndex: 50, maxHeight: 150 }),
+    menuList: (base) => ({ ...base, maxHeight: 150 })
   };
 
   const categories = ['Residential', 'Commercial', 'Plot', 'Other'];
@@ -1355,36 +1357,19 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Action Buttons - Always Visible */}
               <div className="pt-4 border-t border-gray-200 mt-5">
-                <div className="flex gap-3">
-                  <button
-                    onClick={resetFilters}
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '12px',
-                      lineHeight: '22px',
-                      fontWeight: '500',
-                      color: '#171A1FFF'
-                    }}
-                    className="flex-1  py-1 border border-gray-300 text-[12px] font-medium rounded-lg bg-white hover:bg-white hover:border-gray-300 active:bg-white transition-colors"
-                  >
-                    Reset
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowSecondaryFilters(false);
-                      setCurrentPage(1); // Reset to page 1 and trigger refetch
-                    }}
-                    className="flex-1 py-1 bg-green-900 rounded-lg text-[12px] font-medium text-white hover:bg-green-800 transition-colors"
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '12px',
-                      lineHeight: '22px',
-                      fontWeight: '500'
-                    }}
-                  >
-                    Apply Filters
-                  </button>
-                </div>
+                <button
+                  onClick={resetFilters}
+                  style={{
+                    fontFamily: 'Inter',
+                    fontSize: '12px',
+                    lineHeight: '22px',
+                    fontWeight: '500',
+                    color: '#171A1FFF'
+                  }}
+                  className="w-full py-2 border border-gray-300 text-[12px] font-medium rounded-lg bg-white hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                >
+                  Reset
+                </button>
               </div>
             </div>
           )}

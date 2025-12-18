@@ -1253,7 +1253,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   <div className="flex-1">
                     <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Min</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#9CA3AF' }}>₹</span>
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>₹</span>
                       <input
                         type="text"
                         value={isEditingMin ? budgetMinInputValue : leadFilters.budgetRange[0].toLocaleString()}
@@ -1290,7 +1290,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           }
                         }}
                         className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
-                        style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}
+                        style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#9CA3AF' }}
                         placeholder="5,000"
                       />
                     </div>
@@ -1298,7 +1298,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                   <div className="flex-1">
                     <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Max</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#9CA3AF' }}>₹</span>
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>₹</span>
                       <input
                         type="text"
                         value={isEditingMax ? budgetMaxInputValue : leadFilters.budgetRange[1].toLocaleString()}
@@ -1335,7 +1335,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                           }
                         }}
                         className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
-                        style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}
+                        style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#9CA3AF' }}
                         placeholder="100,000,000"
                       />
                     </div>
