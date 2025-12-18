@@ -468,6 +468,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
   const isStep1Valid = () => {
     return (
       isNonEmpty(form.title) &&
+      form.title.trim().length >= 3 &&
       isNonEmpty(form.region) &&
       isNonEmpty(form.address) &&
       isPositiveNumber(form.price) &&
@@ -536,7 +537,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // For title field, restrict to 20 words and only allow letters, numbers, and spaces
+    // For title field, restrict to 50 words and only allow letters, numbers, and spaces
     if (name === 'title') {
       // Remove special characters (keep only letters, numbers, and spaces)
       const cleanedValue = value.replace(/[^a-zA-Z0-9\s]/g, '');
@@ -547,26 +548,38 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
       
       // Check for special characters
       const hasSpecialChars = /[^a-zA-Z0-9\s]/.test(value);
-      // Check if exceeds 20 words
-      const exceedsLimit = wordCount > 20;
+      // Check if exceeds 50 words
+      const exceedsLimit = wordCount > 50;
+      // Check minimum length
+      const isTooShort = cleanedValue.trim().length > 0 && cleanedValue.trim().length < 3;
       
       // Set error message - show immediately when limit reached
       if (hasSpecialChars && exceedsLimit) {
-        setTitleError("Special characters not allowed and only 20 words allowed.");
+        setTitleError("Special characters not allowed and only 50 words allowed.");
       } else if (hasSpecialChars) {
         setTitleError("Special characters are not allowed. Only letters, numbers, and spaces are allowed.");
-      } else if (exceedsLimit || wordCount === 20) {
-        setTitleError("Only 20 words allowed.");
+      } else if (isTooShort) {
+        setTitleError("Title must be at least 3 characters long.");
+      } else if (exceedsLimit || wordCount === 50) {
+        setTitleError("Only 50 words allowed.");
       } else {
         setTitleError("");
       }
       
-      // If exceeds word limit, keep only first 20 words (prevent further typing)
+      // If exceeds word limit, keep only first 50 words (prevent further typing)
       let limitedValue = cleanedValue;
       if (exceedsLimit) {
-        limitedValue = words.slice(0, 20).join(' ');
+        limitedValue = words.slice(0, 50).join(' ');
       }
       
+      setForm((prev) => ({ ...prev, [name]: limitedValue }));
+    } else if (name === 'description') {
+      // Short description: max 250 characters
+      const limitedValue = value.slice(0, 250);
+      setForm((prev) => ({ ...prev, [name]: limitedValue }));
+    } else if (name === 'propertyDescription') {
+      // Long description: max 500 characters
+      const limitedValue = value.slice(0, 500);
       setForm((prev) => ({ ...prev, [name]: limitedValue }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -1008,9 +1021,9 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                             onChange={handleChange}
                             onKeyDown={(e) => {
                               if(e.key === 'Enter') e.preventDefault();
-                              // Prevent typing when 20 words are reached
+                              // Prevent typing when 50 words are reached
                               const currentWords = form.title.trim().split(/\s+/).filter(word => word.length > 0);
-                              if (currentWords.length >= 20 && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab' && !e.key.startsWith('Arrow') && e.key !== 'Home' && e.key !== 'End') {
+                              if (currentWords.length >= 50 && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab' && !e.key.startsWith('Arrow') && e.key !== 'Home' && e.key !== 'End') {
                                 e.preventDefault();
                               }
                             }}
@@ -1019,7 +1032,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                 ? 'border border-red-300 focus:ring-2 focus:ring-red-400'
                                 : 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
                             }`}
-                            placeholder="Enter property title (max 20 words, no special characters)"
+                            placeholder="Enter property title (max 50 words)"
                             required
                           />
                           <div className="flex items-center justify-between">
@@ -1443,9 +1456,11 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                             onChange={handleChange}
                             onBlur={(e) => setForm(prev => ({ ...prev, description: e.target.value.trim() }))}
                             rows={2}
+                            maxLength={250}
                             className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200 resize-none"
-                            placeholder="Brief description of the property"
+                            placeholder="Brief description of the property (max 250 characters)"
                           />
+                          <p className="text-xs text-gray-500 text-right">{form.description.length}/250</p>
                         </div>
 
                         <div className="space-y-2">
@@ -1456,9 +1471,11 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                             onChange={handleChange}
                             onBlur={(e) => setForm(prev => ({ ...prev, propertyDescription: e.target.value.trim() }))}
                             rows={3}
+                            maxLength={500}
                             className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200 resize-none"
-                            placeholder="Comprehensive description with all details"
+                            placeholder="Comprehensive description with all details (max 500 characters)"
                           />
+                          <p className="text-xs text-gray-500 text-right">{form.propertyDescription.length}/500</p>
                         </div>
                       </div>
                     </div>
@@ -1975,7 +1992,15 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                 : "pointer",
                           }}
                         >
-                          {loadingProperty ? 'Loading...' : (isEditMode ? 'Update Property' : 'Create Property')}
+                          {submitting ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              {isEditMode ? 'Updating...' : 'Creating...'}
+                            </>
+                          ) : loadingProperty ? 'Loading...' : (isEditMode ? 'Update Property' : 'Create Property')}
                         </button>
                       </div>
                     )}
