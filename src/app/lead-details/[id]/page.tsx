@@ -260,13 +260,28 @@ export default function LeadDetails() {
     }
   };
 
-  // Helper function to format budget in crores
+  // Helper function to format budget in appropriate units (Cr, Lakhs, or amount)
   const formatBudgetInCrores = (budget: number | string | undefined): string => {
     if (!budget || budget === 0) return "—";
     const numBudget = typeof budget === 'string' ? parseFloat(budget.replace(/[₹,]/g, '')) : budget;
     if (isNaN(numBudget) || numBudget === 0) return "—";
-    const crores = numBudget / 10000000; // Convert to crores
-    return `₹${crores.toFixed(2)} Cr`;
+    
+    if (numBudget >= 10000000) {
+      // 1 Crore or more
+      const crores = numBudget / 10000000;
+      return `₹${crores.toFixed(2)} Cr`;
+    } else if (numBudget >= 100000) {
+      // 1 Lakh or more
+      const lakhs = numBudget / 100000;
+      return `₹${lakhs.toFixed(2)} Lakhs`;
+    } else if (numBudget >= 1000) {
+      // 1 Thousand or more
+      const thousands = numBudget / 1000;
+      return `₹${thousands.toFixed(2)}K`;
+    } else {
+      // Less than 1000
+      return `₹${numBudget.toLocaleString('en-IN')}`;
+    }
   };
 
   useEffect(() => {

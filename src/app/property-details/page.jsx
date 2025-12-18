@@ -2787,12 +2787,23 @@ function PropertyDetailsPageInner() {
                     href={`/property-details/${p.id}`}
                     className="block"
                   >
-                    <div className="aspect-[4/3] bg-gray-100 rounded-t-2xl overflow-hidden">
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
+                    <div className="aspect-[4/3] bg-gray-100 rounded-t-2xl overflow-hidden relative">
+                      {p.image ? (
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <div className={`absolute inset-0 flex items-center justify-center bg-gray-100 ${p.image ? 'hidden' : ''}`}>
+                        <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+                        </svg>
+                      </div>
                     </div>
                     <div className="px-4 pt-4 pb-4 space-y-3 group-hover:bg-gray-50 transition-colors duration-300">
                       {/* Name with green upward arrow */}
@@ -2853,7 +2864,7 @@ function PropertyDetailsPageInner() {
                         </span>
                       </div>
 
-                      {/* Property details with person icon */}
+                      {/* Property details with building/area icon */}
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <svg
                           className="w-4 h-4 text-gray-500 flex-shrink-0"
@@ -2865,7 +2876,7 @@ function PropertyDetailsPageInner() {
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                           />
                         </svg>
                         <span>
