@@ -485,7 +485,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
   };
 
   const isStep3Valid = () => {
-    return (images.length + imageFiles.length) >= 3; // require at least 3 images
+    return true; // Step 3 is optional - images are not mandatory
   };
 
   const isCurrentStepValid = () => {
