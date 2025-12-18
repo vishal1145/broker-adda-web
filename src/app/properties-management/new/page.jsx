@@ -1032,7 +1032,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                 ? 'border border-red-300 focus:ring-2 focus:ring-red-400'
                                 : 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
                             }`}
-                            placeholder="Enter property title (max 50 words)"
+                            placeholder=""
                             required
                           />
                           <div className="flex items-center justify-between">
@@ -1458,7 +1458,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                             rows={2}
                             maxLength={250}
                             className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200 resize-none"
-                            placeholder="Brief description of the property (max 250 characters)"
+                            placeholder=""
                           />
                           <p className="text-xs text-gray-500 text-right">{form.description.length}/250</p>
                         </div>
@@ -1473,7 +1473,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                             rows={3}
                             maxLength={500}
                             className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200 resize-none"
-                            placeholder="Comprehensive description with all details (max 500 characters)"
+                            placeholder=""
                           />
                           <p className="text-xs text-gray-500 text-right">{form.propertyDescription.length}/500</p>
                         </div>

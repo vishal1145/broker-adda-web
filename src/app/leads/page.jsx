@@ -2343,10 +2343,10 @@ function BrokerLeadsPageContent() {
                           key={row._id || row.id || idx}
                           className="group relative border shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] border-gray-200 bg-white rounded-lg"
                         >
-                          {/* Status Badge - Horizontal Ribbon with Folded Corner */}
+                          {/* Status Badge - Attached to top right wall, left side radius only */}
                           <div className="absolute top-0 right-0 z-10">
                             <div
-                              className="text-black text-[10px] leading-[20px] font-semibold px-[8px] py-[1px] rounded-full text-center shadow-md relative"
+                              className="text-black text-[10px] leading-[20px] font-semibold px-[10px] py-[2px] text-center rounded-bl-lg rounded-tr-lg"
                               style={{
                                 background:
                                   row.status?.toLowerCase() === "new"
