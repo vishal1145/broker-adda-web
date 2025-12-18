@@ -943,6 +943,9 @@ export default function BrokerDetailsPage() {
                                 </div>
                               </div>
 
+                              {/* Horizontal Divider */}
+                              <div className="border-t border-gray-200 my-3"></div>
+
                               {/* Middle Section - Property Details */}
                               <div className="space-y-2">
                                 {/* Preferred Location */}
