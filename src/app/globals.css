@@ -156,3 +156,43 @@ button {
 .animate-slide-left {
   animation: slide-bottom 0.3s ease-out;
 }
+
+/* Range Slider Styles */
+input[type="range"].slider-max {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+input[type="range"].slider-max::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #1C5032;
+  cursor: pointer;
+  margin-top: -10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+input[type="range"].slider-max::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #1C5032;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+input[type="range"].slider-max::-webkit-slider-runnable-track {
+  height: 2px;
+  background: transparent;
+}
+
+input[type="range"].slider-max::-moz-range-track {
+  height: 2px;
+  background: transparent;
+}

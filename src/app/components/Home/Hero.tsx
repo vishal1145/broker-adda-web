@@ -442,7 +442,7 @@ const Hero = ({ data = {
               {/* Use Next Link instead of <a href> for client navigation */}
               <Link
                 href="/search?tab=brokers"
-                className="bg-green-900 text-white px-5 md:px-5 lg:px-6 py-2 md:py-2 lg:py-2.5 rounded-full text-xs md:text-xs lg:text-sm font-semibold flex items-center gap-2 cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-full border border-green-900 px-4 md:px-6 py-1.5 md:py-2 text-xs md:text-sm font-semibold text-green-900 hover:bg-green-50 w-full sm:w-auto justify-center"
               >
                 {(buttons as { primary?: string; secondary?: string })?.secondary ?? 'Explore'}
                   <svg className="w-3 h-3 md:w-[14px] md:h-[14px] lg:w-4 lg:h-4" fill="currentColor" viewBox="0 0 20 20">

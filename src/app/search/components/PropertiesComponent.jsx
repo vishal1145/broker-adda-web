@@ -13,7 +13,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const [filters, setFilters] = useState({
     search: "",
     categories: [],
-    priceRange: [0, 0],
+    priceRange: [5000, 100000000],
     bedrooms: null, // Changed to single select
     amenities: []
   });
@@ -44,6 +44,12 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [currentShareUrl, setCurrentShareUrl] = useState('');
   const timersRef = useRef({});
+
+  // Local state for price input fields (to avoid API calls on every keystroke)
+  const [priceMinInput, setPriceMinInput] = useState('');
+  const [priceMaxInput, setPriceMaxInput] = useState('');
+  const [isEditingMin, setIsEditingMin] = useState(false);
+  const [isEditingMax, setIsEditingMax] = useState(false);
 
   // Store latitude and longitude from URL for geocoding-based search
   const [urlLatitude, setUrlLatitude] = useState(null);
@@ -288,9 +294,11 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           baseQueryParams.append('bathrooms', bathroomsValue);
         }
 
-        // Price range - only apply when both min and max are set
-        if (filters.priceRange[0] > 0 && filters.priceRange[1] > 0) {
+        // Price range - only apply when values differ from default
+        if (filters.priceRange[0] > 5000) {
           baseQueryParams.append('minPrice', String(filters.priceRange[0]));
+        }
+        if (filters.priceRange[1] < 100000000) {
           baseQueryParams.append('maxPrice', String(filters.priceRange[1]));
         }
 
@@ -818,11 +826,16 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     setFilters({
       search: "",
       categories: [],
-      priceRange: [0, 0],
+      priceRange: [5000, 100000000],
       bedrooms: null, // Changed to null for single select
       amenities: [],
       city: '' // Reset city filter if it exists
     });
+    // Reset price input fields
+    setPriceMinInput('');
+    setPriceMaxInput('');
+    setIsEditingMin(false);
+    setIsEditingMax(false);
     // Reset secondary filters (clear broker filter on reset)
     setSecondaryFilters({
       bathrooms: null,
@@ -866,14 +879,6 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
     }
   };
 
-  const handlePriceChange = (index, value) => {
-    const newRange = [...filters.priceRange];
-    newRange[index] = parseInt(value);
-    setFilters(prev => ({
-      ...prev,
-      priceRange: newRange
-    }));
-  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-IN', {
@@ -882,6 +887,28 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(price);
+  };
+
+  // Handle price min input on blur
+  const handlePriceMinInput = (value) => {
+    const numValue = parseInt(value?.toString().replace(/[^0-9]/g, '') || '0');
+    const min = Math.max(5000, Math.min(numValue, filters.priceRange[1], 100000000));
+    setFilters(prev => ({
+      ...prev,
+      priceRange: [min, prev.priceRange[1]]
+    }));
+    setCurrentPage(1);
+  };
+
+  // Handle price max input on blur
+  const handlePriceMaxInput = (value) => {
+    const numValue = parseInt(value?.toString().replace(/[^0-9]/g, '') || '0');
+    const max = Math.min(100000000, Math.max(numValue, filters.priceRange[0], 5000));
+    setFilters(prev => ({
+      ...prev,
+      priceRange: [prev.priceRange[0], max]
+    }));
+    setCurrentPage(1);
   };
 
   return (
@@ -1009,35 +1036,168 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
 
               {/* Price/Budget Range (INR) Filter */}
               <div className="mb-5">
-                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Price/Budget Range (INR)</h3>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Min</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>₹</span>
-                      <input
-                        type="number"
-                        value={filters.priceRange[0] || ''}
-                        onChange={(e) => handlePriceChange(0, parseInt(e.target.value) || 0)}
-                        placeholder="0"
-                        min="0"
-                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
-                      />
+                <h3 className="block mb-3" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Budget Range</h3>
+                <div className="relative">
+                  {/* Min and Max Value Display - Editable Inputs */}
+                  <div className="flex justify-between gap-4 mb-3">
+                    <div className="flex-1">
+                      <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Min</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>₹</span>
+                        <input
+                          type="text"
+                          value={isEditingMin ? priceMinInput : filters.priceRange[0].toLocaleString()}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                            setPriceMinInput(rawValue);
+                            if (rawValue !== '') {
+                              const numValue = parseInt(rawValue);
+                              if (!isNaN(numValue)) {
+                                const min = Math.max(5000, Math.min(numValue, filters.priceRange[1], 100000000));
+                                setFilters(prev => ({
+                                  ...prev,
+                                  priceRange: [min, prev.priceRange[1]]
+                                }));
+                                setCurrentPage(1);
+                              }
+                            }
+                          }}
+                          onFocus={(e) => {
+                            setIsEditingMin(true);
+                            setPriceMinInput(filters.priceRange[0].toString());
+                            e.target.select();
+                          }}
+                          onBlur={(e) => {
+                            setIsEditingMin(false);
+                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                            const numValue = rawValue === '' ? 5000 : parseInt(rawValue);
+                            handlePriceMinInput(numValue);
+                            setPriceMinInput('');
+                          }}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              e.target.blur();
+                            }
+                          }}
+                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                          style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#9CA3AF' }}
+                          placeholder="5,000"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Max</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>₹</span>
+                        <input
+                          type="text"
+                          value={isEditingMax ? priceMaxInput : filters.priceRange[1].toLocaleString()}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                            setPriceMaxInput(rawValue);
+                            if (rawValue !== '') {
+                              const numValue = parseInt(rawValue);
+                              if (!isNaN(numValue)) {
+                                const max = Math.min(100000000, Math.max(numValue, filters.priceRange[0], 5000));
+                                setFilters(prev => ({
+                                  ...prev,
+                                  priceRange: [prev.priceRange[0], max]
+                                }));
+                                setCurrentPage(1);
+                              }
+                            }
+                          }}
+                          onFocus={(e) => {
+                            setIsEditingMax(true);
+                            setPriceMaxInput(filters.priceRange[1].toString());
+                            e.target.select();
+                          }}
+                          onBlur={(e) => {
+                            setIsEditingMax(false);
+                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                            const numValue = rawValue === '' ? 100000000 : parseInt(rawValue);
+                            handlePriceMaxInput(numValue);
+                            setPriceMaxInput('');
+                          }}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              e.target.blur();
+                            }
+                          }}
+                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-900 focus:border-green-900 text-sm"
+                          style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#9CA3AF' }}
+                          placeholder="100,000,000"
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="flex-1">
-                    <label className="block text-xs mb-1" style={{ fontFamily: 'Inter', fontSize: '11px', lineHeight: '14px', fontWeight: '400', color: '#565D6DFF' }}>Max</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#171A1FFF' }}>₹</span>
-                      <input
-                        type="number"
-                        value={filters.priceRange[1] || ''}
-                        onChange={(e) => handlePriceChange(1, parseInt(e.target.value) || 0)}
-                        placeholder="50000000"
-                        min="0"
-                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-900 focus:outline-none text-xs"
-                      />
-                    </div>
+
+                  {/* Slider Container */}
+                  <div className="relative h-2 rounded-lg overflow-visible" style={{ backgroundColor: '#B2F0C8' }}>
+                    {/* Active Range Indicator (dark green) with soft glow */}
+                    <div
+                      className="h-2 absolute rounded-lg pointer-events-none"
+                      style={{
+                        backgroundColor: '#1C5032',
+                        left: `${((filters.priceRange[0] - 5000) / (100000000 - 5000)) * 100}%`,
+                        width: `${((filters.priceRange[1] - filters.priceRange[0]) / (100000000 - 5000)) * 100}%`,
+                        transition: 'all 0.1s ease',
+                        zIndex: 1,
+                        boxShadow: '0 0 6px rgba(28, 80, 50, 0.4), 0 0 2px rgba(28, 80, 50, 0.2)',
+                        filter: 'blur(0.3px)'
+                      }}
+                    ></div>
+
+                    {/* Min Range Input - Left slider (hidden/disabled) */}
+                    <input
+                      type="range"
+                      min="5000"
+                      max="100000000"
+                      step="5000"
+                      value={filters.priceRange[0]}
+                      onChange={(e) => {
+                        const val = Math.min(parseInt(e.target.value), filters.priceRange[1]);
+                        setFilters(prev => ({
+                          ...prev,
+                          priceRange: [val, prev.priceRange[1]]
+                        }));
+                        if (!isEditingMin) {
+                          setPriceMinInput('');
+                        }
+                        setCurrentPage(1);
+                      }}
+                      disabled
+                      className="absolute top-1 w-full h-2 bg-transparent appearance-none slider-min hidden"
+                      style={{
+                        zIndex: 2,
+                        pointerEvents: 'none'
+                      }}
+                    />
+
+                    {/* Max Range Input - Right slider (full width for interaction) */}
+                    <input
+                      type="range"
+                      min="5000"
+                      max="100000000"
+                      step="5000"
+                      value={filters.priceRange[1]}
+                      onChange={(e) => {
+                        const val = Math.max(parseInt(e.target.value), filters.priceRange[0]);
+                        setFilters(prev => ({
+                          ...prev,
+                          priceRange: [prev.priceRange[0], val]
+                        }));
+                        if (!isEditingMax) {
+                          setPriceMaxInput('');
+                        }
+                        setCurrentPage(1);
+                      }}
+                      className="absolute top-1 w-full h-2 bg-transparent appearance-none cursor-pointer slider-max"
+                      style={{
+                        zIndex: 3,
+                        pointerEvents: 'auto'
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -1468,8 +1628,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                         {filters.categories.length > 0 ||
                           filters.bedrooms !== null ||
                           filters.amenities.length > 0 ||
-                          filters.priceRange[0] > 0 ||
-                          filters.priceRange[1] > 0 ||
+                          filters.priceRange[0] > 5000 ||
+                          filters.priceRange[1] < 100000000 ||
                           filters.search ||
                           selectedRegion ||
                           Object.values(secondaryFilters).some(v => v !== null)
@@ -1480,8 +1640,8 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                       {(filters.categories.length > 0 ||
                         filters.bedrooms !== null ||
                         filters.amenities.length > 0 ||
-                        filters.priceRange[0] > 0 ||
-                        filters.priceRange[1] > 0 ||
+                        filters.priceRange[0] > 5000 ||
+                        filters.priceRange[1] < 100000000 ||
                         filters.search ||
                         selectedRegion ||
                         Object.values(secondaryFilters).some(v => v !== null)) && (
