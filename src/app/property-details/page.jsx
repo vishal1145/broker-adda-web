@@ -2716,6 +2716,7 @@ function PropertyDetailsPageInner() {
       </div>
 
       {/* Related Properties - Carousel */}
+      {similarProperties.length > 0 && (
       <div className="mt-12 w-full">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -2724,6 +2725,7 @@ function PropertyDetailsPageInner() {
               Related Properties
             </h3>
           </div>
+          {similarProperties.length > 4 && (
           <div className="flex items-center gap-2">
             <Link
               href="/search?tab=properties"
@@ -2732,6 +2734,7 @@ function PropertyDetailsPageInner() {
               View All
             </Link>
           </div>
+          )}
         </div>
 
         {/* Carousel with scrollable cards */}
@@ -2898,36 +2901,12 @@ function PropertyDetailsPageInner() {
                   </Link>
                 </div>
               ))
-            ) : (
-              // No properties found
-              <div className="w-full flex items-center justify-center py-16">
-                <div className="text-center">
-                  <svg
-                    className="w-16 h-16 mx-auto mb-6 text-gray-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  <p className="text-xl font-semibold text-gray-900 mb-3">
-                    No related properties found
-                  </p>
-                  <p className="text-base text-gray-500">
-                    We couldn't find any properties with similar features.
-                  </p>
-                </div>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
 
-        {/* Carousel navigation buttons */}
+        {/* Carousel navigation buttons - only show if more than 4 properties */}
+        {similarProperties.length > 4 && (
         <div className="flex gap-2 mt-7 justify-center">
           <button
             type="button"
@@ -2996,7 +2975,9 @@ function PropertyDetailsPageInner() {
             </svg>
           </button>
         </div>
+        )}
       </div>
+      )}
 
       {/* CTA Section */}
       <div className="w-full max-w-full bg-[#FFF9E6] rounded-2xl shadow-xs mt-4">

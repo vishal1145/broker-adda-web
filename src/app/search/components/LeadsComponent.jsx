@@ -33,6 +33,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   const [uiLoading, setUiLoading] = useState(false);
   const [leads, setLeads] = useState([]);
   const [allLeads, setAllLeads] = useState([]);
+  const [filteredSortedLeads, setFilteredSortedLeads] = useState([]); // For pagination
   const [leadsError, setLeadsError] = useState('');
   const [totalLeads, setTotalLeads] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -417,13 +418,16 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         allLeads = filterOwnLeads(allLeads);
          ('🔍 LeadsComponent: Filtered out own leads, remaining:', allLeads.length);
 
-        // For coordinate searches: use API response directly
+        // For coordinate searches: use API response directly with pagination
         if (isLatLngSearch) {
           const totalCount = allLeads.length; // API should return all matching leads
           setAllLeads(allLeads);
-          setLeads(allLeads);
+          setFilteredSortedLeads(allLeads);
           setTotalLeads(totalCount);
           setLeadsError('');
+          setCurrentPage(1);
+          const itemsToDisplay = allLeads.slice(0, leadsPerPage);
+          setLeads(itemsToDisplay);
           setIsLoading(false);
           return;
         }
@@ -586,16 +590,15 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
           });
         }
 
-        // Client-side pagination after filtering and sorting (only for non-coordinate searches)
+        // Store filtered/sorted data for pagination
         // Coordinate searches already returned early, so this code only runs for non-coordinate searches
-        let finalTotal, itemsToDisplay;
-        finalTotal = sortedItems.length;
-        const start = (currentPage - 1) * leadsPerPage;
-        itemsToDisplay = sortedItems.slice(start, start + leadsPerPage);
-         ('📍 LeadsComponent: Non-coordinate search - paginated items:', itemsToDisplay.length, 'of', finalTotal);
-        setLeads(itemsToDisplay);
-        setTotalLeads(finalTotal);
+        setFilteredSortedLeads(sortedItems);
+        setTotalLeads(sortedItems.length);
         setLeadsError('');
+        // Reset to page 1 and set initial page of leads
+        setCurrentPage(1);
+        const itemsToDisplay = sortedItems.slice(0, leadsPerPage);
+        setLeads(itemsToDisplay);
       } else {
         // No leads found
         setLeads([]);
@@ -611,7 +614,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     }
   };
 
-  // Fetch leads when any filter changes or on initial mount (like BrokersComponent)
+  // Fetch leads when filters change or on initial mount (NOT on page change)
   useEffect(() => {
     // Debounce the API call to prevent multiple rapid calls (like BrokersComponent)
     const timeoutId = setTimeout(() => {
@@ -624,10 +627,18 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
     leadFilters,
     sortBy,
     sortOrder,
-    currentPage,
     urlLatitude,
     urlLongitude
   ]);
+
+  // Handle pagination separately - just re-slice existing filtered/sorted data
+  useEffect(() => {
+    if (filteredSortedLeads.length > 0) {
+      const start = (currentPage - 1) * leadsPerPage;
+      const itemsToDisplay = filteredSortedLeads.slice(start, start + leadsPerPage);
+      setLeads(itemsToDisplay);
+    }
+  }, [currentPage, filteredSortedLeads, leadsPerPage]);
 
   // Reset UI loading when filters change (but don't show loading for filter changes)
   useEffect(() => {
@@ -811,17 +822,21 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
   // Pagination handlers
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    // Scroll to top of leads section
+    window.scrollTo({ top: 200, behavior: 'smooth' });
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 200, behavior: 'smooth' });
     }
   };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 200, behavior: 'smooth' });
     }
   };
 
