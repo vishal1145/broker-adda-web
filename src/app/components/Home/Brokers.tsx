@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -51,8 +51,15 @@ const Brokers = () => {
     brokerDetails?: unknown;
   };
 
+  // Ref to prevent duplicate API calls
+  const hasFetchedRef = useRef(false);
+
   // Fetch brokers from API
   const fetchBrokers = useCallback(async () => {
+    // Prevent duplicate API calls
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
     try {
       setLoading(true);
       setError('');

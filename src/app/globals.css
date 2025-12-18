@@ -167,13 +167,13 @@ input[type="range"].slider-max {
 input[type="range"].slider-max::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 21px;
+  height: 21px;
   border-radius: 50%;
   background: #ffffff;
   border: 2px solid #1C5032;
   cursor: pointer;
-  margin-top: -12px;
+  margin-top: -14px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 

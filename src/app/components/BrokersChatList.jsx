@@ -479,7 +479,7 @@ const BrokersChatList = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto scrollbar-hide">
             {(() => {
               const filteredBrokers = brokers.filter((broker) => {
                 if (!search.trim()) return true;
@@ -598,7 +598,7 @@ const BrokersChatList = () => {
             </div>
           </div>
 
-          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-4 bg-gray-50">
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <p className="text-gray-500 text-sm">No messages yet. Start the conversation!</p>
@@ -734,7 +734,7 @@ const BrokersChatList = () => {
                     </button>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-4">
+                  <div className="flex-1 overflow-y-auto scrollbar-hide p-4">
                     {allLeads.length === 0 ? (
                       <p className="text-gray-500 text-center py-8">No leads available</p>
                     ) : (

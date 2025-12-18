@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
@@ -148,12 +148,19 @@ const Hero = ({ data = {
     router.push('/broker-details');
   };
 
+  // Ref to prevent duplicate API calls
+  const hasFetchedRef = useRef(false);
+
   // Fetch brokers for hero cards (follow existing app pattern)
   useEffect(() => {
     // mark hydration so SSR doesn't flash hardcoded content
     setHydrated(true);
 
+    // Prevent duplicate API calls
+    if (hasFetchedRef.current) return;
+
     const fetchBrokersForHero = async () => {
+      hasFetchedRef.current = true;
       try {
         setIsLoading(true);
         const token =

@@ -1644,42 +1644,44 @@ export default function BrokerDetailsPage() {
                       </div>
                     )}
                   </div>
-                  <div className="flex gap-2 mt-7 justify-center">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const carousel = document.getElementById('similar-brokers-carousel');
-                        if (carousel && canScrollLeft) carousel.scrollBy({ left: -300, behavior: 'smooth' });
-                      }}
-                      disabled={!canScrollLeft}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${canScrollLeft
-                          ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
-                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        }`}
-                      title="Previous"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const carousel = document.getElementById('similar-brokers-carousel');
-                        if (carousel && canScrollRight) carousel.scrollBy({ left: 300, behavior: 'smooth' });
-                      }}
-                      disabled={!canScrollRight}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${canScrollRight
-                          ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
-                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        }`}
-                      title="Next"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
+                  {similar.length > 4 && (
+                    <div className="flex gap-2 mt-7 justify-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const carousel = document.getElementById('similar-brokers-carousel');
+                          if (carousel && canScrollLeft) carousel.scrollBy({ left: -300, behavior: 'smooth' });
+                        }}
+                        disabled={!canScrollLeft}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${canScrollLeft
+                            ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          }`}
+                        title="Previous"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const carousel = document.getElementById('similar-brokers-carousel');
+                          if (carousel && canScrollRight) carousel.scrollBy({ left: 300, behavior: 'smooth' });
+                        }}
+                        disabled={!canScrollRight}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${canScrollRight
+                            ? 'bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer'
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          }`}
+                        title="Next"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </section>
             </div>
@@ -1687,7 +1689,7 @@ export default function BrokerDetailsPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="bg-[#EDFDF4] rounded-[16px] mx-4 sm:mx-6 lg:mx-8 mb-8 shadow-xl mt-12">
+        <div className="bg-[#EDFDF4] rounded-[16px]  shadow-xl mt-12">
           <div className="px-6 py-8 text-center relative overflow-hidden">
             {/* Decorative elements */}
             <div className="absolute top-0 left-0 w-full h-1 "></div>
