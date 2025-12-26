@@ -1,3 +1,0 @@
-module.exports=[44658,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Notifications | View All Notifications | Broker Gully",description:"View and manage all your notifications on Broker Gully. Stay updated with leads, properties, broker connections, and important updates."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=src_app_notifications_layout_tsx_0aa8fc15._.js.map

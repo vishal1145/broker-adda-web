@@ -1,3 +1,0 @@
-module.exports=[18357,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Dashboard | Broker Dashboard | Broker Gully",description:"Access your comprehensive broker dashboard on Broker Gully. View metrics, manage leads, track properties, monitor performance, and stay updated with recent activities."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=src_app_dashboard_layout_tsx_3fd7cd9c._.js.map

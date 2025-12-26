@@ -1,0 +1,3 @@
+module.exports=[28994,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Settings | Account Settings & Preferences | Broker Gully",description:"Manage your account settings, notification preferences, privacy settings, and account information on Broker Gully. Customize your experience."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_settings_layout_tsx_e7778cf9._.js.map

@@ -1,3 +1,0 @@
-module.exports=[67720,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Broker Details | View Broker Profile | Broker Gully",description:"View detailed broker profile including ratings, experience, specializations, properties, and contact information. Connect with verified real estate brokers on Broker Gully."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=src_app_broker-details_%5Bid%5D_layout_tsx_b5187472._.js.map

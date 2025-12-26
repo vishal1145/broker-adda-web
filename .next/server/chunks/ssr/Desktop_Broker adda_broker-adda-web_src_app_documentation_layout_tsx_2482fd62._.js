@@ -1,0 +1,3 @@
+module.exports=[78074,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Documentation | Help & Documentation | Broker Gully",description:"Access comprehensive documentation and help guides for Broker Gully. Learn how to use all features and get the most out of the platform."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_documentation_layout_tsx_2482fd62._.js.map

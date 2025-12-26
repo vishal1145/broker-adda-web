@@ -1,3 +1,0 @@
-module.exports=[50245,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Enquiries  Details | View Query Information | Broker Gully",description:"View detailed query information including property requirements, budget, preferred locations, and broker details. Manage your real estate queries on Broker Gully."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=src_app_lead-details_%5Bid%5D_layout_tsx_6d53b648._.js.map

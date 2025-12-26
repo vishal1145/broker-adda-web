@@ -1,0 +1,3 @@
+module.exports=[95703,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Documentation | Help & Guides | Broker Gully",description:"Access comprehensive documentation for Broker Gully. Learn about account setup, leads management, privacy settings, and get support."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=3d860_Broker%20adda_broker-adda-web_src_app_help_documentation_layout_tsx_8a9bda98._.js.map

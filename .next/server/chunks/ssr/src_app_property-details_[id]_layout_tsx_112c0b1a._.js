@@ -1,3 +1,0 @@
-module.exports=[20717,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Property Details | View Property Information | Broker Gully",description:"View detailed property information including photos, amenities, location, pricing, and contact details. Find your perfect property on Broker Gully."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=src_app_property-details_%5Bid%5D_layout_tsx_112c0b1a._.js.map

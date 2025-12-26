@@ -1,0 +1,3 @@
+module.exports=[81543,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Role Selection | Choose Your Profile Type | Broker Gully",description:"Complete your profile setup by selecting your role type - Individual or Business. Get started with Broker Gully today."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_role-selection_layout_tsx_5a671ad2._.js.map

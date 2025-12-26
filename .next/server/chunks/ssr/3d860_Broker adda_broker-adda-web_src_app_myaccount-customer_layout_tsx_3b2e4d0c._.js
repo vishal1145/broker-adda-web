@@ -1,0 +1,3 @@
+module.exports=[74609,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"My Account | Customer Account | Broker Gully",description:"Manage your customer account on Broker Gully. View your profile, saved properties, and account settings."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=3d860_Broker%20adda_broker-adda-web_src_app_myaccount-customer_layout_tsx_3b2e4d0c._.js.map

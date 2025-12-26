@@ -1,0 +1,3 @@
+module.exports=[27303,a=>{"use strict";a.s(["default",()=>e]);var b=a.i(64144),c=a.i(75055),d=a.i(39603);function e(){let a=(0,d.useRouter)();return(0,c.useEffect)(()=>{a.push("/profile")},[a]),(0,b.jsx)("div",{className:"flex items-center justify-center min-h-screen",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("div",{className:"animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"}),(0,b.jsx)("p",{className:"text-gray-600",children:"Redirecting to profile..."})]})})}}];
+
+//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_myaccount-customer_page_jsx_435e18cb._.js.map

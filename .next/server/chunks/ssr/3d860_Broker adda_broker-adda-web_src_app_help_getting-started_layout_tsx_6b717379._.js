@@ -1,0 +1,3 @@
+module.exports=[22684,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Getting Started | Quick Start Guide | Broker Gully",description:"Get started with Broker Gully. Learn how to set up your account, create leads, manage properties, and use all platform features with our comprehensive guide."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=3d860_Broker%20adda_broker-adda-web_src_app_help_getting-started_layout_tsx_6b717379._.js.map

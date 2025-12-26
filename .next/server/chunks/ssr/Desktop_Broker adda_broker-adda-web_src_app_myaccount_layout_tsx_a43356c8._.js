@@ -1,0 +1,3 @@
+module.exports=[15921,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"My Account | Account Management | Broker Gully",description:"Manage your Broker Gully account settings, profile information, and preferences. Access all your account features."};function c({children:a}){return a}}];
+
+//# sourceMappingURL=Desktop_Broker%20adda_broker-adda-web_src_app_myaccount_layout_tsx_a43356c8._.js.map

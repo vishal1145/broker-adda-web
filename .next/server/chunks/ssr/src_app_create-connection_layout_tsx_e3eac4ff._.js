@@ -1,3 +1,0 @@
-module.exports=[27639,a=>{"use strict";a.s(["default",()=>c,"metadata",()=>b]);let b={title:"Connections | Manage Broker Connections | Broker Gully",description:"View and manage all your broker connections. Connect with other real estate professionals and expand your network on Broker Gully."};function c({children:a}){return a}}];
-
-//# sourceMappingURL=src_app_create-connection_layout_tsx_e3eac4ff._.js.map
