@@ -290,11 +290,10 @@ const Settings = () => {
           localStorage.removeItem('authToken');
           localStorage.removeItem('user');
           
-          // Redirect to home page after a short delay
+          // Redirect to login page after a short delay
           setTimeout(() => {
-            router.push('/');
-            window.location.reload();
-          }, 1500);
+            router.push('/login?deleted=true');
+          }, 2000);
         }
       } else {
         const errorData = await response.json().catch(() => ({}));

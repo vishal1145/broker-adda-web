@@ -75,6 +75,21 @@ function PropertyDetailsPageInner() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
 
+  // Helper function to format listed date as relative time
+  const formatListedDate = (dateString) => {
+    if (!dateString) return "Recently";
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 30) return `${diffDays} days ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+    return date.toLocaleDateString();
+  };
+
   // Helper function to format price based on value (thousands, lakhs, crores)
   const formatPrice = (price) => {
     if (!price || price === 0) return "0";
@@ -237,6 +252,7 @@ function PropertyDetailsPageInner() {
                 ? Math.round(propertyData.price / propertyData.areaSqft)
                 : 0),
             videos: Array.isArray(propertyData.videos) ? propertyData.videos : [],
+            createdAt: propertyData.createdAt || propertyData.createdDate || propertyData.listedDate || null,
             // capture possible agent identifiers for downstream fetch
             _raw: propertyData,
           };
@@ -258,8 +274,19 @@ function PropertyDetailsPageInner() {
                 b.profileImage ||
                 b.avatar ||
                 "/images/user-1.webp",
-              region:
-                b.region || propertyData.city || propertyData.region || "",
+              region: (() => {
+                const r = b.region;
+                if (Array.isArray(r) && r.length > 0) {
+                  const first = r[0];
+                  return typeof first === "string"
+                    ? first
+                    : first?.name || first?.city || first?.state || "";
+                }
+                if (typeof r === "string") return r;
+                if (r && typeof r === "object")
+                  return r.name || r.city || r.state || "";
+                return b.city || b.state || propertyData.city || propertyData.region || "";
+              })(),
               experience: b.experience || b.experienceYears || "",
             };
             setAgent(mappedAgent);
@@ -1741,9 +1768,7 @@ function PropertyDetailsPageInner() {
                           Listed
                         </div>
                         <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">
-                          {product?.createdAt
-                            ? new Date(product.createdAt).toLocaleDateString()
-                            : "3 days ago"}
+                          {formatListedDate(product?.createdAt)}
                         </div>
                       </div>
                     </div>
@@ -2173,10 +2198,7 @@ function PropertyDetailsPageInner() {
                         : product.region}
                     </p>
                     <p className="top-[61px] left-[16px] font-inter text-[12px] leading-[20px] font-normal text-[#565D6D] mt-2">
-                      • Listed{" "}
-                      {product?.createdAt
-                        ? new Date(product.createdAt).toLocaleDateString()
-                        : "3 days ago"}
+                      • Listed {formatListedDate(product?.createdAt)}
                     </p>
                     <p className="  text-[18px] leading-[32px] font-bold text-[#0D542B] mt-2">
                       ₹{formatPrice(price)}
@@ -2715,7 +2737,7 @@ function PropertyDetailsPageInner() {
               Related Properties
             </h3>
           </div>
-          {similarProperties.length > 4 && (
+          {similarProperties.length > 1 && (
           <div className="flex items-center gap-2">
             <Link
               href="/search?tab=properties"
@@ -2730,7 +2752,7 @@ function PropertyDetailsPageInner() {
         {/* Carousel with scrollable cards */}
         <div
           id="related-properties-carousel"
-          className="overflow-x-auto scroll-smooth"
+          className="overflow-x-auto scroll-smooth -mx-4 px-4 md:mx-0 md:px-0"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           onScroll={(e) => {
             const carousel = e.currentTarget;
@@ -2740,13 +2762,13 @@ function PropertyDetailsPageInner() {
             setCanScrollRight(scrollLeft < maxScroll - 10);
           }}
         >
-          <div className="flex gap-6 min-w-0 pb-2">
+          <div className="flex gap-4 md:gap-6 min-w-0 pb-2">
             {similarLoading ? (
               // Loading state
               Array.from({ length: 6 }).map((_, index) => (
                 <div
                   key={index}
-                  className="flex-shrink-0 w-[calc((100%-72px)/4)] bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
+                  className="flex-shrink-0 w-full sm:w-[calc((100%-24px)/2)] md:w-[calc((100%-48px)/3)] lg:w-[calc((100%-72px)/4)] bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
                 >
                   <ContentLoader
                     speed={2}
@@ -2774,7 +2796,7 @@ function PropertyDetailsPageInner() {
               similarProperties.map((p) => (
                 <div
                   key={p.id}
-                  className="flex-shrink-0 w-[calc((100%-72px)/4)] bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                  className="flex-shrink-0 w-full sm:w-[calc((100%-24px)/2)] md:w-[calc((100%-48px)/3)] lg:w-[calc((100%-72px)/4)] bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group"
                 >
                   <Link
                     href={`/property-details/${p.id}`}
@@ -2895,8 +2917,8 @@ function PropertyDetailsPageInner() {
           </div>
         </div>
 
-        {/* Carousel navigation buttons - only show if more than 4 properties */}
-        {similarProperties.length > 4 && (
+        {/* Carousel navigation buttons - only show if more than 1 property on mobile, 2 on tablet, 4 on desktop */}
+        {similarProperties.length > 1 && (
         <div className="flex gap-2 mt-7 justify-center">
           <button
             type="button"
@@ -2905,8 +2927,22 @@ function PropertyDetailsPageInner() {
                 "related-properties-carousel"
               );
               if (carousel && canScrollLeft) {
-                // Scroll by one card width + gap (exactly 25% of container + 24px gap)
-                const scrollAmount = (carousel.clientWidth - 72) / 4 + 24;
+                // Responsive scroll amount based on viewport
+                const width = carousel.clientWidth;
+                let scrollAmount;
+                if (width < 640) {
+                  // Mobile: 1 card at a time (full width)
+                  scrollAmount = width;
+                } else if (width < 768) {
+                  // Small tablet: 2 cards with 16px gap
+                  scrollAmount = (width - 16) / 2 + 16;
+                } else if (width < 1024) {
+                  // Tablet: 3 cards with 24px gaps
+                  scrollAmount = (width - 48) / 3 + 24;
+                } else {
+                  // Desktop: 4 cards with 24px gaps
+                  scrollAmount = (width - 72) / 4 + 24;
+                }
                 carousel.scrollBy({ left: -scrollAmount, behavior: "smooth" });
               }
             }}
@@ -2938,8 +2974,22 @@ function PropertyDetailsPageInner() {
                 "related-properties-carousel"
               );
               if (carousel && canScrollRight) {
-                // Scroll by one card width + gap (exactly 25% of container + 24px gap)
-                const scrollAmount = (carousel.clientWidth - 72) / 4 + 24;
+                // Responsive scroll amount based on viewport
+                const width = carousel.clientWidth;
+                let scrollAmount;
+                if (width < 640) {
+                  // Mobile: 1 card at a time (full width)
+                  scrollAmount = width;
+                } else if (width < 768) {
+                  // Small tablet: 2 cards with 16px gap
+                  scrollAmount = (width - 16) / 2 + 16;
+                } else if (width < 1024) {
+                  // Tablet: 3 cards with 24px gaps
+                  scrollAmount = (width - 48) / 3 + 24;
+                } else {
+                  // Desktop: 4 cards with 24px gaps
+                  scrollAmount = (width - 72) / 4 + 24;
+                }
                 carousel.scrollBy({ left: scrollAmount, behavior: "smooth" });
               }
             }}

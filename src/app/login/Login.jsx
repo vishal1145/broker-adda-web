@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import OTPModal from '../components/OTPModal';
@@ -19,6 +19,20 @@ const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
+  const deleted = searchParams.get('deleted');
+
+  // Show notification if account was deleted
+  useEffect(() => {
+    if (deleted === 'true') {
+      toast.success('Your account has been successfully deleted.', {
+        duration: 4000,
+      });
+      // Remove the query parameter from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('deleted');
+      window.history.replaceState({}, '', url.pathname + url.search);
+    }
+  }, [deleted]);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
