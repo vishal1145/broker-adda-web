@@ -374,6 +374,33 @@ const Dashboard = () => {
     return `₹${num.toLocaleString('en-IN')}`;
   };
 
+  const formatBudget = (budget) => {
+    if (!budget && budget !== 0) return "—";
+    
+    const num = typeof budget === "number" ? budget : Number(String(budget).replace(/[^0-9.]/g, ""));
+    if (isNaN(num) || num === 0) return "—";
+    
+    // 1 Crore = 1,00,00,000
+    if (num >= 10000000) {
+      const crores = num / 10000000;
+      return `₹${crores % 1 === 0 ? crores.toFixed(0) : crores.toFixed(2)} Cr`;
+    }
+    // 1 Lakh = 1,00,000
+    else if (num >= 100000) {
+      const lakhs = num / 100000;
+      return `₹${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(2)} Lakh`;
+    }
+    // 1 Thousand = 1,000
+    else if (num >= 1000) {
+      const thousands = num / 1000;
+      return `₹${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(2)}K`;
+    }
+    // Less than 1000
+    else {
+      return `₹${num.toLocaleString('en-IN')}`;
+    }
+  };
+
   const renderActivityIcon = (iconType) => {
     const common = 'w-3.5 h-3.5 text-gray-500';
     
@@ -810,9 +837,7 @@ const Dashboard = () => {
                             <div className="flex items-center flex-wrap gap-1">
                               <span className="font-inter text-[11px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
                               <span className="text-[11px] leading-5 font-normal" style={{ color: '#565D6D' }}>
-                                {typeof lead.budget === "number" && lead.budget > 0
-                                  ? "₹" + lead.budget.toLocaleString('en-IN')
-                                  : lead.budget || "TBD (TO BE DECIDED)"}
+                                {formatBudget(lead.budget)}
                               </span>
                             </div>
                           </div>
@@ -978,7 +1003,7 @@ const Dashboard = () => {
           {/* Details Section - Right */}
           <div className="flex-1 p-4 flex flex-col min-w-0">
             {/* Title */}
-            <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
+            <h3 className="mb-2 flex items-center gap-2 capitalize" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
               {propertyCards[0].title || 'Modern Family Home'}
               <button
                 onClick={(e) => {
@@ -1003,7 +1028,7 @@ const Dashboard = () => {
 
             {/* Location Details */}
             <div className="flex flex-col gap-2 mb-4">
-              <div className="flex items-center text-xs text-gray-600">
+              <div className="flex items-center text-xs text-gray-600 capitalize">
                 <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />

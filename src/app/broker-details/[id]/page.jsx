@@ -127,6 +127,33 @@ export default function BrokerDetailsPage() {
     return str.replace(/[-_]+/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase()).replace(/Ncr\b/i, 'NCR');
   };
 
+  const formatBudget = (budget) => {
+    if (!budget && budget !== 0) return "—";
+    
+    const num = typeof budget === "number" ? budget : Number(String(budget).replace(/[^0-9.]/g, ""));
+    if (isNaN(num) || num === 0) return "—";
+    
+    // 1 Crore = 1,00,00,000
+    if (num >= 10000000) {
+      const crores = num / 10000000;
+      return `₹${crores % 1 === 0 ? crores.toFixed(0) : crores.toFixed(2)} Cr`;
+    }
+    // 1 Lakh = 1,00,000
+    else if (num >= 100000) {
+      const lakhs = num / 100000;
+      return `₹${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(2)} Lakh`;
+    }
+    // 1 Thousand = 1,000
+    else if (num >= 1000) {
+      const thousands = num / 1000;
+      return `₹${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(2)}K`;
+    }
+    // Less than 1000
+    else {
+      return `₹${num.toLocaleString('en-IN')}`;
+    }
+  };
+
   // Fetch similar brokers once main broker is loaded
   useEffect(() => {
     const fetchSimilar = async () => {
@@ -981,7 +1008,7 @@ export default function BrokerDetailsPage() {
                                   <div className="flex items-center flex-wrap gap-1">
                                     <span className="font-inter text-[12px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>
                                     <span className="text-[12px] leading-5 font-normal" style={{ color: '#565D6D' }}>
-                                      {typeof price === 'number' ? `₹${price.toLocaleString('en-IN')}` : (price || '—')}
+                                      {formatBudget(price)}
                                     </span>
                                   </div>
                                 </div>
@@ -1141,7 +1168,7 @@ export default function BrokerDetailsPage() {
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-semibold text-gray-900">{name}</h4>
+                              <h4 className="font-semibold text-gray-900 capitalize">{name}</h4>
                               <div className="flex items-center gap-1">
                                 <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -1149,10 +1176,10 @@ export default function BrokerDetailsPage() {
                                 <span className="text-sm font-medium text-gray-700">{rating}</span>
                               </div>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">{firm}{firm && expYears ? ' • ' : ''}{expYears ? `${expYears}+ Years` : ''}</p>
+                            <p className="text-sm text-gray-600 mb-2 capitalize">{firm}{firm && expYears ? ' • ' : ''}{expYears ? `${expYears}+ Years` : ''}</p>
                             <div className="flex flex-wrap gap-1">
                               {specs.slice(0, 3).map((spec, specIndex) => (
-                                <span key={specIndex} className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs border border-gray-200">
+                                <span key={specIndex} className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs border border-gray-200 capitalize">
                                   {spec}
                                 </span>
                               ))}
@@ -1597,7 +1624,7 @@ export default function BrokerDetailsPage() {
                               <div className="p-6 flex flex-col flex-1">
                                 <div className="flex items-start justify-between mb-3">
                                   <div className="flex items-center gap-1 group/name">
-                                    <h3 className="text-[18px] leading-7 font-semibold text-gray-900 line-clamp-1">{name}</h3>
+                                    <h3 className="text-[18px] leading-7 font-semibold text-gray-900 line-clamp-1 capitalize">{name}</h3>
                                     <svg className="h-5 w-5 text-emerald-600 flex-shrink-0 transition-transform group-hover/name:translate-x-1 group-hover/name:-translate-y-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                       <path d="M7 17L17 7" />
                                       <path d="M7 7h10v10" />
@@ -1606,7 +1633,7 @@ export default function BrokerDetailsPage() {
                                 </div>
 
                                 <div className="mb-3">
-                                  <p className="text-[12px] leading-5 font-normal text-gray-600 line-clamp-1">{title}</p>
+                                  <p className="text-[12px] leading-5 font-normal text-gray-600 line-clamp-1 capitalize">{title}</p>
                                 </div>
 
                                 <div className="flex items-center gap-2 mb-3 mt-auto">
@@ -1614,7 +1641,7 @@ export default function BrokerDetailsPage() {
                                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                     <circle cx="12" cy="10" r="3"></circle>
                                   </svg>
-                                  <p className="text-[12px] leading-5 font-normal text-gray-600 line-clamp-1">{regionText}</p>
+                                  <p className="text-[12px] leading-5 font-normal text-gray-600 line-clamp-1 capitalize">{regionText}</p>
                                 </div>
 
                                 <div className="flex items-center gap-2">

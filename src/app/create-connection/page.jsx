@@ -11,6 +11,9 @@ const Connections = () => {
   const [connections, setConnections] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isPageLoading, setIsPageLoading] = useState(false);
+  const itemsPerPage = 9;
 
   useEffect(() => {
     fetchConnections();
@@ -57,6 +60,7 @@ const Connections = () => {
       }
 
       setConnections(connectionsList);
+      setCurrentPage(1); // Reset to first page when fetching new data
     } catch (err) {
       setError('Failed to load connections. Please try again.');
     } finally {
@@ -113,6 +117,27 @@ const Connections = () => {
       hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
     }
     return palette[hash % palette.length];
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(connections.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedConnections = connections.slice(startIndex, endIndex);
+  const startResult = connections.length > 0 ? startIndex + 1 : 0;
+  const endResult = Math.min(endIndex, connections.length);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages || newPage === currentPage) return;
+    
+    setIsPageLoading(true);
+    // Simulate loading delay for page change
+    setTimeout(() => {
+      setCurrentPage(newPage);
+      setIsPageLoading(false);
+      // Scroll to top of the connections section
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 300);
   };
 
   const headerData = {
@@ -210,8 +235,29 @@ const Connections = () => {
 
           {/* Connections Grid */}
           {!isLoading && !error && connections.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {connections.map((connection, index) => {
+            <>
+              {isPageLoading && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                    <div key={i} className="bg-white border border-gray-200 rounded-xl p-6 shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] animate-pulse">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-14 h-14 bg-gray-200 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-24"></div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-3 bg-gray-200 rounded w-full"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {!isPageLoading && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {paginatedConnections.map((connection, index) => {
                 const broker = getBrokerData(connection);
                 const connectionId = connection?._id || connection?.id || connection?.chatId || index;
                 const avatarColor = getAvatarColor(broker.name);
@@ -287,7 +333,65 @@ const Connections = () => {
                   </div>
                 );
               })}
-            </div>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
+                  <div className="text-[14px] text-[#565D6DFF]">
+                    Showing {startResult}-{endResult} of {connections.length} results
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {/* Previous Button */}
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1 || isPageLoading}
+                      className={`px-3 py-2 rounded-lg border transition-colors ${
+                        currentPage === 1 || isPageLoading
+                          ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+
+                    {/* Page Numbers */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        disabled={isPageLoading}
+                        className={`px-4 py-2 rounded-lg border transition-colors ${
+                          currentPage === page
+                            ? 'bg-[#0D542B] border-[#0D542B] text-white'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                        } ${isPageLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    {/* Next Button */}
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages || isPageLoading}
+                      className={`px-3 py-2 rounded-lg border transition-colors ${
+                        currentPage === totalPages || isPageLoading
+                          ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

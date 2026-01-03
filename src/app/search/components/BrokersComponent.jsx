@@ -1778,7 +1778,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         />
         <circle cx="12" cy="10" r="3" />
       </svg>
-      <div className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#19191FFF] truncate">
+      <div className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#19191FFF] truncate capitalize">
         {broker.address && broker.address !== 'Unknown Address' ? broker.address : 'Address Not Provided'}
       </div>
     </div>
@@ -1810,7 +1810,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
           />
         </svg>
-        <span className="truncate">{location}</span>
+        <span className="truncate capitalize">{location}</span>
       </span>
     ))}
 
