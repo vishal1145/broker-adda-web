@@ -756,9 +756,9 @@ const Dashboard = () => {
                             <div className="flex items-center flex-wrap gap-1">
                               <span className="font-inter text-[11px] leading-5 font-medium text-[#171A1FFF]">Budget:</span>{" "}
                               <span className="text-[11px] leading-5 font-normal" style={{ color: '#565D6D' }}>
-                                {typeof lead.budget === "number"
+                                {typeof lead.budget === "number" && lead.budget > 0
                                   ? "₹" + lead.budget.toLocaleString('en-IN')
-                                  : lead.budget || "—"}
+                                  : lead.budget || "TBD (TO BE DECIDED)"}
                               </span>
                             </div>
                           </div>

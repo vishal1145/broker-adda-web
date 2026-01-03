@@ -315,10 +315,10 @@ const LatestLeads: React.FC = () => {
 
   /* ───────────── Budget formatting helper ───────────── */
   const formatBudget = (budget: number | string | undefined): string => {
-    if (!budget && budget !== 0) return "—";
+    if (!budget && budget !== 0) return "TBD (TO BE DECIDED)";
     
     const num = typeof budget === "number" ? budget : Number(String(budget).replace(/[^0-9.]/g, ""));
-    if (isNaN(num) || num === 0) return "—";
+    if (isNaN(num) || num === 0) return "TBD (TO BE DECIDED)";
     
     // 1 Crore = 1,00,00,000
     if (num >= 10000000) {

@@ -663,7 +663,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
               return Math.max(0, Math.floor(years));
             })(),
             languages: ['English', 'Hindi'], // Default languages
-            address: broker.address || broker.centerLocation || 'Unknown Address',
+            address: broker.address || broker.centerLocation || null,
             brokerTypes: broker.specializations || ['Real Estate Consulting'], // Map specializations to broker types
             // Add the missing fields for proper data binding - use the raw broker data directly
             specializations: broker.specializations || [],
@@ -1506,7 +1506,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
         {/* Header with heading */}
         <div className="mb-4 md:mb-6">
           <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
-           {totalItems} Brokers Found
+           {totalItems} {(totalItems === 1 || totalItems === 0) ? 'Broker' : 'Brokers'} Found
            
           </h2>
            <p className="text-[10px] md:text-[12px] text-gray-600">
@@ -1747,12 +1747,13 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   </span>
 
   {/* Experience */}
-  <span className="inline-flex items-center gap-1.5">
-   
-    <span className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#565D6DFF]">
-      {`${Math.max(0, parseInt(broker.experience ?? 0))} years experience`}
+  {(typeof broker.experience === 'number' ? broker.experience : parseInt(broker.experience ?? 0)) > 0 && (
+    <span className="inline-flex items-center gap-1.5">
+      <span className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#565D6DFF]">
+        {`${Math.max(0, Math.floor(typeof broker.experience === 'number' ? broker.experience : parseInt(broker.experience ?? 0)))} years experience`}
+      </span>
     </span>
-  </span>
+  )}
 </div>
 
 
@@ -1761,29 +1762,27 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
   </div>
 
   {/* Address Chip */}
-  {broker.address && (
-    <div className="mb-3 px-3 md:px-4 py-1.5 md:py-2 rounded-md border border-yellow-300 bg-yellow-50">
-      <div className="flex items-center gap-2">
-        <svg
-          className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#171A1FFF] flex-shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"
-          />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-        <div className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#19191FFF] truncate">
-          {broker.address}
-        </div>
+  <div className="mb-3 px-3 md:px-4 py-1.5 md:py-2 rounded-md border border-yellow-300 bg-yellow-50">
+    <div className="flex items-center gap-2">
+      <svg
+        className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#171A1FFF] flex-shrink-0"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        strokeWidth="2"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"
+        />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+      <div className="font-inter text-[11px] md:text-[12px] leading-[14px] md:leading-[16px] font-normal text-[#19191FFF] truncate">
+        {broker.address && broker.address !== 'Unknown Address' ? broker.address : 'Address Not Provided'}
       </div>
     </div>
-  )}
+  </div>
 
   {/* Location + Leads */}
   <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3 md:mb-4">
@@ -1830,7 +1829,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
           d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-5a1 1 0 011-1h2a1 1 0 011 1v5h3a1 1 0 001-1V10"
         />
       </svg>
-      <span>{(actualLeadsCreated.count || 0) === 0 ? 'New Broker' : `${actualLeadsCreated.count} queries`}</span>
+      <span>{(actualLeadsCreated.count || 0) === 0 ? 'New Broker' : `${actualLeadsCreated.count} ${(actualLeadsCreated.count || 0) === 1 ? 'Query' : 'Queries'}`}</span>
     </span>
   </div>
 

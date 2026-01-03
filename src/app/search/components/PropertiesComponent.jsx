@@ -572,7 +572,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
             const image = images[0] || '/images/pexels-binyaminmellish-106399.jpg';
             const rating = propertyRatings[id] || p.rating || '4.7';
             const price = typeof p.price === 'number' ? p.price : undefined;
-            const currentPrice = price ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price) : '-';
+            const currentPrice = formatPropertyPrice(price);
             const status = p.status || '';
             const address = p.address || '';
             const description = p.description || p.propertyDescription || '';
@@ -632,7 +632,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
           const image = images[0] || '/images/pexels-binyaminmellish-106399.jpg';
           const rating = propertyRatings[id] || p.rating || '4.7';
           const price = typeof p.price === 'number' ? p.price : undefined;
-          const currentPrice = price ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price) : '-';
+          const currentPrice = formatPropertyPrice(price);
           const status = p.status || '';
           const address = p.address || '';
           const description = p.description || p.propertyDescription || '';
@@ -880,13 +880,31 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
   };
 
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
+  // Helper function to format property price in Lakhs and Crores
+  const formatPropertyPrice = (price) => {
+    if (!price || price === 0) return '-';
+    const numPrice = typeof price === 'number' ? price : parseFloat(String(price).replace(/[₹,]/g, ''));
+    if (isNaN(numPrice) || numPrice === 0) return '-';
+    
+    // If price is >= 1 crore (1,00,00,000)
+    if (numPrice >= 10000000) {
+      const crores = numPrice / 10000000;
+      return `₹${crores.toFixed(2)} Cr`;
+    }
+    // If price is >= 1 lakh (1,00,000)
+    else if (numPrice >= 100000) {
+      const lakhs = numPrice / 100000;
+      return `₹${lakhs.toFixed(2)} Lakhs`;
+    }
+    // If price is < 1 lakh, show in thousands or as is
+    else if (numPrice >= 1000) {
+      const thousands = numPrice / 1000;
+      return `₹${thousands.toFixed(2)} K`;
+    }
+    // If price is < 1 thousand, show as is
+    else {
+      return `₹${Math.round(numPrice).toLocaleString("en-IN")}`;
+    }
   };
 
   // Handle price min input on blur
@@ -1591,7 +1609,10 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
               {/* Results Heading */}
               <div className="mb-4 md:mb-6">
                 <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
-                  {propertyItems.length} Property Found
+                  {(() => {
+                    const total = pagination.total || propertyItems.length;
+                    return `${total} ${(total === 1 || total === 0) ? 'Property' : 'Properties'} Found`;
+                  })()}
                   <p className="text-[10px] md:text-[12px] text-gray-600">
                     Experts that match your selected region & specialization.
                   </p>

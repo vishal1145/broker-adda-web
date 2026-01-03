@@ -1647,7 +1647,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
 
 
                 {/* Verification Status */}
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <label className="block" style={{ fontFamily: 'Inter', fontSize: '13px', lineHeight: '16px', fontWeight: '500', color: '#565D6DFF' }}>Broker Verification Status: Verified</label>
                   <div
                     className="relative inline-block w-[44px] h-6 cursor-pointer"
@@ -1669,7 +1669,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                       <div className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform duration-200 ${leadFilters.verificationStatus ? 'translate-x-[20px]' : 'translate-x-0'}`}></div>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
 
               </div>
@@ -1713,7 +1713,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
         {/* Header with heading */}
         <div className="mb-4 md:mb-6">
           <h2 className="text-[16px] md:text-[18px] font-semibold text-gray-900">
-            {totalLeads}    Query Found
+            {totalLeads} {(totalLeads === 1 || totalLeads === 0) ? 'Query' : 'Queries'} Found
           </h2>
           <p className="text-[10px] md:text-[12px] text-gray-600">
             Experts that match your selected region & specialization.
