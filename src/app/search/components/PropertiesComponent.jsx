@@ -1747,7 +1747,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                             {/* Details Section - Right */}
                             <div className="flex-1 p-4 md:p-4 lg:p-5 min-h-[200px] md:h-[260px] flex flex-col md:min-w-0">
                               {/* Title */}
-                              <h3 className="mb-2 flex items-center gap-2 text-[14px] md:text-[14px] lg:text-[16px] leading-[20px] md:leading-[20px] lg:leading-[22px] font-semibold" style={{ fontWeight: '600', color: '#171A1FFF' }}>
+                              <h3 className="mb-2 flex items-center gap-2 text-[14px] md:text-[14px] lg:text-[16px] leading-[20px] md:leading-[20px] lg:leading-[22px] font-semibold capitalize" style={{ fontWeight: '600', color: '#171A1FFF' }}>
                                 <span className="truncate">{property.name}</span>
                                 <svg className="w-3 h-3 md:w-3 md:h-3 lg:w-3.5 lg:h-3.5 text-[#0A421E] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
                                   <path d="M7 17l10-10M7 7h10v10" />
@@ -1772,7 +1772,7 @@ const PropertiesComponent = ({ activeTab, setActiveTab }) => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                   </svg>
-                                  <span className="truncate min-w-0">{Array.isArray(property.region)
+                                  <span className="truncate min-w-0 capitalize">{Array.isArray(property.region)
                                     ? property.region.map(r => (typeof r === 'string' ? r : r?.name)).filter(Boolean).join(', ')
                                     : (typeof property.region === 'string' ? property.region : property.region?.name) || 'Electronic City, Noida, Uttar Pradesh, India'}</span>
                                 </div>

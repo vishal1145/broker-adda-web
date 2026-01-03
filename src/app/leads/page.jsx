@@ -894,6 +894,37 @@ function BrokerLeadsPageContent() {
     }
   };
 
+  /* ───────────── Budget formatting for slider display ───────────── */
+  const formatBudgetForSlider = (budget) => {
+    if (budget === null || budget === undefined) return "₹0 Lakh";
+    
+    const num = typeof budget === "number" ? budget : Number(String(budget).replace(/[^0-9.]/g, ""));
+    if (isNaN(num)) return "₹0 Lakh";
+    
+    // Handle 0 case
+    if (num === 0) return "₹0 Lakh";
+    
+    // 1 Crore = 1,00,00,000
+    if (num >= 10000000) {
+      const crores = num / 10000000;
+      return `₹${crores % 1 === 0 ? crores.toFixed(0) : crores.toFixed(2)} Cr`;
+    }
+    // 1 Lakh = 1,00,000
+    else if (num >= 100000) {
+      const lakhs = num / 100000;
+      return `₹${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(2)} Lakh`;
+    }
+    // 1 Thousand = 1,000
+    else if (num >= 1000) {
+      const thousands = num / 1000;
+      return `₹${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(2)}K`;
+    }
+    // Less than 1000
+    else {
+      return `₹${num.toLocaleString('en-IN')}`;
+    }
+  };
+
   /* ───────────── Notification helpers ───────────── */
   const formatNotificationDate = (dateString) => {
     if (!dateString) return "";
@@ -2399,7 +2430,7 @@ function BrokerLeadsPageContent() {
                                   );
                                 })()}
                                 <div className="flex-1 pr-4">
-                                  <h3 className="break-words text-[14px] leading-[24px] font-semibold text-[#171A1F]">
+                                  <h3 className="break-words text-[14px] leading-[24px] font-semibold text-[#171A1F] capitalize">
                                     {row.customerName || row.name || "-"}
                                   </h3>
                                   <p className="text-[12px] font-normal text-[#565D6D] break-words leading-tight">
@@ -2477,9 +2508,9 @@ function BrokerLeadsPageContent() {
                                       getRegionNames(row);
                                     return (
                                       <div className="break-words text-[12px] leading-[16px] flex flex-col gap-1 font-medium text-[#171A1F]">
-                                        <div>{primary || "—"}</div>
+                                        <div className="capitalize">{primary || "—"}</div>
                                         {secondary && (
-                                          <div className="break-words text-[12px] leading-[16px]  font-medium text-[#171A1F]">
+                                          <div className="break-words text-[12px] leading-[16px] font-medium text-[#171A1F] capitalize">
                                             {secondary}
                                           </div>
                                         )}
@@ -3711,30 +3742,9 @@ function BrokerLeadsPageContent() {
                             }}
                           />
                           <div className="absolute -top-6 right-0 flex items-center border border-green-200 rounded-full bg-green-50 px-2 py-0.5">
-                            <span className="text-[11px] font-semibold text-green-900 mr-1">
-                              ₹
+                            <span className="text-[11px] font-semibold text-green-900 whitespace-nowrap">
+                              {formatBudgetForSlider(value)}
                             </span>
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              value={String(value)}
-                              onChange={(e) => {
-                                const n = Number(
-                                  (e.target.value || "").replace(/[^0-9]/g, "")
-                                );
-                                const clamped = isNaN(n)
-                                  ? 0
-                                  : Math.min(budgetMax, Math.max(budgetMin, n));
-                                setNewLead({ ...newLead, budget: clamped });
-                              }}
-                              className="w-[2ch] text-[11px] font-semibold text-green-900 bg-transparent text-right focus:outline-none font-mono tabular-nums"
-                              style={{
-                                width: `calc(${Math.max(
-                                  3,
-                                  String(value).length
-                                )}ch + 0.15rem)`, // dynamic width
-                              }}
-                            />
                           </div>
                         </div>
                         {/* removed below-slider controls per request */}
@@ -3824,7 +3834,7 @@ function BrokerLeadsPageContent() {
                       ></path>
                     </svg>
                   )}
-                  {addLeadLoading ? "Adding Lead..." : "Add Lead"}
+                  {addLeadLoading ? "Adding Lead..." : "Add Enquiry"}
                 </button>
               </div>
             </div>

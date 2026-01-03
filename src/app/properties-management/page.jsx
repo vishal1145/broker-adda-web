@@ -92,6 +92,62 @@ const initialProperties = [
   }
 ];
 
+// Helper function to format property price in Lakhs and Crores
+const formatPropertyPrice = (price) => {
+  if (!price || price === 0) return 'Price on Request';
+  const numPrice = typeof price === 'number' ? price : parseFloat(String(price).replace(/[₹,]/g, ''));
+  if (isNaN(numPrice) || numPrice === 0) return 'Price on Request';
+  
+  // If price is >= 1 crore (1,00,00,000)
+  if (numPrice >= 10000000) {
+    const crores = numPrice / 10000000;
+    return `₹${crores.toFixed(2)} Cr`;
+  }
+  // If price is >= 1 lakh (1,00,000)
+  else if (numPrice >= 100000) {
+    const lakhs = numPrice / 100000;
+    return `₹${lakhs.toFixed(2)} Lakh`;
+  }
+  // If price is < 1 lakh, show in thousands or as is
+  else if (numPrice >= 1000) {
+    const thousands = numPrice / 1000;
+    return `₹${thousands.toFixed(2)}K`;
+  }
+  // If price is < 1 thousand, show as is
+  else {
+    return `₹${Math.round(numPrice).toLocaleString("en-IN")}`;
+  }
+};
+
+// Helper function to capitalize proper nouns (city/region names)
+const capitalizeLocationName = (name) => {
+  if (!name || typeof name !== "string") return name || "";
+  // Capitalize first letter of each word
+  return name
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+// Helper function to capitalize title (title case)
+const capitalizeTitle = (title) => {
+  if (!title || typeof title !== "string") return title || "";
+  // Words that should remain lowercase unless they're the first word
+  const lowercaseWords = ['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'into', 'nor', 'of', 'on', 'or', 'the', 'to', 'with'];
+  
+  return title
+    .split(" ")
+    .map((word, index) => {
+      const lowerWord = word.toLowerCase();
+      // Always capitalize first word, or if word is not in lowercase list
+      if (index === 0 || !lowercaseWords.includes(lowerWord)) {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      }
+      return lowerWord;
+    })
+    .join(" ");
+};
+
 const PropertiesManagement = () => {
   const [items, setItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -385,11 +441,7 @@ const PropertiesManagement = () => {
             notes: property.notes || '',
             broker: brokerIdToUse, // Use the current broker ID
             rating: property.rating || '4.7',
-            currentPrice: property.price ? new Intl.NumberFormat('en-IN', {
-              style: 'currency',
-              currency: 'INR',
-              maximumFractionDigits: 0
-            }).format(property.price) : '-'
+            currentPrice: property.price ? formatPropertyPrice(property.price) : 'Price on Request'
           });
         });
 
@@ -617,11 +669,7 @@ const PropertiesManagement = () => {
             notes: property.notes || '',
             broker: brokerId,
             rating: property.rating || '4.7',
-            currentPrice: property.price ? new Intl.NumberFormat('en-IN', {
-              style: 'currency',
-              currency: 'INR',
-              maximumFractionDigits: 0
-            }).format(property.price) : '-'
+            currentPrice: property.price ? formatPropertyPrice(property.price) : 'Price on Request'
           });
         });
 
@@ -1124,7 +1172,7 @@ const PropertiesManagement = () => {
                                 backgroundColor: '#FDC700'
                               }}
                             >
-                              {property.currentPrice !== '-' ? property.currentPrice : 'Price on Request'}
+                              {property.currentPrice}
                             </span>
                           </div>
                           {/* Share icon bottom-right */}
@@ -1154,7 +1202,7 @@ const PropertiesManagement = () => {
                         {/* Details Section - Right */}
                         <div className="flex-1 px-4 md:px-6 py-3 flex flex-col min-w-0 relative">
                           {/* Title */}
-                          <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
+                          <h3 className="mb-2 flex items-center gap-2 capitalize" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
                             <span className="truncate md:whitespace-nowrap">{property.title}</span>
                             <svg className="w-3.5 h-3.5 text-[#0A421E] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round">
                               <path d="M7 17l10-10M7 7h10v10" />
@@ -1168,7 +1216,7 @@ const PropertiesManagement = () => {
 
                           {/* Location Details */}
                           <div className="flex flex-col gap-2 mb-4">
-                            <div className="flex items-center text-xs text-gray-600">
+                            <div className="flex items-center text-xs text-gray-600 capitalize">
                               <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
                                 <circle cx="12" cy="10" r="3" strokeWidth="2" />

@@ -1032,7 +1032,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                 ? 'border border-red-300 focus:ring-2 focus:ring-red-400'
                                 : 'border border-gray-300 focus:ring-2 focus:ring-gray-400 focus:border-transparent'
                             }`}
-                            placeholder=""
+                            placeholder="e.g. 3BHK Luxury Apartment in Agra"
                             required
                           />
                           <div className="flex items-center justify-between">
@@ -1273,6 +1273,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                         setForm((prev) => ({ ...prev, price: raw }));
                                       }
                                     }}
+                                    placeholder="Enter Price (e.g. 50,00,000)"
                                     className={`pl-6 pr-3 py-2 text-[13px] rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-200 ${isFormSubmitted && !isPositiveNumber(form.price) ? 'border border-red-300 bg-white' : 'border border-gray-300 bg-white'}`}
                                     aria-label="Price"
                                     name="price"
@@ -1458,7 +1459,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                             rows={2}
                             maxLength={250}
                             className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200 resize-none"
-                            placeholder=""
+                            placeholder="Enter a brief description of your property (max 250 characters)..."
                           />
                           <p className="text-xs text-gray-500 text-right">{form.description.length}/250</p>
                         </div>
@@ -1473,7 +1474,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                             rows={3}
                             maxLength={500}
                             className="w-full border border-gray-300 rounded-xl text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200 resize-none"
-                            placeholder=""
+                            placeholder="Provide a detailed description of your property including features, location advantages, and any other relevant information (max 500 characters)..."
                           />
                           <p className="text-xs text-gray-500 text-right">{form.propertyDescription.length}/500</p>
                         </div>
@@ -1980,9 +1981,9 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                         <button
                           type="submit"
                           disabled={submitting || loadingProperty || !isCurrentStepValid()}
-                          className={`w-full py-3 rounded-xl font-semibold focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${
+                          className={`w-full py-3 rounded-xl font-semibold text-base focus:outline-none focus:ring-4 transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${
                             !submitting && !loadingProperty && isCurrentStepValid()
-                              ? "bg-green-900 text-white hover:bg-green-700 focus:ring-green-100 hover:shadow-xl"
+                              ? "bg-green-900 text-white hover:bg-green-800 focus:ring-green-200 hover:shadow-2xl transform hover:scale-[1.02]"
                               : "bg-gray-200 text-gray-500 opacity-50"
                           }`}
                           style={{
@@ -1998,9 +1999,9 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
-                              {isEditMode ? 'Updating...' : 'Creating...'}
+                              {isEditMode ? 'Updating...' : 'Posting...'}
                             </>
-                          ) : loadingProperty ? 'Loading...' : (isEditMode ? 'Update Property' : 'Create Property')}
+                          ) : loadingProperty ? 'Loading...' : (isEditMode ? 'Update Property' : 'Post Property')}
                         </button>
                       </div>
                     )}

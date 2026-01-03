@@ -121,19 +121,73 @@ const NotificationsPage = () => {
     }
   };
 
-  // Format time ago helper
+  // Format time ago helper - Human-readable format
   const formatTimeAgo = (dateString) => {
     if (!dateString) return 'Recently';
     try {
       const date = new Date(dateString);
       const now = new Date();
       const diffInSeconds = Math.floor((now - date) / 1000);
+      const diffInMinutes = Math.floor(diffInSeconds / 60);
+      const diffInHours = Math.floor(diffInSeconds / 3600);
+      const diffInDays = Math.floor(diffInSeconds / 86400);
       
-      if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-      if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
-      return date.toLocaleDateString();
+      // Check if same day
+      const isToday = date.toDateString() === now.toDateString();
+      const isYesterday = (() => {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        return date.toDateString() === yesterday.toDateString();
+      })();
+      
+      // Format time in 12-hour format
+      const formatTime = (date) => {
+        return date.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        });
+      };
+      
+      // Less than 1 minute
+      if (diffInSeconds < 60) {
+        return diffInSeconds < 10 ? 'Just now' : `${diffInSeconds} seconds ago`;
+      }
+      
+      // Less than 1 hour - show minutes ago
+      if (diffInMinutes < 60) {
+        return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+      }
+      
+      // Same day - show "Today, 2:00 PM"
+      if (isToday) {
+        return `Today, ${formatTime(date)}`;
+      }
+      
+      // Yesterday - show "Yesterday, 2:00 PM"
+      if (isYesterday) {
+        return `Yesterday, ${formatTime(date)}`;
+      }
+      
+      // Less than 7 days - show "X days ago"
+      if (diffInDays < 7) {
+        return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+      }
+      
+      // Less than 30 days - show "X weeks ago"
+      const diffInWeeks = Math.floor(diffInDays / 7);
+      if (diffInWeeks < 4) {
+        return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''} ago`;
+      }
+      
+      // Older dates - show formatted date with time
+      const isSameYear = date.getFullYear() === now.getFullYear();
+      const dateStr = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: isSameYear ? undefined : 'numeric'
+      });
+      return `${dateStr}, ${formatTime(date)}`;
     } catch (e) {
       return 'Recently';
     }

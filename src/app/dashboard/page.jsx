@@ -921,7 +921,7 @@ const Dashboard = () => {
           {/* Details Section - Right */}
           <div className="flex-1 p-4 flex flex-col min-w-0">
             {/* Title */}
-            <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
+            <h3 className="mb-2 flex items-center gap-2 capitalize" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
               {propertyCards[0].title || 'Modern Family Home'}
               <button
                 onClick={(e) => {
@@ -946,13 +946,13 @@ const Dashboard = () => {
 
             {/* Location Details */}
             <div className="flex flex-col gap-2 mb-4">
-              <div className="flex items-center text-xs text-gray-600">
+              <div className="flex items-center text-xs text-gray-600 capitalize">
                 <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
                 {propertyCards[0].city || 'Agra'}
               </div>
-              <div className="flex items-center text-xs text-gray-600">
+              <div className="flex items-center text-xs text-gray-600 capitalize">
                 <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
                   <circle cx="12" cy="10" r="3" strokeWidth="2" />

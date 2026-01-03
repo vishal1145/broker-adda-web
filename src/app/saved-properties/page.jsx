@@ -390,7 +390,7 @@ const SavedProperties = () => {
                           <div className="flex-1 p-4 flex flex-col">
                             {/* Title - One line */}
                             <h3
-                              className="mb-1 flex items-center gap-2 line-clamp-1"
+                              className="mb-1 flex items-center gap-2 line-clamp-1 capitalize"
                               style={{
                                 fontSize: "16px",
                                 lineHeight: "22px",

@@ -128,6 +128,37 @@ const AddLeadModal = ({ isOpen, onClose, onSuccess, brokerId }) => {
   // Get broker ID from props or localStorage
   const effectiveBrokerId = brokerId || (typeof window !== 'undefined' ? localStorage.getItem('brokerId') : null);
 
+  // Budget formatting for slider display
+  const formatBudgetForSlider = (budget) => {
+    if (budget === null || budget === undefined) return "₹0 Lakh";
+    
+    const num = typeof budget === "number" ? budget : Number(String(budget).replace(/[^0-9.]/g, ""));
+    if (isNaN(num)) return "₹0 Lakh";
+    
+    // Handle 0 case
+    if (num === 0) return "₹0 Lakh";
+    
+    // 1 Crore = 1,00,00,000
+    if (num >= 10000000) {
+      const crores = num / 10000000;
+      return `₹${crores % 1 === 0 ? crores.toFixed(0) : crores.toFixed(2)} Cr`;
+    }
+    // 1 Lakh = 1,00,000
+    else if (num >= 100000) {
+      const lakhs = num / 100000;
+      return `₹${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(2)} Lakh`;
+    }
+    // 1 Thousand = 1,000
+    else if (num >= 1000) {
+      const thousands = num / 1000;
+      return `₹${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(2)}K`;
+    }
+    // Less than 1000
+    else {
+      return `₹${num.toLocaleString('en-IN')}`;
+    }
+  };
+
   // Load all regions
   const loadRegions = useCallback(async () => {
     try {
@@ -538,21 +569,9 @@ const AddLeadModal = ({ isOpen, onClose, onSuccess, brokerId }) => {
                       }}
                     />
                     <div className="absolute -top-6 right-0 flex items-center border border-green-200 rounded-full bg-green-50 px-2 py-0.5">
-                      <span className="text-[11px] font-semibold text-green-900 mr-1">₹</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={String(value)}
-                        onChange={(e) => {
-                          const n = Number((e.target.value || '').replace(/[^0-9]/g, ''));
-                          const clamped = isNaN(n) ? 0 : Math.min(budgetMax, Math.max(budgetMin, n));
-                          setNewLead({ ...newLead, budget: clamped });
-                        }}
-                        className="w-[2ch] text-[11px] font-semibold text-green-900 bg-transparent text-right focus:outline-none font-mono tabular-nums"
-                        style={{
-                          width: `calc(${Math.max(3, String(value).length)}ch + 0.15rem)`,
-                        }}
-                      />
+                      <span className="text-[11px] font-semibold text-green-900 whitespace-nowrap">
+                        {formatBudgetForSlider(value)}
+                      </span>
                     </div>
                   </div>
                 </div>

@@ -1695,7 +1695,7 @@ const BrokersComponent = ({ activeTab, setActiveTab, initialSearchQuery = ''  })
     <div className="flex-1 min-w-0">
       {/* Name + verified */}
       <div className="flex items-center gap-2 mb-1">
-        <h3 className="font-inter text-[14px] md:text-[16px] leading-[20px] md:leading-[22px] font-semibold text-[#171A1FFF] truncate">
+        <h3 className="font-inter text-[14px] md:text-[16px] leading-[20px] md:leading-[22px] font-semibold text-[#171A1FFF] truncate capitalize">
           {broker.name}
         </h3>
          {broker.approvedByAdmin === 'unblocked' && (
