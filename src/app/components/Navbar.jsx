@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import { FaSearch, FaTimes, FaBell } from 'react-icons/fa';
+import { FaSearch, FaTimes, FaBell, FaMapMarkerAlt } from 'react-icons/fa';
 
 import shopData from '../data/shop.json';
 import relatedProducts from '../data/relatedProduct.json';
@@ -28,6 +28,7 @@ const Navbar = ({ data }) => {
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [googleLoaded, setGoogleLoaded] = useState(false);
   const [subscription, setSubscription] = useState(null);
+  const [regions, setRegions] = useState([]);
 
   // Fallback hardcoded notifications
   const fallbackNotifications = [
@@ -41,6 +42,37 @@ const Navbar = ({ data }) => {
   ];
 
   useEffect(() => setIsMounted(true), []);
+
+  // Fetch regions from API
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const response = await fetch(`${apiUrl}/regions`);
+        if (response.ok) {
+          const data = await response.json();
+          let regionsData = [];
+          
+          if (Array.isArray(data?.data)) {
+            regionsData = data.data;
+          } else if (Array.isArray(data?.regions)) {
+            regionsData = data.regions;
+          } else if (Array.isArray(data)) {
+            regionsData = data;
+          } else if (data?.data?.regions && Array.isArray(data.data.regions)) {
+            regionsData = data.data.regions;
+          }
+          
+          setRegions(regionsData);
+        }
+      } catch (error) {
+        console.error('Error fetching regions:', error);
+        setRegions([]);
+      }
+    };
+    
+    fetchRegions();
+  }, []);
 
   // Load Google Maps API for geocoding
   useEffect(() => {
@@ -343,17 +375,31 @@ const Navbar = ({ data }) => {
 
   useEffect(() => {
     const q = searchQuery.trim().toLowerCase();
+    
+    // If no search query, show top 5 regions
     if (!q) {
-      setSuggestions([]);
+      setSuggestions(regions.slice(0, 5));
       return;
     }
-    const filtered = allProducts.filter(
-      (p) =>
-        (p.name || '').toLowerCase().includes(q) ||
-        (p.type || '').toLowerCase().includes(q)
+    
+    // Filter regions based on search query
+    const filtered = regions.filter((region) => {
+      const regionName = typeof region === 'string' 
+        ? region 
+        : (region.name || region.city || region.state || '');
+      const regionCity = typeof region === 'object' ? (region.city || '') : '';
+      const regionState = typeof region === 'object' ? (region.state || '') : '';
+      
+      return (
+        regionName.toLowerCase().includes(q) ||
+        regionCity.toLowerCase().includes(q) ||
+        regionState.toLowerCase().includes(q)
       );
-      setSuggestions(filtered.slice(0, 5));
-  }, [searchQuery, allProducts]);
+    });
+    
+    // Limit to 5 suggestions
+    setSuggestions(filtered.slice(0, 5));
+  }, [searchQuery, regions]);
 
   // Listen for clear navbar search event (from reset filters)
   useEffect(() => {
@@ -530,7 +576,7 @@ const Navbar = ({ data }) => {
     };
   }, []);
 
-const enableSuggestions = false; 
+const enableSuggestions = true; 
 
   return (
     <nav className="bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-gray-100 shadow-sm fixed top-0 left-0 right-0 z-80">
@@ -585,8 +631,10 @@ const enableSuggestions = false;
           }}
           onBlur={() => {
             // Reset typing flag when input loses focus
+            // Delay hiding suggestions to allow clicking on them
             setTimeout(() => {
               isTypingRef.current = false;
+              setShowSuggestions(false);
             }, 200);
           }}
                 placeholder="Search brokers by region…"
@@ -625,37 +673,49 @@ const enableSuggestions = false;
         </button>
       </form>
 
-            {/* Suggestions (disabled by flag) */}
+            {/* Region Suggestions Dropdown - Show top 5 regions */}
       {enableSuggestions && showSuggestions && suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 mt-1 max-h-60 overflow-y-auto">
-          {suggestions.map((s) => (
-            <button
-              key={s.id ?? `${s.name}-${s.type}`}
-                    onClick={() => {
-                      const name = s?.name || '';
-                      if (!name) return;
-                      setSearchQuery(name);
-                      goPropertiesWithQuery(name);
-                      setShowSuggestions(false);
-                    }}
-                    className="w-full text-left p-3 transition-colors border-b last:border-b-0 hover:bg-gray-50 flex items-center gap-3"
-            >
-              <img
-                      src={s.image || '/images/chair2.png'}
-                alt={s.name}
-                className="w-10 h-10 object-contain rounded"
-                onError={(e) => {
-                        e.currentTarget.src = '/images/chair2.png';
- }}
-              />
-              <div>
-                <div className="font-medium text-gray-900">{s.name}</div>
-                <div className="text-sm text-gray-500">
-                  {s.type} • ${s.price}
+        <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-[100] mt-2 max-h-80 overflow-y-auto scrollbar-hide">
+          {suggestions.map((region, index) => {
+            const regionName = typeof region === 'string' 
+              ? region 
+              : (region.name || '');
+            const regionCity = typeof region === 'object' ? (region.city || '') : '';
+            const regionState = typeof region === 'object' ? (region.state || '') : '';
+            const regionId = typeof region === 'object' ? (region._id || region.id) : null;
+            
+            // Create display text
+            const displayText = [regionName, regionCity, regionState]
+              .filter(Boolean)
+              .join(', ');
+            
+            return (
+              <button
+                key={regionId || index}
+                onClick={() => {
+                  if (!displayText) return;
+                  setSearchQuery(displayText);
+                  goPropertiesWithQuery(displayText);
+                  setShowSuggestions(false);
+                }}
+                className="w-full text-left px-4 py-3.5 transition-all duration-200 border-b border-gray-100 last:border-b-0 hover:bg-green-50/50 flex items-start gap-3.5 group"
+              >
+                <div className="flex items-center justify-center mt-0.5">
+                  <FaMapMarkerAlt className="text-green-600 group-hover:text-green-700 transition-colors" size={16} />
                 </div>
-              </div>
-            </button>
-          ))}
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-gray-900 text-sm leading-tight mb-1 group-hover:text-green-700 transition-colors">
+                    {regionName}
+                  </div>
+                  {(regionCity || regionState) && (
+                    <div className="text-xs text-gray-500 leading-tight">
+                      {[regionCity, regionState].filter(Boolean).join(', ')}
+                    </div>
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
            </div>

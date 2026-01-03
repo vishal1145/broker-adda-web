@@ -8,11 +8,11 @@ import ContentLoader from "react-content-loader";
 // removed unused import
 
 const headerData = {
-  title: "Enquiries Details",
-  description: 'View enquiry information including property requirements, budget, and preferred locations.',
+  title: "Enquiry Details",
+  description: 'View enquiry information including property requirements, budget, and Preferred Locations.',
   // breadcrumb: [
   //   { label: "Home", href: "/" },
-  //   { label: "Enquiries Details", href: "/lead-details" },
+  //   { label: "Enquiry Details", href: "/lead-details" },
   // ],
 };
 

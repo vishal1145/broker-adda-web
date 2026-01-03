@@ -1682,12 +1682,12 @@ function PropertyDetailsPageInner() {
                   </div>
                 </div>
 
-                {/* Property Details Grid */}
+                {/* Technical Specifications Grid */}
                 <div className="space-y-4 w-full bg-white rounded-[16px] shadow-xs border border-gray-200 p-4 px-8">
                   <div className="flex items-center gap-2 ">
                     {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
                     <h3 className="text-[18px] leading-[28px] font-semibold text-[#171A1F]">
-                      Property Details
+                      Technical Specifications
                     </h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
@@ -1709,7 +1709,7 @@ function PropertyDetailsPageInner() {
                           Bedrooms
                         </div>
                         <div className="font-inter text-[14px] leading-[24px] font-medium text-[#171A1F]">
-                          {product.bedrooms} BHK
+                          {product.bedrooms}
                         </div>
                       </div>
                     </div>
@@ -2155,7 +2155,7 @@ function PropertyDetailsPageInner() {
                   <div className="flex items-center gap-2">
                     {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
                     <h3 className=" top-[19px] left-[16px] font-inter text-[18px] leading-[28px] font-semibold text-[#171A1F]">
-                      Property Details
+                      Quick Summary
                     </h3>
                   </div>
 
@@ -2413,8 +2413,8 @@ function PropertyDetailsPageInner() {
                 </button>
               </div>
 
-              {/* Virtual Tour */}
-              {product?.videos && product.videos.length > 0 ? (
+              {/* Virtual Tour - Only show if video exists */}
+              {product?.videos && product.videos.length > 0 && (
                 <div className="w-full bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] overflow-hidden">
                   {showVideo ? (
                     <div className="relative w-full bg-black rounded-[16px] overflow-hidden" style={{ minHeight: '232px' }}>
@@ -2506,33 +2506,6 @@ function PropertyDetailsPageInner() {
                       })()}
                     </div>
                   )}
-                </div>
-              ) : (
-                <div className="w-full h-[232px] bg-[#EDFDF4] rounded-[16px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] flex flex-col items-center justify-center text-center" style={{ cursor: 'default' }}>
-                  {/* Video Icon */}
-                  <svg
-                    className="w-[48px] h-[48px] text-[#0D542B] mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-
-                  {/* Title */}
-                  <h3 className="text-[18px] leading-[28px] font-semibold text-[#19191F]">
-                    Property Video
-                  </h3>
-
-                  {/* Subtitle */}
-                  <p className="mt-1 font-inter text-[12px] leading-[20px] font-normal text-[#19191F]">
-                    No video available
-                  </p>
                 </div>
               )}
             </aside>
@@ -2867,15 +2840,15 @@ function PropertyDetailsPageInner() {
                           />
                         </svg>
                         <span className="line-clamp-1">
-                          {p.city || ""}{" "}
-                          {typeof p.region === "object"
-                            ? p.region?.name ||
-                            [p.region?.city, p.region?.state]
-                              .filter(Boolean)
-                              .join(", ")
-                            : p.region
-                              ? `• ${p.region}`
-                              : ""}
+                          {(() => {
+                            if (typeof p.region === "object") {
+                              return p.region?.name || [p.region?.city, p.region?.state].filter(Boolean).join(", ");
+                            } else if (p.region && p.city && p.region.toLowerCase() !== p.city.toLowerCase()) {
+                              return `${p.city} • ${p.region}`;
+                            } else {
+                              return p.city || p.region || "";
+                            }
+                          })()}
                         </span>
                       </div>
 
@@ -2895,8 +2868,7 @@ function PropertyDetailsPageInner() {
                           />
                         </svg>
                         <span>
-                          {p.bedrooms || 0} BHK •{" "}
-                          {p.areaSqft?.toLocaleString("en-IN") || "0"} sq.ft
+                          {p.bedrooms || 0} Bedrooms • {p.areaSqft?.toLocaleString("en-IN") || "0"} sq.ft
                         </span>
                       </div>
 
@@ -2948,9 +2920,10 @@ function PropertyDetailsPageInner() {
             }}
             disabled={!canScrollLeft}
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${canScrollLeft
-              ? "bg-yellow-500 text-white hover:bg-yellow-600"
-              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              ? "bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer"
+              : "bg-gray-200 text-gray-400"
               }`}
+            style={{ cursor: canScrollLeft ? 'pointer' : 'default' }}
             title="Previous"
           >
             <svg
@@ -2995,9 +2968,10 @@ function PropertyDetailsPageInner() {
             }}
             disabled={!canScrollRight}
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-md ${canScrollRight
-              ? "bg-yellow-500 text-white hover:bg-yellow-600"
-              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              ? "bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer"
+              : "bg-gray-200 text-gray-400"
               }`}
+            style={{ cursor: canScrollRight ? 'pointer' : 'default' }}
             title="Next"
           >
             <svg

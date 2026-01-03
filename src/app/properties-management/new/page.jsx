@@ -2086,7 +2086,7 @@ const PropertyFormPage = ({ propertyId = null, isEditMode = false }) => {
                     </span>
                     <div>
                       <p className="font-medium text-gray-900">Email Support</p>
-                      <p className="text-gray-600">support@brokeradda.com</p>
+                      <p className="text-gray-600">support@brokergully.com</p>
                     </div>
                   </div>
                 </div>

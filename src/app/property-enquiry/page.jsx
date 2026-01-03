@@ -711,11 +711,11 @@ const PropertyEnquiryPage = () => {
                     </div>
                     <div>
                       <p className="text-xs font-medium text-gray-900">Call Us</p>
-                      <p className="text-[10px] text-gray-600">+91 98765 43210</p>
+                      <p className="text-[10px] text-gray-600">+91 96755 18000</p>
                     </div>
                   </a>
 
-                  <a href="mailto:support@brokeradda.com" className="flex items-center gap-2.5 p-2 bg-white rounded-lg hover:bg-[#EDFDF4] transition-colors group">
+                  <a href="mailto:support@brokergully.com" className="flex items-center gap-2.5 p-2 bg-white rounded-lg hover:bg-[#EDFDF4] transition-colors group">
                     <div className="flex-shrink-0 w-8 h-8 bg-[#0D542B]/10 rounded-lg flex items-center justify-center group-hover:bg-[#0D542B] transition-colors">
                       <svg className="w-4 h-4 text-[#0D542B] group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -723,7 +723,7 @@ const PropertyEnquiryPage = () => {
                     </div>
                     <div>
                       <p className="text-xs font-medium text-gray-900">Email Us</p>
-                      <p className="text-[10px] text-gray-600">support@brokeradda.com</p>
+                      <p className="text-[10px] text-gray-600">support@brokergully.com</p>
                     </div>
                   </a>
                 </div>

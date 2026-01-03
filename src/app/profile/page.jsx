@@ -4933,10 +4933,10 @@ const Profile = () => {
 </div>
 
 <a
-  href="mailto:support@brokeradda.com"
+  href="mailto:support@brokergully.com"
   className="font-inter text-[12px] leading-[5px] font-normal text-[#565D6D] hover:text-[#0D542B]  transition"
 >
-  support@brokeradda.com
+  support@brokergully.com
 </a>
                   </div>
                 </div>
@@ -4954,10 +4954,10 @@ const Profile = () => {
 </div>
 
 <a
-  href="tel:+918012345678"
+  href="tel:+91 96755 18000"
   className="font-inter text-[12px] leading-[5px] font-normal text-[#565D6D] hover:text-[#0D542B] transition"
 >
-  +91 80 1234 5678
+  +91 96755 18000
 </a>
                   </div>
                 </div>

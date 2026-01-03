@@ -388,46 +388,53 @@
     "subtitle": "Testimonial",
     "items": [
       {
-        "name": "Leslie Alexander",
-        "role": "Architecture",
-        "rating": 4.4,
-        "image": "images/Leslie .jpg",
-        "text": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa"
-      },
-      {
-        "name": "Jenny Wilson",
-        "role": "Interior Designer",
-        "rating": 4.5,
-        "image": "images/user-5.jpeg",
-        "text": "An interior designer creates functional, beautiful spaces that reflect personality, comfort, and modern elegance."
-      },
-      {
-        "name": "John Doe",
-        "role": "Product Designer",
+        "name": "Priya Sharma",
+        "role": "Property Buyer - Tajganj",
+        "rating": 5.0,
         "image": "/images/user-1.webp",
-        "text": "A product designer crafts innovative, user-friendly solutions that seamlessly blend function with aesthetic appeal.",
-        "rating": 5.0
+        "text": "Found my dream apartment in Tajganj within a week. The verified broker system gave me peace of mind and the entire process was smooth and transparent."
       },
       {
-        "name": "Jane Smith",
-        "role": "Homeowner",
+        "name": "Rajesh Agarwal",
+        "role": "Real Estate Broker - Dayalbagh",
+        "rating": 4.9,
         "image": "/images/user-2.jpeg",
-        "text": "A homeowner takes pride in creating a cozy, welcoming, and personalized living space.",
+        "text": "The lead transfer system is a game-changer. I easily shared a requirement with a partner in Dayalbagh and closed the deal. Best platform for brokers!"
+      },
+      {
+        "name": "Amit Kumar Singh",
+        "role": "Commercial Property Owner",
+        "image": "/images/user-3.jpeg",
+        "text": "Listed my commercial property and got genuine enquiries from verified brokers within 24 hours. The platform's reach across Agra is impressive.",
         "rating": 4.8
       },
       {
-        "name": "Michael Brown",
-        "role": "Architect",
-        "image": "/images/user-3.jpeg",
-        "text": "An architect blends creativity and precision to design inspiring, functional, and timeless living spaces.",
-        "rating": 4.9
+        "name": "Neha Verma",
+        "role": "First-Time Home Buyer - Agra",
+        "image": "/images/user-4.jpeg",
+        "text": "As a first-time buyer, I was worried about dealing with brokers. But Broker Adda's verified system made everything easy and trustworthy.",
+        "rating": 5.0
       },
       {
-        "name": "Emily White",
-        "role": "Interior Decorator",
-        "image": "/images/user-4.jpeg",
-        "text": "An interior decorator transforms spaces with style, harmony, and personal touches that inspire comfort.",
+        "name": "Vikram Chauhan",
+        "role": "Property Consultant - Sikandra",
+        "image": "/images/user-5.jpeg",
+        "text": "Managing leads and connecting with customers has never been easier. The dashboard is intuitive and the lead quality is excellent.",
+        "rating": 4.7
+      },
+      {
+        "name": "Anjali Mehta",
+        "role": "Villa Buyer - Fatehabad Road",
+        "image": "/images/user-6.jpg",
+        "text": "Broker Adda helped me find my perfect villa in Fatehabad Road. The broker was professional, and the property details were accurate. Highly recommended!",
         "rating": 5.0
+      },
+      {
+        "name": "Suresh Patel",
+        "role": "Real Estate Broker - MG Road",
+        "image": "/images/user-7.jpeg",
+        "text": "The best investment for my brokerage business. The platform connects me with serious buyers and the commission structure is fair and transparent.",
+        "rating": 4.9
       }
     ]
   },
@@ -542,8 +549,8 @@
         { "name": "Legal & Compliance Guide", "href": "/legal-compliance" }
       ],
       "Contact Info": [
-        { "name": "+91 98765 43210", "href": "tel:+919876543210" },
-        { "name": "support@brokeradda.com", "href": "support@brokeradda.com" },
+        { "name": "+91 96755 18000", "href": "tel:+919675518000" },
+        { "name": "support@brokergully.com", "href": "support@brokergully.com" },
         { "name": "Broker Gully NSW 2481", "href": "#" }
       ]
     },

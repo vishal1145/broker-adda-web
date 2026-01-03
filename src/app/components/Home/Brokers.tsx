@@ -474,7 +474,10 @@ const Brokers = () => {
                   <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
                 <p className="text-[12px] leading-5 font-normal text-gray-600">
-                  {broker.leadsCreated?.count || broker.leadCount || broker.totalLeads || broker.leads || 0} Enquiries Completed
+                  {(() => {
+                    const count = broker.leadsCreated?.count || broker.leadCount || broker.totalLeads || broker.leads || 0;
+                    return count === 0 ? 'New Broker' : `${count} ${count === 1 ? 'Enquiry' : 'Enquiries'} Completed`;
+                  })()}
                 </p>
               </div>
             </div>

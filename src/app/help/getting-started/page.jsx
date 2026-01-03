@@ -155,7 +155,7 @@ const GettingStartedPage = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[14px] leading-[20px] font-medium text-[#171A1F]">Email Support</div>
-                      <div className="text-[12px] leading-[16px] text-[#565D6D]">support@brokeradda.com</div>
+                      <div className="text-[12px] leading-[16px] text-[#565D6D]">support@brokergully.com</div>
                     </div>
                   </div>
 

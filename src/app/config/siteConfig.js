@@ -1,5 +1,5 @@
 /* eslint-disable */
-export const SUPPORT_PHONE = "+91 98765 43210";
+export const SUPPORT_PHONE = "+91 96755 18000";
 export const SUPPORT_EMAIL = "support@brokergully.com";
 export const SUPPORT_ADDRESS = "Broker Gully NSW 2481";
 
