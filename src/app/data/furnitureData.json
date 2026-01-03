@@ -537,14 +537,13 @@
       ],
       "Customer Services": [
         { "name": "My Account", "href": "/myaccount" },
-        { "name": "Track Your Order", "href": "/trackorder" },
         { "name": "Documentation", "href": "/documentation" },
         { "name": "Getting Started", "href": "/help/getting-started" },
         { "name": "FAQ", "href": "/faq" }
       ],
       "Our Information": [
         { "name": "Privacy", "href": "/privacy" },
-        { "name": "User Terms & Condition", "href": "/terms" },
+        { "name": "User Terms & Conditions", "href": "/terms" },
         { "name": "Return Policy", "href": "/refund" },
         { "name": "Legal & Compliance Guide", "href": "/legal-compliance" }
       ],
