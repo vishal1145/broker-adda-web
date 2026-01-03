@@ -38,12 +38,12 @@ const Dashboard = () => {
   const [profileData, setProfileData] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [recentActivity, setRecentActivity] = useState([
-    { icon: '↑', text: "Updated lead status for Alice Johnson to 'Confirmed'", time: '2 hours ago' },
-    { icon: '↓', text: 'Successfully closed deal for Casey Guzman. Left', time: '4 hours ago' },
-    { icon: '📄', text: 'Submitted new property listing: Oasis Lotus Townhouse', time: '1 day ago' },
-    { icon: '🔍', text: 'Received new inquiry from Diana Trevor', time: '3 days ago' },
-    { icon: '👤', text: 'Added new broker connection: Justin Cox', time: '4 days ago' },
-    { icon: '🏠', text: 'Scheduled showing for Suburban Retreat', time: '4 days ago' },
+    { icon: 'status', text: "Updated enquiry status for Alice Johnson to 'Confirmed'", time: '2 hours ago' },
+    { icon: 'deal', text: 'Successfully closed deal for Casey Guzman', time: '4 hours ago' },
+    { icon: 'property', text: 'Submitted new property listing: Oasis Lotus Townhouse', time: '1 day ago' },
+    { icon: 'enquiry', text: 'Received new enquiry from Diana Trevor', time: '3 days ago' },
+    { icon: 'connection', text: 'Added new broker connection: Justin Cox', time: '4 days ago' },
+    { icon: 'showing', text: 'Scheduled showing for Suburban Retreat', time: '4 days ago' },
   ]);
   const [activityLoading, setActivityLoading] = useState(true);
   const [showAllActivities, setShowAllActivities] = useState(false);
@@ -359,14 +359,68 @@ const Dashboard = () => {
     try { return Number(n).toLocaleString('en-IN'); } catch { return String(n); }
   };
 
-  const renderActivityIcon = (symbol) => {
+  const formatPrice = (price) => {
+    if (!price || price === 0) return '—';
+    const num = Number(price);
+    if (isNaN(num)) return '—';
+    
+    if (num >= 10000000) { // 1 Crore = 10,000,000
+      return `₹${(num / 10000000).toFixed(2)} Cr`;
+    } else if (num >= 100000) { // 1 Lakh = 100,000
+      return `₹${(num / 100000).toFixed(2)} L`;
+    } else if (num >= 1000) {
+      return `₹${(num / 1000).toFixed(2)} K`;
+    }
+    return `₹${num.toLocaleString('en-IN')}`;
+  };
+
+  const renderActivityIcon = (iconType) => {
     const common = 'w-3.5 h-3.5 text-gray-500';
-    // Always return the same bell notification icon for all activities
-    return (
-      <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-      </svg>
-    );
+    
+    switch(iconType) {
+      case 'status':
+        return (
+          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case 'deal':
+        return (
+          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        );
+      case 'property':
+        return (
+          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        );
+      case 'enquiry':
+        return (
+          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        );
+      case 'connection':
+        return (
+          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        );
+      case 'showing':
+        return (
+          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        );
+      default:
+        return (
+          <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        );
+    }
   };
 
   return (
@@ -382,7 +436,7 @@ const Dashboard = () => {
           <div className="mb-8 pb-16">
             <h2 className="text-[18px] font-bold text-gray-900 mb-6">Overview</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Total Leads */}
+            {/* Total Enquiries */}
             <div 
               onClick={() => router.push('/leads')}
               className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
@@ -426,7 +480,7 @@ const Dashboard = () => {
               </div>
           </div>
 
-            {/* Total Closed Leads */}
+            {/* Total Closed Enquiries */}
             <div 
               onClick={() => router.push('/leads?status=Closed')}
               className="bg-white rounded-[10px] shadow-[0_0_1px_#171a1f12,0_0_2px_#171a1f1F] cursor-pointer hover:shadow-md transition-shadow" 
@@ -579,10 +633,10 @@ const Dashboard = () => {
           </div>
           </div>
 
-          {/* Lead and Property Performance Overview Section */}
+          {/* Enquiry and Property Performance Overview Section */}
           <div className="mb-8 pb-16">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[18px] font-bold text-gray-900">Enquire and Property Performance Overview</h2>
+              <h2 className="text-[18px] font-bold text-gray-900">Enquiry and Property Performance Overview</h2>
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-500 text-black rounded-full text-xs font-medium">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -593,7 +647,7 @@ const Dashboard = () => {
             <DashboardCharts />
           </div>
 
-          {/* Recent Leads Section */}
+          {/* Recent Enquiries Section */}
           <div className="mb-8 pb-16">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[18px] font-bold text-gray-900">Recent Enquiries</h2>
@@ -609,9 +663,9 @@ const Dashboard = () => {
             </div>
             {leadsLoading ? (
               <div className="flex flex-col md:flex-row gap-4">
-                {/* left: Add Lead */}
+                {/* left: Add Enquiry */}
                 <div className="flex-none w-full md:w-[220px] h-[210px] border-2 border-dashed border-gray-300 rounded-xl animate-pulse bg-gray-100"></div>
-                {/* right: Lead cards grid */}
+                {/* right: Enquiry cards grid */}
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {Array.from({ length: 3 }).map((_, idx) => (
                     <div key={idx} className="group h-[210px] relative rounded-2xl border border-gray-200 bg-white shadow-sm animate-pulse">
@@ -660,7 +714,7 @@ const Dashboard = () => {
               </div>
             ) : leadRows.length > 0 ? (
               <div className="flex flex-col md:flex-row gap-4">
-                {/* left: Add Lead */}
+                {/* left: Add Enquiry */}
                 <button
                   type="button"
                   onClick={() => setIsAddLeadModalOpen(true)}
@@ -670,10 +724,10 @@ const Dashboard = () => {
                   <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>
-                  <span className="text-gray-600 font-medium text-sm">Add Enquire</span>
+                  <span className="text-gray-600 font-medium text-sm">Add Enquiry</span>
                 </button>
                 
-                {/* right: Lead cards grid */}
+                {/* right: Enquiry cards grid */}
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {leadRows.map((lead) => (
                     <div 
@@ -773,18 +827,21 @@ const Dashboard = () => {
                 <button
                   type="button"
                   onClick={() => setIsAddLeadModalOpen(true)}
-                  className="w-full h-[210px] border-2 border-dashed border-gray-300 rounded-xl
-                             flex flex-col items-center justify-center text-center hover:border-yellow-500 hover:bg-yellow-50 transition-colors cursor-pointer"
+                  className="w-full min-h-[210px] border-2 border-dashed border-gray-300 rounded-xl
+                             flex flex-col items-center justify-center text-center hover:border-yellow-500 hover:bg-yellow-50 transition-colors cursor-pointer p-8"
                 >
-                  <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                  <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <span className="text-gray-600 font-medium text-sm mb-3">Add Query</span>
-                  <div className="flex items-center justify-center gap-2">
-                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <div className="mb-4">
+                    <div className="text-lg font-semibold text-gray-700 mb-2">No enquiries received yet</div>
+                    <div className="text-sm text-gray-500">Start building your client pipeline and track opportunities</div>
+                  </div>
+                  <div className="flex items-center gap-2 text-yellow-600 font-medium text-sm">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    <span className="text-lg font-semibold text-gray-600">No recent enquiries found</span>
+                    <span>Click here to add your first enquiry</span>
                   </div>
                 </button>
               </div>
@@ -892,7 +949,7 @@ const Dashboard = () => {
             {/* Price pill bottom-left */}
             <div className="absolute bottom-4 left-4 z-10">
               <span className="px-3 py-1 rounded-full text-sm font-semibold" style={{ backgroundColor: '#FDC700' }}>
-                {propertyCards[0].price ? `₹${Number(propertyCards[0].price).toLocaleString('en-IN')}` : '₹45,45,454'}
+                {formatPrice(propertyCards[0].price)}
               </span>
             </div>
             {/* Share icon bottom-right */}
@@ -921,7 +978,7 @@ const Dashboard = () => {
           {/* Details Section - Right */}
           <div className="flex-1 p-4 flex flex-col min-w-0">
             {/* Title */}
-            <h3 className="mb-2 flex items-center gap-2 capitalize" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
+            <h3 className="mb-2 flex items-center gap-2" style={{ fontSize: '14px', lineHeight: '20px', fontWeight: '600', color: '#171A1FFF' }}>
               {propertyCards[0].title || 'Modern Family Home'}
               <button
                 onClick={(e) => {
@@ -946,16 +1003,10 @@ const Dashboard = () => {
 
             {/* Location Details */}
             <div className="flex flex-col gap-2 mb-4">
-              <div className="flex items-center text-xs text-gray-600 capitalize">
+              <div className="flex items-center text-xs text-gray-600">
                 <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                {propertyCards[0].city || 'Agra'}
-              </div>
-              <div className="flex items-center text-xs text-gray-600 capitalize">
-                <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s-7-4.5-7-12a7 7 0 1114 0c0 7.5-7 12-7 12z" />
-                  <circle cx="12" cy="10" r="3" strokeWidth="2" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 {(() => {
                   const region = propertyCards[0]?.region;
@@ -963,10 +1014,13 @@ const Dashboard = () => {
                   if (typeof region === 'object' && region !== null && !Array.isArray(region)) {
                     const parts = [region.name, region.city, region.state]
                       .filter(Boolean)
-                      .filter((p) => typeof p === 'string');
-                    return parts.length > 0 ? parts.join(', ') : (propertyCards[0]?.city || 'Electronic City, Noida, Uttar Pradesh, India');
+                      .filter((p) => typeof p === 'string')
+                      .map(p => p.trim().toLowerCase())
+                      .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+                      .map(p => p.charAt(0).toUpperCase() + p.slice(1)); // Capitalize first letter
+                    return parts.length > 0 ? parts.join(', ') : (propertyCards[0]?.city || 'Location not specified');
                   }
-                  return String(region || propertyCards[0]?.city || 'Electronic City, Noida, Uttar Pradesh, India');
+                  return String(region || propertyCards[0]?.city || 'Location not specified');
                 })()}
               </div>
             </div>
@@ -1017,18 +1071,21 @@ const Dashboard = () => {
       <button
         type="button"
         onClick={() => router.push('/properties-management/new')}
-        className="w-full h-[260px] border-2 border-dashed border-gray-300 rounded-xl
-                   flex flex-col items-center justify-center text-center hover:border-yellow-500 hover:bg-yellow-50 transition-colors cursor-pointer"
+        className="w-full min-h-[260px] border-2 border-dashed border-gray-300 rounded-xl
+                   flex flex-col items-center justify-center text-center hover:border-yellow-500 hover:bg-yellow-50 transition-colors cursor-pointer p-8"
       >
-        <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+        <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
-        <span className="text-gray-600 font-medium text-sm mb-3">Add Property</span>
-        <div className="flex items-center justify-center gap-2">
-          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        <div className="mb-4">
+          <div className="text-lg font-semibold text-gray-700 mb-2">No active properties listed</div>
+          <div className="text-sm text-gray-500">Start showcasing your properties to potential buyers</div>
+        </div>
+        <div className="flex items-center gap-2 text-yellow-600 font-medium text-sm">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          <span className="text-lg font-semibold text-gray-600">No properties found</span>
+          <span>Click here to add your first property</span>
         </div>
       </button>
     </div>
@@ -1127,14 +1184,14 @@ const Dashboard = () => {
         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
       />
     </svg>
-    Find Broker in your regions
+    Find Brokers in your Region
   </button>
 </div>
 
                 </div>
 
           {/* Recent Activity and Performance Summary Section */}
-          <div className="grid grid-cols-1  gap-6 pb-16">
+          <div className="grid grid-cols-1 gap-6 mb-8">
            {/* Recent Activity */}
            {!activityLoading && recentActivity.length > 0 && (
              <div className="bg-white rounded-[10px] p-5 border border-gray-200 shadow-sm">
@@ -1373,7 +1430,7 @@ const Dashboard = () => {
         isOpen={isAddLeadModalOpen}
         onClose={() => setIsAddLeadModalOpen(false)}
         onSuccess={async () => {
-          // Refresh metrics and leads after successful lead creation
+          // Refresh metrics and enquiries after successful enquiry creation
           const baseApi = process.env.NEXT_PUBLIC_API_URL || 'https://broker-adda-be.fly.dev/api';
           const tok = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : '';
           const bid = currentBrokerId || (typeof window !== 'undefined' ? localStorage.getItem('brokerId') : '');
@@ -1431,7 +1488,7 @@ const Dashboard = () => {
           } catch (e) {
             console.error('Error refreshing metrics:', e);
           }
-          // Refresh leads list
+          // Refresh enquiries list
           try {
             setLeadsLoading(true);
             const headers = tok ? { Authorization: `Bearer ${tok}` } : {};
@@ -1447,7 +1504,7 @@ const Dashboard = () => {
               setLeadRows(list.slice(0, 4));
             }
           } catch (e) {
-            console.error('Error refreshing leads:', e);
+            console.error('Error refreshing enquiries:', e);
           } finally {
             setLeadsLoading(false);
           }

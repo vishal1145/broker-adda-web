@@ -604,7 +604,7 @@ export default function BrokerDetailsPage() {
                     {/* Broker Info */}
                     <div>
                       <div className="flex items-center gap-3 mb-1 flex-wrap ">
-                        <h1 className="text-[20px]  font-extrabold text-[#171A1F] px-4">{displayName}</h1>
+                        <h1 className="text-[20px]  font-extrabold text-[#171A1F] px-4 capitalize">{displayName}</h1>
                         <span className=" px-6 rounded-full bg-[#FDC700] flex items-center justify-center font-[Inter] text-[12px] leading-[22px] font-medium opacity-100">
                           Top Rated Broker
                           {/* <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
@@ -757,7 +757,7 @@ export default function BrokerDetailsPage() {
               <section className="bg-white">
                 <div className="flex items-center gap-2 mb-6">
                   {/* <span className="inline-block h-0.5 w-6 rounded bg-yellow-400"></span> */}
-                  <h2 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">About {displayName}</h2>
+                  <h2 className="text-[18px] leading-[36px] font-bold text-[#171A1F]">About <span className="capitalize">{displayName}</span></h2>
                 </div>
                 {nonEmpty(about) ? (
                   <p className="text-gray-700 leading-relaxed">

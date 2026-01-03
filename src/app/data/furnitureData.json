@@ -483,33 +483,33 @@
   "subtitle": " FAQs",
   "items": [
     {
-      "question": "What types of properties do you offer?",
-      "answer": "We offer a wide range of properties including apartments, villas, townhouses, commercial spaces, land plots, and investment properties to suit different needs and budgets.",
+      "question": "What is Broker Gully and how does it work?",
+      "answer": "Broker Gully is a comprehensive real estate platform connecting verified brokers with property buyers, sellers, and investors. Our platform streamlines property discovery, lead management, and transactions with advanced search filters, verified listings, and dedicated broker tools.",
       "open": true
     },
     {
-      "question": "What payment and financing options are available?",
-      "answer": "We accept all major payment methods and also provide assistance with home loans, mortgages, and flexible financing plans through our banking partners.",
+      "question": "How do I get started as a broker on the platform?",
+      "answer": "Simply sign up with your professional credentials, complete your profile verification, and choose a subscription plan that fits your needs. Once approved, you can start listing properties, managing leads, and connecting with potential clients through our intuitive dashboard.",
       "open": true
     },
     {
-      "question": "Can I track the progress of my property purchase?",
-      "answer": "Yes, once your property deal is confirmed, you will receive updates and documentation via email. Our team will also keep you informed about registration and handover timelines.",
+      "question": "What subscription plans are available for brokers?",
+      "answer": "We offer flexible subscription plans tailored to different business needs - from starter plans for individual brokers to premium enterprise solutions for real estate agencies. Each plan includes features like unlimited listings, lead management tools, analytics, and priority support.",
       "open": true
     },
     {
-      "question": "What is your cancellation and refund policy?",
-      "answer": "Cancellations are subject to project developer or seller terms. Refunds, if applicable, are processed according to contractual agreements. We assist clients throughout the process to ensure transparency.",
+      "question": "How are property listings verified on the platform?",
+      "answer": "All property listings undergo a thorough verification process including document validation, broker authentication, and property detail confirmation. This ensures that buyers and investors have access to genuine, accurate property information.",
       "open": false
     },
     {
-      "question": "What materials and standards are used in your properties?",
-      "answer": "Our listed properties meet high-quality construction standards and use premium materials such as reinforced concrete, high-grade steel, sustainable wood, and eco-friendly finishes depending on the project.",
+      "question": "Can buyers search for properties without registering?",
+      "answer": "Yes, buyers can browse and search through our extensive property database without registration. However, to contact brokers, save favorites, schedule site visits, or receive personalized recommendations, creating an account is required.",
       "open": true
     },
     {
-      "question": "Are there any discounts or promotional offers?",
-      "answer": "Yes, we frequently run special promotions on selected properties, including pre-launch offers, seasonal discounts, and exclusive investment deals. Subscribe to our newsletter to stay updated.",
+      "question": "What support and resources are available for brokers?",
+      "answer": "We provide comprehensive support including onboarding assistance, marketing tools, lead management systems, analytics dashboards, documentation templates, and dedicated customer service. Our Help Center offers guides, tutorials, and best practices for maximizing your success on the platform.",
       "open": true
     }
   ]
@@ -551,7 +551,7 @@
       "Contact Info": [
         { "name": "+91 96755 18000", "href": "tel:+919675518000" },
         { "name": "support@brokergully.com", "href": "support@brokergully.com" },
-        { "name": "Broker Gully NSW 2481", "href": "#" }
+        { "name": "Flat no 184 A, Ground floor, Parsvnath Panchvati, Tajnagri Phase 2, Agra", "href": "#" }
       ]
     },
     "copyright": "© 2025 Broker Gully. All Rights Reserved."

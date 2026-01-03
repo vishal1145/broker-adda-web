@@ -19,7 +19,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineEleme
 const primary = '#1f5fd1';                 // rich blue to match screenshot
 const palette = ['#1f5fd1', '#22c55e', '#f59e0b', '#ef4444'];
 
-// Default/fallback data for leads
+// Default/fallback data for enquiries
 const defaultLeadsLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const defaultLeadsData   = [120, 145, 165, 185, 160, 200, 180, 195, 210, 190, 175, 220];
 
@@ -41,7 +41,7 @@ export default function DashboardCharts() {
   useEffect(() => {
   }, [leadsLabels, leadsData, leadsLoading]);
 
-  // Fetch leads by month data from API
+  // Fetch enquiries by month data from API
   useEffect(() => {
     const fetchLeadsByMonth = async () => {
       try {
@@ -63,7 +63,7 @@ export default function DashboardCharts() {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch leads by month data');
+          throw new Error('Failed to fetch enquiries by month data');
         }
 
         const data = await response.json();
@@ -111,14 +111,14 @@ export default function DashboardCharts() {
           setLeadsData(transformedData);
           setClosedLeadsData(transformedClosedData);
         } else {
-          console.warn('No valid leads data found, using defaults');
+          console.warn('No valid enquiries data found, using defaults');
           // If no valid data, keep defaults
           setLeadsLabels(defaultLeadsLabels);
           setLeadsData(defaultLeadsData);
           setClosedLeadsData([80, 95, 110, 120, 105, 140, 125, 135, 150, 130, 115, 160]);
         }
       } catch (err) {
-        console.error('Error fetching leads by month:', err);
+        console.error('Error fetching enquiries by month:', err);
         // Keep default data on error
         setLeadsLabels(defaultLeadsLabels);
         setLeadsData(defaultLeadsData);
@@ -220,23 +220,23 @@ export default function DashboardCharts() {
 
       {/* Cards row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Leads by Month (shorter card, chunky rounded bars) */}
+        {/* Enquiries by Month (shorter card, chunky rounded bars) */}
         <div className="bg-white rounded-[10px] border border-gray-200 p-4"
              style={{height: 230}}>
-          <div className="mb-2 text-[14px] font-medium text-gray-900">Enquiries  by Month</div>
+          <div className="mb-2 text-[14px] font-medium text-gray-900">Enquiries by Month</div>
           <div className="h-[160px]">
             {leadsLoading ? (
               <div className="h-full flex items-center justify-center">
                 <div className="animate-pulse text-gray-400 text-sm">Loading chart data...</div>
               </div>
-            ) : leadsLabels.length > 0 && leadsData.length > 0 ? (
+            ) : leadsLabels.length > 0 && leadsData.length > 0 && leadsData.some(val => val > 0) ? (
               <Bar
                 key={`leads-chart-${leadsData.join('-')}`}
                 data={{
                   labels: leadsLabels,
                   datasets: [
                     {
-                      label: 'Leads',
+                      label: 'Enquiries',
                       data: leadsData,
                       backgroundColor: primary,
                       borderRadius: 2,                // rounded tops
@@ -246,7 +246,7 @@ export default function DashboardCharts() {
                       maxBarThickness: 20,
                     },
                     {
-                      label: 'Closed Leads',
+                      label: 'Closed Enquiries',
                       data: closedLeadsData,
                       backgroundColor: '#ef4444',     // red color
                       borderRadius: 2,                // rounded tops
@@ -303,8 +303,12 @@ export default function DashboardCharts() {
                 }}
               />
             ) : (
-              <div className="h-full flex items-center justify-center">
-                <div className="text-gray-400 text-sm">No data available</div>
+              <div className="h-full flex flex-col items-center justify-center text-center px-4">
+                <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <div className="text-gray-700 text-sm font-medium mb-1">No performance data available for this period</div>
+                <div className="text-gray-400 text-xs">Data will appear once you receive your first enquiry</div>
               </div>
             )}
           </div>
@@ -319,7 +323,7 @@ export default function DashboardCharts() {
               <div className="h-full flex items-center justify-center">
                 <div className="animate-pulse text-gray-400 text-sm">Loading chart data...</div>
               </div>
-            ) : (
+            ) : propertyLabels.length > 0 && propertyData.length > 0 && propertyData.some(val => val > 0) ? (
               <Line
                 data={{
                   labels: propertyLabels,
@@ -369,6 +373,14 @@ export default function DashboardCharts() {
                   },
                 }}
               />
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-center px-4">
+                <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <div className="text-gray-700 text-sm font-medium mb-1">No performance data available for this period</div>
+                <div className="text-gray-400 text-xs">Data will appear once you list your first property</div>
+              </div>
             )}
           </div>
         </div>

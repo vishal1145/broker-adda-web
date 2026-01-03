@@ -395,7 +395,7 @@ const Brokers = () => {
       {/* Name */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-1">
-          <h3 className="text-[18px] leading-7 font-semibold text-gray-900">
+          <h3 className="text-[18px] leading-7 font-semibold text-gray-900 capitalize">
             {typeof broker.name === "string"
               ? broker.name
               : typeof broker.fullName === "string"

@@ -2127,7 +2127,7 @@ const LeadsComponent = ({ activeTab, setActiveTab }) => {
                                 </span>
                               ) : (
                                 <>
-                                  <p className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF] truncate">
+                                  <p className="font-inter text-[11px] md:text-[12px] leading-4 md:leading-5 font-medium text-[#171A1FFF] truncate capitalize">
                                     {brokerName}
                                   </p>
 

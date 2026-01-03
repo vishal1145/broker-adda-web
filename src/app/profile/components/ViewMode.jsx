@@ -205,7 +205,7 @@ export default function ViewModeProfile() {
               <div className="flex items-center gap-4 min-w-0 flex-1">
                 <img src={profile.image} alt="Profile" className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[16px] font-semibold text-gray-900 truncate">{profile.name}</div>
+                  <div className="text-[16px] font-semibold text-gray-900 truncate capitalize">{profile.name}</div>
                   <div className="text-[12px] text-gray-500 truncate">{profile.firm || '-'}</div>
                 </div>
               </div>

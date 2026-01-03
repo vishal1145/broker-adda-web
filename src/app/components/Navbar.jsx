@@ -720,7 +720,8 @@ const enableSuggestions = true;
       )}
            </div>
 
-           {subscription ? (
+           {isMounted && user && (
+             subscription ? (
             <Link 
               href="/plans"
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-all group"
@@ -754,62 +755,11 @@ const enableSuggestions = true;
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>
             </Link>
+             )
            )}
 
           {/* Right cluster */}
           <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
-            {/* Conditional CTA based on user role - only show when logged in */}
-            {isMounted && user && (
-              <>
-                {user.role === 'broker' ? (
-                  <Link
-                    href="/properties-management/new"
-                    className="hidden sm:inline-flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-full border border-gray-300 text-xs md:text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5 md:w-4 md:h-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                    >
-                      <path d="M3 10.5 12 3l9 7.5" />
-                      <path d="M5 10v9h14v-9" />
-                      <path d="M9 19v-6h6v6" />
-                    </svg>
-                    <span className="hidden md:inline">List Property</span>
-                  
-                  </Link>
-                ) : (
-                  <Link
-                    href="/property-enquiry"
-                    className="hidden sm:inline-flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-full border border-gray-300 text-xs md:text-sm font-medium text-gray-700 hover:border-[#0d542b] hover:text-[#0d542b] hover:shadow-sm transition"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5 md:w-4 md:h-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                    >
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                      <line x1="9" y1="10" x2="15" y2="10" />
-                      <line x1="9" y1="14" x2="13" y2="14" />
-                    </svg>
-                    <span className="hidden md:inline">Post Enquiry</span>
-                  
-                  </Link>
-                )}
-              </>
-            )}
-
-
             {/* Notification Icon - Only show when logged in */}
             {isMounted && user && (
               <div className="relative notification-container">
@@ -1077,55 +1027,6 @@ const enableSuggestions = true;
               </Link>
             </li>
           ))}
-
-          {/* Mobile CTAs - only show when logged in */}
-          {isMounted && user && (
-            <li>
-              {user.role === 'broker' ? (
-                <Link
-                  href="/properties-management/new"
-                  className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#0d542b] text-white"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <path d="M3 10.5 12 3l9 7.5" />
-                    <path d="M5 10v9h14v-9" />
-                    <path d="M9 19v-6h6v6" />
-                  </svg>
-                  <span>List Property</span>
-                </Link>
-              ) : (
-                <Link
-                  href="/property-enquiry"
-                  className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#0d542b] text-white"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    <line x1="9" y1="10" x2="15" y2="10" />
-                    <line x1="9" y1="14" x2="13" y2="14" />
-                  </svg>
-                  <span>Post Enquiry</span>
-                </Link>
-              )}
-            </li>
-          )}
 
           {isMounted && (
             <>
